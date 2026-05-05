@@ -9,7 +9,7 @@ import '@fontsource/roboto/700.css'
 import './styles/global.scss'
 import App from './App.tsx'
 import { theme } from './theme'
-import { StoreProvider } from './stores/context'
+import { StoreProvider } from './shared/store/context'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>

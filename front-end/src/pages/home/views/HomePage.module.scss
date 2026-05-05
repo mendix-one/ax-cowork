@@ -1,7 +1,8 @@
-@use '../styles/variables' as *;
+@use '../../../styles/variables' as *;
 
 .root {
   max-width: $content-max-width;
+  padding: $spacing-unit * 4;
 }
 
 .count {

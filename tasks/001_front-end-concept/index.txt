@@ -1,0 +1,72 @@
+========================================================================================================================
+====== 001 Front-End Concept ======
+====== 001 ======================== DONE
+#1 - Setup front-end source structure:
++ agent
++ assets
++ auth
+  -> signin
+    -> store
+    -> views
+  -> signup
+    -> store
+    -> views
+  -> reset
+    -> store
+    -> views
+  -> verify
+    -> store
+    -> views
++ components
++ pages
+  -> home
+    -> store
+    -> views
+  -> main
+    -> store
+    -> views
+  -> error
+    -> store
+    -> views
++ styles
++ shared
+  -> app-layout
+  -> auth-layout
+  -> components
+
+# Setup main pages:
+ - Check the layout concept of google-concept.png and jetbrain-concept.png
+ - Make a page concept (views, store) with:
+   + App frame (like jetbrain-concept.png), includes:
+    + Top:
+      -> Left: project name and version control
+      -> Right: user profile, settings, notifications
+    + Left:
+    + Right: Quick access tools
+    + Bottom:
+      -> Left: File path
+      -> Right: Meta information
+   + Main frame, includes:
+    + Left panel
+    + Main panel
+    + Right panel
+
+========================================================================================================================
+====== 002 ======================== DONE
+
+- Add acore with i18n, router, storage, sotre, theme and setup core things in this folder
+- Install i18n and setup multi-language: English, Korea, Japan, Vietnam
+- Config themes
+- Config router
+- Config store
+- Enable local storage persistence
+
+========================================================================================================================
+====== 003 ========================
+
+- Adjust the style of display panel:
+ + Panel Header:
+  -> Left: Panel Title, content tabs, action buttons
+  -> Right: quick actions, options menu
+ + Panel Body: The content of display panel
+- Allow resizing the panel

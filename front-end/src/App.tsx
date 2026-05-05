@@ -1,15 +1,22 @@
 import { Route, Routes } from 'react-router-dom'
-import { Layout } from './components/Layout'
-import { Home } from './routes/Home'
-import { About } from './routes/About'
+import { ResetPage } from './auth/reset/views'
+import { SigninPage } from './auth/signin/views'
+import { SignupPage } from './auth/signup/views'
+import { VerifyPage } from './auth/verify/views'
+import { ErrorPage } from './pages/error/views'
+import { HomePage } from './pages/home/views'
+import { MainPage } from './pages/main/views'
 
 function App() {
   return (
     <Routes>
-      <Route element={<Layout />}>
-        <Route index element={<Home />} />
-        <Route path="about" element={<About />} />
-      </Route>
+      <Route index element={<HomePage />} />
+      <Route path="main" element={<MainPage />} />
+      <Route path="signin" element={<SigninPage />} />
+      <Route path="signup" element={<SignupPage />} />
+      <Route path="reset" element={<ResetPage />} />
+      <Route path="verify" element={<VerifyPage />} />
+      <Route path="*" element={<ErrorPage />} />
     </Routes>
   )
 }

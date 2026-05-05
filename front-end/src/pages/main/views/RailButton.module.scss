@@ -1,0 +1,20 @@
+.button {
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  color: #9da0a8;
+
+  &:hover {
+    background: #393b40;
+    color: #cfd0d4;
+  }
+}
+
+.active {
+  background: #2e436e;
+  color: #cfd0d4;
+
+  &:hover {
+    background: #2e436e;
+  }
+}
