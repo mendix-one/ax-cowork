@@ -1,17 +1,15 @@
 {
   "front-end/**/*.{ts,tsx}": [
-    "eslint --fix --no-warn-ignored --config front-end/eslint.config.js",
-    "prettier --write"
+    "pnpm --filter ax-cowork-ui exec eslint --fix --no-warn-ignored",
+    "pnpm exec prettier --write"
   ],
   "back-end/**/*.ts": [
-    "eslint --fix --no-warn-ignored --config back-end/eslint.config.mjs",
-    "prettier --write"
+    "pnpm --filter ax-cowork-be exec eslint --fix --no-warn-ignored",
+    "pnpm exec prettier --write"
   ],
   "shared/src/**/*.ts": [
-    "eslint --fix --no-warn-ignored --config shared/eslint.config.mjs",
-    "prettier --write"
+    "pnpm --filter @ax-cowork/shared exec eslint --fix --no-warn-ignored",
+    "pnpm exec prettier --write"
   ],
-  "*.{js,mjs,cjs,jsx,json,md,yml,yaml,scss,css,html}": [
-    "prettier --write"
-  ]
+  "*.{js,mjs,cjs,jsx,json,md,yml,yaml,scss,css,html}": ["pnpm exec prettier --write"]
 }
