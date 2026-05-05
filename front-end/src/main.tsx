@@ -1,0 +1,25 @@
+import { StrictMode } from 'react'
+import { createRoot } from 'react-dom/client'
+import { BrowserRouter } from 'react-router-dom'
+import { CssBaseline, ThemeProvider } from '@mui/material'
+import '@fontsource/roboto/300.css'
+import '@fontsource/roboto/400.css'
+import '@fontsource/roboto/500.css'
+import '@fontsource/roboto/700.css'
+import './styles/global.scss'
+import App from './App.tsx'
+import { theme } from './theme'
+import { StoreProvider } from './stores/context'
+
+createRoot(document.getElementById('root')!).render(
+  <StrictMode>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <StoreProvider>
+        <BrowserRouter>
+          <App />
+        </BrowserRouter>
+      </StoreProvider>
+    </ThemeProvider>
+  </StrictMode>,
+)

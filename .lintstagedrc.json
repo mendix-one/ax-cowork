@@ -1,0 +1,17 @@
+{
+  "front-end/**/*.{ts,tsx}": [
+    "eslint --fix --no-warn-ignored --config front-end/eslint.config.js",
+    "prettier --write"
+  ],
+  "back-end/**/*.ts": [
+    "eslint --fix --no-warn-ignored --config back-end/eslint.config.mjs",
+    "prettier --write"
+  ],
+  "shared/src/**/*.ts": [
+    "eslint --fix --no-warn-ignored --config shared/eslint.config.mjs",
+    "prettier --write"
+  ],
+  "*.{js,mjs,cjs,jsx,json,md,yml,yaml,scss,css,html}": [
+    "prettier --write"
+  ]
+}

@@ -1,0 +1,10 @@
+@use '../styles/variables' as *;
+
+.root {
+  max-width: $content-max-width;
+}
+
+.count {
+  font-variant-numeric: tabular-nums;
+  margin-bottom: $spacing-unit * 2;
+}

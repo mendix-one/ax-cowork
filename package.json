@@ -1,0 +1,21 @@
+{
+  "name": "ax-cowork",
+  "private": true,
+  "packageManager": "pnpm@10.33.0",
+  "scripts": {
+    "dev": "pnpm -r --parallel --stream run dev",
+    "dev:fe": "pnpm --filter ax-cowork-ui run dev",
+    "dev:be": "pnpm --filter ax-cowork-be run dev",
+    "build": "pnpm -r run build",
+    "lint": "pnpm -r run lint",
+    "test": "pnpm -r run test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky"
+  },
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "prettier": "^3.4.2"
+  }
+}
