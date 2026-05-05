@@ -74,10 +74,25 @@ pnpm 10 blocks postinstall scripts by default. After `pnpm install` you'll see _
 
 - **Prettier** is the single source of truth for formatting (root `.prettierrc.json`, hoisted `prettier` devDep). Style: no semicolons, single quotes, trailing commas all, printWidth 100, LF line endings. Run `pnpm format` before commits or rely on your editor's Prettier integration; CI should run `pnpm format:check`.
 - **EditorConfig** (`.editorconfig`) covers indent / EOL / charset / trim-whitespace / final-newline at the editor level — keeps non-Prettier file types (yaml, scss, etc.) consistent.
-- **ESLint integrates with Prettier via `eslint-config-prettier`** (turns off conflicting rules) — *not* `eslint-plugin-prettier`, which is intentionally avoided (it's slow and the project recommends running Prettier separately). Each package has its own flat config:
+- **ESLint integrates with Prettier via `eslint-config-prettier`** (turns off conflicting rules) — _not_ `eslint-plugin-prettier`, which is intentionally avoided (it's slow and the project recommends running Prettier separately). Each package has its own flat config:
   - `front-end/eslint.config.js` — JS + ts-eslint recommended + react-hooks + react-refresh (with `useStore` whitelisted under `react-refresh/only-export-components` so the MobX context pattern is allowed). Not type-aware.
   - `back-end/eslint.config.mjs` — JS + `recommendedTypeChecked` + node/jest globals. Type-aware via `projectService: true`.
   - `shared/eslint.config.mjs` — JS + ts-eslint recommended. Not type-aware (kept simple).
+
+## Pre-commit hooks (husky + lint-staged)
+
+`.husky/pre-commit` runs `pnpm lint-staged`. The `prepare: husky` script in root `package.json` re-installs the hook on `pnpm install`, so cloning + installing is enough to enable hooks — no manual setup.
+
+`.lintstagedrc.json` dispatches per-package because each ESLint config lives inside its own package and the `eslint` binary is _not_ hoisted to root:
+
+- `front-end/**/*.{ts,tsx}` → `pnpm --filter ax-cowork-ui exec eslint --fix` then `prettier --write`
+- `back-end/**/*.ts` → `pnpm --filter ax-cowork-be exec eslint --fix` then `prettier --write`
+- `shared/src/**/*.ts` → `pnpm --filter @ax-cowork/shared exec eslint --fix` then `prettier --write`
+- everything else (json, md, scss, etc.) → `prettier --write`
+
+`pnpm --filter <pkg> exec` sets cwd to the package directory so flat-config auto-discovery picks the right `eslint.config.*` and the right TS project. Don't replace these with bare `pnpm exec eslint` — that fails because `eslint` is not in root's `node_modules/.bin/`.
+
+To bypass hooks for a one-off commit (rare — only when you have a good reason), use `git commit --no-verify`. CI should run `pnpm lint` + `pnpm format:check` to enforce the same checks at workspace scope.
 
 ## Architecture notes
 
