@@ -15,5 +15,10 @@ export default tseslint.config(
     languageOptions: {
       globals: globals.node,
     },
+    rules: {
+      indent: ['error', 2, { SwitchCase: 1 }],
+      quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
+      'comma-dangle': ['error', 'always-multiline'],
+    },
   },
 )

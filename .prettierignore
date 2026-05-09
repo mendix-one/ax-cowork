@@ -4,6 +4,7 @@ build
 coverage
 .vite
 pnpm-lock.yaml
+package-lock.json
 *.min.js
 *.min.css
 front-end/public

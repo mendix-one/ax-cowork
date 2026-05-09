@@ -1,15 +1,6 @@
 {
-  "front-end/**/*.{ts,tsx}": [
-    "pnpm --filter ax-cowork-ui exec eslint --fix --no-warn-ignored",
-    "pnpm exec prettier --write"
-  ],
-  "back-end/**/*.ts": [
-    "pnpm --filter ax-cowork-be exec eslint --fix --no-warn-ignored",
-    "pnpm exec prettier --write"
-  ],
-  "shared/src/**/*.ts": [
-    "pnpm --filter @ax-cowork/shared exec eslint --fix --no-warn-ignored",
-    "pnpm exec prettier --write"
-  ],
+  "front-end/**/*.{ts,tsx}": ["pnpm --filter ax-cowork-ui exec eslint --fix --no-warn-ignored", "pnpm exec prettier --write"],
+  "back-end/**/*.ts": ["pnpm --filter ax-cowork-be exec eslint --fix --no-warn-ignored", "pnpm exec prettier --write"],
+  "shared/src/**/*.ts": ["pnpm --filter @ax-cowork/shared exec eslint --fix --no-warn-ignored", "pnpm exec prettier --write"],
   "*.{js,mjs,cjs,jsx,json,md,yml,yaml,scss,css,html}": ["pnpm exec prettier --write"]
 }

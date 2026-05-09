@@ -13,7 +13,7 @@ There is no test runner wired up yet.
 
 ## Project state and intent
 
-The repo currently holds the default Vite + React 19 + TypeScript starter (`src/AxApp.tsx`, `src/AxApp.css`, etc.). The intended work — captured in `tasks/` — is to convert this scaffold into an Ant Design–based application called **ax-ant-design**. Read `tasks/<NNN>_*/note.txt` (and any sibling images like `sample-page.png`) before making non-trivial changes; those notes are the source of truth for what the project is supposed to become.
+The repo currently holds the default Vite + React 19 + TypeScript starter (`src/AxApp.tsx`, `src/AxApp.css`, etc.). The intended work — captured in `tasks/` — is to convert this scaffold into an Ant Design–based application (package name `ax-cowork-ui`). Read `tasks/<NNN>_*/note.txt` (and any sibling images like `sample-page.png`) before making non-trivial changes; those notes are the source of truth for what the project is supposed to become.
 
 ### Planned dependencies (per `tasks/001`)
 

@@ -23,12 +23,13 @@ export default tseslint.config(
         tsconfigRootDir: import.meta.dirname,
       },
     },
-  },
-  {
     rules: {
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
+      indent: ['error', 2, { SwitchCase: 1 }],
+      quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
+      'comma-dangle': ['error', 'always-multiline'],
     },
   },
 )

@@ -6,11 +6,11 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 pnpm monorepo (`pnpm-workspace.yaml`) with three packages:
 
-| Path         | Package name                                  | Stack                                               |
-| ------------ | --------------------------------------------- | --------------------------------------------------- |
-| `shared/`    | `@ax-cowork/shared`                           | Plain TypeScript library, emits to `dist/`          |
-| `front-end/` | `ax-ant-design` (filter alias `ax-cowork-ui`) | Vite + React 19 + Ant Design v6 + MobX + Tailwind 3 |
-| `back-end/`  | `ax-cowork-be`                                | NestJS 11 (Express)                                 |
+| Path         | Package name        | Stack                                               |
+| ------------ | ------------------- | --------------------------------------------------- |
+| `shared/`    | `@ax-cowork/shared` | Plain TypeScript library, emits to `dist/`          |
+| `front-end/` | `ax-cowork-ui`      | Vite + React 19 + Ant Design v6 + MobX + Tailwind 3 |
+| `back-end/`  | `ax-cowork-be`      | NestJS 11 (Express)                                 |
 
 `back-end` and (where needed) `front-end` consume `shared` via `workspace:*`. Because `shared/package.json` points its `main`/`types`/subpath `exports` (`./utils`, `./formatters`, `./converters`) at `dist/`, **`shared` must be built before consumers can type-check** — run `pnpm --filter @ax-cowork/shared run build` once, or `pnpm --filter @ax-cowork/shared run dev` to keep it in `tsc --watch`. Import from the subpaths (e.g. `import { ... } from '@ax-cowork/shared/utils'`), not deep paths.
 
@@ -60,4 +60,4 @@ The repo root `tasks/` directory exists but is currently empty.
 
 ## Formatting
 
-Two Prettier configs coexist: the root `.prettierrc.json` (`printWidth: 100`) governs everything Prettier touches via the root scripts and `lint-staged`. The front-end ESLint config embeds its own Prettier options inline (`printWidth: 160`, plus `'prettier/prettier'` as an error rule), so saving a `.ts`/`.tsx` file in the front-end through ESLint will format to 160 cols, while running root `pnpm format` against the same file will reformat to 100. If you see a back-and-forth diff on FE files, that's why — prefer the ESLint path inside `front-end/`.
+Single Prettier source of truth at the repo root: `.prettierrc.json` (`printWidth: 160`, `semi: false`, `singleQuote: true`, `trailingComma: 'all'`, `endOfLine: 'lf'`) and `.prettierignore`. Per-package Prettier files were removed. Prettier is **not** wired into ESLint — `eslint-plugin-prettier` is intentionally excluded (avoids the MAL-2025-6023 supply-chain risk and follows Prettier's own current guidance). Run formatting via `pnpm format`, the editor's Prettier integration, or the `lint-staged` hook. Each package's ESLint config extends `eslint-config-prettier` (turns off conflicting stylistic rules) and re-asserts `indent` / `quotes` / `comma-dangle` as a safety net — those three rules are mirrored across `front-end/eslint.config.js`, `back-end/eslint.config.mjs`, and `shared/eslint.config.mjs`, so update all three together.
