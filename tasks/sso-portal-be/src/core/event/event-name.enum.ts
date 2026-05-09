@@ -1,4 +1,0 @@
-export enum EVENT_NAME {
-  ACCESSING = 'ACCESSING',
-  INITIALIZE = 'INITIALIZE'
-}

@@ -14,6 +14,7 @@ export default () => {
   }
 
   return {
-    WEBAPP_SCRIPTS: scripts, WEBPAGE_STYLES: styles
+    WEBAPP_SCRIPTS: scripts,
+    WEBPAGE_STYLES: styles,
   }
 }

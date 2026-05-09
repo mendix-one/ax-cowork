@@ -1,6 +1,0 @@
-export enum STATUS {
-  READY = 'READY',
-  ACTIVE = 'ACTIVE',
-  LOCKED = 'LOCKED',
-  EXPIRED = 'EXPIRED'
-}

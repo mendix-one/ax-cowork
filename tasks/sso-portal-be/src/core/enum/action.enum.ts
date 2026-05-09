@@ -1,6 +1,0 @@
-export enum ACTION {
-  ISSUE = 'ISSUE',
-  SIGNIN = 'SIGNIN',
-  SIGNOUT = 'SIGNOUT',
-  DESTROY = 'DESTROY'
-}
