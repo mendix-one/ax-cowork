@@ -14,8 +14,8 @@ async function bootstrap() {
 
   // Static & Views
   app.useStaticAssets(join(__dirname, '..', 'public'))
-  // app.setBaseViewsDir(join(__dirname, '..', 'pages'))
-  // app.setViewEngine('hbs')
+  app.setBaseViewsDir(join(__dirname, '..', 'pages'))
+  app.setViewEngine('hbs')
 
   // Start listing
   await app.listen(configService.get<number>('PORT') ?? 3000)

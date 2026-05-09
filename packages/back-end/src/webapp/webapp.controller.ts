@@ -1,11 +1,21 @@
-import { join } from 'path'
-import { Controller, Get, Res } from '@nestjs/common'
-import type { Response } from 'express'
+import {Controller, Get, Render, Res} from '@nestjs/common'
+import {ConfigService} from "@nestjs/config";
 
 @Controller()
 export class WebappController {
-  @Get('*splat')
-  index(@Res() res: Response) {
-    res.sendFile(join(process.cwd(), 'public', 'index.html'))
+
+  constructor(private configService: ConfigService) {}
+
+  @Get(['', '/*'])
+  @Render('index')
+  index() {
+
+    const scripts = this.configService.get<string[]>('WEBAPP_SCRIPTS')
+    const styles = this.configService.get<string[]>('WEBPAGE_STYLES')
+
+    return {
+      scripts,
+      styles
+    }
   }
 }
