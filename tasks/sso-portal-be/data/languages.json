@@ -1,0 +1,27 @@
+[
+  {
+    "code": "vi",
+    "name": "Tiếng Việt",
+    "globalName": "Vietnamese"
+  },
+  {
+    "code": "en",
+    "name": "English",
+    "globalName": "English"
+  },
+  {
+    "code": "ko",
+    "name": "한국어",
+    "globalName": "Korean"
+  },
+  {
+    "code": "zh",
+    "name": "中文",
+    "globalName": "Chinese"
+  },
+  {
+    "code": "ja",
+    "name": "日本語",
+    "globalName": "Japanese"
+  }
+]

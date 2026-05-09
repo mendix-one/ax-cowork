@@ -1,0 +1,212 @@
+{
+  "account": [
+    {
+      "cid": "bff4dd7a-0bc1-4a9d-aabe-912238388985",
+      "username": "root",
+      "password": "$2b$10$fi7CmxdNtpJLkAzcpWo8IuR9GmzUz.5jTmRYUBFtKgPlC.EtOjXse",
+      "plain": "3SGdZWQyQBIZC4kAv6Ob",
+      "email": "root@vcid.org",
+      "displayName": "System Root",
+      "user": {
+        "cid": "bff4dd7a-0bc1-4a9d-aabe-912238388985",
+        "fullName": "System Root",
+        "email": "root@vcid.org"
+      },
+      "setting": {
+        "cid": "bff4dd7a-0bc1-4a9d-aabe-912238388985",
+        "lang": "en",
+        "language": "English (Global)"
+      }
+    },
+    {
+      "cid": "faf4bf08-5066-44ea-9d5c-52e52f519770",
+      "username": "master",
+      "password": "$2b$10$fi7CmxdNtpJLkAzcpWo8Iuo8mviofNgPcKRHn58kCm273yGr7jlCy",
+      "plain": "Ognu2Q1q1dXM4lIkLAbx",
+      "email": "master@vcid.org",
+      "displayName": "System Master",
+      "user": {
+        "cid": "faf4bf08-5066-44ea-9d5c-52e52f519770",
+        "fullName": "System Master",
+        "email": "master@vcid.org"
+      },
+      "setting": {
+        "cid": "faf4bf08-5066-44ea-9d5c-52e52f519770",
+        "lang": "vi",
+        "language": "Tiếng Việt (Vietnamese)"
+      }
+    },
+    {
+      "cid": "410cb200-0299-43b4-b51d-39cf82268bb1",
+      "username": "user",
+      "password": "$2b$10$fi7CmxdNtpJLkAzcpWo8IumyyLKke3hgoMH618C7TYwy9IdslZbUi",
+      "plain": "cB995aQbiMPb2b78danC",
+      "email": "user@vcid.org",
+      "displayName": "System User",
+      "user": {
+        "cid": "410cb200-0299-43b4-b51d-39cf82268bb1",
+        "fullName": "System User",
+        "email": "user@vcid.org"
+      },
+      "setting": {
+        "cid": "410cb200-0299-43b4-b51d-39cf82268bb1",
+        "lang": "vi",
+        "language": "Tiếng Việt (Vietnamese)"
+      }
+    },
+    {
+      "cid": "83a5ba9e-2c00-459a-9329-bcfdc4e5322d",
+      "username": "tester",
+      "password": "$2b$10$fi7CmxdNtpJLkAzcpWo8Iu9laOvNbX6MCDDQvcBjzsTlEUJOl/.ve",
+      "plain": "COioE0E1yo0itU7vfogV",
+      "email": "tester@vcid.org",
+      "displayName": "System Tester",
+      "user": {
+        "cid": "83a5ba9e-2c00-459a-9329-bcfdc4e5322d",
+        "fullName": "System Tester",
+        "email": "tester@vcid.org"
+      },
+      "setting": {
+        "cid": "83a5ba9e-2c00-459a-9329-bcfdc4e5322d",
+        "lang": "vi",
+        "language": "Tiếng Việt (Vietnamese)"
+      }
+    }
+  ],
+  "artifact": [
+    {
+      "idx": 1,
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "name": "SSO",
+      "apiKey": "LqMO2LQJyFRZFRNsFGozmDfIlasfmLkV6GuM4VZF7mOn150tBzctZMhAu0wc02DKyyVOyGSlsSswGfoq",
+      "homepage": "vcid.org",
+      "ssoAlias": "sso.vcid.org",
+      "type": "DEFAULT",
+      "cdnOwnerId": "e050bd11-a174-4651-8a78-7c50ebaf278e"
+    }
+  ],
+  "client": [
+    {
+      "idx": 1,
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "eid": "f8ab682c-cb0b-4382-9e92-83ec4cebfee5",
+      "secret": "luDUx0Pebc1GjDcLFPyXxD5put06UjfUNirY5C9HOD7Y0K2yRzlrwZRH7WFUQTSUz0vLt1gOd0sn8Cc8",
+      "name": "SSO Portal",
+      "domain": "sso.vcid.org;*",
+      "type": "WEB_SERVER",
+      "cdnOwnerId": "87b602fb-d03b-4a0b-b55e-8051f0477f0d"
+    },
+    {
+      "idx": 1,
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "eid": "24542721-94a8-402a-b0cf-9662c877200d",
+      "secret": "EokPvZmMw4A6N7wbA6bTjPsFREaPX2WVaBu8k8CV2d3l8090FdvsWefkkgCw4eaEGS3WM3VNnBZbA9W1",
+      "name": "SSO Services",
+      "domain": "sso.services.vcid.org;*",
+      "type": "WEB_SERVICE",
+      "cdnOwnerId": "4c95d546-2f3a-4d01-8ec5-ecc42a4f086f"
+    },
+    {
+      "idx": 1,
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "eid": "72eb3550-1440-4bb0-959a-5ec6d2c91239",
+      "secret": "iD9sQer4qeWWbiWEqKsAcPcZKes1C7O0tmDHNEV6gtt62VRGhmDnu3H22fw0tk5gvZL5pLbvAbTsZJHp",
+      "name": "Master Portal",
+      "domain": "master.vcid.org;*",
+      "type": "WEB_SERVER",
+      "cdnOwnerId": "4c04e7ad-5b1a-4ad1-a452-efc69e96efbd"
+    },
+    {
+      "idx": 1,
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "eid": "25ad1567-7980-432d-ba4d-a7a644fa7a6c",
+      "secret": "mKCORWodSwe6UBXh2cXkS4R6huVPEA1ycwaGK24BjSApCh4B6Kma0lHlCzL210jcgGdyp5JBdlpzNPLt",
+      "name": "Master Services",
+      "domain": "master.services.vcid.org;*",
+      "type": "WEB_SERVICE",
+      "cdnOwnerId": "4128a098-d0bd-47d6-bb4b-541c5f3f86cb"
+    },
+    {
+      "idx": 1,
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "eid": "6d251f0f-32ad-4ea7-8e77-24bfaf3ae935",
+      "secret": "lGWvuC8JstGFavyokD4f31w7JrkSZn4JkNXkWAvKgUdIiBOhlDgvo3xVufCl3Dm7hiv2S26tEu0qXeqo",
+      "name": "User Portal",
+      "domain": "user.vcid.org;*",
+      "type": "WEB_SERVER",
+      "cdnOwnerId": "01e34923-bfe2-4af3-b488-bc9272f1bf6b"
+    },
+    {
+      "idx": 1,
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "eid": "f37d1604-de6f-42a0-863d-379b62e0c333",
+      "secret": "I7WPLInJSxk4Ch0BzodJpwKYFJrevbBYVZ3UkdYKwVsD0i0hgzRo7L7Dv4C7oSyPNIWq8FScQV1c1BOR",
+      "name": "User Services",
+      "domain": "user.services.vcid.org;*",
+      "type": "WEB_SERVICE",
+      "cdnOwnerId": "0c70c127-9616-4bc9-99d1-60a4a0723ea9"
+    }
+  ],
+  "role": [
+    {
+      "idx": 1,
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "key": "SSO_ROOT",
+      "level": 0,
+      "name": "SSO Root",
+      "isDefault": false
+    },
+    {
+      "idx": 1,
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "key": "SSO_MASTER",
+      "level": 1,
+      "name": "SSO Master",
+      "isDefault": false
+    },
+    {
+      "idx": 1,
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "key": "SSO_USER",
+      "level": 999999999,
+      "name": "SSO User",
+      "isDefault": true
+    }
+  ],
+  "accountRole": [
+    {
+      "cid": "bff4dd7a-0bc1-4a9d-aabe-912238388985",
+      "key": "SSO_ROOT"
+    },
+    {
+      "cid": "faf4bf08-5066-44ea-9d5c-52e52f519770",
+      "key": "SSO_MASTER"
+    },
+    {
+      "cid": "410cb200-0299-43b4-b51d-39cf82268bb1",
+      "key": "SSO_USER"
+    }
+  ],
+  "artifactAccount": [
+    {
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "cid": "bff4dd7a-0bc1-4a9d-aabe-912238388985",
+      "ownership": true
+    },
+    {
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "cid": "faf4bf08-5066-44ea-9d5c-52e52f519770",
+      "ownership": true
+    },
+    {
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "cid": "410cb200-0299-43b4-b51d-39cf82268bb1",
+      "ownership": true
+    },
+    {
+      "aid": "375fb9fb-23f3-4c6e-9e0d-1a535bda9361",
+      "cid": "83a5ba9e-2c00-459a-9329-bcfdc4e5322d",
+      "ownership": true
+    }
+  ]
+}

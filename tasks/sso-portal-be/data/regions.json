@@ -1,0 +1,522 @@
+[
+  {
+    "code": "01",
+    "countryCode": "VN",
+    "prefix": "Thành phố",
+    "name": "Hà Nội",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "79",
+    "countryCode": "VN",
+    "prefix": "Thành phố",
+    "name": "Hồ Chí Minh",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "31",
+    "countryCode": "VN",
+    "prefix": "Thành phố",
+    "name": "Hải Phòng",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "48",
+    "countryCode": "VN",
+    "prefix": "Thành phố",
+    "name": "Đà Nẵng",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "92",
+    "countryCode": "VN",
+    "prefix": "Thành phố",
+    "name": "Cần Thơ",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "02",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Hà Giang",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "04",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Cao Bằng",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "06",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Bắc Kạn",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "08",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Tuyên Quang",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "10",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Lào Cai",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "11",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Điện Biên",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "12",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Lai Châu",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "14",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Sơn La",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "15",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Yên Bái",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "17",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Hoà Bình",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "19",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Thái Nguyên",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "20",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Lạng Sơn",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "22",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Quảng Ninh",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "24",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Bắc Giang",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "25",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Phú Thọ",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "26",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Vĩnh Phúc",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "27",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Bắc Ninh",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "30",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Hải Dương",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "33",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Hưng Yên",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "34",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Thái Bình",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "35",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Hà Nam",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "36",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Nam Định",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "37",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Ninh Bình",
+    "domainCode": "01",
+    "domainName": "Miền Bắc"
+  },
+  {
+    "code": "38",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Thanh Hóa",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "40",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Nghệ An",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "42",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Hà Tĩnh",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "44",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Quảng Bình",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "45",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Quảng Trị",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "46",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Thừa Thiên Huế",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "49",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Quảng Nam",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "51",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Quảng Ngãi",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "52",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Bình Định",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "54",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Phú Yên",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "56",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Khánh Hòa",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "58",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Ninh Thuận",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "60",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Bình Thuận",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "62",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Kon Tum",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "64",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Gia Lai",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "66",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Đắk Lắk",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "67",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Đắk Nông",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "68",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Lâm Đồng",
+    "domainCode": "02",
+    "domainName": "Miền Trung"
+  },
+  {
+    "code": "70",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Bình Phước",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "72",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Tây Ninh",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "74",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Bình Dương",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "75",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Đồng Nai",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "77",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Bà Rịa - Vũng Tàu",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "80",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Long An",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "82",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Tiền Giang",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "83",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Bến Tre",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "84",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Trà Vinh",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "86",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Vĩnh Long",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "87",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Đồng Tháp",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "89",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "An Giang",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "91",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Kiên Giang",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "93",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Hậu Giang",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "94",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Sóc Trăng",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "95",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Bạc Liêu",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "96",
+    "countryCode": "VN",
+    "prefix": "Tỉnh",
+    "name": "Cà Mau",
+    "domainCode": "03",
+    "domainName": "Miền Nam"
+  },
+  {
+    "code": "00",
+    "countryCode": "VN",
+    "prefix": "Khu vực",
+    "name": "Khác",
+    "domainCode": "00",
+    "domainName": "Khác"
+  },
+  {
+    "code": "XX",
+    "countryCode": "XX",
+    "prefix": "Region",
+    "name": "Other",
+    "domainCode": "XX",
+    "domainName": "Other"
+  }
+]
