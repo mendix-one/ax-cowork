@@ -196,6 +196,8 @@ p {
     }
 
     &_option {
+      @apply flex items-center justify-end gap-1;
+
       &_button {
         @apply w-6 h-6 flex items-center justify-center;
         @apply ax-button;

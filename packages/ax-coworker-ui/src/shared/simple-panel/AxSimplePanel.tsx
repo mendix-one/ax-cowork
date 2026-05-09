@@ -24,6 +24,9 @@ export const AxSimplePanel = observer((props: AxSimplePanelProps) => {
         </div>
         <div className="ax-simple-panel_header_option">
           <button className="ax-simple-panel_header_option_button">
+            <AxMuiIcon icon="mdiArrowDownDropCircleOutline" size="16px" className="ax-simple-panel_header_title_icon" />
+          </button>
+          <button className="ax-simple-panel_header_option_button">
             <AxMuiIcon icon="mdiDotsVertical" size="20px" className="ax-simple-panel_header_title_icon" />
           </button>
         </div>
