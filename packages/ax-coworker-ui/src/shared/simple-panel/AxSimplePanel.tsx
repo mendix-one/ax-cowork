@@ -1,11 +1,39 @@
 import { observer } from 'mobx-react-lite'
 import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react'
+import { Dropdown, type DropdownProps, type MenuProps } from 'antd'
 import { AxMuiIcon } from '../mui-icon/AxMuiIcon.tsx'
 
 export type AxSimplePanelProps = {
   icon: string | ReactElement
   title: string
   children?: ReactNode
+  onMinimize?: () => void
+  onMaximize?: () => void
+  onMoveLeft?: () => void
+  onMoveRight?: () => void
+  onClose?: () => void
+}
+
+const objectStyles: DropdownProps['styles'] = {
+  root: {
+    backgroundColor: '#fff',
+    border: '1px solid #d9d9d9',
+    borderRadius: '4px',
+  },
+  item: {
+    padding: '2px 8px 2px 2px',
+    fontSize: '1rem',
+  },
+  itemTitle: {
+    fontWeight: '500',
+  },
+  itemIcon: {
+    color: '#1890ff',
+    marginInlineEnd: '2px',
+  },
+  itemContent: {
+    backgroundColor: 'transparent',
+  },
 }
 
 export const AxSimplePanel = observer((props: AxSimplePanelProps) => {
@@ -14,6 +42,34 @@ export const AxSimplePanel = observer((props: AxSimplePanelProps) => {
   ) : (
     <AxMuiIcon icon={props.icon} size="20px" className="ax-simple-panel_header_title_icon" />
   )
+
+  const menuItems: MenuProps['items'] = [
+    { key: 'minimize', label: 'Minimize', icon: <AxMuiIcon icon="mdiWindowMinimize" size={12} /> },
+    { key: 'maximize', label: 'Maximize', icon: <AxMuiIcon icon="mdiWindowMaximize" size={12} /> },
+    { key: 'move-left', label: 'Move left', icon: <AxMuiIcon icon="mdiArrowLeft" size={12} /> },
+    { key: 'move-right', label: 'Move right', icon: <AxMuiIcon icon="mdiArrowRight" size={12} /> },
+    { key: 'close', label: 'Close', icon: <AxMuiIcon icon="mdiWindowClose" size={12} /> },
+  ]
+
+  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+    switch (key) {
+      case 'minimize':
+        props.onMinimize?.()
+        break
+      case 'maximize':
+        props.onMaximize?.()
+        break
+      case 'move-left':
+        props.onMoveLeft?.()
+        break
+      case 'move-right':
+        props.onMoveRight?.()
+        break
+      case 'close':
+        props.onClose?.()
+        break
+    }
+  }
 
   return (
     <div className="ax-simple-panel">
@@ -26,9 +82,11 @@ export const AxSimplePanel = observer((props: AxSimplePanelProps) => {
           <button className="ax-simple-panel_header_option_button">
             <AxMuiIcon icon="mdiArrowDownDropCircleOutline" size="16px" className="ax-simple-panel_header_title_icon" />
           </button>
-          <button className="ax-simple-panel_header_option_button">
-            <AxMuiIcon icon="mdiDotsVertical" size="20px" className="ax-simple-panel_header_title_icon" />
-          </button>
+          <Dropdown menu={{ items: menuItems, onClick: handleMenuClick }} styles={objectStyles} trigger={['click']} placement="bottomRight">
+            <button className="ax-simple-panel_header_option_button">
+              <AxMuiIcon icon="mdiDotsVertical" size="20px" className="ax-simple-panel_header_title_icon" />
+            </button>
+          </Dropdown>
         </div>
       </div>
       <div className="ax-simple-panel_body">{props.children}</div>
