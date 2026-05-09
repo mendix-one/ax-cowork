@@ -8,6 +8,7 @@
     "dev": "pnpm -r --parallel --stream run dev",
     "dev:fe": "pnpm --filter ax-cowork-ui run dev",
     "dev:be": "pnpm --filter ax-cowork-be run dev",
+    "dev:cdn": "pnpm --filter ax-cdn-services run dev",
     "build": "pnpm -r run build",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
