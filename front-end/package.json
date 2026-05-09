@@ -1,7 +1,8 @@
 {
   "name": "ax-cowork-ui",
+  "version": "1.1.0",
+  "description": "AX Cowork web client (React 19 + Ant Design v6).",
   "private": true,
-  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "vite",

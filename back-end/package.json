@@ -1,7 +1,7 @@
 {
   "name": "ax-cowork-be",
-  "version": "0.0.1",
-  "description": "",
+  "version": "1.1.0",
+  "description": "AX Cowork API server (NestJS 11).",
   "author": "",
   "private": true,
   "license": "UNLICENSED",

@@ -1,6 +1,7 @@
 {
   "name": "@ax-cowork/shared",
-  "version": "0.0.0",
+  "version": "1.1.0",
+  "description": "Shared utilities, formatters, and converters for AX Cowork packages.",
   "private": true,
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
