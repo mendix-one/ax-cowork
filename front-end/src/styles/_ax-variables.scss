@@ -1,0 +1,18 @@
+$ax-primary: #3f51b5;
+$ax-secondary: #009688;
+$ax-tertiary: #673ab7;
+
+$ax-error: #f44336;
+$ax-warning: #ff9800;
+$ax-info: #2196f3;
+$ax-success: #4caf50;
+
+:root {
+  --ax-primary: #{$ax-primary};
+  --ax-secondary: #{$ax-secondary};
+  --ax-tertiary: #{$ax-tertiary};
+  --ax-error: #{$ax-error};
+  --ax-warning: #{$ax-warning};
+  --ax-info: #{$ax-info};
+  --ax-success: #{$ax-success};
+}

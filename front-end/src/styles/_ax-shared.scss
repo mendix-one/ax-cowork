@@ -1,0 +1,233 @@
+// === COMMON ELEMENTS =================================================================================================
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+  @apply p-0 m-0;
+}
+
+.ax-button {
+  @apply rounded-md cursor-pointer flex items-center justify-center;
+  @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
+
+  &:hover {
+    @apply bg-neutral-300;
+  }
+
+  &:active,
+  &.is-active {
+    @apply bg-neutral-500 text-white;
+  }
+}
+
+.ax-label {
+  @apply text-ellipsis font-medium;
+}
+
+.ax-menu-divider {
+  @apply bg-gray-400;
+}
+
+// === LAYOUT ELEMENTS =================================================================================================
+
+.ax-menu-icon {
+  @apply w-7 h-7 rounded-md cursor-pointer flex items-center justify-center;
+  @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
+
+  &:hover {
+    @apply bg-neutral-400;
+  }
+
+  &:active {
+    @apply bg-neutral-500 text-white;
+  }
+
+  &.is-active {
+    @apply bg-ax-primary text-white;
+  }
+}
+
+.ax-menu-box {
+  @apply w-auto h-7 rounded-md cursor-pointer flex items-center justify-center gap-2 px-1;
+  @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
+  @apply text-neutral-800;
+
+  &_text {
+    @apply text-ellipsis font-medium;
+  }
+
+  &:hover {
+    @apply bg-neutral-400;
+  }
+
+  &:active {
+    @apply bg-neutral-500 text-white;
+  }
+
+  &.is-active {
+    @apply bg-ax-primary text-white;
+  }
+}
+
+.ax-breadcrumb {
+  @apply w-auto h-7 rounded-md cursor-pointer flex items-center justify-center gap-1 px-1;
+  @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
+  @apply text-neutral-700;
+
+  &_text {
+    @apply text-ellipsis font-medium;
+  }
+
+  &:hover {
+    @apply bg-neutral-400;
+  }
+
+  &:active {
+    @apply bg-neutral-500 text-white;
+  }
+
+  &.is-active {
+    @apply bg-ax-primary text-white;
+  }
+
+  &_divider {
+    @apply text-neutral-700;
+  }
+}
+
+.ax-chat-item {
+  @apply w-auto h-auto rounded-md cursor-pointer flex items-center justify-start;
+  @apply border border-gray-400;
+
+  &_left {
+    @apply w-auto h-7 rounded-s-md cursor-pointer flex items-center justify-start gap-2 px-1;
+    @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
+
+    &_name {
+      @apply text-neutral-700;
+    }
+    &_name {
+      @apply text-neutral-700 text-ellipsis font-medium;
+    }
+    &_count {
+      @apply text-neutral-700 text-ellipsis font-medium;
+    }
+
+    &:hover {
+      @apply bg-neutral-400;
+    }
+
+    &:active {
+      @apply bg-neutral-500 text-white;
+    }
+  }
+
+  &_right {
+    @apply w-7 h-7 rounded-e-md cursor-pointer flex items-center justify-center;
+    @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
+
+    &_text {
+      @apply text-sm text-ellipsis font-medium;
+    }
+
+    &:hover {
+      @apply bg-neutral-400;
+    }
+
+    &:active {
+      @apply bg-neutral-500 text-white;
+    }
+  }
+}
+
+.ax-doc-item {
+  @apply w-auto h-auto rounded-md cursor-pointer flex items-center justify-start;
+  @apply border border-gray-400;
+
+  &_left {
+    @apply w-auto h-7 rounded-s-md cursor-pointer flex items-center justify-start gap-2 px-1;
+    @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
+
+    &_name {
+      @apply text-neutral-700;
+    }
+    &_name {
+      @apply text-neutral-700 text-ellipsis font-medium;
+    }
+    &_count {
+      @apply text-neutral-700 text-ellipsis font-medium;
+    }
+
+    &:hover {
+      @apply bg-neutral-400;
+    }
+
+    &:active {
+      @apply bg-neutral-500 text-white;
+    }
+  }
+
+  &_right {
+    @apply w-7 h-7 rounded-e-md cursor-pointer flex items-center justify-center;
+    @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
+
+    &_text {
+      @apply text-sm text-ellipsis font-medium;
+    }
+
+    &:hover {
+      @apply bg-neutral-400;
+    }
+
+    &:active {
+      @apply bg-neutral-500 text-white;
+    }
+  }
+}
+
+// === PANEL ELEMENTS ==================================================================================================
+
+.ax-simple-panel {
+  @apply w-full h-full rounded;
+  @apply bg-white;
+
+  &_header {
+    @apply w-full h-8 px-2 rounded-t;
+    @apply flex items-center justify-between;
+    @apply border-b border-gray-300;
+    @apply text-neutral-800 bg-neutral-100;
+
+    &_title {
+      @apply flex items-center justify-start gap-1;
+      &_icon {
+        @apply w-6 h-6;
+        @apply flex items-center justify-center;
+      }
+
+      &_text {
+        @apply text-ellipsis font-semibold;
+      }
+    }
+
+    &_option {
+      &_button {
+        @apply w-6 h-6 flex items-center justify-center;
+        @apply ax-button;
+      }
+    }
+  }
+
+  &_body {
+    height: calc(100% - 36px);
+    @apply w-full rounded-b;
+  }
+}
+
+// === VIEW ELEMENTS ==================================================================================================
+
+.ax-view-body {
+  @apply w-full h-full p-2;
+}

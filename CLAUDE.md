@@ -2,117 +2,62 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Repository layout
+## Workspace layout
 
-pnpm workspace (config in `pnpm-workspace.yaml`, package manager pinned in root `package.json` via `packageManager: pnpm@10.x`):
+pnpm monorepo (`pnpm-workspace.yaml`) with three packages:
 
-- `back-end/` — NestJS 11 + TypeScript service (`ax-cowork-be`)
-- `front-end/` — React 19 + Vite 8 SPA (`ax-cowork-ui`)
-- `shared/` — TypeScript library (`@ax-cowork/shared`) consumed by both apps via `workspace:*`
+| Path         | Package name                                  | Stack                                               |
+| ------------ | --------------------------------------------- | --------------------------------------------------- |
+| `shared/`    | `@ax-cowork/shared`                           | Plain TypeScript library, emits to `dist/`          |
+| `front-end/` | `ax-ant-design` (filter alias `ax-cowork-ui`) | Vite + React 19 + Ant Design v6 + MobX + Tailwind 3 |
+| `back-end/`  | `ax-cowork-be`                                | NestJS 11 (Express)                                 |
 
-A single root `node_modules/` and `pnpm-lock.yaml` are shared across packages. **Always use pnpm, not npm/yarn** — mixing package managers will produce a stray lockfile and desync the install.
+`back-end` and (where needed) `front-end` consume `shared` via `workspace:*`. Because `shared/package.json` points its `main`/`types`/subpath `exports` (`./utils`, `./formatters`, `./converters`) at `dist/`, **`shared` must be built before consumers can type-check** — run `pnpm --filter @ax-cowork/shared run build` once, or `pnpm --filter @ax-cowork/shared run dev` to keep it in `tsc --watch`. Import from the subpaths (e.g. `import { ... } from '@ax-cowork/shared/utils'`), not deep paths.
 
-## Common commands
+## Commands (run from repo root)
 
-Run from the repo root unless noted. Root scripts are thin pass-throughs over `pnpm -r` / `pnpm --filter`.
+- `pnpm dev` — runs `dev` in every package in parallel (`shared` watch + Vite + Nest watch)
+- `pnpm dev:fe` / `pnpm dev:be` — single-package dev
+- `pnpm build` — builds all packages (`tsc -b && vite build` for FE, `nest build` for BE, `tsc` for shared)
+- `pnpm lint` — runs each package's `lint` script
+- `pnpm test` — runs each package's `test` script (only `back-end` has Jest wired up; FE/shared have none yet, so this is effectively the BE test suite)
+- `pnpm format` / `pnpm format:check` — Prettier across the whole repo
 
-### Workspace-wide (root)
+Per-package commands (run with `pnpm --filter <name> <script>` or inside the package dir):
 
-- `pnpm install` — install all packages
-- `pnpm dev` — run every package's `dev` script in parallel with streamed output (front-end Vite + back-end Nest watch)
-- `pnpm dev:fe` / `pnpm dev:be` — run only one side
-- `pnpm build` — recursive build across all packages
-- `pnpm lint` — recursive lint
-- `pnpm test` — recursive test (only back-end has tests today)
-- `pnpm format` / `pnpm format:check` — Prettier write / check across the whole repo (config: root `.prettierrc.json`, `.prettierignore`)
+- `back-end`: `pnpm --filter ax-cowork-be test` (Jest), `... test:e2e`, `... test:cov`, `... start:debug`
+- `front-end`: `pnpm --filter ax-cowork-ui preview` (serve production build)
+- Single Jest test in BE: `pnpm --filter ax-cowork-be exec jest path/to/file.spec.ts -t "test name"`
 
-### Targeting a single package
+A Husky `pre-commit` hook runs `lint-staged` (`.lintstagedrc.json`): per-package ESLint `--fix` on changed TS files plus Prettier on everything else. Keep the per-package `eslint.config.*` files self-contained — `lint-staged` invokes them by package filter.
 
-- `pnpm --filter ax-cowork-be <script>` — run a back-end script (e.g. `start:debug`, `format`, `test:e2e`, `test:cov`)
-- `pnpm --filter ax-cowork-ui <script>` — run a front-end script (e.g. `preview`)
-- Or `cd` into the package and use `pnpm run <script>` directly.
+## Architecture notes that span files
 
-### Back-end-specific notes
+### Front-end
 
-- The back-end exposes both `start:dev` and `dev` (alias) — keep them in sync if you change one. `dev` exists so root-level `pnpm -r dev` covers both apps.
-- Single test: `pnpm --filter ax-cowork-be test -- path/to/file.spec.ts` or `… -- -t "name pattern"`.
-- Jest config is inline in `back-end/package.json` (`rootDir: src`, pattern `*.spec.ts`); e2e uses `test/jest-e2e.json`.
-- Default port 3000, override with `PORT`.
+See `front-end/CLAUDE.md` for the FE-specific structure (`acore/` framework wiring, feature folders with `store/` + `views/`, RootStore/StoreContext via `useStore()`, planned dependency list). Key points to keep in mind from this level:
 
-### Front-end-specific notes
+- **Theme is duplicated in three layers and must be edited together**: Ant Design tokens in `front-end/src/acore/theme/theme.ts` (with raw `axColors` constants), Tailwind theme in `front-end/tailwind.config.js` (`ax-primary`, `ax-secondary`, …), and Sass variables in `front-end/src/styles/_ax-variables.scss`. A color change in one place without the others will silently diverge.
+- **Strict TS dialect**: `tsconfig.app.json` enables `verbatimModuleSyntax` and `erasableSyntaxOnly`, so type-only imports must use `import type`, and TS-runtime constructs (enums, parameter properties, value-bearing namespaces) won't compile. `noUnusedLocals`/`noUnusedParameters` are on — prefix unused params with `_`.
+- Routing lives in `front-end/src/acore/router/index.tsx` (the export is named `index`); pages register here. The `<AxApp>` tree wires `StoreContext` → `ConfigProvider(theme)` → `AntApp` → `RouterProvider` in that order, so anything depending on a store, antd context, or router must sit inside it.
 
-- `build` is `tsc -b && vite build` — typecheck failures will block the bundle.
-- No test runner configured.
+### Back-end
 
-### Shared library (`@ax-cowork/shared`)
+Stock NestJS 11 scaffold (`AppModule` → `AppController` + `AppService`, bootstrapped in `src/main.ts` listening on `PORT ?? 3000`). No domain modules yet. ESLint is configured with `recommendedTypeChecked` + `projectService`, so type-aware lint rules apply — imports from `@ax-cowork/shared` will fail lint until `shared/dist` exists.
 
-Compiled to CommonJS + `.d.ts` in `shared/dist/` (the lowest-common-denominator format that works for both Nest's CJS runtime and Vite's bundler). Import as:
+### Shared
 
-```ts
-import { formatCurrency, stringToDate, clamp } from '@ax-cowork/shared'
-// or by subpath
-import { capitalize } from '@ax-cowork/shared/utils'
-import { formatRelative } from '@ax-cowork/shared/formatters'
-import { stringToNumber } from '@ax-cowork/shared/converters'
-```
+Pure utility library with three subpath exports (`./utils`, `./formatters`, `./converters`). The barrel `src/index.ts` re-exports all three. When adding a new category, add a new subpath export in `shared/package.json` rather than encouraging deep imports.
 
-- **Build is required before consumers can resolve it.** `pnpm install` does not auto-build workspace packages — run `pnpm build` (or `pnpm --filter @ax-cowork/shared build`) once after install. `pnpm -r run build` builds in topological order so shared comes first automatically.
-- **For dev workflows that edit the library**, run `pnpm --filter @ax-cowork/shared dev` (tsc watch) alongside the consumer's dev server. Edits to `shared/src/**` are not picked up until `dist/` is rewritten.
-- Subpath exports are declared in `shared/package.json` `exports`. To add a new top-level subpath (e.g. `./validators`), create `src/validators/index.ts` and add an entry to the `exports` map.
+## Task-driven workflow convention
 
-### Adding dependencies
+Incremental scaffolding work is captured in per-package `tasks/<NNN>_<short-name>/` directories. Each contains a `note.txt` (sometimes `index.txt`) with the spec, plus any reference assets (images, mocks). When the user asks you to "run a task" or names one of these folders, **read the note before making non-trivial changes** — those notes are the source of truth for what the package is supposed to become, ahead of the current code state. Active task lists:
 
-- To one package: `pnpm --filter ax-cowork-ui add <pkg>` (or `cd front-end && pnpm add <pkg>`)
-- Dev dep: append `-D`. Workspace-internal dep: append `--workspace` (e.g. `pnpm --filter ax-cowork-ui add @ax-cowork/shared --workspace`).
-- Root-only tooling: `pnpm add -Dw <pkg>`.
+- `front-end/tasks/001_setup-react-ant-design/` — initial scaffold + brand assets
+- `front-end/tasks/002_make-ui-concept/` — main page UI from `sample-page.png`
 
-### Build scripts approval
+The repo root `tasks/` directory exists but is currently empty.
 
-pnpm 10 blocks postinstall scripts by default. After `pnpm install` you'll see _"Ignored build scripts: …"_. Run `pnpm approve-builds` (interactive) to whitelist needed ones — currently `@nestjs/core` and `unrs-resolver`.
+## Formatting
 
-## Code style
-
-- **Prettier** is the single source of truth for formatting (root `.prettierrc.json`, hoisted `prettier` devDep). Style: no semicolons, single quotes, trailing commas all, printWidth 100, LF line endings. Run `pnpm format` before commits or rely on your editor's Prettier integration; CI should run `pnpm format:check`.
-- **EditorConfig** (`.editorconfig`) covers indent / EOL / charset / trim-whitespace / final-newline at the editor level — keeps non-Prettier file types (yaml, scss, etc.) consistent.
-- **ESLint integrates with Prettier via `eslint-config-prettier`** (turns off conflicting rules) — _not_ `eslint-plugin-prettier`, which is intentionally avoided (it's slow and the project recommends running Prettier separately). Each package has its own flat config:
-  - `front-end/eslint.config.js` — JS + ts-eslint recommended + react-hooks + react-refresh (with `useStore` whitelisted under `react-refresh/only-export-components` so the MobX context pattern is allowed). Not type-aware.
-  - `back-end/eslint.config.mjs` — JS + `recommendedTypeChecked` + node/jest globals. Type-aware via `projectService: true`.
-  - `shared/eslint.config.mjs` — JS + ts-eslint recommended. Not type-aware (kept simple).
-
-## Pre-commit hooks (husky + lint-staged)
-
-`.husky/pre-commit` runs `pnpm lint-staged`. The `prepare: husky` script in root `package.json` re-installs the hook on `pnpm install`, so cloning + installing is enough to enable hooks — no manual setup.
-
-`.lintstagedrc.json` dispatches per-package because each ESLint config lives inside its own package and the `eslint` binary is _not_ hoisted to root:
-
-- `front-end/**/*.{ts,tsx}` → `pnpm --filter ax-cowork-ui exec eslint --fix` then `prettier --write`
-- `back-end/**/*.ts` → `pnpm --filter ax-cowork-be exec eslint --fix` then `prettier --write`
-- `shared/src/**/*.ts` → `pnpm --filter @ax-cowork/shared exec eslint --fix` then `prettier --write`
-- everything else (json, md, scss, etc.) → `prettier --write`
-
-`pnpm --filter <pkg> exec` sets cwd to the package directory so flat-config auto-discovery picks the right `eslint.config.*` and the right TS project. Don't replace these with bare `pnpm exec eslint` — that fails because `eslint` is not in root's `node_modules/.bin/`.
-
-To bypass hooks for a one-off commit (rare — only when you have a good reason), use `git commit --no-verify`. CI should run `pnpm lint` + `pnpm format:check` to enforce the same checks at workspace scope.
-
-## Architecture notes
-
-### Front-end (`front-end/src/`)
-
-Composition is set up in `main.tsx` and is load-bearing — features assume this provider stack exists:
-
-```
-ThemeProvider (MUI) → CssBaseline → StoreProvider (MobX) → BrowserRouter → App
-```
-
-- **State: MobX with a root-store + context pattern.** `RootStore` aggregates feature stores (currently just `CounterStore`); a singleton `rootStore` is exposed via `StoreProvider` in `stores/context.tsx`. Components read it through the `useStore()` hook and **must be wrapped in `observer(...)` from `mobx-react-lite`** to react to observable changes (see `routes/Home.tsx`). Add new feature stores as fields on `RootStore`.
-- **Routing: React Router 7 (data-router-less style).** `App.tsx` declares `<Routes>` with a `Layout` route that renders `<Outlet />`; nested routes are children. Add new pages under `src/routes/` and register them inside the `Layout` route in `App.tsx`.
-- **Styling: MUI + SCSS coexist.** Use MUI components and the `sx` prop for layout/theming (theme in `src/theme.ts`). For per-component styles, use co-located SCSS modules (e.g. `Home.module.scss`). Global styles and shared SCSS variables live in `src/styles/` (`global.scss`, `_variables.scss`); SCSS is compiled by `sass-embedded` via Vite. Roboto is loaded through `@fontsource/roboto` in `main.tsx` and wired into the MUI theme.
-- **TypeScript project references.** `tsconfig.json` is a thin root that delegates to `tsconfig.app.json` (app code under `src/`) and `tsconfig.node.json` (Vite/ESLint configs). `npm run build` runs `tsc -b`, which builds both — keep new files reachable from the right project's `include`.
-- **ESLint is _not_ type-aware** (`front-end/eslint.config.js` uses `tseslint.configs.recommended`, not `recommendedTypeChecked`). Switching it on requires wiring `parserOptions.project` to both tsconfigs — the `front-end/README.md` sketches the exact change.
-- **Static assets — two locations with different semantics.** `src/assets/` is imported from TS/TSX (hashed and bundled by Vite). `public/` is served verbatim at the root — e.g. `public/icons.svg` is referenced via `<use href="/icons.svg#…">`.
-
-### Back-end (`back-end/src/`)
-
-Standard NestJS 11 layout — `main.ts` bootstraps `AppModule`, which wires controllers and providers. Currently just the scaffold (`AppController` + `AppService`). When adding features, follow Nest conventions: a feature module per domain, registered in `AppModule.imports`.
-
-ESLint here **is** type-aware (`tseslint.configs.recommendedTypeChecked`), so lint failures often reflect real type issues. `@typescript-eslint/no-explicit-any` is disabled; `no-floating-promises` and `no-unsafe-argument` are warnings.
+Two Prettier configs coexist: the root `.prettierrc.json` (`printWidth: 100`) governs everything Prettier touches via the root scripts and `lint-staged`. The front-end ESLint config embeds its own Prettier options inline (`printWidth: 160`, plus `'prettier/prettier'` as an error rule), so saving a `.ts`/`.tsx` file in the front-end through ESLint will format to 160 cols, while running root `pnpm format` against the same file will reformat to 100. If you see a back-and-forth diff on FE files, that's why — prefer the ESLint path inside `front-end/`.

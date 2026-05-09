@@ -1,0 +1,26 @@
+@use 'ax-variables' as *;
+@use 'ax-shared' as *;
+@use 'ax-layout' as *;
+
+html,
+body,
+#root {
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family:
+    'Roboto',
+    -apple-system,
+    sans-serif;
+  font-size: 14px;
+}
+
+body {
+  font-family:
+    'Roboto',
+    -apple-system,
+    sans-serif;
+  font-size: 14px;
+}

@@ -1,0 +1,35 @@
+{
+  "app": {
+    "name": "Ax",
+    "tagline": "Ant Design starter",
+    "search": "Search project, docs, people…"
+  },
+  "nav": {
+    "home": "Home",
+    "main": "Main",
+    "docs": "Documents",
+    "tasks": "Tasks",
+    "team": "Team",
+    "settings": "Settings",
+    "comments": "Comments",
+    "activity": "Activity",
+    "attachments": "Attachments",
+    "apps": "Integrations",
+    "help": "Help"
+  },
+  "auth": {
+    "signin": "Sign in",
+    "signup": "Sign up",
+    "reset": "Reset password",
+    "verify": "Verify"
+  },
+  "status": {
+    "connected": "Connected",
+    "synced": "All changes synced",
+    "membersOnline": "{{count}} members online",
+    "lastSaved": "Saved {{time}}"
+  },
+  "error": {
+    "notFound": "Page not found"
+  }
+}
