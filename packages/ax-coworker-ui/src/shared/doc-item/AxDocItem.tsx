@@ -12,9 +12,9 @@ export type AxMenuIconProps = {
 
 export const AxDocItem = observer((props: AxMenuIconProps) => {
   const myIcon = isValidElement(props.icon) ? (
-    cloneElement(props.icon, { size: '20px', className: 'ax-doc-item_left_icon' } as never)
+    cloneElement(props.icon, { size: '16px', className: 'ax-doc-item_left_icon' } as never)
   ) : (
-    <AxMuiIcon icon={props.icon} size="20px" className="ax-doc-item_left_icon" />
+    <AxMuiIcon icon={props.icon} size="16px" className="ax-doc-item_left_icon" />
   )
   return (
     <div className="ax-doc-item">
@@ -25,7 +25,7 @@ export const AxDocItem = observer((props: AxMenuIconProps) => {
         </button>
       </Tooltip>
       <button className="ax-doc-item_right" onClick={props.onClick}>
-        <AxMuiIcon icon="mdiWindowClose" size="16px" className="ax-doc-item_right_icon" />
+        <AxMuiIcon icon="mdiWindowClose" size="12px" className="ax-doc-item_right_icon" />
       </button>
     </div>
   )

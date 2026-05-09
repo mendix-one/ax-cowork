@@ -73,12 +73,12 @@ p {
 }
 
 .ax-breadcrumb {
-  @apply w-auto h-7 rounded-md cursor-pointer flex items-center justify-center gap-1 px-1;
+  @apply w-auto h-7 rounded-md cursor-pointer flex items-center justify-start gap-2 px-1 pe-2;
   @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
   @apply text-neutral-700;
 
   &_text {
-    @apply text-ellipsis font-medium;
+    @apply text-sm leading-[1.5] text-ellipsis font-medium;
   }
 
   &:hover {
@@ -103,17 +103,14 @@ p {
   @apply border border-gray-400;
 
   &_left {
-    @apply w-auto h-7 rounded-s-md cursor-pointer flex items-center justify-start gap-2 px-1;
+    @apply w-auto h-7 rounded-s-md cursor-pointer flex items-center justify-start gap-2 px-1 pe-2;
     @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
 
     &_name {
-      @apply text-neutral-700;
-    }
-    &_name {
-      @apply text-neutral-700 text-ellipsis font-medium;
+      @apply text-sm leading-[1.5] text-neutral-700 text-ellipsis font-medium;
     }
     &_count {
-      @apply text-neutral-700 text-ellipsis font-medium;
+      @apply text-sm leading-[1.5] text-neutral-700 text-ellipsis font-medium;
     }
 
     &:hover {
@@ -128,10 +125,6 @@ p {
   &_right {
     @apply w-7 h-7 rounded-e-md cursor-pointer flex items-center justify-center;
     @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
-
-    &_text {
-      @apply text-sm text-ellipsis font-medium;
-    }
 
     &:hover {
       @apply bg-neutral-400;
@@ -148,17 +141,11 @@ p {
   @apply border border-gray-400;
 
   &_left {
-    @apply w-auto h-7 rounded-s-md cursor-pointer flex items-center justify-start gap-2 px-1;
+    @apply w-auto h-7 rounded-s-md cursor-pointer flex items-center justify-start gap-2 px-1 pe-2;
     @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
 
     &_name {
-      @apply text-neutral-700;
-    }
-    &_name {
-      @apply text-neutral-700 text-ellipsis font-medium;
-    }
-    &_count {
-      @apply text-neutral-700 text-ellipsis font-medium;
+      @apply text-sm leading-[1.5] text-neutral-700 text-ellipsis font-medium;
     }
 
     &:hover {
@@ -173,10 +160,6 @@ p {
   &_right {
     @apply w-7 h-7 rounded-e-md cursor-pointer flex items-center justify-center;
     @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
-
-    &_text {
-      @apply text-sm text-ellipsis font-medium;
-    }
 
     &:hover {
       @apply bg-neutral-400;
@@ -221,7 +204,7 @@ p {
   }
 
   &_body {
-    height: calc(100% - 36px);
+    height: calc(100% - 32px);
     @apply w-full rounded-b;
   }
 }

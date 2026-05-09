@@ -14,9 +14,9 @@ export type AxMenuIconProps = {
 
 export const AxBreadcrumb = observer((props: AxMenuIconProps) => {
   const myIcon = isValidElement(props.icon) ? (
-    cloneElement(props.icon, { size: '20px', className: 'ax-breadcrumb_icon' } as never)
+    cloneElement(props.icon, { size: '16px', className: 'ax-breadcrumb_icon' } as never)
   ) : (
-    <AxMuiIcon icon={props.icon} size="20px" className="ax-breadcrumb_icon" />
+    <AxMuiIcon icon={props.icon} size="16px" className="ax-breadcrumb_icon" />
   )
   return (
     <Tooltip title={props.title} placement={props.placement}>

@@ -45,5 +45,10 @@ export const axTheme: ThemeConfig = {
       textPaddingInline: 0,
       verticalMarginInline: 0,
     },
+    Collapse: {
+      headerPadding: '4px 8px',
+      contentPadding: '8px',
+      borderlessContentPadding: '8px',
+    },
   },
 }
