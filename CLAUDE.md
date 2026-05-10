@@ -6,13 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 pnpm monorepo (`pnpm-workspace.yaml`) with three packages:
 
-| Path         | Package name        | Stack                                               |
-| ------------ | ------------------- | --------------------------------------------------- |
-| `shared/`    | `@ax-cowork/shared` | Plain TypeScript library, emits to `dist/`          |
-| `front-end/` | `ax-cowork-ui`      | Vite + React 19 + Ant Design v6 + MobX + Tailwind 3 |
-| `back-end/`  | `ax-cowork-be`      | NestJS 11 (Express)                                 |
+| Path                | Package name        | Stack                                               |
+| ------------------- | ------------------- | --------------------------------------------------- |
+| `shared/ax-common/` | `@ax-cowork/shared` | Plain TypeScript library, emits to `dist/`          |
+| `front-end/`        | `ax-cowork-ui`      | Vite + React 19 + Ant Design v6 + MobX + Tailwind 3 |
+| `back-end/`         | `ax-cowork-be`      | NestJS 11 (Express)                                 |
 
-`back-end` and (where needed) `front-end` consume `shared` via `workspace:*`. Because `shared/package.json` points its `main`/`types`/subpath `exports` (`./utils`, `./formatters`, `./converters`) at `dist/`, **`shared` must be built before consumers can type-check** — run `pnpm --filter @ax-cowork/shared run build` once, or `pnpm --filter @ax-cowork/shared run dev` to keep it in `tsc --watch`. Import from the subpaths (e.g. `import { ... } from '@ax-cowork/shared/utils'`), not deep paths.
+`back-end` and (where needed) `front-end` consume `shared` via `workspace:*`. Because `shared/ax-common/package.json` points its `main`/`types`/subpath `exports` (`./utils`, `./formatters`, `./converters`) at `dist/`, **`shared` must be built before consumers can type-check** — run `pnpm --filter @ax-cowork/shared run build` once, or `pnpm --filter @ax-cowork/shared run dev` to keep it in `tsc --watch`. Import from the subpaths (e.g. `import { ... } from '@ax-cowork/shared/utils'`), not deep paths.
 
 ## Commands (run from repo root)
 
@@ -43,11 +43,11 @@ See `front-end/CLAUDE.md` for the FE-specific structure (`acore/` framework wiri
 
 ### Back-end
 
-Stock NestJS 11 scaffold (`AppModule` → `AppController` + `AppService`, bootstrapped in `src/main.ts` listening on `PORT ?? 3000`). No domain modules yet. ESLint is configured with `recommendedTypeChecked` + `projectService`, so type-aware lint rules apply — imports from `@ax-cowork/shared` will fail lint until `shared/dist` exists.
+Stock NestJS 11 scaffold (`AppModule` → `AppController` + `AppService`, bootstrapped in `src/main.ts` listening on `PORT ?? 3000`). No domain modules yet. ESLint is configured with `recommendedTypeChecked` + `projectService`, so type-aware lint rules apply — imports from `@ax-cowork/shared` will fail lint until `shared/ax-common/dist` exists.
 
 ### Shared
 
-Pure utility library with three subpath exports (`./utils`, `./formatters`, `./converters`). The barrel `src/index.ts` re-exports all three. When adding a new category, add a new subpath export in `shared/package.json` rather than encouraging deep imports.
+Pure utility library with three subpath exports (`./utils`, `./formatters`, `./converters`). The barrel `src/index.ts` re-exports all three. When adding a new category, add a new subpath export in `shared/ax-common/package.json` rather than encouraging deep imports.
 
 ## Task-driven workflow convention
 
@@ -60,4 +60,4 @@ The repo root `tasks/` directory exists but is currently empty.
 
 ## Formatting
 
-Single Prettier source of truth at the repo root: `.prettierrc.json` (`printWidth: 160`, `semi: false`, `singleQuote: true`, `trailingComma: 'all'`, `endOfLine: 'lf'`) and `.prettierignore`. Per-package Prettier files were removed. Prettier is **not** wired into ESLint — `eslint-plugin-prettier` is intentionally excluded (avoids the MAL-2025-6023 supply-chain risk and follows Prettier's own current guidance). Run formatting via `pnpm format`, the editor's Prettier integration, or the `lint-staged` hook. Each package's ESLint config extends `eslint-config-prettier` (turns off conflicting stylistic rules) and re-asserts `indent` / `quotes` / `comma-dangle` as a safety net — those three rules are mirrored across `front-end/eslint.config.js`, `back-end/eslint.config.mjs`, and `shared/eslint.config.mjs`, so update all three together.
+Single Prettier source of truth at the repo root: `.prettierrc.json` (`printWidth: 160`, `semi: false`, `singleQuote: true`, `trailingComma: 'all'`, `endOfLine: 'lf'`) and `.prettierignore`. Per-package Prettier files were removed. Prettier is **not** wired into ESLint — `eslint-plugin-prettier` is intentionally excluded (avoids the MAL-2025-6023 supply-chain risk and follows Prettier's own current guidance). Run formatting via `pnpm format`, the editor's Prettier integration, or the `lint-staged` hook. Each package's ESLint config extends `eslint-config-prettier` (turns off conflicting stylistic rules) and re-asserts `indent` / `quotes` / `comma-dangle` as a safety net — those three rules are mirrored across `front-end/eslint.config.js`, `back-end/eslint.config.mjs`, and `shared/ax-common/eslint.config.mjs`, so update all three together.
