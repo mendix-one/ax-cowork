@@ -33,17 +33,12 @@ async function bootstrap() {
   app.enableCors(options)
 
   // OpenAPI / Swagger
-  const swaggerConfig = new DocumentBuilder()
-    .setTitle('AX CDN Services')
-    .setDescription('AX CDN Services API')
-    .setVersion('1.0')
-    .addBearerAuth()
-    .build()
+  const swaggerConfig = new DocumentBuilder().setTitle('AX CDN Services').setDescription('AX CDN Services API').setVersion('1.0').addBearerAuth().build()
   const document = SwaggerModule.createDocument(app, swaggerConfig)
   SwaggerModule.setup('api-docs', app, document)
 
   // Start listing
-  await app.listen(configService.get<number>('PORT') ?? 3011)
+  await app.listen(configService.get<number>('PORT') ?? 3001)
 }
 
 void bootstrap()
