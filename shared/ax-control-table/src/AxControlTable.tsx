@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useMemo, useRef, useState, useLayoutEffect } from 'react'
 import { Table } from 'antd'
 import { ColumnToggle } from './ColumnToggle'
 import type { AxControlTableProps, ControlTableColumn, ControlTableChangeEvent } from './types'
@@ -11,16 +11,45 @@ export function AxControlTable<T extends object = Record<string, unknown>>({
   filters,
   onChange,
   onColumnsChange,
-  showColumnToggle = true,
+  showColumnToggle = false,
   columnToggleSearchPlaceholder,
-  title,
-  toolbar,
   loading,
+  className,
   ...restProps
 }: AxControlTableProps<T>) {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const [scrollY, setScrollY] = useState<number | undefined>(undefined)
+
+  // Measure available height and subtract header + pagination to get body scroll height
+  useLayoutEffect(() => {
+    const el = wrapRef.current
+    if (!el) return
+
+    const measure = () => {
+      const containerH = el.clientHeight
+      const header = el.querySelector<HTMLElement>('.ant-table-thead')
+      const paginationEl = el.querySelector<HTMLElement>('.ant-table-pagination')
+      const headerH = header?.offsetHeight ?? 0
+      const paginationH = paginationEl ? paginationEl.offsetHeight + 16 : 0
+      const body = containerH - headerH - paginationH
+      if (body > 0) setScrollY(body)
+    }
+
+    // Measure after first paint
+    const frame = requestAnimationFrame(measure)
+
+    const observer = new ResizeObserver(measure)
+    observer.observe(el)
+
+    return () => {
+      cancelAnimationFrame(frame)
+      observer.disconnect()
+    }
+  }, [])
+
   // Filter to visible columns and apply controlled sort/filter state
   const resolvedColumns = useMemo(() => {
-    return columns
+    const cols = columns
       .filter((col) => col.visible !== false)
       .map((col: ControlTableColumn<T>) => {
         const patched = { ...col }
@@ -40,7 +69,20 @@ export function AxControlTable<T extends object = Record<string, unknown>>({
 
         return patched
       })
-  }, [columns, sort, filters])
+
+    // Append column-toggle as last header column
+    if (showColumnToggle && onColumnsChange) {
+      cols.push({
+        key: '__ax_col_toggle__',
+        width: 40,
+        fixed: 'right',
+        title: () => <ColumnToggle<T> columns={columns} onColumnsChange={onColumnsChange} searchPlaceholder={columnToggleSearchPlaceholder} />,
+        render: () => null,
+      } as ControlTableColumn<T>)
+    }
+
+    return cols
+  }, [columns, sort, filters, showColumnToggle, onColumnsChange, columnToggleSearchPlaceholder])
 
   // Map controlled pagination to antd format
   const antPagination: TablePaginationConfig | false = useMemo(() => {
@@ -51,15 +93,12 @@ export function AxControlTable<T extends object = Record<string, unknown>>({
       pageSize: pagination.pageSize,
       total: pagination.total,
       showSizeChanger: true,
+      size: 'small' as const,
       showTotal: (total: number, range: [number, number]) => `${range[0]}-${range[1]} of ${total}`,
     }
   }, [pagination])
 
-  const handleChange = (
-    pag: TablePaginationConfig,
-    flt: Record<string, FilterValue | null>,
-    srt: SorterResult<T> | SorterResult<T>[],
-  ) => {
+  const handleChange = (pag: TablePaginationConfig, flt: Record<string, FilterValue | null>, srt: SorterResult<T> | SorterResult<T>[]) => {
     if (!onChange) return
 
     const event: ControlTableChangeEvent<T> = {
@@ -74,22 +113,17 @@ export function AxControlTable<T extends object = Record<string, unknown>>({
     onChange(event)
   }
 
-  const hasToolbar = title || showColumnToggle || toolbar
-
   return (
-    <div className="ax-control-table">
-      {hasToolbar && (
-        <div className="ax-control-table-toolbar" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-          <div className="ax-control-table-toolbar-left">{title}</div>
-          <div className="ax-control-table-toolbar-right" style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-            {toolbar}
-            {showColumnToggle && onColumnsChange && (
-              <ColumnToggle<T> columns={columns} onColumnsChange={onColumnsChange} searchPlaceholder={columnToggleSearchPlaceholder} />
-            )}
-          </div>
-        </div>
-      )}
-      <Table<T> {...restProps} columns={resolvedColumns} pagination={antPagination} loading={loading} onChange={handleChange} />
+    <div ref={wrapRef} className={`ax-control-table${className ? ` ${className}` : ''}`} style={{ height: '100%', width: '100%', overflow: 'hidden' }}>
+      <Table<T>
+        {...restProps}
+        columns={resolvedColumns}
+        pagination={antPagination}
+        loading={loading}
+        onChange={handleChange}
+        sticky
+        scroll={{ x: 'max-content', y: scrollY }}
+      />
     </div>
   )
 }

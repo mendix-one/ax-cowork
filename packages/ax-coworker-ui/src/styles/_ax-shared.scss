@@ -178,7 +178,7 @@ p {
   @apply bg-white;
 
   &_header {
-    @apply w-full h-8 px-2 rounded-t;
+    @apply w-full h-9 px-2 rounded-t;
     @apply flex items-center justify-between;
     @apply border-b border-gray-300;
     @apply text-neutral-800 bg-neutral-100;
@@ -206,7 +206,7 @@ p {
   }
 
   &_body {
-    height: calc(100% - 32px);
+    height: calc(100% - 36px);
     @apply w-full rounded-b;
   }
 }

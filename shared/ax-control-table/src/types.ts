@@ -2,9 +2,9 @@ import type { TableProps, TableColumnType } from 'antd'
 import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface'
 import type { Key } from 'react'
 
-/** Extended column definition with visibility control. */
+/** Extended column definition with visibility and pinning control. */
 export interface ControlTableColumn<T = unknown> extends TableColumnType<T> {
-  /** Unique key for this column (required for visibility control). */
+  /** Unique key for this column. */
   key: Key
   /** Whether the column is visible. Defaults to `true`. */
   visible?: boolean
@@ -37,7 +37,7 @@ export interface ControlTableChangeEvent<T = unknown> {
 
 /** Props for `<AxControlTable>`. */
 export interface AxControlTableProps<T extends object = Record<string, unknown>>
-  extends Omit<TableProps<T>, 'columns' | 'onChange' | 'pagination' | 'title'> {
+  extends Omit<TableProps<T>, 'columns' | 'onChange' | 'pagination' | 'title' | 'scroll'> {
   /** Column definitions with visibility control. */
   columns: ControlTableColumn<T>[]
 
@@ -56,17 +56,11 @@ export interface AxControlTableProps<T extends object = Record<string, unknown>>
   /** Fired when column visibility changes. Returns the full column array with updated `visible` flags. */
   onColumnsChange?: (columns: ControlTableColumn<T>[]) => void
 
-  /** Show the column-visibility toggle dropdown. Defaults to `true`. */
+  /** Show the column-visibility toggle in the header. Defaults to `false`. */
   showColumnToggle?: boolean
 
   /** Placeholder text for the column-toggle search input. */
   columnToggleSearchPlaceholder?: string
-
-  /** Title displayed above the table (left side of the toolbar). */
-  title?: React.ReactNode
-
-  /** Extra toolbar content rendered to the right of the column toggle. */
-  toolbar?: React.ReactNode
 
   /** Loading state. */
   loading?: boolean
