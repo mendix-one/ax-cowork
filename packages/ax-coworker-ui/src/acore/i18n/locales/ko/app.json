@@ -1,0 +1,26 @@
+{
+  "tooltip": {
+    "amai": "AMAI - Amoza AI 어시스턴트",
+    "moreItems": "더보기",
+    "splitView": "분할 보기",
+    "globalSearch": "전체 검색",
+    "notification": "알림",
+    "userAccount": "계정",
+    "systemSettings": "시스템 설정",
+    "project": "프로젝트",
+    "inbox": "받은 편지함",
+    "task": "작업",
+    "commit": "커밋",
+    "pullRequest": "Pull Request",
+    "branch": "브랜치",
+    "calendar": "캘린더",
+    "channel": "채널",
+    "chat": "채팅",
+    "output": "출력",
+    "console": "콘솔",
+    "generativeAI": "생성형 AI",
+    "progress": "진행률",
+    "support": "지원",
+    "guides": "가이드"
+  }
+}

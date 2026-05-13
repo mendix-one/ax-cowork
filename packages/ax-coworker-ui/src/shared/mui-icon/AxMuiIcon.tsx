@@ -1,17 +1,16 @@
-import { observer } from 'mobx-react-lite'
 import * as mdiPaths from '@mdi/js'
 
+export type MdiIconName = keyof typeof mdiPaths
+
 export type MuiIconProps = {
-  icon: string
+  icon: MdiIconName
   size?: string | number
   color?: string
   className?: string
 }
 
-const paths = mdiPaths as unknown as Record<string, string>
-
-export const AxMuiIcon = observer((props: MuiIconProps) => {
-  const path = paths[props.icon]
+export const AxMuiIcon = (props: MuiIconProps) => {
+  const path = mdiPaths[props.icon]
   if (!path) return null
   const size = props.size ? (typeof props.size === 'number' ? `${props.size}px` : props.size) : '24px'
   return (
@@ -26,4 +25,4 @@ export const AxMuiIcon = observer((props: MuiIconProps) => {
       <path d={path} />
     </svg>
   )
-})
+}

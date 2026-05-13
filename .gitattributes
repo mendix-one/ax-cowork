@@ -1,0 +1,24 @@
+# Normalize text files to LF on commit and checkout, regardless of OS.
+# Combined with .prettierrc.json (endOfLine: 'lf'), keeps the repo CRLF-free.
+* text=auto eol=lf
+
+# Explicit binary types — Git won't try to "normalize" these.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.bmp binary
+*.webp binary
+*.svg text eol=lf
+*.pdf binary
+*.woff binary
+*.woff2 binary
+*.ttf binary
+*.eot binary
+*.otf binary
+*.zip binary
+*.gz binary
+*.tar binary
+*.mp4 binary
+*.mp3 binary

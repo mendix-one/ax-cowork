@@ -1,4 +1,3 @@
-import { observer } from 'mobx-react-lite'
 import { type ReactNode } from 'react'
 
 export type AxScrollBoxProps = {
@@ -8,7 +7,7 @@ export type AxScrollBoxProps = {
   children?: ReactNode
 }
 
-export const AxScrollBox = observer((props: AxScrollBoxProps) => {
+export const AxScrollBox = (props: AxScrollBoxProps) => {
   const right = props.right ?? 0
   const className = `ax-scroll-box w-full h-full ${props.vertical === false ? 'overflow-y-hidden' : 'overflow-x-auto'} ${props.horizontal === false ? 'overflow-y-hidden' : 'overflow-x-auto'}`
   return (
@@ -16,4 +15,4 @@ export const AxScrollBox = observer((props: AxScrollBoxProps) => {
       <div className={`ax-scroll-inner pe-${right}`}>{props.children}</div>
     </div>
   )
-})
+}

@@ -36,8 +36,10 @@ export interface ControlTableChangeEvent<T = unknown> {
 }
 
 /** Props for `<AxControlTable>`. */
-export interface AxControlTableProps<T extends object = Record<string, unknown>>
-  extends Omit<TableProps<T>, 'columns' | 'onChange' | 'pagination' | 'title' | 'scroll'> {
+export interface AxControlTableProps<T extends object = Record<string, unknown>> extends Omit<
+  TableProps<T>,
+  'columns' | 'onChange' | 'pagination' | 'title' | 'scroll'
+> {
   /** Column definitions with visibility control. */
   columns: ControlTableColumn<T>[]
 

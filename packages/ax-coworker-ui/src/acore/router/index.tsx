@@ -1,17 +1,49 @@
 import { createBrowserRouter } from 'react-router-dom'
-import { AppLayout } from '../../layout/AppLayout.tsx'
-import { HomePage } from '../../pages/home/HomePage.tsx'
-import { MainPage } from '../../pages/main/MainPage.tsx'
-import { NotFoundPage } from '../../pages/error/NotFoundPage.tsx'
+import { AppLayout } from '@/layouts/AppLayout'
+import { AuthLayout } from '@/layouts/AuthLayout'
+import { RequireAuth } from './RequireAuth.tsx'
+import { RedirectIfAuthed } from './RedirectIfAuthed.tsx'
+import { RouteError } from './RouteError.tsx'
 
 export const index = createBrowserRouter([
   {
     path: '/',
     element: <AppLayout />,
+    errorElement: <RouteError />,
     children: [
-      { index: true, element: <HomePage /> },
-      { path: 'main', element: <MainPage /> },
+      {
+        element: <RequireAuth />,
+        children: [
+          {
+            index: true,
+            lazy: async () => ({ Component: (await import('@/pages/home/HomePage.tsx')).HomePage }),
+          },
+          {
+            path: 'main',
+            lazy: async () => ({ Component: (await import('@/pages/main/MainPage.tsx')).MainPage }),
+          },
+        ],
+      },
     ],
   },
-  { path: '*', element: <NotFoundPage /> },
+  {
+    path: '/auth',
+    element: <AuthLayout />,
+    errorElement: <RouteError />,
+    children: [
+      {
+        element: <RedirectIfAuthed />,
+        children: [
+          {
+            path: 'signin',
+            lazy: async () => ({ Component: (await import('@/pages/auth/SignInPage.tsx')).SignInPage }),
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: '*',
+    lazy: async () => ({ Component: (await import('@/pages/error/NotFoundPage.tsx')).NotFoundPage }),
+  },
 ])

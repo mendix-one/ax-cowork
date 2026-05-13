@@ -1,11 +1,10 @@
 import { Flex, Layout, Space } from 'antd'
-import { observer } from 'mobx-react-lite'
-import { AxBreadcrumb } from '../shared/breadcrumb/AxBreadcrumb.tsx'
-import { AxIconBox } from '../shared/icon-box/AxIconBox.tsx'
-import { AxChatItem } from '../shared/chat-item/AxChatItem.tsx'
-import { AxMenuIcon } from '../shared/menu-icon/AxMenuIcon.tsx'
+import { AxBreadcrumb } from '@/shared/breadcrumb/AxBreadcrumb.tsx'
+import { AxIconBox } from '@/shared/icon-box/AxIconBox.tsx'
+import { AxChatItem } from '@/shared/chat-item/AxChatItem.tsx'
+import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 
-export const AppLayoutBottom = observer(() => {
+export const AppLayoutBottom = () => {
   return (
     <Layout.Footer>
       <Flex align="center" justify="space-between" gap="small" style={{ height: '36px' }}>
@@ -24,10 +23,10 @@ export const AppLayoutBottom = observer(() => {
             <AxChatItem name="Logan Ng - CPO" count={3} title={`Logan Ng - CPO: 3 messages`} />
             <AxChatItem name="Logan Ng - CPO" count={3} title={`Logan Ng - CPO: 3 messages`} />
             <AxChatItem name="Logan Ng - CPO" count={3} title={`Logan Ng - CPO: 3 messages`} />
-            <AxMenuIcon icon="mdiArrowUpDropCircleOutline" title={'More Items'} placement="topRight" onClick={() => console.log('click')} />
+            <AxMenuIcon icon="mdiArrowUpDropCircleOutline" title={'More Items'} placement="topRight" />
           </Space>
         </Flex>
       </Flex>
     </Layout.Footer>
   )
-})
+}

@@ -1,11 +1,13 @@
 import { Badge, Button, List, Segmented, Space, Tag, Typography, theme } from 'antd'
 import { CheckCircleFilled, EllipsisOutlined, FlagOutlined, PlusOutlined } from '@ant-design/icons'
-import { tasks } from '../data'
+import { observer } from 'mobx-react-lite'
+import { useStore } from '@/acore/store/store.context'
 
 const { Text } = Typography
 
-export function TaskListPanel() {
+export const TaskListPanel = observer(() => {
   const { token } = theme.useToken()
+  const { tasks } = useStore()
 
   return (
     <section className="panel" style={{ background: token.colorBgContainer }}>
@@ -25,7 +27,7 @@ export function TaskListPanel() {
       <div className="panel__body">
         <List
           size="small"
-          dataSource={tasks}
+          dataSource={tasks.items}
           renderItem={(t) => (
             <List.Item className="panel__row">
               <Space size={8} style={{ flex: 1, minWidth: 0 }}>
@@ -47,4 +49,4 @@ export function TaskListPanel() {
       </div>
     </section>
   )
-}
+})

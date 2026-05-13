@@ -1,29 +1,22 @@
-import { observer } from 'mobx-react-lite'
-import { cloneElement, isValidElement, type ReactElement } from 'react'
 import { Tooltip } from 'antd'
 import type { TooltipPlacement } from 'antd/es/tooltip'
-import { AxMuiIcon } from '../mui-icon/AxMuiIcon.tsx'
+import { AxMuiIcon, type MdiIconName } from '../mui-icon/AxMuiIcon.tsx'
 
-export type AxMenuIconProps = {
-  icon: string | ReactElement
+export type AxBreadcrumbProps = {
+  icon: MdiIconName
   label: string
   title?: string
   placement?: TooltipPlacement
   onClick?: () => void
 }
 
-export const AxBreadcrumb = observer((props: AxMenuIconProps) => {
-  const myIcon = isValidElement(props.icon) ? (
-    cloneElement(props.icon, { size: '16px', className: 'ax-breadcrumb_icon' } as never)
-  ) : (
-    <AxMuiIcon icon={props.icon} size="16px" className="ax-breadcrumb_icon" />
-  )
+export const AxBreadcrumb = (props: AxBreadcrumbProps) => {
   return (
     <Tooltip title={props.title} placement={props.placement}>
       <button className="ax-breadcrumb" onClick={props.onClick}>
-        {myIcon}
+        <AxMuiIcon icon={props.icon} size="16px" className="ax-breadcrumb_icon" />
         <p className="ax-breadcrumb_text">{props.label}</p>
       </button>
     </Tooltip>
   )
-})
+}

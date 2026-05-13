@@ -1,11 +1,13 @@
 import { Avatar, Button, Divider, Input, List, Space, Typography, theme } from 'antd'
 import { EllipsisOutlined, MessageOutlined, PaperClipOutlined, SendOutlined, SmileOutlined } from '@ant-design/icons'
-import { comments } from '../data'
+import { observer } from 'mobx-react-lite'
+import { useStore } from '@/acore/store/store.context'
 
 const { Text } = Typography
 
-export function CommentsPanel() {
+export const CommentsPanel = observer(() => {
   const { token } = theme.useToken()
+  const { comments } = useStore()
 
   return (
     <section className="panel" style={{ background: token.colorBgContainer }}>
@@ -32,7 +34,7 @@ export function CommentsPanel() {
         <List
           size="small"
           split={false}
-          dataSource={comments}
+          dataSource={comments.items}
           renderItem={(c) => (
             <List.Item style={{ alignItems: 'flex-start', padding: '6px 0' }}>
               <List.Item.Meta
@@ -65,4 +67,4 @@ export function CommentsPanel() {
       </footer>
     </section>
   )
-}
+})

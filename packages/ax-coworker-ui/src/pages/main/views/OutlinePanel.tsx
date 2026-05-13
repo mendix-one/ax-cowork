@@ -1,11 +1,13 @@
 import { Button, Input, Space, Tree, Typography, theme } from 'antd'
 import { EllipsisOutlined, SearchOutlined, UnorderedListOutlined } from '@ant-design/icons'
-import { outlineTree } from '../data'
+import { observer } from 'mobx-react-lite'
+import { useStore } from '@/acore/store/store.context'
 
 const { Text } = Typography
 
-export function OutlinePanel() {
+export const OutlinePanel = observer(() => {
   const { token } = theme.useToken()
+  const { documents } = useStore()
 
   return (
     <section className="panel" style={{ background: token.colorBgContainer }}>
@@ -20,8 +22,8 @@ export function OutlinePanel() {
         <Input size="small" prefix={<SearchOutlined />} placeholder="Document Name" allowClear />
       </div>
       <div className="panel__body panel__body--padded">
-        <Tree treeData={outlineTree} defaultExpandAll blockNode showLine selectable={false} />
+        <Tree treeData={documents.outline} defaultExpandAll blockNode showLine selectable={false} />
       </div>
     </section>
   )
-}
+})

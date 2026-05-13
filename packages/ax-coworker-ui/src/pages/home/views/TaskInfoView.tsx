@@ -1,16 +1,16 @@
 import { observer } from 'mobx-react-lite'
 import { Collapse, ConfigProvider } from 'antd'
-import { AxMuiIcon } from '../../../shared/mui-icon/AxMuiIcon.tsx'
+import { AxMuiIcon, type MdiIconName } from '../../../shared/mui-icon/AxMuiIcon.tsx'
 import { AxScrollBox } from '../../../shared/scroll-box/AxScrollBox.tsx'
 
-const item = (icon: string, label: string, key?: number | string) => (
+const item = (icon: MdiIconName, label: string, key?: number | string) => (
   <div key={key} className="flex items-center gap-2 px-2 py-1 text-neutral-700 hover:bg-neutral-100 cursor-pointer rounded">
     <AxMuiIcon icon={icon} size={16} />
     <span>{label}</span>
   </div>
 )
 
-const repeated = (icon: string, label: string, count: number) => Array.from({ length: count }, (_, i) => item(icon, label, i))
+const repeated = (icon: MdiIconName, label: string, count: number) => Array.from({ length: count }, (_, i) => item(icon, label, i))
 
 export const TaskInfoView = observer(() => {
   return (

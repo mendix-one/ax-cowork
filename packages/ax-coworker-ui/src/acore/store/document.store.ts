@@ -1,11 +1,5 @@
+import { makeAutoObservable } from 'mobx'
 import type { DataNode } from 'antd/es/tree'
-
-export type TaskItem = {
-  id: string
-  title: string
-  status: 'todo' | 'doing' | 'done'
-  priority: 'P1' | 'P2' | 'P3'
-}
 
 export type StackRow = {
   key: string
@@ -16,22 +10,7 @@ export type StackRow = {
   score: string
 }
 
-export type CommentItem = {
-  id: string
-  author: string
-  initial: string
-  body: string
-  time: string
-}
-
-export const tasks: TaskItem[] = Array.from({ length: 12 }, (_, i) => ({
-  id: `t-${i + 1}`,
-  title: 'Sample task of change',
-  status: i % 3 === 0 ? 'done' : i % 3 === 1 ? 'doing' : 'todo',
-  priority: i % 2 === 0 ? 'P2' : 'P1',
-}))
-
-export const outlineTree: DataNode[] = [
+const mockOutline: DataNode[] = [
   {
     title: 'Section name',
     key: 's1',
@@ -67,7 +46,7 @@ export const outlineTree: DataNode[] = [
   },
 ]
 
-export const stack: StackRow[] = [
+const mockStack: StackRow[] = [
   { key: '1', category: 'Frontend Framework', tech: 'React 19 + Vite', version: '19.0', runUp: 'Vue 3', score: '9.2' },
   { key: '2', category: 'Backend (Node)', tech: 'NodeJS 20 + Fastify', version: '20.10', runUp: 'Express', score: '8.9' },
   { key: '3', category: 'Backend (Python)', tech: 'Python 3.12 + FastAPI', version: '3.12', runUp: 'Flask', score: '8.6' },
@@ -85,15 +64,29 @@ export const stack: StackRow[] = [
   { key: '15', category: 'Monitoring', tech: 'Prometheus + Grafana', version: '2.45 / 10', runUp: 'Datadog *', score: '8.7' },
 ]
 
-export const comments: CommentItem[] = [
-  {
-    id: 'c1',
-    author: 'Lela K.',
-    initial: 'L',
-    body: 'Re: PostgreSQL — agreed on the JSONB choice, but flag the partitioning story before we commit.',
-    time: '2h',
-  },
-  { id: 'c2', author: 'Marcus W.', initial: 'M', body: '@Lela good call. Adding a sub-section on partition keys.', time: '1h' },
-  { id: 'c3', author: 'Priya N.', initial: 'P', body: 'Should we add a row for object storage? S3 vs GCS came up earlier.', time: '38m' },
-  { id: 'c4', author: 'Marcus W.', initial: 'M', body: 'Yes — pulling that into row 16. Will note egress cost as a tiebreaker.', time: '12m' },
-]
+export class DocumentStore {
+  outline: DataNode[] = mockOutline
+  stack: StackRow[] = mockStack
+  loading = false
+  error: string | null = null
+
+  constructor() {
+    makeAutoObservable(this)
+  }
+
+  setOutline(outline: DataNode[]) {
+    this.outline = outline
+  }
+
+  setStack(stack: StackRow[]) {
+    this.stack = stack
+  }
+
+  setLoading(loading: boolean) {
+    this.loading = loading
+  }
+
+  setError(error: string | null) {
+    this.error = error
+  }
+}

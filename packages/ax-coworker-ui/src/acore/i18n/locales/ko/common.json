@@ -1,0 +1,32 @@
+{
+  "brand": {
+    "name": "aPlanner",
+    "tagline": "AI 지원 기획 및 문서 워크스페이스"
+  },
+  "actions": {
+    "send": "보내기",
+    "reload": "새로고침",
+    "save": "저장",
+    "cancel": "취소",
+    "close": "닫기",
+    "share": "공유"
+  },
+  "nav": {
+    "home": "홈",
+    "main": "메인"
+  },
+  "status": {
+    "connected": "연결됨",
+    "synced": "모든 변경 사항이 동기화되었습니다",
+    "membersOnline": "{{count}}명이 온라인",
+    "lastSaved": "{{time}}에 저장됨"
+  },
+  "error": {
+    "notFound": "페이지를 찾을 수 없습니다",
+    "generic": "오류가 발생했습니다"
+  },
+  "lang": {
+    "en": "EN",
+    "ko": "KO"
+  }
+}

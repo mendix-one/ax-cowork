@@ -1,12 +1,15 @@
 import { Breadcrumb, Button, Space, Table, Tag, Typography, theme } from 'antd'
 import { EditOutlined, EllipsisOutlined, FileTextOutlined, HistoryOutlined, StarOutlined } from '@ant-design/icons'
 import type { ColumnsType } from 'antd/es/table'
-import { stack, type StackRow } from '../data'
+import { observer } from 'mobx-react-lite'
+import { useStore } from '@/acore/store/store.context'
+import type { StackRow } from '@/acore/store/document.store'
 
 const { Title, Paragraph, Text } = Typography
 
-export function DocumentPanel() {
+export const DocumentPanel = observer(() => {
   const { token } = theme.useToken()
+  const { documents } = useStore()
 
   const columns: ColumnsType<StackRow> = [
     { title: 'Category', dataIndex: 'category', key: 'category', width: 200 },
@@ -52,7 +55,15 @@ export function DocumentPanel() {
             Each technology was evaluated against five weighted criteria: team expertise (25%), ecosystem maturity (20%), performance (20%), operational cost
             (20%), and community support (15%).
           </Paragraph>
-          <Table columns={columns} dataSource={stack} pagination={false} size="small" bordered scroll={{ x: 'max-content' }} className="document__stack" />
+          <Table
+            columns={columns}
+            dataSource={documents.stack}
+            pagination={false}
+            size="small"
+            bordered
+            scroll={{ x: 'max-content' }}
+            className="document__stack"
+          />
           <Paragraph type="secondary" style={{ fontSize: token.fontSizeSM, marginTop: token.marginSM }}>
             * CPLEX scored higher on raw capability but was rejected for $50K+ annual licensing. Datadog scored competitively but was rejected for cost; we use
             the open-source Prometheus + Grafana stack instead.
@@ -76,4 +87,4 @@ export function DocumentPanel() {
       </div>
     </section>
   )
-}
+})

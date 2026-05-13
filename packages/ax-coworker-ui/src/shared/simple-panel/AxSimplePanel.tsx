@@ -1,10 +1,9 @@
-import { observer } from 'mobx-react-lite'
-import { cloneElement, isValidElement, type ReactElement, type ReactNode } from 'react'
+import { type ReactNode } from 'react'
 import { Dropdown, type DropdownProps, type MenuProps } from 'antd'
-import { AxMuiIcon } from '../mui-icon/AxMuiIcon.tsx'
+import { AxMuiIcon, type MdiIconName } from '../mui-icon/AxMuiIcon.tsx'
 
 export type AxSimplePanelProps = {
-  icon: string | ReactElement
+  icon: MdiIconName
   title: string
   children?: ReactNode
   onMinimize?: () => void
@@ -36,13 +35,7 @@ const objectStyles: DropdownProps['styles'] = {
   },
 }
 
-export const AxSimplePanel = observer((props: AxSimplePanelProps) => {
-  const myIcon = isValidElement(props.icon) ? (
-    cloneElement(props.icon, { size: '20px', className: 'ax-simple-panel_header_title_icon' } as never)
-  ) : (
-    <AxMuiIcon icon={props.icon} size="20px" className="ax-simple-panel_header_title_icon" />
-  )
-
+export const AxSimplePanel = (props: AxSimplePanelProps) => {
   const menuItems: MenuProps['items'] = [
     { key: 'minimize', label: 'Minimize', icon: <AxMuiIcon icon="mdiWindowMinimize" size={12} /> },
     { key: 'maximize', label: 'Maximize', icon: <AxMuiIcon icon="mdiWindowMaximize" size={12} /> },
@@ -75,7 +68,7 @@ export const AxSimplePanel = observer((props: AxSimplePanelProps) => {
     <div className="ax-simple-panel">
       <div className="ax-simple-panel_header">
         <div className="ax-simple-panel_header_title">
-          {myIcon}
+          <AxMuiIcon icon={props.icon} size="20px" className="ax-simple-panel_header_title_icon" />
           <p className="ax-simple-panel_header_title_text">{props.title}</p>
         </div>
         <div className="ax-simple-panel_header_option">
@@ -92,4 +85,4 @@ export const AxSimplePanel = observer((props: AxSimplePanelProps) => {
       <div className="ax-simple-panel_body">{props.children}</div>
     </div>
   )
-})
+}

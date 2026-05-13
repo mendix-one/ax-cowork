@@ -1,0 +1,26 @@
+{
+  "tooltip": {
+    "amai": "AMAI - Amoza AI Assistant",
+    "moreItems": "More Items",
+    "splitView": "Split View",
+    "globalSearch": "Global Search",
+    "notification": "Notification",
+    "userAccount": "User Account",
+    "systemSettings": "System Settings",
+    "project": "Project",
+    "inbox": "Inbox",
+    "task": "Task",
+    "commit": "Commit",
+    "pullRequest": "Pull Request",
+    "branch": "Branch",
+    "calendar": "Calendar",
+    "channel": "Channel",
+    "chat": "Chat",
+    "output": "Output",
+    "console": "Console",
+    "generativeAI": "Generative AI",
+    "progress": "Progress",
+    "support": "Support",
+    "guides": "Guides"
+  }
+}

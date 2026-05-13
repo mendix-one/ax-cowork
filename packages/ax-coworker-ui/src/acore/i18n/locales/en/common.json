@@ -1,27 +1,19 @@
 {
-  "app": {
-    "name": "Ax",
-    "tagline": "Ant Design starter",
-    "search": "Search project, docs, people…"
+  "brand": {
+    "name": "aPlanner",
+    "tagline": "AI-assisted planning and document workspace"
+  },
+  "actions": {
+    "send": "Send",
+    "reload": "Reload",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "share": "Share"
   },
   "nav": {
     "home": "Home",
-    "main": "Main",
-    "docs": "Documents",
-    "tasks": "Tasks",
-    "team": "Team",
-    "settings": "Settings",
-    "comments": "Comments",
-    "activity": "Activity",
-    "attachments": "Attachments",
-    "apps": "Integrations",
-    "help": "Help"
-  },
-  "auth": {
-    "signin": "Sign in",
-    "signup": "Sign up",
-    "reset": "Reset password",
-    "verify": "Verify"
+    "main": "Main"
   },
   "status": {
     "connected": "Connected",
@@ -30,6 +22,11 @@
     "lastSaved": "Saved {{time}}"
   },
   "error": {
-    "notFound": "Page not found"
+    "notFound": "Page not found",
+    "generic": "Something went wrong"
+  },
+  "lang": {
+    "en": "EN",
+    "ko": "KO"
   }
 }

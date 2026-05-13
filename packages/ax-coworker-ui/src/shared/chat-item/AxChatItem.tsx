@@ -1,4 +1,3 @@
-import { observer } from 'mobx-react-lite'
 import { Tooltip } from 'antd'
 import type { TooltipPlacement } from 'antd/es/tooltip'
 import { AxMuiIcon } from '../mui-icon/AxMuiIcon.tsx'
@@ -11,7 +10,7 @@ export type AxMenuIconProps = {
   onClick?: () => void
 }
 
-export const AxChatItem = observer((props: AxMenuIconProps) => {
+export const AxChatItem = (props: AxMenuIconProps) => {
   return (
     <div className="ax-chat-item">
       <Tooltip title={props.title} placement={props.placement}>
@@ -26,4 +25,4 @@ export const AxChatItem = observer((props: AxMenuIconProps) => {
       </button>
     </div>
   )
-})
+}

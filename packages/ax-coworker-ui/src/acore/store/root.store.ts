@@ -1,9 +1,15 @@
-import { MainStore } from '../../pages/main/store/main.store'
-import { ErrorStore } from '../../pages/error/store/error.store'
+import { AuthStore } from './auth.store'
+import { UiStore } from './ui.store'
+import { TaskStore } from './task.store'
+import { DocumentStore } from './document.store'
+import { CommentStore } from './comment.store'
 
 export class RootStore {
-  main = new MainStore()
-  error = new ErrorStore()
+  auth = new AuthStore()
+  ui = new UiStore()
+  tasks = new TaskStore()
+  documents = new DocumentStore()
+  comments = new CommentStore()
 }
 
 export const rootStore = new RootStore()
