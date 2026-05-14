@@ -56,7 +56,6 @@ src/
 │   └── AuthLayout/                   # centered card + EN/KO language switcher (behind RedirectIfAuthed)
 ├── pages/                            # route entries; each <name>/ is its own boundary element
 │   ├── home/HomePage.tsx + views/*
-│   ├── main/MainPage.tsx + views/*
 │   ├── auth/SignInPage.tsx
 │   └── error/NotFoundPage.tsx
 ├── shared/                           # design system primitives (Ax*)
@@ -73,28 +72,27 @@ src/
 class RootStore {
   auth = new AuthStore() // currentUser, isAuthed, login flow, localStorage persist
   ui = new UiStore() // theme mode, error queue
-  tasks = new TaskStore() // items: Task[]
-  documents = new DocumentStore() // outline + stack (current document content)
-  comments = new CommentStore() // items: Comment[]
 }
 ```
 
+Currently only `auth` and `ui` exist. Domain stores like `tasks`, `documents`, `comments` were removed when the MainPage they served was retired — bring them back (under the same domain naming) when the next consuming page lands.
+
 **Rules**:
 
-- Component access state via `const { auth, tasks } = useStore()` (from `@/acore/store/store.context`). Wrap with `observer()` from `mobx-react-lite` for reactivity.
+- Component access state via `const { auth } = useStore()` (from `@/acore/store/store.context`). Wrap with `observer()` from `mobx-react-lite` for reactivity.
 - Adding a new data domain → add a new `<X>.store.ts` next to the others + wire into `RootStore`. **Do NOT create `<Page>Store`** — page is the consumer, not the owner.
-- Async pattern: store has `loading: boolean`, `error: string | null`, and `setX` mutators. When `acore/api` is connected to BE, add `load()` actions that flip these flags around `api.get(...)`. Currently stores seed mock data in field initializers (move into `load()` once BE endpoints exist).
+- Async pattern: store has `loading: boolean`, `error: string | null`, and `setX` mutators. When `acore/api` is connected to BE, add `load()` actions that flip these flags around `api.get(...)`.
 - **Persistence**: see `auth.store.ts` for the canonical pattern — hydrate via `readJson(KEY, guard)` in the field initializer; sync inside each mutator via `writeJson(KEY, value)`. Use `acore/storage/` helpers, not raw `localStorage`.
 
 ## Routing
 
 `src/acore/router/index.tsx` exports `index = createBrowserRouter([...])`. Two layout groups + 404:
 
-| Path           | Layout           | Guard                  | Pages      |
-| -------------- | ---------------- | ---------------------- | ---------- |
-| `/`, `/main`   | `<AppLayout />`  | `<RequireAuth />`      | Home, Main |
-| `/auth/signin` | `<AuthLayout />` | `<RedirectIfAuthed />` | SignIn     |
-| `*`            | none             | none                   | NotFound   |
+| Path           | Layout           | Guard                  | Pages    |
+| -------------- | ---------------- | ---------------------- | -------- |
+| `/`            | `<AppLayout />`  | `<RequireAuth />`      | Home     |
+| `/auth/signin` | `<AuthLayout />` | `<RedirectIfAuthed />` | SignIn   |
+| `*`            | none             | none                   | NotFound |
 
 Conventions:
 
