@@ -17,7 +17,7 @@
   ],
   "scripts": {
     "build": "vite build && tsc --emitDeclarationOnly",
-    "dev": "vite build --watch",
+    "dev": "concurrently -k -n vite,types -c blue,cyan \"vite build --watch\" \"tsc --emitDeclarationOnly --watch --preserveWatchOutput\"",
     "clean": "rm -rf dist",
     "lint": "eslint src",
     "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,scss,md}\"",
@@ -35,6 +35,7 @@
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",
     "antd": "^6.3.7",
+    "concurrently": "^9.2.1",
     "eslint": "^10.2.1",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.5.0",
