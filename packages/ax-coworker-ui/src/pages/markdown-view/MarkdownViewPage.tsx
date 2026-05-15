@@ -138,9 +138,8 @@ const Body = observer(({ docId }: BodyProps) => {
         <Drawer
           open={editingBlock !== null}
           onClose={() => setEditingBlock(null)}
-          width={720}
           title={editingBlock ? `Edit ${editingBlock.tag}` : ''}
-          styles={{ body: { padding: 0 } }}
+          styles={{ wrapper: { width: '50%' }, body: { padding: 0 } }}
         >
           {editingBlock && (
             <BlockEditor

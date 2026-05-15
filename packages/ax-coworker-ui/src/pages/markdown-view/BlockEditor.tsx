@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react'
-import { Button, Flex, Splitter, Tag, Typography } from 'antd'
-import { AxMarkdown, ChartBlockSchema, TableBlockSchema } from '@ax-cowork/markdown'
+import { Button, Flex, Tabs, Tag, Typography } from 'antd'
+import { ChartBlockSchema, TableBlockSchema } from '@ax-cowork/markdown'
 import type { BlockKind } from '@ax-cowork/markdown'
+import { JsonBlockEditor } from './JsonBlockEditor'
+import { TableFormEditor } from './TableFormEditor'
+import { ChartFormEditor } from './ChartFormEditor'
 
 type Validation = { ok: true } | { ok: false; error: string }
 
@@ -33,44 +36,41 @@ export interface BlockEditorProps {
 
 export function BlockEditor({ initialBody, kind, tag, blockId, onSave, onCancel }: BlockEditorProps) {
   const [draft, setDraft] = useState(initialBody)
+  const [activeTab, setActiveTab] = useState<'form' | 'json'>('form')
+
   const validation = useMemo(() => validate(kind, draft), [kind, draft])
-  // Wrap in a fenced block and let AxMarkdown handle invalid JSON / schema fail
-  // uniformly — BlockError shows in the preview pane when validation fails.
-  const previewSource = useMemo(() => '```' + tag + '\n' + draft + '\n```\n', [tag, draft])
 
   return (
     <Flex vertical style={{ height: '100%' }}>
-      <Flex align="center" gap={8} style={{ padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}>
+      <Flex align="center" gap={8} style={{ padding: '8px 12px', borderBottom: '1px solid #f0f0f0' }}>
         <Tag color={kind === 'chart' ? 'purple' : 'blue'}>{tag}</Tag>
         <Typography.Text strong>{blockId}</Typography.Text>
       </Flex>
 
-      <Splitter layout="vertical" style={{ flex: 1, minHeight: 0 }}>
-        <Splitter.Panel defaultSize="55%" min="20%" max="80%">
-          <textarea
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            spellCheck={false}
-            style={{
-              width: '100%',
-              height: '100%',
-              border: 'none',
-              outline: 'none',
-              padding: 12,
-              fontFamily: 'ui-monospace, SFMono-Regular, Menlo, monospace',
-              fontSize: 13,
-              lineHeight: 1.6,
-              resize: 'none',
-              background: '#fafafa',
-            }}
-          />
-        </Splitter.Panel>
-        <Splitter.Panel>
-          <div style={{ height: '100%', overflow: 'auto', padding: 12 }}>
-            <AxMarkdown source={previewSource} />
-          </div>
-        </Splitter.Panel>
-      </Splitter>
+      <Tabs
+        activeKey={activeTab}
+        onChange={(k) => setActiveTab(k as 'form' | 'json')}
+        style={{ flex: 1, minHeight: 0, display: 'flex', flexDirection: 'column' }}
+        tabBarStyle={{ padding: '0 12px', marginBottom: 0 }}
+        items={[
+          {
+            key: 'form',
+            label: 'Form',
+            children:
+              kind === 'table' ? <TableFormEditor draft={draft} onDraftChange={setDraft} /> : <ChartFormEditor draft={draft} onDraftChange={setDraft} />,
+          },
+          {
+            key: 'json',
+            label: 'JSON',
+            children: <JsonBlockEditor draft={draft} onDraftChange={setDraft} tag={tag} />,
+          },
+        ]}
+        // AntD Tabs doesn't pass through styles to tabpane wrapper by default —
+        // use destroyInactiveTabPane so each tab's internal state resets when
+        // user toggles, but content fills available height through the flex
+        // chain.
+        destroyInactiveTabPane={false}
+      />
 
       <div
         style={{
