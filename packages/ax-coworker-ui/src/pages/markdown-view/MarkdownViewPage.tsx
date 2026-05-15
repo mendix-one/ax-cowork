@@ -1,13 +1,18 @@
 import { observer } from 'mobx-react-lite'
-import { useNavigate, useParams } from 'react-router-dom'
-import { Result } from 'antd'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useParams } from 'react-router-dom'
+import { Drawer, Flex, Result, Segmented, Tag } from 'antd'
 import { createStyles } from 'antd-style'
-import { AxMarkdown } from '@ax-cowork/markdown'
+import { AxMarkdown, findBlock, replaceBlock } from '@ax-cowork/markdown'
+import type { FoundBlock } from '@ax-cowork/markdown'
 import { useStore } from '@/acore/store/store.context'
+import { ProseEditor } from './ProseEditor.tsx'
+import { SourceEditor } from './SourceEditor.tsx'
+import { BlockEditor } from './BlockEditor.tsx'
+import { BlockEditContext, type BlockEditContextValue } from './blockEditContext'
 
-// Markdown body inherits AntD's CSS reset (zeroed heading margins / list padding),
-// so we add minimal prose-style spacing here. Scoped via createStyles so we don't
-// leak to the rest of the app.
+const AUTOSAVE_MS = 1000
+
 const useStyles = createStyles(({ token }) => ({
   prose: {
     color: token.colorText,
@@ -28,27 +33,134 @@ const useStyles = createStyles(({ token }) => ({
   },
 }))
 
+type Mode = 'view' | 'edit' | 'raw'
+
 export const MarkdownViewPage = observer(() => {
   const { id = '' } = useParams<{ id: string }>()
-  const navigate = useNavigate()
   const { documents } = useStore()
-  const { styles } = useStyles()
-
   const doc = documents.getById(id)
 
   if (!doc) {
     return <Result status="404" title="Document not found" subTitle={`No document with id "${id}".`} />
   }
 
-  const handleEditBlock = (blockId: string) => {
-    navigate(`/docs/${doc.id}/edit/${blockId}`)
+  return <Body docId={doc.id} key={doc.id} />
+})
+
+interface BodyProps {
+  docId: string
+}
+
+// Split into a separate component so we can rely on `key={docId}` to force a
+// fresh mount (and fresh draft state) when navigating between docs.
+const Body = observer(({ docId }: BodyProps) => {
+  const { documents } = useStore()
+  const { styles } = useStyles()
+  const doc = documents.getById(docId)!
+
+  const [mode, setMode] = useState<Mode>('view')
+  const [draft, setDraft] = useState(doc.source)
+  const [editingBlock, setEditingBlock] = useState<FoundBlock | null>(null)
+  const isDirty = draft !== doc.source
+
+  // Auto-save: 1s after the last edit, persist to the store. The store handles
+  // localStorage. Switching docs or unmounting flushes via the ref below.
+  useEffect(() => {
+    if (!isDirty) return
+    const t = setTimeout(() => documents.setSource(docId, draft), AUTOSAVE_MS)
+    return () => clearTimeout(t)
+  }, [draft, isDirty, docId, documents])
+
+  // Flush on unmount so navigating away within 1s of the last keystroke
+  // doesn't drop changes.
+  const draftRef = useRef(draft)
+  draftRef.current = draft
+  useEffect(() => {
+    return () => {
+      const docNow = documents.getById(docId)
+      if (docNow && draftRef.current !== docNow.source) {
+        documents.setSource(docId, draftRef.current)
+      }
+    }
+  }, [docId, documents])
+
+  const handleEditBlock = useCallback(
+    (blockId: string) => {
+      const found = findBlock(draft, blockId)
+      if (found) setEditingBlock(found)
+    },
+    [draft],
+  )
+
+  // TipTap NodeView calls openEditor(blockId) → same drawer flow as preview's
+  // Edit overlay.
+  const blockEditCtx = useMemo<BlockEditContextValue>(() => ({ openEditor: handleEditBlock }), [handleEditBlock])
+
+  const handleBlockSave = (newBody: string) => {
+    if (!editingBlock) return
+    const originalId = extractId(editingBlock.body)
+    const next = replaceBlock(draft, originalId, newBody)
+    if (next !== null) setDraft(next)
+    setEditingBlock(null)
   }
 
+  const editingBlockId = useMemo(() => (editingBlock ? extractId(editingBlock.body) : ''), [editingBlock])
+
   return (
-    <div style={{ height: '100%', overflow: 'auto', background: '#fff' }}>
-      <div style={{ maxWidth: 880, margin: '0 auto', padding: 24 }} className={styles.prose}>
-        <AxMarkdown source={doc.source} onEditBlock={handleEditBlock} />
-      </div>
-    </div>
+    <BlockEditContext.Provider value={blockEditCtx}>
+      <Flex vertical style={{ height: '100%', background: '#fff' }}>
+        <Flex align="center" justify="space-between" style={{ height: 44, padding: '0 16px', borderBottom: '1px solid #f0f0f0' }}>
+          <Segmented<Mode>
+            size="small"
+            options={[
+              { label: 'View', value: 'view' },
+              { label: 'Edit', value: 'edit' },
+              { label: 'Raw', value: 'raw' },
+            ]}
+            value={mode}
+            onChange={setMode}
+          />
+          <Tag color={isDirty ? 'gold' : 'green'}>{isDirty ? 'Saving…' : 'Saved'}</Tag>
+        </Flex>
+
+        <div style={{ flex: 1, minHeight: 0 }}>
+          {mode === 'edit' && <ProseEditor value={draft} onChange={setDraft} />}
+          {mode === 'raw' && <SourceEditor value={draft} onChange={setDraft} />}
+          {mode === 'view' && (
+            <div style={{ height: '100%', overflow: 'auto' }}>
+              <div className={styles.prose} style={{ maxWidth: 880, margin: '0 auto', padding: 24 }}>
+                <AxMarkdown source={draft} onEditBlock={handleEditBlock} />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <Drawer
+          open={editingBlock !== null}
+          onClose={() => setEditingBlock(null)}
+          width={720}
+          title={editingBlock ? `Edit ${editingBlock.tag}` : ''}
+          styles={{ body: { padding: 0 } }}
+        >
+          {editingBlock && (
+            <BlockEditor
+              key={editingBlock.start}
+              initialBody={editingBlock.body}
+              kind={editingBlock.kind}
+              tag={editingBlock.tag}
+              blockId={editingBlockId}
+              onSave={handleBlockSave}
+              onCancel={() => setEditingBlock(null)}
+            />
+          )}
+        </Drawer>
+      </Flex>
+    </BlockEditContext.Provider>
   )
 })
+
+// Tolerant id extraction — works even if surrounding JSON is mid-edit.
+function extractId(body: string): string {
+  const m = /"id"\s*:\s*"([^"]+)"/.exec(body)
+  return m?.[1] ?? ''
+}

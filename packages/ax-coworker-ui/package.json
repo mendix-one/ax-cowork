@@ -19,7 +19,16 @@
     "@ant-design/icons": "^6.2.2",
     "@ax-cowork/control-table": "workspace:*",
     "@ax-cowork/markdown": "workspace:*",
+    "@codemirror/lang-markdown": "^6.3.0",
+    "@codemirror/view": "^6.34.0",
     "@fontsource/roboto": "^5.2.10",
+    "@tiptap/core": "^2.10.0",
+    "@tiptap/pm": "^2.10.0",
+    "@tiptap/react": "^2.10.0",
+    "@tiptap/starter-kit": "^2.10.0",
+    "@tiptap/suggestion": "^2.10.0",
+    "@uiw/react-codemirror": "^4.23.7",
+    "tiptap-markdown": "^0.8.10",
     "echarts": "^5.5.1",
     "echarts-for-react": "^3.0.2",
     "@mdi/js": "^7.4.47",
@@ -36,7 +45,8 @@
     "react-i18next": "^17.0.6",
     "react-resizable-panels": "^4.11.0",
     "react-router-dom": "^7.15.0",
-    "sass": "^1.99.0"
+    "sass": "^1.99.0",
+    "tippy.js": "^6.3.7"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

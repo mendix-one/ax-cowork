@@ -26,10 +26,6 @@ export const index = createBrowserRouter([
             path: 'docs/:id',
             lazy: async () => ({ Component: (await import('@/pages/markdown-view/MarkdownViewPage.tsx')).MarkdownViewPage }),
           },
-          {
-            path: 'docs/:id/edit/:blockId',
-            lazy: async () => ({ Component: (await import('@/pages/markdown-edit-block/MarkdownEditBlockPage.tsx')).MarkdownEditBlockPage }),
-          },
         ],
       },
     ],

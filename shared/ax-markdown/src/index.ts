@@ -5,3 +5,13 @@ export type { ChartBlockJson, TableBlockJson, TableColumnJson } from './schemas'
 export { AX_MARKDOWN_BLOCK_PROMPT } from './prompt'
 export { findBlock, replaceBlock } from './source-ops'
 export type { FoundBlock } from './source-ops'
+// Block components — exposed so external editors (TipTap NodeViews etc.) can
+// render the same widgets the markdown renderer uses, ensuring consistent UX.
+export { ChartBlock } from './blocks/ChartBlock'
+export type { ChartBlockProps } from './blocks/ChartBlock'
+export { TableBlock } from './blocks/TableBlock'
+export type { TableBlockProps } from './blocks/TableBlock'
+export { BlockError } from './blocks/BlockError'
+export type { BlockErrorProps } from './blocks/BlockError'
+export { BlockFrame } from './BlockFrame'
+export type { BlockFrameProps } from './BlockFrame'
