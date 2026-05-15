@@ -20,6 +20,8 @@
     "@ax-cowork/control-table": "workspace:*",
     "@fontsource/roboto": "^5.2.10",
     "@mdi/js": "^7.4.47",
+    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.13.24",
     "antd": "^6.3.7",
     "antd-style": "^4.1.0",
     "i18next": "^26.0.9",

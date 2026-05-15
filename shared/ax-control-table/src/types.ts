@@ -1,72 +1,71 @@
-import type { TableProps, TableColumnType } from 'antd'
-import type { FilterValue, SorterResult, TablePaginationConfig } from 'antd/es/table/interface'
-import type { Key } from 'react'
+import type { Key, ReactNode } from 'react'
 
-/** Extended column definition with visibility and pinning control. */
-export interface ControlTableColumn<T = unknown> extends TableColumnType<T> {
-  /** Unique key for this column. */
-  key: Key
-  /** Whether the column is visible. Defaults to `true`. */
-  visible?: boolean
-  /** Whether the user can toggle this column's visibility. Defaults to `true`. */
-  toggleable?: boolean
+/** Cell value type — affects rendering (numeric cells get color-coded backgrounds, right-aligned, tabular-nums). */
+export type ColumnKind = 'number' | 'string'
+
+/** Column definition for `<AxControlTable>`. */
+export interface ControlTableColumn<T> {
+  /** Stable column id; used as React key and TanStack column id. */
+  key: string
+  /** Header label (string for sort/click — pass a render prop via `headerRender` for custom JSX). */
+  title: string
+  /** Pull the cell value from a row. Returning `number` for numeric columns enables auto color-bucket background. */
+  accessor: (row: T) => string | number
+  /** Allow click-to-sort on this column. Defaults to `true`. */
+  sortable?: boolean
+  /** Cell kind. `'number'` triggers color-bucket backgrounds + right-aligned tabular-nums rendering. Defaults to `'string'`. */
+  kind?: ColumnKind
+  /** Pixel width. Defaults to the table's `defaultColumnWidth` (160). */
+  width?: number
+  /** Per-column custom render. If set, takes precedence over the table's `renderCell`. */
+  render?: (value: string | number, row: T) => ReactNode
+  /** Cell text alignment. Defaults to `'left'` for string kind, `'right'` for number kind. */
+  align?: 'left' | 'center' | 'right'
 }
 
-/** Pagination state managed by the table. */
-export interface ControlTablePagination {
-  current: number
-  pageSize: number
-  total?: number
+/** Optional thresholds for numeric column color-bucket backgrounds. */
+export interface NumberBucketThresholds {
+  /** Value `> high` → `colorHigh` background. */
+  high: number
+  /** Value `>= low` and `<= high` → `colorMid` background. */
+  low: number
 }
 
-/** Sort state managed by the table. */
-export interface ControlTableSort<T = unknown> {
-  field: keyof T | string | undefined
-  order: 'ascend' | 'descend' | undefined
-}
-
-/** Filter state managed by the table. */
-export type ControlTableFilters = Record<string, FilterValue | null>
-
-/** Callback payload emitted on every table state change. */
-export interface ControlTableChangeEvent<T = unknown> {
-  pagination: ControlTablePagination
-  filters: ControlTableFilters
-  sorter: SorterResult<T> | SorterResult<T>[]
+/** Custom color mapping for numeric column backgrounds. Pass any RGBA/HEX. */
+export interface NumberBucketColors {
+  high: string
+  mid: string
+  low: string
 }
 
 /** Props for `<AxControlTable>`. */
-export interface AxControlTableProps<T extends object = Record<string, unknown>> extends Omit<
-  TableProps<T>,
-  'columns' | 'onChange' | 'pagination' | 'title' | 'scroll'
-> {
-  /** Column definitions with visibility control. */
+export interface AxControlTableProps<T> {
+  /** Row data. */
+  data: T[]
+  /** Column definitions. */
   columns: ControlTableColumn<T>[]
-
-  /** Controlled pagination state. Pass `false` to disable pagination. */
-  pagination?: ControlTablePagination | false
-
-  /** Controlled sort state. */
-  sort?: ControlTableSort<T>
-
-  /** Controlled filter state. */
-  filters?: ControlTableFilters
-
-  /** Fired whenever pagination, sorting, or filtering changes. */
-  onChange?: (event: ControlTableChangeEvent<T>) => void
-
-  /** Fired when column visibility changes. Returns the full column array with updated `visible` flags. */
-  onColumnsChange?: (columns: ControlTableColumn<T>[]) => void
-
-  /** Show the column-visibility toggle in the header. Defaults to `false`. */
+  /** Stable identity per row (used for selection state and React keys). */
+  rowKey: (row: T) => Key
+  /** Controlled selection — set of selected row keys. */
+  selectedKeys?: Key[]
+  /** Fired when selection changes (checkbox click, header select-all). */
+  onSelectionChange?: (keys: Key[]) => void
+  /** Custom render for string cells. Numeric cells are always rendered as plain numbers. */
+  renderCell?: (value: string) => ReactNode
+  /** Numeric color-bucket thresholds. Defaults to `{ high: 10, low: 5 }`. */
+  numberBuckets?: NumberBucketThresholds
+  /** Numeric color-bucket background colors. Defaults to AntD-aligned tints (error/success/secondary). */
+  numberColors?: NumberBucketColors
+  /** Default column width if `column.width` not set. Defaults to 160. */
+  defaultColumnWidth?: number
+  /** Row height in pixels. Defaults to 32. */
+  rowHeight?: number
+  /** Header height in pixels. Defaults to 36. */
+  headerHeight?: number
+  /** Show the column-toggle button at the top-right of the grid. Defaults to `true`. */
   showColumnToggle?: boolean
-
-  /** Placeholder text for the column-toggle search input. */
-  columnToggleSearchPlaceholder?: string
-
-  /** Loading state. */
-  loading?: boolean
+  /** Show per-column filter dropdown in headers. Defaults to `true`. */
+  showColumnFilter?: boolean
+  /** Show a sticky-left row-number column ("#"). Reflects visible position (1-based) after sort/filter. Defaults to `false`. */
+  showRowNumber?: boolean
 }
-
-/** Re-export antd types consumers will commonly need. */
-export type { TablePaginationConfig, FilterValue, SorterResult }

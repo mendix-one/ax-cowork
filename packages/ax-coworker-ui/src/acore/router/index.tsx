@@ -18,6 +18,10 @@ export const index = createBrowserRouter([
             index: true,
             lazy: async () => ({ Component: (await import('@/pages/home/HomePage.tsx')).HomePage }),
           },
+          {
+            path: 'control-table',
+            lazy: async () => ({ Component: (await import('@/pages/control-table-demo/ControlTableDemoPage.tsx')).ControlTableDemoPage }),
+          },
         ],
       },
     ],

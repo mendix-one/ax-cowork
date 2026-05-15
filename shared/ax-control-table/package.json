@@ -1,7 +1,7 @@
 {
   "name": "@ax-cowork/control-table",
-  "version": "1.0.0",
-  "description": "Controllable data table component for AX Cowork (React + Ant Design + Tailwind CSS).",
+  "version": "2.0.0",
+  "description": "Virtualized data grid for AX Cowork (TanStack Table + Virtual + AntD primitives).",
   "private": true,
   "type": "module",
   "main": "./dist/ax-control-table.js",
@@ -24,6 +24,9 @@
     "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,scss,md}\""
   },
   "peerDependencies": {
+    "@ant-design/icons": ">=6.0.0",
+    "@tanstack/react-table": ">=8.0.0",
+    "@tanstack/react-virtual": ">=3.0.0",
     "antd": ">=6.0.0",
     "react": ">=19.0.0",
     "react-dom": ">=19.0.0"
@@ -31,6 +34,8 @@
   "devDependencies": {
     "@ant-design/icons": "^6.2.2",
     "@eslint/js": "^10.0.1",
+    "@tanstack/react-table": "^8.21.3",
+    "@tanstack/react-virtual": "^3.13.24",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.1",

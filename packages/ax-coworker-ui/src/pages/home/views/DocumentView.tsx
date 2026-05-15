@@ -1,8 +1,6 @@
-import { useState, useCallback } from 'react'
 import { observer } from 'mobx-react-lite'
 import { Tag, Typography } from 'antd'
-import { AxControlTable } from '@ax-cowork/control-table'
-import type { ControlTableColumn, ControlTablePagination, ControlTableSort, ControlTableFilters, ControlTableChangeEvent } from '@ax-cowork/control-table'
+import { AxControlTable, type ControlTableColumn } from '@ax-cowork/control-table'
 
 const { Text } = Typography
 
@@ -31,89 +29,28 @@ const stackData: StackRow[] = [
   { key: '13', category: 'Monitoring', technology: 'Prometheus + Grafana', score: 8.9, runnerUp: 'Datadog', status: '✓' },
 ]
 
-const categories = [...new Set(stackData.map((r) => r.category))]
-
-const initialColumns: ControlTableColumn<StackRow>[] = [
+const COLUMNS: ControlTableColumn<StackRow>[] = [
+  { key: 'key', title: '#', accessor: (r) => r.key, width: 50 },
+  { key: 'category', title: 'Category', accessor: (r) => r.category, width: 180 },
+  { key: 'technology', title: 'Technology', accessor: (r) => r.technology, width: 220 },
   {
-    title: '#',
-    dataIndex: 'key',
-    key: 'key',
-    width: 50,
-    fixed: 'left',
-    toggleable: false,
-  },
-  {
-    title: 'Category',
-    dataIndex: 'category',
-    key: 'category',
-    width: 180,
-    fixed: 'left',
-    filters: categories.map((c) => ({ text: c, value: c })),
-    onFilter: (value, record) => record.category === value,
-  },
-  {
-    title: 'Technology',
-    dataIndex: 'technology',
-    key: 'technology',
-    width: 220,
-    fixed: 'left',
-  },
-  {
-    title: 'Score',
-    dataIndex: 'score',
     key: 'score',
+    title: 'Score',
+    accessor: (r) => r.score,
+    kind: 'number',
     width: 100,
-    align: 'right' as const,
-    sorter: (a, b) => a.score - b.score,
-    render: (v: number) => <Text strong>{v.toFixed(1)}</Text>,
+    render: (v) => <Text strong>{(v as number).toFixed(1)}</Text>,
   },
   {
-    title: 'Runner-up',
-    dataIndex: 'runnerUp',
     key: 'runnerUp',
+    title: 'Runner-up',
+    accessor: (r) => r.runnerUp,
     width: 180,
-    render: (v: string) => <Tag>{v}</Tag>,
+    render: (v) => <Tag>{String(v)}</Tag>,
   },
-  {
-    title: 'Status',
-    dataIndex: 'status',
-    key: 'status',
-    width: 80,
-    align: 'center' as const,
-  },
+  { key: 'status', title: 'Status', accessor: (r) => r.status, width: 80, align: 'center' },
 ]
 
 export const DocumentView = observer(() => {
-  const [columns, setColumns] = useState<ControlTableColumn<StackRow>[]>(initialColumns)
-  const [pagination, setPagination] = useState<ControlTablePagination>({ current: 1, pageSize: 20, total: stackData.length })
-  const [sort, setSort] = useState<ControlTableSort<StackRow>>({ field: undefined, order: undefined })
-  const [filters, setFilters] = useState<ControlTableFilters>({})
-
-  const handleChange = useCallback((event: ControlTableChangeEvent<StackRow>) => {
-    setPagination(event.pagination)
-    setFilters(event.filters)
-
-    const srt = Array.isArray(event.sorter) ? event.sorter[0] : event.sorter
-    setSort({ field: srt?.field as string | undefined, order: srt?.order ?? undefined })
-  }, [])
-
-  const handleColumnsChange = useCallback((next: ControlTableColumn<StackRow>[]) => {
-    setColumns(next)
-  }, [])
-
-  return (
-    <AxControlTable<StackRow>
-      columns={columns}
-      dataSource={stackData}
-      pagination={pagination}
-      sort={sort}
-      filters={filters}
-      onChange={handleChange}
-      onColumnsChange={handleColumnsChange}
-      showColumnToggle
-      size="small"
-      bordered
-      rowKey="key"
-    />
-  )
+  return <AxControlTable<StackRow> data={stackData} columns={COLUMNS} rowKey={(row) => row.key} />
 })
