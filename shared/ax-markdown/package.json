@@ -1,0 +1,62 @@
+{
+  "name": "@ax-cowork/markdown",
+  "version": "0.1.0",
+  "description": "Markdown renderer for AX Cowork — embeds ax-control-table and ECharts blocks (AI-generated snapshots).",
+  "private": true,
+  "type": "module",
+  "main": "./dist/ax-markdown.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/ax-markdown.js"
+    }
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "vite build && tsc --emitDeclarationOnly",
+    "dev": "concurrently -k -n vite,types -c blue,cyan \"vite build --watch\" \"tsc --emitDeclarationOnly --watch --preserveWatchOutput\"",
+    "clean": "rm -rf dist",
+    "lint": "eslint src",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,scss,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,scss,md}\""
+  },
+  "peerDependencies": {
+    "@ax-cowork/control-table": "workspace:*",
+    "antd": ">=6.0.0",
+    "echarts": ">=5.0.0",
+    "echarts-for-react": ">=3.0.0",
+    "react": ">=19.0.0",
+    "react-dom": ">=19.0.0"
+  },
+  "dependencies": {
+    "react-markdown": "^9.0.1",
+    "rehype-sanitize": "^6.0.0",
+    "remark-gfm": "^4.0.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@ax-cowork/control-table": "workspace:*",
+    "@eslint/js": "^10.0.1",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@vitejs/plugin-react": "^6.0.1",
+    "antd": "^6.3.7",
+    "concurrently": "^9.2.1",
+    "echarts": "^5.5.1",
+    "echarts-for-react": "^3.0.2",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.5.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "typescript": "~6.0.2",
+    "typescript-eslint": "^8.58.2",
+    "vite": "^8.0.10",
+    "vitest": "^4.1.6"
+  }
+}

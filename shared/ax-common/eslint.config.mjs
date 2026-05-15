@@ -14,6 +14,9 @@ export default tseslint.config(
   {
     languageOptions: {
       globals: globals.node,
+      parserOptions: {
+        tsconfigRootDir: import.meta.dirname,
+      },
     },
     rules: {
       indent: ['error', 2, { SwitchCase: 1 }],

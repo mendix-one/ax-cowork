@@ -18,7 +18,10 @@
   "dependencies": {
     "@ant-design/icons": "^6.2.2",
     "@ax-cowork/control-table": "workspace:*",
+    "@ax-cowork/markdown": "workspace:*",
     "@fontsource/roboto": "^5.2.10",
+    "echarts": "^5.5.1",
+    "echarts-for-react": "^3.0.2",
     "@mdi/js": "^7.4.47",
     "@tanstack/react-table": "^8.21.3",
     "@tanstack/react-virtual": "^3.13.24",

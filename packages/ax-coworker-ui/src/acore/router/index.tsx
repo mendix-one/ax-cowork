@@ -22,6 +22,14 @@ export const index = createBrowserRouter([
             path: 'control-table',
             lazy: async () => ({ Component: (await import('@/pages/control-table-demo/ControlTableDemoPage.tsx')).ControlTableDemoPage }),
           },
+          {
+            path: 'docs/:id',
+            lazy: async () => ({ Component: (await import('@/pages/markdown-view/MarkdownViewPage.tsx')).MarkdownViewPage }),
+          },
+          {
+            path: 'docs/:id/edit/:blockId',
+            lazy: async () => ({ Component: (await import('@/pages/markdown-edit-block/MarkdownEditBlockPage.tsx')).MarkdownEditBlockPage }),
+          },
         ],
       },
     ],

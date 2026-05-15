@@ -1,5 +1,6 @@
 import { Avatar, Divider, Flex, Layout, Space, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
+import { useNavigate } from 'react-router-dom'
 import avatarLight from '@/assets/avatar-light.png'
 import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 import { AxMenuBox } from '@/shared/menu-box/AxMenuBox.tsx'
@@ -7,6 +8,7 @@ import { AxDocItem } from '@/shared/doc-item/AxDocItem.tsx'
 
 export const AppLayoutTop = () => {
   const { t } = useTranslation('app')
+  const navigate = useNavigate()
   return (
     <Layout.Header className="ax-layout-top">
       <Flex align="center" justify="space-between" gap="small" style={{ height: '100%' }}>
@@ -25,7 +27,7 @@ export const AppLayoutTop = () => {
         </Flex>
         <Flex align="center" justify="end" gap="small">
           <Space size={8}>
-            <AxDocItem icon="mdiFileDocumentOutline" name="Document Name" title="Document Name" />
+            <AxDocItem icon="mdiFileDocumentOutline" name="Q1 status report" title="Markdown demo (chart + table)" onClick={() => navigate('/docs/demo')} />
             <AxDocItem icon="mdiFileDocumentOutline" name="Document Name" title="Document Name" />
             <AxDocItem icon="mdiFileDocumentOutline" name="Document Name" title="Document Name" />
             <AxDocItem icon="mdiFileDocumentOutline" name="Document Name" title="Document Name" />
