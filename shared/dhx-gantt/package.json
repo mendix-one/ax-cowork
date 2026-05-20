@@ -1,0 +1,8 @@
+{
+  "name": "@dhx/gantt",
+  "type": "module",
+  "version": "1.0.0",
+  "description": "An open source JavaScript Gantt chart that helps you illustrate a project schedule in a nice-looking chart.",
+  "main": "dist/dhtmlxgantt.es.js",
+  "types": "dist/dhtmlxgantt.es.d.ts"
+}
