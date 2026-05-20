@@ -9,21 +9,22 @@ export const AppLayoutLeft = () => {
       <Flex align="center" justify="space-between" gap="small" vertical style={{ width: '100%', height: '100%', padding: '2px 4px' }}>
         <Flex align="center" justify="start" gap="small" vertical style={{ width: '100%' }}>
           <Space vertical size={8}>
-            <AxMenuIcon icon="mdiDnsOutline" title={t('tooltip.project')} placement="right" />
-            <AxMenuIcon icon="mdiInboxFullOutline" title={t('tooltip.inbox')} placement="right" />
-            <AxMenuIcon icon="mdiCardTextOutline" title={t('tooltip.task')} placement="right" />
+            <AxMenuIcon icon="mdiChartGantt" title="Simulation View" placement="right" />
+            <AxMenuIcon icon="mdiChartBar" title="Analysis View" placement="right" />
+            <AxMenuIcon icon="mdiFormatListBulletedType" title="Project List" placement="right" />
+            <AxMenuIcon icon="mdiTableLarge" title="PM Data" placement="right" />
           </Space>
           <Divider style={{ margin: '0' }} className="ax-menu-divider" />
           <Space vertical size={8}>
-            <AxMenuIcon icon="mdiSourceCommit" title={t('tooltip.commit')} placement="right" />
-            <AxMenuIcon icon="mdiSourcePull" title={t('tooltip.pullRequest')} placement="right" />
-            <AxMenuIcon icon="mdiSourceBranch" title={t('tooltip.branch')} placement="right" />
+            <AxMenuIcon icon="mdiTicketPercentOutline" title="Tunning Logic" placement="right" />
+            <AxMenuIcon icon="mdiAlarmPanelOutline" title="PM Standard" placement="right" />
+            <AxMenuIcon icon="mdiTicketOutline" title="Factor" placement="right" />
           </Space>
           <Divider style={{ margin: '0' }} className="ax-menu-divider" />
           <Space vertical size={8}>
-            <AxMenuIcon icon="mdiCalendarMonthOutline" title={t('tooltip.calendar')} placement="right" />
-            <AxMenuIcon icon="mdiHubOutline" title={t('tooltip.channel')} placement="right" />
-            <AxMenuIcon icon="mdiMessageTextOutline" title={t('tooltip.chat')} placement="right" />
+            <AxMenuIcon icon="mdiDatabaseOutline" title="Data Archving" placement="right" />
+            <AxMenuIcon icon="mdiDatabaseOutline" title="Data Integration" placement="right" />
+            <AxMenuIcon icon="mdiDatabaseOutline" title="Data Archving" placement="right" />
           </Space>
         </Flex>
         <Flex align="center" justify="start" gap="small" vertical style={{ width: '100%' }}>

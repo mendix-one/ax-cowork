@@ -34,7 +34,7 @@ p {
 // === LAYOUT ELEMENTS =================================================================================================
 
 .ax-menu-icon {
-  @apply w-7 h-7 rounded-md cursor-pointer flex items-center justify-center;
+  @apply w-8 h-8 rounded-md cursor-pointer flex items-center justify-center;
   @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
 
   &:hover {
@@ -42,7 +42,7 @@ p {
   }
 
   &:active {
-    @apply bg-neutral-500 text-white;
+    @apply bg-neutral-600 text-white;
   }
 
   &.is-active {
@@ -51,12 +51,12 @@ p {
 }
 
 .ax-menu-box {
-  @apply w-auto h-7 rounded-md cursor-pointer flex items-center justify-center gap-2 px-1;
+  @apply w-auto h-8 rounded-md cursor-pointer flex items-center justify-center gap-2 px-1;
   @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
   @apply text-neutral-800;
 
   &_text {
-    @apply text-ellipsis font-medium;
+    @apply leading-5 text-ellipsis font-medium;
   }
 
   &:hover {
@@ -64,7 +64,7 @@ p {
   }
 
   &:active {
-    @apply bg-neutral-500 text-white;
+    @apply bg-neutral-600 text-white;
   }
 
   &.is-active {

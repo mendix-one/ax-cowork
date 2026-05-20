@@ -21,8 +21,12 @@ export const AppLayoutTop = () => {
             </Flex>
           </Space>
           <Space size={8}>
-            <AxMenuBox icon="mdiFolderOutline" label="aPlanner" />
-            <AxMenuBox icon="mdiSourceBranch" label="Main" />
+            <AxMenuIcon icon="mdiHomeOutline" title="Home" placement="bottom" />
+            <AxMenuIcon icon="mdiEarth" title="World Map" placement="bottom" />
+          </Space>
+          <Space size={8}>
+            <AxMenuBox icon="mdiDnsOutline" label="M-SOC" title="Production Line: M-SOC" placement="bottom" />
+            <AxMenuBox icon="mdiCardBulletedOutline" label="Plan A (Simulation)" title="Simulation: Plan A" placement="bottom" />
           </Space>
         </Flex>
         <Flex align="center" justify="end" gap="small">
