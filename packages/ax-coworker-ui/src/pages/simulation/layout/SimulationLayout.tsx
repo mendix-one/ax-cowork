@@ -5,17 +5,18 @@ import { observer } from 'mobx-react-lite'
 import type { MainPanelControls, SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 import { AIAssistantPanel } from '@/agent/AIAssistantPanel.tsx'
 import { WorkerTasksPanel } from '@/worker/WorkerTasksPanel.tsx'
-import { simulationStore, type MainPanelId, type PanelId } from '../store/simulation.store.ts'
-import { SimulationAnalysisPanel } from '../views/analysis/SimulationAnalysisPanel.tsx'
-import { SimulationDatasetPanel } from '../views/dataset/SimulationDatasetPanel.tsx'
-import { SimulationFactorPanel } from '../views/factor/SimulationFactorPanel.tsx'
-import { SimulationGanttPanel } from '../views/gantt/SimulationGanttPanel.tsx'
-import { SimulationIntegrationPanel } from '../views/integration/SimulationIntegrationPanel.tsx'
-import { SimulationProjectPanel } from '../views/project/SimulationProjectPanel.tsx'
-import { SimulationSchemaPanel } from '../views/schema/SimulationSchemaPanel.tsx'
-import { SimulationSettingPanel } from '../views/setting/SimulationSettingPanel.tsx'
-import { SimulationStandardPanel } from '../views/standard/SimulationStandardPanel.tsx'
-import { SimulationTuningPanel } from '../views/tuning/SimulationTuningPanel.tsx'
+import { SplitViewPanel } from '@/split-view/SplitViewPanel.tsx'
+import { simulationStore, type MainPanelId, type PanelId, type SubPanelId } from '../store/simulation.store.ts'
+import { SimulationAnalysisPanel } from '@/pages/simulation/panels/analysis/SimulationAnalysisPanel.tsx'
+import { SimulationDatasetPanel } from '@/pages/simulation/panels/dataset/SimulationDatasetPanel.tsx'
+import { SimulationFactorPanel } from '@/pages/simulation/panels/factor/SimulationFactorPanel.tsx'
+import { SimulationGanttPanel } from '@/pages/simulation/panels/gantt/SimulationGanttPanel.tsx'
+import { SimulationIntegrationPanel } from '@/pages/simulation/panels/integration/SimulationIntegrationPanel.tsx'
+import { SimulationProjectPanel } from '@/pages/simulation/panels/project/SimulationProjectPanel.tsx'
+import { SimulationSchemaPanel } from '@/pages/simulation/panels/schema/SimulationSchemaPanel.tsx'
+import { SimulationSettingPanel } from '@/pages/simulation/panels/setting/SimulationSettingPanel.tsx'
+import { SimulationStandardPanel } from '@/pages/simulation/panels/standard/SimulationStandardPanel.tsx'
+import { SimulationTuningPanel } from '@/pages/simulation/panels/tuning/SimulationTuningPanel.tsx'
 import { SimulationLayoutTop } from './SimulationLayoutTop.tsx'
 import { SimulationLayoutBottom } from './SimulationLayoutBottom.tsx'
 import { SimulationLayoutLeft } from './SimulationLayoutLeft.tsx'
@@ -53,6 +54,12 @@ const MAIN_PANELS: Record<MainPanelId, ComponentType<MainPanelControls>> = {
   schema: SimulationSchemaPanel,
 }
 
+const SUB_PANELS: Record<SubPanelId, ComponentType<SubPanelControls>> = {
+  splitView: SplitViewPanel,
+  aiAssistant: AIAssistantPanel,
+  progress: WorkerTasksPanel,
+}
+
 const useStyles = createStyles(({ token }) => ({
   dragger: {
     '&::before': {
@@ -75,6 +82,10 @@ const useStyles = createStyles(({ token }) => ({
     height: '100%',
     width: '100%',
   },
+  subSlot: {
+    height: '100%',
+    width: '100%',
+  },
 }))
 
 const MainPanelStack = observer(({ controls, slotClassName }: { controls: MainPanelControls; slotClassName: string }) => {
@@ -83,6 +94,23 @@ const MainPanelStack = observer(({ controls, slotClassName }: { controls: MainPa
     <>
       {(Object.keys(MAIN_PANELS) as MainPanelId[]).map((id) => {
         const Panel = MAIN_PANELS[id]
+        const isActive = id === active
+        return (
+          <div key={id} className={slotClassName} style={{ display: isActive ? 'block' : 'none' }}>
+            <Panel {...controls} />
+          </div>
+        )
+      })}
+    </>
+  )
+})
+
+const SubPanelStack = observer(({ controls, slotClassName }: { controls: SubPanelControls; slotClassName: string }) => {
+  const active = simulationStore.activeSubPanel
+  return (
+    <>
+      {(Object.keys(SUB_PANELS) as SubPanelId[]).map((id) => {
+        const Panel = SUB_PANELS[id]
         const isActive = id === active
         return (
           <div key={id} className={slotClassName} style={{ display: isActive ? 'block' : 'none' }}>
@@ -146,6 +174,7 @@ export const SimulationLayout = observer(() => {
   }
 
   const renderMain = (controls: MainPanelControls) => <MainPanelStack controls={controls} slotClassName={styles.mainSlot} />
+  const renderSub = (controls: SubPanelControls) => <SubPanelStack controls={controls} slotClassName={styles.subSlot} />
 
   const layout: Region = {
     kind: 'splitter',
@@ -157,24 +186,7 @@ export const SimulationLayout = observer(() => {
         max: '90%',
       },
       {
-        region: {
-          kind: 'splitter',
-          vertical: true,
-          children: [
-            {
-              region: { kind: 'panel', id: 'regionRightTop', type: 'sub', render: (controls) => <AIAssistantPanel {...controls} /> },
-              defaultSize: '50%',
-              min: '15%',
-              max: '85%',
-            },
-            {
-              region: { kind: 'panel', id: 'regionRightBottom', type: 'sub', render: (controls) => <WorkerTasksPanel {...controls} /> },
-              defaultSize: '50%',
-              min: '15%',
-              max: '85%',
-            },
-          ],
-        },
+        region: { kind: 'panel', id: 'regionRight', type: 'sub', render: renderSub },
         defaultSize: '30%',
         min: '10%',
         max: '80%',
