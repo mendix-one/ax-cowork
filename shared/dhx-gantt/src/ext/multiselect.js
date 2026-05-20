@@ -224,7 +224,6 @@ export default function (gantt) {
       return true
     },
   }
-
   ;(function () {
     var old_selectTask = gantt.selectTask
     gantt.selectTask = function (id) {

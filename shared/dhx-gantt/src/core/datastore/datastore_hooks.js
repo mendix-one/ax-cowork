@@ -227,7 +227,6 @@ function initDataStores(gantt) {
 
     return gantt.callEvent('onBeforeLinkDisplay', [id, link])
   })
-
   ;(function () {
     // delete all connected links after task is deleted
     var deletedLinks = {}

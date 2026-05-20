@@ -268,7 +268,6 @@ function createHelper(gantt) {
 
     initEditableDiagram: function () {
       gantt.config.resource_render_empty_cells = true
-
       ;(function () {
         /// salesforce locker workaround
         // SF removes 'contenteditable' attribute from cells

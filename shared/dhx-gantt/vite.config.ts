@@ -18,7 +18,7 @@ export default defineConfig({
     dts({
       insertTypesEntry: true,
       outDir: 'dist',
-      include: ['**/*.ts', 'types.d.ts'],
+      include: ['src/**/*.ts'],
       exclude: ['node_modules', 'dist', 'vite.config.ts'],
       rollupTypes: true,
     }),
@@ -33,7 +33,7 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     lib: {
-      entry: './dhtmlxgantt.web.ts',
+      entry: './src/dhtmlxgantt.web.ts',
       formats: ['es'],
       fileName: () => 'dhtmlxgantt.es.js',
     },

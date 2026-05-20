@@ -11,11 +11,11 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "outDir": "dist",
-    "rootDir": ".",
+    "rootDir": "src",
     "isolatedModules": false,
     "noImplicitAny": false,
     "lib": ["ES2020", "DOM"]
   },
-  "include": ["**/*.ts", "types.d.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules", "dist"]
 }

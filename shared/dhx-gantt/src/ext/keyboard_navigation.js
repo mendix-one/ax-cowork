@@ -45,7 +45,6 @@ export default function (gantt) {
     task_cell(gantt)
     modals(gantt)
     core(gantt)
-
     ;(function () {
       var dispatcher = gantt.$keyboardNavigation.dispatcher
 
