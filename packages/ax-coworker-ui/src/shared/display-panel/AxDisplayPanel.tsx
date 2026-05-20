@@ -14,6 +14,7 @@ export type SubPanelControls = {
 type BaseProps = {
   icon: MdiIconName
   title: string
+  tools?: ReactNode
   children?: ReactNode
 }
 
@@ -34,6 +35,7 @@ export const AxDisplayPanel = (props: AxDisplayPanelProps) => {
           <AxMuiIcon icon={props.icon} size="20px" className="ax-display-panel_header_title_icon" />
           <p className="ax-display-panel_header_title_text">{props.title}</p>
         </div>
+        <div className="ax-display-panel_header_tools">{props.tools}</div>
         <div className="ax-display-panel_header_option">
           <button className="ax-display-panel_header_option_button" type="button" title={action.title} onClick={action.onClick}>
             <AxMuiIcon icon={action.icon} size="16px" className="ax-display-panel_header_title_icon" />

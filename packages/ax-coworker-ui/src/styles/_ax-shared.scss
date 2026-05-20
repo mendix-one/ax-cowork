@@ -179,7 +179,7 @@ p {
 
   &_header {
     @apply w-full h-9 px-2 rounded-t;
-    @apply flex items-center justify-between;
+    @apply flex items-center justify-between gap-2;
     @apply border-b border-gray-300;
     @apply text-neutral-800 bg-neutral-100;
 
@@ -193,6 +193,10 @@ p {
       &_text {
         @apply text-ellipsis font-semibold;
       }
+    }
+
+    &_tools {
+      @apply grow h-full flex items-center justify-between gap-1;
     }
 
     &_option {
