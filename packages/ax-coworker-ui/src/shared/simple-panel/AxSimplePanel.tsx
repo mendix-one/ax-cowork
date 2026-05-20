@@ -2,18 +2,17 @@ import { type ReactNode } from 'react'
 import { Dropdown, type DropdownProps, type MenuProps } from 'antd'
 import { AxMuiIcon, type MdiIconName } from '../mui-icon/AxMuiIcon.tsx'
 
-export type AxSimplePanelProps = {
+export type PanelControls = {
+  maximized?: boolean
+  onMaximize?: () => void
+  onRestore?: () => void
+  onHide?: () => void
+}
+
+export type AxSimplePanelProps = PanelControls & {
   icon: MdiIconName
   title: string
   children?: ReactNode
-  minimized?: boolean
-  maximized?: boolean
-  onMinimize?: () => void
-  onMaximize?: () => void
-  onRestore?: () => void
-  onMoveLeft?: () => void
-  onMoveRight?: () => void
-  onClose?: () => void
 }
 
 const objectStyles: DropdownProps['styles'] = {
@@ -39,42 +38,25 @@ const objectStyles: DropdownProps['styles'] = {
 }
 
 export const AxSimplePanel = (props: AxSimplePanelProps) => {
-  const { minimized = false, maximized = false } = props
-  const isAltered = minimized || maximized
-
-  const sizeMenuItems: MenuProps['items'] = isAltered
-    ? [{ key: 'restore', label: 'Restore', icon: <AxMuiIcon icon="mdiWindowRestore" size={12} /> }]
-    : [
-        { key: 'minimize', label: 'Minimize', icon: <AxMuiIcon icon="mdiWindowMinimize" size={12} /> },
-        { key: 'maximize', label: 'Maximize', icon: <AxMuiIcon icon="mdiWindowMaximize" size={12} /> },
-      ]
+  const { maximized = false } = props
 
   const menuItems: MenuProps['items'] = [
-    ...sizeMenuItems,
-    { key: 'move-left', label: 'Move left', icon: <AxMuiIcon icon="mdiArrowLeft" size={12} /> },
-    { key: 'move-right', label: 'Move right', icon: <AxMuiIcon icon="mdiArrowRight" size={12} /> },
-    { key: 'close', label: 'Close', icon: <AxMuiIcon icon="mdiWindowClose" size={12} /> },
+    maximized
+      ? { key: 'restore', label: 'Restore', icon: <AxMuiIcon icon="mdiWindowRestore" size={12} /> }
+      : { key: 'maximize', label: 'Maximize', icon: <AxMuiIcon icon="mdiWindowMaximize" size={12} /> },
+    { key: 'hide', label: 'Hide', icon: <AxMuiIcon icon="mdiEyeOffOutline" size={12} /> },
   ]
 
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
     switch (key) {
-      case 'minimize':
-        props.onMinimize?.()
-        break
       case 'maximize':
         props.onMaximize?.()
         break
       case 'restore':
         props.onRestore?.()
         break
-      case 'move-left':
-        props.onMoveLeft?.()
-        break
-      case 'move-right':
-        props.onMoveRight?.()
-        break
-      case 'close':
-        props.onClose?.()
+      case 'hide':
+        props.onHide?.()
         break
     }
   }
@@ -94,7 +76,7 @@ export const AxSimplePanel = (props: AxSimplePanelProps) => {
           </Dropdown>
         </div>
       </div>
-      {!minimized && <div className="ax-simple-panel_body">{props.children}</div>}
+      <div className="ax-simple-panel_body">{props.children}</div>
     </div>
   )
 }

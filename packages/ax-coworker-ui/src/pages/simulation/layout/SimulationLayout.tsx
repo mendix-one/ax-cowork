@@ -1,23 +1,22 @@
 import { type CSSProperties, type ReactNode } from 'react'
-import { observer } from 'mobx-react-lite'
-import { ConfigProvider, Splitter } from 'antd'
+import { ConfigProvider, Layout, Splitter } from 'antd'
 import { createStyles } from 'antd-style'
-import { AxSimplePanel } from '../../shared/simple-panel/AxSimplePanel.tsx'
-import type { MdiIconName } from '../../shared/mui-icon/AxMuiIcon.tsx'
-import { TaskInfoView } from './views/TaskInfoView.tsx'
-import { ConsoleView } from './views/ConsoleView.tsx'
-import { ProgressView } from './views/ProgressView.tsx'
-import { GenerativeAIView } from './views/GenerativeAIView.tsx'
-import { DocumentView } from './views/DocumentView.tsx'
+import { observer } from 'mobx-react-lite'
+import type { PanelControls } from '@/shared/simple-panel/AxSimplePanel.tsx'
 import { useStore } from '@/acore/store/store.context'
-import type { PanelId } from '@/acore/store/home.store'
+import type { PanelId } from '@/acore/store/simulation.store'
+import { AIAssistantPanel } from '@/agent/AIAssistantPanel.tsx'
+import { WorkerTasksPanel } from '@/worker/WorkerTasksPanel.tsx'
+import { SimulationGanttPanel } from '../views/gantt/SimulationGanttPanel.tsx'
+import { SimulationLayoutTop } from './SimulationLayoutTop.tsx'
+import { SimulationLayoutBottom } from './SimulationLayoutBottom.tsx'
+import { SimulationLayoutLeft } from './SimulationLayoutLeft.tsx'
+import { SimulationLayoutRight } from './SimulationLayoutRight.tsx'
 
 type PanelRegion = {
   kind: 'panel'
   id: PanelId
-  icon: MdiIconName
-  title: string
-  content: ReactNode
+  render: (controls: PanelControls) => ReactNode
 }
 
 type SplitterChild = {
@@ -71,30 +70,22 @@ function findPanelRegion(region: Region, id: PanelId): PanelRegion | null {
   return null
 }
 
-export const HomePage = observer(() => {
+export const SimulationLayout = observer(() => {
   const { styles } = useStyles()
-  const { home } = useStore()
+  const { simulation } = useStore()
 
-  const renderPanel = (region: PanelRegion): ReactNode => {
-    return (
-      <AxSimplePanel
-        icon={region.icon}
-        title={region.title}
-        maximized={home.isMaximized(region.id)}
-        onMaximize={() => home.maximize(region.id)}
-        onRestore={() => home.restore(region.id)}
-        onHide={() => home.hide(region.id)}
-      >
-        {region.content}
-      </AxSimplePanel>
-    )
-  }
+  const controlsFor = (id: PanelId): PanelControls => ({
+    maximized: simulation.isMaximized(id),
+    onMaximize: () => simulation.maximize(id),
+    onRestore: () => simulation.restore(id),
+    onHide: () => simulation.hide(id),
+  })
 
   const renderRegion = (region: Region): ReactNode | null => {
     if (region.kind === 'panel') {
-      if (home.isHidden(region.id)) return null
-      if (home.isMaximized(region.id)) return null
-      return renderPanel(region)
+      if (simulation.isHidden(region.id)) return null
+      if (simulation.isMaximized(region.id)) return null
+      return region.render(controlsFor(region.id))
     }
 
     const [first, second] = region.children
@@ -130,41 +121,8 @@ export const HomePage = observer(() => {
     kind: 'splitter',
     children: [
       {
-        region: {
-          kind: 'splitter',
-          vertical: true,
-          children: [
-            {
-              region: {
-                kind: 'splitter',
-                children: [
-                  {
-                    region: { kind: 'panel', id: 'regionLeftSidebar', icon: 'mdiCardTextOutline', title: 'Left Sidebar Box', content: <TaskInfoView /> },
-                    defaultSize: '15%',
-                    min: '10%',
-                    max: '80%',
-                  },
-                  {
-                    region: { kind: 'panel', id: 'regionMainContent', icon: 'mdiFileDocumentOutline', title: 'Main Content Box', content: <DocumentView /> },
-                    defaultSize: '70%',
-                    min: '10%',
-                    max: '80%',
-                  },
-                ],
-              },
-              defaultSize: '75%',
-              min: '15%',
-              max: '85%',
-            },
-            {
-              region: { kind: 'panel', id: 'regionMainBottom', icon: 'mdiConsole', title: 'Main Bottom Box', content: <ConsoleView /> },
-              defaultSize: '25%',
-              min: '15%',
-              max: '85%',
-            },
-          ],
-        },
-        defaultSize: '75%',
+        region: { kind: 'panel', id: 'regionLeft', render: (controls) => <SimulationGanttPanel {...controls} /> },
+        defaultSize: '70%',
         min: '20%',
         max: '90%',
       },
@@ -174,27 +132,27 @@ export const HomePage = observer(() => {
           vertical: true,
           children: [
             {
-              region: { kind: 'panel', id: 'regionRightTop', icon: 'mdiCreationOutline', title: 'Right Top Box', content: <GenerativeAIView /> },
+              region: { kind: 'panel', id: 'regionRightTop', render: (controls) => <AIAssistantPanel {...controls} /> },
               defaultSize: '50%',
               min: '15%',
               max: '85%',
             },
             {
-              region: { kind: 'panel', id: 'regionRightBottom', icon: 'mdiProgressStarFourPoints', title: 'Right Bottom Box', content: <ProgressView /> },
+              region: { kind: 'panel', id: 'regionRightBottom', render: (controls) => <WorkerTasksPanel {...controls} /> },
               defaultSize: '50%',
               min: '15%',
               max: '85%',
             },
           ],
         },
-        defaultSize: '25%',
+        defaultSize: '30%',
         min: '10%',
         max: '80%',
       },
     ],
   }
 
-  const maximizedRegion = home.maximizedId ? findPanelRegion(layout, home.maximizedId) : null
+  const maximizedRegion = simulation.maximizedId ? findPanelRegion(layout, simulation.maximizedId) : null
 
   return (
     <ConfigProvider
@@ -204,10 +162,20 @@ export const HomePage = observer(() => {
         },
       }}
     >
-      <div className={styles.root}>
-        {renderRegion(layout)}
-        {maximizedRegion && <div className={styles.maximizedOverlay}>{renderPanel(maximizedRegion)}</div>}
-      </div>
+      <Layout className="ax-layout">
+        <SimulationLayoutTop />
+        <Layout className="ax-layout_middle">
+          <SimulationLayoutLeft />
+          <Layout.Content className="ax-layout_main">
+            <div className={styles.root}>
+              {renderRegion(layout)}
+              {maximizedRegion && <div className={styles.maximizedOverlay}>{maximizedRegion.render(controlsFor(maximizedRegion.id))}</div>}
+            </div>
+          </Layout.Content>
+          <SimulationLayoutRight />
+        </Layout>
+        <SimulationLayoutBottom />
+      </Layout>
     </ConfigProvider>
   )
 })
