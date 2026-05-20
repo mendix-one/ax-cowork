@@ -2,16 +2,24 @@
   "name": "@dhx/react-gantt",
   "version": "1.0.0",
   "private": true,
-  "main": "dist/dhtmlxgantt.react.es.js",
-  "types": "dist/dhtmlxgantt.react.es.d.ts",
+  "main": "./dist/dhtmlxgantt.react.es.js",
+  "module": "./dist/dhtmlxgantt.react.es.js",
+  "types": "./dist/types/index.d.ts",
   "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/dhtmlxgantt.react.es.js",
+      "types": "./dist/types/index.d.ts"
+    },
+    "./dist/react-gantt.css": "./dist/react-gantt.css"
+  },
   "peerDependencies": {
     "react": "^18.0.0 || ^19.0.0",
     "react-dom": "^18.0.0 || ^19.0.0"
   },
   "dependencies": {},
   "devDependencies": {
-    "@dhx/gantt": "1.0.0",
+    "@dhx/gantt": "workspace:*",
     "@eslint/js": "^9.17.0",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",

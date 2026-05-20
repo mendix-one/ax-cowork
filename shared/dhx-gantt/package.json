@@ -2,7 +2,25 @@
   "name": "@dhx/gantt",
   "type": "module",
   "version": "1.0.0",
+  "private": true,
   "description": "An open source JavaScript Gantt chart that helps you illustrate a project schedule in a nice-looking chart.",
-  "main": "dist/dhtmlxgantt.es.js",
-  "types": "dist/dhtmlxgantt.es.d.ts"
+  "main": "./dist/dhtmlxgantt.es.js",
+  "module": "./dist/dhtmlxgantt.es.js",
+  "types": "./dist/dhtmlxgantt.es.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/dhtmlxgantt.es.js",
+      "types": "./dist/dhtmlxgantt.es.d.ts"
+    },
+    "./dist/dhtmlxgantt.css": "./dist/dhtmlxgantt.css"
+  },
+  "scripts": {
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "less": "^4.2.0",
+    "typescript": "^5.7.3",
+    "vite": "^6.0.5",
+    "vite-plugin-dts": "^4.5.0"
+  }
 }

@@ -16,6 +16,7 @@
     "@ant-design/icons": "^6.2.2",
     "@ax-cowork/control-table": "workspace:*",
     "@ax-cowork/markdown": "workspace:*",
+    "@dhx/react-gantt": "workspace:*",
     "@codemirror/lang-markdown": "^6.3.0",
     "@codemirror/view": "^6.34.0",
     "@fontsource/roboto": "^5.2.10",
