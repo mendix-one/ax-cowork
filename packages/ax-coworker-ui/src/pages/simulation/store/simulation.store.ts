@@ -1,4 +1,14 @@
 import { makeAutoObservable } from 'mobx'
+import { AnalysisStore } from '../panels/analysis/analysis.store'
+import { DatasetStore } from '../panels/dataset/dataset.store'
+import { FactorStore } from '../panels/factor/factor.store'
+import { GanttStore } from '../panels/gantt/gantt.store'
+import { IntegrationStore } from '../panels/integration/integration.store'
+import { ProjectStore } from '../panels/project/project.store'
+import { SchemaStore } from '../panels/schema/schema.store'
+import { SettingStore } from '../panels/setting/setting.store'
+import { StandardStore } from '../panels/standard/standard.store'
+import { TuningStore } from '../panels/tuning/tuning.store'
 
 export type PanelId = 'regionLeft' | 'regionRight'
 export type PanelState = 'normal' | 'maximized' | 'hidden'
@@ -12,7 +22,7 @@ const SUB_REGION_ID: PanelId = 'regionRight'
 
 const initialStates: PanelStates = {
   regionLeft: 'normal',
-  regionRight: 'normal',
+  regionRight: 'hidden',
 }
 
 export class SimulationStore {
@@ -20,7 +30,18 @@ export class SimulationStore {
   activeMainPanel: MainPanelId = 'gantt'
   activeSubPanel: SubPanelId = 'aiAssistant'
 
-  private rightVisibleBeforeMaximize = true
+  gantt = new GanttStore()
+  analysis = new AnalysisStore()
+  project = new ProjectStore()
+  dataset = new DatasetStore()
+  tuning = new TuningStore()
+  factor = new FactorStore()
+  standard = new StandardStore()
+  setting = new SettingStore()
+  integration = new IntegrationStore()
+  schema = new SchemaStore()
+
+  private rightVisibleBeforeMaximize = false
 
   constructor() {
     makeAutoObservable(this)
