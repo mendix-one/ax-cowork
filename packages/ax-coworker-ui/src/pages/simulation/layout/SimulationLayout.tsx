@@ -68,30 +68,14 @@ const useStyles = createStyles(({ token }) => ({
     },
   },
   root: {
-    position: 'relative',
     height: '100%',
     width: '100%',
-  },
-  maximizedOverlay: {
-    position: 'absolute',
-    inset: 0,
-    background: token.colorBgLayout,
-    zIndex: 10,
   },
   mainSlot: {
     height: '100%',
     width: '100%',
   },
 }))
-
-function findPanelRegion(region: Region, id: PanelId): PanelRegion | null {
-  if (region.kind === 'panel') return region.id === id ? region : null
-  for (const child of region.children) {
-    const found = findPanelRegion(child.region, id)
-    if (found) return found
-  }
-  return null
-}
 
 const MainPanelStack = observer(({ controls, slotClassName }: { controls: MainPanelControls; slotClassName: string }) => {
   const active = simulationStore.activeMainPanel
@@ -129,7 +113,6 @@ export const SimulationLayout = observer(() => {
   const renderRegion = (region: Region): ReactNode | null => {
     if (region.kind === 'panel') {
       if (simulationStore.isHidden(region.id)) return null
-      if (simulationStore.isMaximized(region.id)) return null
       return renderPanelRegion(region)
     }
 
@@ -199,8 +182,6 @@ export const SimulationLayout = observer(() => {
     ],
   }
 
-  const maximizedRegion = simulationStore.maximizedId ? findPanelRegion(layout, simulationStore.maximizedId) : null
-
   return (
     <ConfigProvider
       theme={{
@@ -214,10 +195,7 @@ export const SimulationLayout = observer(() => {
         <Layout className="ax-layout_middle">
           <SimulationLayoutLeft />
           <Layout.Content className="ax-layout_main">
-            <div className={styles.root}>
-              {renderRegion(layout)}
-              {maximizedRegion && <div className={styles.maximizedOverlay}>{renderPanelRegion(maximizedRegion)}</div>}
-            </div>
+            <div className={styles.root}>{renderRegion(layout)}</div>
           </Layout.Content>
           <SimulationLayoutRight />
         </Layout>
