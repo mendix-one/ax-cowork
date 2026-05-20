@@ -3,7 +3,8 @@ import { useTranslation } from 'react-i18next'
 import { observer } from 'mobx-react-lite'
 import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 import type { MdiIconName } from '@/shared/mui-icon/AxMuiIcon.tsx'
-import { simulationStore, type SubPanelId } from '../store/simulation.store.ts'
+import { useSimulationContext } from '../store/simulation.context'
+import type { SubPanelId } from '../store/simulation.store'
 
 type SubMenuItem = {
   id: SubPanelId
@@ -19,8 +20,9 @@ const SUB_MENU_ITEMS: SubMenuItem[] = [
 
 export const SimulationLayoutRight = observer(() => {
   const { t } = useTranslation('app')
-  const rightVisible = !simulationStore.isHidden('regionRight')
-  const active = simulationStore.activeSubPanel
+  const simulation = useSimulationContext()
+  const rightVisible = !simulation.isHidden('regionRight')
+  const active = simulation.activeSubPanel
   return (
     <Layout.Sider width={36}>
       <Flex align="center" justify="space-between" gap="small" vertical style={{ width: '100%', height: '100%', paddingTop: '2px 4px' }}>
@@ -33,7 +35,7 @@ export const SimulationLayoutRight = observer(() => {
                 icon={item.icon}
                 title={t(item.titleKey)}
                 placement="left"
-                onClick={() => simulationStore.toggleSubPanel(item.id)}
+                onClick={() => simulation.toggleSubPanel(item.id)}
               />
             ))}
           </Space>

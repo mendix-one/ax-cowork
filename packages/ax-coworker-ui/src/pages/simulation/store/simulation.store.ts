@@ -19,7 +19,7 @@ export class SimulationStore {
   panelStates: PanelStates = { ...initialStates }
   activeMainPanel: MainPanelId = 'gantt'
   activeSubPanel: SubPanelId = 'aiAssistant'
-  // Whether the right column was visible right before the main panel was maximized — restored on toggle back to normal.
+
   private rightVisibleBeforeMaximize = true
 
   constructor() {

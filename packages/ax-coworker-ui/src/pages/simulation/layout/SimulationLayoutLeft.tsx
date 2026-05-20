@@ -2,7 +2,8 @@ import { Divider, Flex, Layout, Space } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 import type { MdiIconName } from '@/shared/mui-icon/AxMuiIcon.tsx'
-import { simulationStore, type MainPanelId } from '../store/simulation.store.ts'
+import { useSimulationContext } from '../store/simulation.context'
+import type { MainPanelId } from '../store/simulation.store'
 
 type MenuItem = {
   id: MainPanelId
@@ -30,7 +31,8 @@ const GROUP_SYSTEM: MenuItem[] = [
 ]
 
 export const SimulationLayoutLeft = observer(() => {
-  const active = simulationStore.activeMainPanel
+  const simulation = useSimulationContext()
+  const active = simulation.activeMainPanel
   const renderItem = (item: MenuItem) => (
     <AxMenuIcon
       key={item.id}
@@ -38,7 +40,7 @@ export const SimulationLayoutLeft = observer(() => {
       title={item.title}
       placement="right"
       isActive={active === item.id}
-      onClick={() => simulationStore.setActiveMainPanel(item.id)}
+      onClick={() => simulation.setActiveMainPanel(item.id)}
     />
   )
   return (
