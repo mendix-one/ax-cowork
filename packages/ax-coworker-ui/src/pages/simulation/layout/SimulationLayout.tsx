@@ -181,13 +181,13 @@ export const SimulationLayout = observer(() => {
     children: [
       {
         region: { kind: 'panel', id: 'regionLeft', type: 'main', render: renderMain },
-        defaultSize: '70%',
+        defaultSize: '75%',
         min: '20%',
         max: '90%',
       },
       {
         region: { kind: 'panel', id: 'regionRight', type: 'sub', render: renderSub },
-        defaultSize: '30%',
+        defaultSize: '25%',
         min: '10%',
         max: '80%',
       },

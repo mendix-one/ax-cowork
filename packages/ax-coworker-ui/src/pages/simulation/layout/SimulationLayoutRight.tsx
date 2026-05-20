@@ -14,7 +14,7 @@ type SubMenuItem = {
 const SUB_MENU_ITEMS: SubMenuItem[] = [
   { id: 'splitView', icon: 'mdiBookOpenOutline', titleKey: 'tooltip.splitView' },
   { id: 'aiAssistant', icon: 'mdiCreationOutline', titleKey: 'tooltip.generativeAI' },
-  { id: 'progress', icon: 'mdiProgressStarFourPoints', titleKey: 'tooltip.progress' },
+  { id: 'progress', icon: 'mdiProgressStarFourPoints', titleKey: 'tooltip.tasksProgress' },
 ]
 
 export const SimulationLayoutRight = observer(() => {

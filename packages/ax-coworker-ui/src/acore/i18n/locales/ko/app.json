@@ -19,7 +19,7 @@
     "output": "출력",
     "console": "콘솔",
     "generativeAI": "생성형 AI",
-    "progress": "진행률",
+    "tasksProgress": "Tasks Progress",
     "support": "지원",
     "guides": "가이드"
   }
