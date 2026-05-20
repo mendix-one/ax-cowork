@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
-import { AxSimplePanel, type PanelControls } from '@/shared/simple-panel/AxSimplePanel.tsx'
+import { AxDisplayPanel, type SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
-export const WorkerTasksPanel = observer((props: PanelControls) => {
-  return <AxSimplePanel icon="mdiProgressStarFourPoints" title="Progress" {...props} />
+export const WorkerTasksPanel = observer((props: SubPanelControls) => {
+  return <AxDisplayPanel type="sub" icon="mdiProgressStarFourPoints" title="Progress" {...props} />
 })

@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
-import { AxSimplePanel, type PanelControls } from '@/shared/simple-panel/AxSimplePanel.tsx'
+import { AxDisplayPanel, type SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
-export const AIAssistantPanel = observer((props: PanelControls) => {
-  return <AxSimplePanel icon="mdiCreationOutline" title="AI Assistant" {...props} />
+export const AIAssistantPanel = observer((props: SubPanelControls) => {
+  return <AxDisplayPanel type="sub" icon="mdiCreationOutline" title="AI Assistant" {...props} />
 })

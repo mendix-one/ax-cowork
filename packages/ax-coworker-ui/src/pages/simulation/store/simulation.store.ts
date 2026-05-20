@@ -4,6 +4,8 @@ export type PanelId = 'regionLeft' | 'regionRightTop' | 'regionRightBottom'
 export type PanelState = 'normal' | 'maximized' | 'hidden'
 export type PanelStates = Record<PanelId, PanelState>
 
+export type MainPanelId = 'gantt' | 'analysis' | 'project' | 'dataset' | 'tuning' | 'factor' | 'standard' | 'setting' | 'integration' | 'schema'
+
 const initialStates: PanelStates = {
   regionLeft: 'normal',
   regionRightTop: 'normal',
@@ -12,6 +14,7 @@ const initialStates: PanelStates = {
 
 export class SimulationStore {
   panelStates: PanelStates = { ...initialStates }
+  activeMainPanel: MainPanelId = 'gantt'
 
   constructor() {
     makeAutoObservable(this)
@@ -43,4 +46,10 @@ export class SimulationStore {
   hide(id: PanelId) {
     this.panelStates[id] = 'hidden'
   }
+
+  setActiveMainPanel(id: MainPanelId) {
+    this.activeMainPanel = id
+  }
 }
+
+export const simulationStore = new SimulationStore()

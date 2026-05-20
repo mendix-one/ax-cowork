@@ -1,23 +1,29 @@
-import { type CSSProperties, type ReactNode } from 'react'
+import { type CSSProperties, type ComponentType, type ReactNode } from 'react'
 import { ConfigProvider, Layout, Splitter } from 'antd'
 import { createStyles } from 'antd-style'
 import { observer } from 'mobx-react-lite'
-import type { PanelControls } from '@/shared/simple-panel/AxSimplePanel.tsx'
-import { useStore } from '@/acore/store/store.context'
-import type { PanelId } from '@/acore/store/simulation.store'
+import type { MainPanelControls, SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 import { AIAssistantPanel } from '@/agent/AIAssistantPanel.tsx'
 import { WorkerTasksPanel } from '@/worker/WorkerTasksPanel.tsx'
+import { simulationStore, type MainPanelId, type PanelId } from '../store/simulation.store.ts'
+import { SimulationAnalysisPanel } from '../views/analysis/SimulationAnalysisPanel.tsx'
+import { SimulationDatasetPanel } from '../views/dataset/SimulationDatasetPanel.tsx'
+import { SimulationFactorPanel } from '../views/factor/SimulationFactorPanel.tsx'
 import { SimulationGanttPanel } from '../views/gantt/SimulationGanttPanel.tsx'
+import { SimulationIntegrationPanel } from '../views/integration/SimulationIntegrationPanel.tsx'
+import { SimulationProjectPanel } from '../views/project/SimulationProjectPanel.tsx'
+import { SimulationSchemaPanel } from '../views/schema/SimulationSchemaPanel.tsx'
+import { SimulationSettingPanel } from '../views/setting/SimulationSettingPanel.tsx'
+import { SimulationStandardPanel } from '../views/standard/SimulationStandardPanel.tsx'
+import { SimulationTuningPanel } from '../views/tuning/SimulationTuningPanel.tsx'
 import { SimulationLayoutTop } from './SimulationLayoutTop.tsx'
 import { SimulationLayoutBottom } from './SimulationLayoutBottom.tsx'
 import { SimulationLayoutLeft } from './SimulationLayoutLeft.tsx'
 import { SimulationLayoutRight } from './SimulationLayoutRight.tsx'
 
-type PanelRegion = {
-  kind: 'panel'
-  id: PanelId
-  render: (controls: PanelControls) => ReactNode
-}
+type PanelRegion =
+  | { kind: 'panel'; id: PanelId; type: 'main'; render: (controls: MainPanelControls) => ReactNode }
+  | { kind: 'panel'; id: PanelId; type: 'sub'; render: (controls: SubPanelControls) => ReactNode }
 
 type SplitterChild = {
   region: Region
@@ -33,6 +39,19 @@ type SplitterRegion = {
 }
 
 type Region = PanelRegion | SplitterRegion
+
+const MAIN_PANELS: Record<MainPanelId, ComponentType<MainPanelControls>> = {
+  gantt: SimulationGanttPanel,
+  analysis: SimulationAnalysisPanel,
+  project: SimulationProjectPanel,
+  dataset: SimulationDatasetPanel,
+  tuning: SimulationTuningPanel,
+  factor: SimulationFactorPanel,
+  standard: SimulationStandardPanel,
+  setting: SimulationSettingPanel,
+  integration: SimulationIntegrationPanel,
+  schema: SimulationSchemaPanel,
+}
 
 const useStyles = createStyles(({ token }) => ({
   dragger: {
@@ -59,6 +78,10 @@ const useStyles = createStyles(({ token }) => ({
     background: token.colorBgLayout,
     zIndex: 10,
   },
+  mainSlot: {
+    height: '100%',
+    width: '100%',
+  },
 }))
 
 function findPanelRegion(region: Region, id: PanelId): PanelRegion | null {
@@ -70,22 +93,44 @@ function findPanelRegion(region: Region, id: PanelId): PanelRegion | null {
   return null
 }
 
+const MainPanelStack = observer(({ controls, slotClassName }: { controls: MainPanelControls; slotClassName: string }) => {
+  const active = simulationStore.activeMainPanel
+  return (
+    <>
+      {(Object.keys(MAIN_PANELS) as MainPanelId[]).map((id) => {
+        const Panel = MAIN_PANELS[id]
+        const isActive = id === active
+        return (
+          <div key={id} className={slotClassName} style={{ display: isActive ? 'block' : 'none' }}>
+            <Panel {...controls} />
+          </div>
+        )
+      })}
+    </>
+  )
+})
+
 export const SimulationLayout = observer(() => {
   const { styles } = useStyles()
-  const { simulation } = useStore()
 
-  const controlsFor = (id: PanelId): PanelControls => ({
-    maximized: simulation.isMaximized(id),
-    onMaximize: () => simulation.maximize(id),
-    onRestore: () => simulation.restore(id),
-    onHide: () => simulation.hide(id),
+  const mainControlsFor = (id: PanelId): MainPanelControls => ({
+    maximized: simulationStore.isMaximized(id),
+    onMaximize: () => simulationStore.maximize(id),
+    onRestore: () => simulationStore.restore(id),
   })
+
+  const subControlsFor = (id: PanelId): SubPanelControls => ({
+    onClose: () => simulationStore.hide(id),
+  })
+
+  const renderPanelRegion = (region: PanelRegion): ReactNode =>
+    region.type === 'main' ? region.render(mainControlsFor(region.id)) : region.render(subControlsFor(region.id))
 
   const renderRegion = (region: Region): ReactNode | null => {
     if (region.kind === 'panel') {
-      if (simulation.isHidden(region.id)) return null
-      if (simulation.isMaximized(region.id)) return null
-      return region.render(controlsFor(region.id))
+      if (simulationStore.isHidden(region.id)) return null
+      if (simulationStore.isMaximized(region.id)) return null
+      return renderPanelRegion(region)
     }
 
     const [first, second] = region.children
@@ -117,11 +162,13 @@ export const SimulationLayout = observer(() => {
     )
   }
 
+  const renderMain = (controls: MainPanelControls) => <MainPanelStack controls={controls} slotClassName={styles.mainSlot} />
+
   const layout: Region = {
     kind: 'splitter',
     children: [
       {
-        region: { kind: 'panel', id: 'regionLeft', render: (controls) => <SimulationGanttPanel {...controls} /> },
+        region: { kind: 'panel', id: 'regionLeft', type: 'main', render: renderMain },
         defaultSize: '70%',
         min: '20%',
         max: '90%',
@@ -132,13 +179,13 @@ export const SimulationLayout = observer(() => {
           vertical: true,
           children: [
             {
-              region: { kind: 'panel', id: 'regionRightTop', render: (controls) => <AIAssistantPanel {...controls} /> },
+              region: { kind: 'panel', id: 'regionRightTop', type: 'sub', render: (controls) => <AIAssistantPanel {...controls} /> },
               defaultSize: '50%',
               min: '15%',
               max: '85%',
             },
             {
-              region: { kind: 'panel', id: 'regionRightBottom', render: (controls) => <WorkerTasksPanel {...controls} /> },
+              region: { kind: 'panel', id: 'regionRightBottom', type: 'sub', render: (controls) => <WorkerTasksPanel {...controls} /> },
               defaultSize: '50%',
               min: '15%',
               max: '85%',
@@ -152,7 +199,7 @@ export const SimulationLayout = observer(() => {
     ],
   }
 
-  const maximizedRegion = simulation.maximizedId ? findPanelRegion(layout, simulation.maximizedId) : null
+  const maximizedRegion = simulationStore.maximizedId ? findPanelRegion(layout, simulationStore.maximizedId) : null
 
   return (
     <ConfigProvider
@@ -169,7 +216,7 @@ export const SimulationLayout = observer(() => {
           <Layout.Content className="ax-layout_main">
             <div className={styles.root}>
               {renderRegion(layout)}
-              {maximizedRegion && <div className={styles.maximizedOverlay}>{maximizedRegion.render(controlsFor(maximizedRegion.id))}</div>}
+              {maximizedRegion && <div className={styles.maximizedOverlay}>{renderPanelRegion(maximizedRegion)}</div>}
             </div>
           </Layout.Content>
           <SimulationLayoutRight />

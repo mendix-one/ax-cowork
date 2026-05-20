@@ -1,10 +1,10 @@
 import { observer } from 'mobx-react-lite'
-import { AxSimplePanel, type PanelControls } from '@/shared/simple-panel/AxSimplePanel.tsx'
+import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
-export const SimulationGanttPanel = observer((props: PanelControls) => {
+export const SimulationGanttPanel = observer((props: MainPanelControls) => {
   return (
-    <AxSimplePanel icon="mdiChartGantt" title="Plan A (Simulation)" {...props}>
+    <AxDisplayPanel type="main" icon="mdiChartGantt" title="Plan A (Simulation)" {...props}>
       SimulationGanttPanel
-    </AxSimplePanel>
+    </AxDisplayPanel>
   )
 })
