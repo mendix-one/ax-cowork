@@ -30,7 +30,11 @@ export class SimulationStore {
     return this.panelStates[id] === 'hidden'
   }
 
+  // Main panel is considered "maximized" whenever no sub panel is on screen — the right region being hidden.
+  // This way the menu icon and toggle stay in sync even when the right region is closed via a Close button
+  // or sidebar toggle (paths that never call maximize() directly).
   isMaximized(id: PanelId): boolean {
+    if (id === MAIN_PANEL_ID) return this.panelStates[SUB_REGION_ID] === 'hidden'
     return this.panelStates[id] === 'maximized'
   }
 
@@ -38,18 +42,22 @@ export class SimulationStore {
     if (id === MAIN_PANEL_ID) {
       this.rightVisibleBeforeMaximize = this.panelStates[SUB_REGION_ID] !== 'hidden'
       this.panelStates[SUB_REGION_ID] = 'hidden'
+      return
     }
     this.panelStates[id] = 'maximized'
   }
 
   restore(id: PanelId) {
-    if (id === MAIN_PANEL_ID && this.panelStates[id] === 'maximized') {
-      this.panelStates[SUB_REGION_ID] = this.rightVisibleBeforeMaximize ? 'normal' : 'hidden'
+    if (id === MAIN_PANEL_ID) {
+      if (!this.rightVisibleBeforeMaximize) this.activeSubPanel = 'splitView'
+      this.panelStates[SUB_REGION_ID] = 'normal'
+      return
     }
     this.panelStates[id] = 'normal'
   }
 
   hide(id: PanelId) {
+    if (id === SUB_REGION_ID) this.rightVisibleBeforeMaximize = false
     this.panelStates[id] = 'hidden'
   }
 
@@ -59,6 +67,7 @@ export class SimulationStore {
 
   toggleSubPanel(id: SubPanelId) {
     if (this.activeSubPanel === id && this.panelStates[SUB_REGION_ID] !== 'hidden') {
+      this.rightVisibleBeforeMaximize = false
       this.panelStates[SUB_REGION_ID] = 'hidden'
     } else {
       this.activeSubPanel = id
