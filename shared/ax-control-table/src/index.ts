@@ -1,8 +1,2 @@
 export { AxControlTable } from './AxControlTable'
-export type {
-  AxControlTableProps,
-  ControlTableColumn,
-  ColumnKind,
-  NumberBucketThresholds,
-  NumberBucketColors,
-} from './types'
+export type { AxControlTableProps, ControlTableColumn, ColumnKind, NumberBucketThresholds, NumberBucketColors } from './types'

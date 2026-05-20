@@ -21,7 +21,7 @@ export const AppLayoutTop = () => {
             </Flex>
           </Space>
           <Space size={8}>
-            <AxMenuIcon icon="mdiHomeOutline" title="Home" placement="bottom" />
+            <AxMenuIcon icon="mdiApps" title="Home" placement="bottom" />
             <AxMenuIcon icon="mdiEarth" title="World Map" placement="bottom" />
           </Space>
           <Space size={8}>

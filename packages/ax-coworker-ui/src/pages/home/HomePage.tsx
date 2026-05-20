@@ -68,11 +68,11 @@ const useStyles = createStyles(({ token }) => ({
 }))
 
 const initialStates: PanelStates = {
-  'task-info': 'normal',
+  'task-info': 'closed',
   document: 'normal',
-  console: 'normal',
-  'generative-ai': 'normal',
-  progress: 'normal',
+  console: 'closed',
+  'generative-ai': 'closed',
+  progress: 'closed',
 }
 
 export const HomePage = observer(() => {

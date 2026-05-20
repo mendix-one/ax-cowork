@@ -173,11 +173,7 @@ export function AxControlTable<T>({
           <ColumnTogglePopover<T> table={table} />
         </div>
       )}
-      <div
-        ref={containerRef}
-        className="ax-ct-scroll"
-        style={{ position: 'relative', height: '100%', width: '100%', overflow: 'auto', background: '#fff' }}
-      >
+      <div ref={containerRef} className="ax-ct-scroll" style={{ position: 'relative', height: '100%', width: '100%', overflow: 'auto', background: '#fff' }}>
         <div
           style={{
             position: 'relative',
@@ -242,11 +238,7 @@ export function AxControlTable<T>({
                   borderRight: '1px solid #f0f0f0',
                 }}
               >
-                <Checkbox
-                  checked={allRowsSelected}
-                  indeterminate={someRowsSelected}
-                  onChange={(e) => handleHeaderCheckboxChange(e.target.checked)}
-                />
+                <Checkbox checked={allRowsSelected} indeterminate={someRowsSelected} onChange={(e) => handleHeaderCheckboxChange(e.target.checked)} />
               </div>
             )}
             {virtualCols.map((vc) => {
@@ -302,8 +294,7 @@ export function AxControlTable<T>({
                     | { kind?: ColumnKind; render?: (value: string | number, row: T) => React.ReactNode; align?: 'left' | 'center' | 'right' }
                     | undefined
                   const kind = meta?.kind ?? 'string'
-                  const background =
-                    kind === 'number' && typeof value === 'number' ? pickBackground(value, numberBuckets, numberColors) : undefined
+                  const background = kind === 'number' && typeof value === 'number' ? pickBackground(value, numberBuckets, numberColors) : undefined
                   const rendered = meta?.render ? meta.render(value, row.original) : undefined
                   return {
                     key: col.id,
@@ -427,14 +418,7 @@ const BodyRow = memo(function BodyRow({
         const isNumber = vc.kind === 'number'
         const align = vc.align ?? (isNumber ? 'right' : 'left')
         const justify = align === 'right' ? 'flex-end' : align === 'center' ? 'center' : 'flex-start'
-        const content =
-          vc.rendered !== undefined
-            ? vc.rendered
-            : isNumber
-              ? String(vc.value)
-              : renderCell
-                ? renderCell(String(vc.value))
-                : String(vc.value)
+        const content = vc.rendered !== undefined ? vc.rendered : isNumber ? String(vc.value) : renderCell ? renderCell(String(vc.value)) : String(vc.value)
         return (
           <div
             key={vc.key}

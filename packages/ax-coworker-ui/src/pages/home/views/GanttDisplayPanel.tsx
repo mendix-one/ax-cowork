@@ -1,8 +1,8 @@
 import { type ReactNode } from 'react'
 import { Dropdown, type DropdownProps, type MenuProps } from 'antd'
-import { AxMuiIcon, type MdiIconName } from '../mui-icon/AxMuiIcon.tsx'
+import { AxMuiIcon, type MdiIconName } from '../../../mui-icon/AxMuiIcon.tsx'
 
-export type AxSimplePanelProps = {
+export type GanttDisplayPanelProps = {
   icon: MdiIconName
   title: string
   children?: ReactNode
@@ -38,7 +38,7 @@ const objectStyles: DropdownProps['styles'] = {
   },
 }
 
-export const AxSimplePanel = (props: AxSimplePanelProps) => {
+export const GanttDisplayPanel = (props: GanttDisplayPanelProps) => {
   const { minimized = false, maximized = false } = props
   const isAltered = minimized || maximized
 
