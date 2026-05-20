@@ -1,14 +1,11 @@
 import { Avatar, Divider, Flex, Layout, Space, Tooltip } from 'antd'
 import { useTranslation } from 'react-i18next'
-import { useNavigate } from 'react-router-dom'
 import avatarLight from '@/assets/avatar-light.png'
 import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 import { AxMenuBox } from '@/shared/menu-box/AxMenuBox.tsx'
-import { AxDocItem } from '@/shared/doc-item/AxDocItem.tsx'
 
 export const SimulationLayoutTop = () => {
   const { t } = useTranslation('app')
-  const navigate = useNavigate()
   return (
     <Layout.Header className="ax-layout-top">
       <Flex align="center" justify="space-between" gap="small" style={{ height: '100%' }}>
@@ -30,14 +27,6 @@ export const SimulationLayoutTop = () => {
           </Space>
         </Flex>
         <Flex align="center" justify="end" gap="small">
-          <Space size={8}>
-            <AxDocItem icon="mdiFileDocumentOutline" name="Q1 status report" title="Markdown demo (chart + table)" onClick={() => navigate('/docs/demo')} />
-            <AxDocItem icon="mdiFileDocumentOutline" name="Document Name" title="Document Name" />
-            <AxDocItem icon="mdiFileDocumentOutline" name="Document Name" title="Document Name" />
-            <AxDocItem icon="mdiFileDocumentOutline" name="Document Name" title="Document Name" />
-            <AxMenuIcon icon="mdiArrowDownDropCircleOutline" title={t('tooltip.moreItems')} placement="bottom" />
-          </Space>
-          <Divider vertical style={{ height: '24px', margin: '0' }} className="ax-menu-divider" />
           <Space size={8}>
             <AxMenuIcon icon="mdiBookOpenOutline" title={t('tooltip.splitView')} placement="bottom" />
           </Space>
