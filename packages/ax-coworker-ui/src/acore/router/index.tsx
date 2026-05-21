@@ -2,8 +2,8 @@ import { createBrowserRouter } from 'react-router-dom'
 import { AuthLayout } from '@/layouts/AuthLayout'
 import { PageLayout } from '@/layouts/PageLayout'
 import { RequireAuth } from './RequireAuth.tsx'
-import { RedirectIfAuthed } from './RedirectIfAuthed.tsx'
 import { RouteError } from './RouteError.tsx'
+import { RedirectIfAuthed } from './RedirectIfAuthed.tsx'
 
 export const index = createBrowserRouter([
   {
