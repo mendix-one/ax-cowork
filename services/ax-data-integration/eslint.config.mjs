@@ -27,6 +27,7 @@ export default tseslint.config(
       '@typescript-eslint/no-explicit-any': 'off',
       '@typescript-eslint/no-floating-promises': 'warn',
       '@typescript-eslint/no-unsafe-argument': 'warn',
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
       indent: ['error', 2, { SwitchCase: 1 }],
       quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
       'comma-dangle': ['error', 'always-multiline'],

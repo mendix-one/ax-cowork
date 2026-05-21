@@ -12,12 +12,14 @@ Pull-based Data Integration Service for aPlanner. Pulls data from files (Excel/C
 
 The files below are the **authoritative design docs** — they take priority over the current code when there is a conflict:
 
-| File                                                                     | Contents                                                                         |
-| ------------------------------------------------------------------------ | -------------------------------------------------------------------------------- |
-| [`docs/O001-data-integration.md`](./docs/O001-data-integration.md)       | Manager's original requirements                                                  |
-| [`docs/P001-requirement-summary.md`](./docs/P001-requirement-summary.md) | Requirement summary + technical decisions (drop BullMQ, use DB-state lock, etc.) |
-| [`docs/P002-design-proposal.md`](./docs/P002-design-proposal.md)         | Detailed design: schema, algorithms, API surface, env vars                       |
-| [`docs/T001-wbs.md`](./docs/T001-wbs.md)                                 | Work breakdown structure for phase 1 — task tracking                             |
+| File                                                                     | Contents                                                                                      |
+| ------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------- |
+| [`docs/O001-data-integration.md`](./docs/O001-data-integration.md)       | Manager's original requirements                                                               |
+| [`docs/P001-requirement-summary.md`](./docs/P001-requirement-summary.md) | Requirement summary + technical decisions (drop BullMQ, use DB-state lock, etc.)              |
+| [`docs/P002-design-proposal.md`](./docs/P002-design-proposal.md)         | Detailed design: schema, algorithms, API surface, env vars                                    |
+| [`docs/T001-wbs.md`](./docs/T001-wbs.md)                                 | Work breakdown structure for phase 1 — task tracking (✓ complete)                             |
+| [`docs/T002-phase2-wbs.md`](./docs/T002-phase2-wbs.md)                   | Work breakdown structure for phase 2 — 4 waves (safety, ingestion, incremental, GraphQL/SOAP) |
+| [`docs/MANUAL-TEST.md`](./docs/MANUAL-TEST.md)                           | Hands-on test playbook (S0–S9 scenarios) + reference to `scripts/manual-smoke.sh`             |
 
 ## Folder structure
 

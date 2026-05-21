@@ -1,0 +1,69 @@
+# docker-compose template for ax-data-integration.
+#
+# Run from THIS folder (services/ax-data-integration):
+#
+#   cp .env.compose.example .env
+#   # edit .env — at minimum, generate a real master key:
+#   #   openssl rand -base64 32  →  INTEGRATION_MASTER_KEY_V1
+#   docker compose up --build
+#
+# The build context is the repo root (two levels up) because the pnpm workspace
+# + shared packages live above this folder.
+
+services:
+  mongo:
+    image: mongo:7
+    container_name: ax-di-mongo
+    restart: unless-stopped
+    ports:
+      - '${MONGO_HOST_PORT:-27017}:27017'
+    volumes:
+      - mongo-data:/data/db
+    healthcheck:
+      # `mongosh --eval` ships in the official image; ping is cheap.
+      test: ['CMD', 'mongosh', '--quiet', '--eval', 'db.runCommand({ ping: 1 }).ok']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
+  ax-data-integration:
+    build:
+      # Context = repo root; pick up Dockerfile from the service folder.
+      context: ../..
+      dockerfile: services/ax-data-integration/Dockerfile
+    image: ax-data-integration:local
+    container_name: ax-di-service
+    restart: unless-stopped
+    depends_on:
+      mongo:
+        condition: service_healthy
+    ports:
+      - '${SERVICE_HOST_PORT:-3012}:3012'
+    environment:
+      NODE_ENV: production
+      PORT: 3012
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+
+      # Point the service at the compose-network mongo. The DB name defaults to
+      # ax_data_integration so a fresh `up` is usable without editing .env.
+      MONGO_URI: mongodb://mongo:27017
+      MONGO_DB_NAME: ${MONGO_DB_NAME:-ax_data_integration}
+      MONGO_POOL_SIZE: ${MONGO_POOL_SIZE:-10}
+
+      INTEGRATION_API_KEYS: ${INTEGRATION_API_KEYS:?set INTEGRATION_API_KEYS in .env}
+      INTEGRATION_MASTER_KEY_V1: ${INTEGRATION_MASTER_KEY_V1:?set INTEGRATION_MASTER_KEY_V1 in .env (openssl rand -base64 32)}
+      INTEGRATION_MASTER_KEY_CURRENT: ${INTEGRATION_MASTER_KEY_CURRENT:-1}
+
+      INTEGRATION_DEFAULT_TIMEZONE: ${INTEGRATION_DEFAULT_TIMEZONE:-UTC}
+      INTEGRATION_DEFAULT_ERROR_THRESHOLD: ${INTEGRATION_DEFAULT_ERROR_THRESHOLD:-100}
+      INTEGRATION_MAX_CONCURRENT_RUNS: ${INTEGRATION_MAX_CONCURRENT_RUNS:-5}
+      INTEGRATION_HEARTBEAT_INTERVAL_MS: ${INTEGRATION_HEARTBEAT_INTERVAL_MS:-30000}
+      INTEGRATION_STALE_HEARTBEAT_TIMEOUT_MS: ${INTEGRATION_STALE_HEARTBEAT_TIMEOUT_MS:-120000}
+      INTEGRATION_STALE_SWEEP_INTERVAL_MS: ${INTEGRATION_STALE_SWEEP_INTERVAL_MS:-60000}
+      INTEGRATION_CHANGELOG_BUFFER_SIZE: ${INTEGRATION_CHANGELOG_BUFFER_SIZE:-100}
+    # Docker re-uses the Dockerfile HEALTHCHECK; no override needed here.
+
+volumes:
+  mongo-data:
+    name: ax-di-mongo-data

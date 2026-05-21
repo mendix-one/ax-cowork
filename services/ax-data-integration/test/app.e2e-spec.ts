@@ -1,7 +1,8 @@
-import { Test, TestingModule } from '@nestjs/testing'
 import { INestApplication } from '@nestjs/common'
+import { Test, TestingModule } from '@nestjs/testing'
 import request from 'supertest'
 import { App } from 'supertest/types'
+
 import { MainModule } from '../src/main.module'
 
 describe('AppController (e2e)', () => {
@@ -11,20 +12,23 @@ describe('AppController (e2e)', () => {
     const moduleFixture: TestingModule = await Test.createTestingModule({
       imports: [MainModule],
     }).compile()
-
     app = moduleFixture.createNestApplication()
     await app.init()
-  })
-
-  it('/ (GET) returns service identity', () => {
-    return request(app.getHttpServer()).get('/').expect(200).expect({ name: 'ax-data-integration', status: 'ok' })
-  })
-
-  it('/health-check (GET) returns ok', () => {
-    return request(app.getHttpServer()).get('/health-check').expect(200).expect({ status: 'ok' })
-  })
+  }, 30_000)
 
   afterEach(async () => {
     await app.close()
+  })
+
+  it('GET / returns the service identity', () => {
+    return request(app.getHttpServer()).get('/').expect(200).expect({ name: 'ax-data-integration', status: 'ok' })
+  })
+
+  it('GET /health returns ok', () => {
+    return request(app.getHttpServer()).get('/health').expect(200).expect({ status: 'ok' })
+  })
+
+  it('GET /health/ready reports Mongo connected', () => {
+    return request(app.getHttpServer()).get('/health/ready').expect(200).expect({ status: 'ready', mongo: 'connected' })
   })
 })

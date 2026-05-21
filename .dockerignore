@@ -1,0 +1,52 @@
+# Reduce build context — these are either rebuilt inside the image or never needed
+# at runtime. Mirrors .gitignore plus a few Docker-specific extras.
+
+# Dependencies (re-installed inside the builder stage)
+**/node_modules
+
+# Build output (regenerated inside the builder stage)
+**/dist
+**/build
+**/.vite
+
+# Tests + coverage — never shipped to runtime
+**/coverage
+**/*.spec.ts
+**/*.test.ts
+**/test
+**/__tests__
+
+# Env (NEVER bake secrets into the image)
+**/.env
+**/.env.local
+**/.env.*.local
+
+# Local-only docs and scratchpads
+aTaskMngmt.local
+**/README.local.md
+**/CLAUDE.md
+services/ax-data-integration/docs
+
+# Logs
+**/*.log
+**/pnpm-debug.log*
+**/npm-debug.log*
+
+# Editor / OS noise
+.idea
+.vscode
+.DS_Store
+**/*.swp
+
+# Git
+.git
+.gitignore
+.gitattributes
+
+# Docker meta — no need to copy itself
+**/Dockerfile*
+**/docker-compose*.yml
+.dockerignore
+
+# CI configs not used at runtime
+.github
