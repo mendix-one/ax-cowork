@@ -164,7 +164,6 @@ export default function (gantt) {
 
       for (let plugin in availablePlugins) {
         if (availablePlugins[plugin] && !activePlugins[plugin]) {
-          // eslint-disable-next-line no-console
           console.warn(`You connected the '${plugin}' extension via an obsolete file. 
 To fix it, you need to remove the obsolete file and connect the extension via the plugins method: https://docs.dhtmlx.com/gantt/api__gantt_plugins.html`)
         }

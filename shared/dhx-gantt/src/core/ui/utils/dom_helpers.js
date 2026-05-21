@@ -307,7 +307,6 @@ function closest(element, selector) {
     } while (el !== null && el.nodeType === 1)
     return null
   } else {
-    // eslint-disable-next-line no-console
     console.error('Your browser is not supported')
     return null
   }

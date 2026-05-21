@@ -10,7 +10,6 @@ export default function (gantt) {
         if (gantt.message) {
           gantt.message({ type: 'error', text: message, expire: -1 })
         } else {
-          // eslint-disable-next-line
           console.log(message)
         }
 

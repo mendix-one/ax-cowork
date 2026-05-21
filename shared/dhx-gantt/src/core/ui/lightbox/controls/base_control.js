@@ -1,5 +1,4 @@
 function dummy() {
-  // eslint-disable-next-line
   console.log('Method is not implemented.')
 }
 function BaseControl() {}

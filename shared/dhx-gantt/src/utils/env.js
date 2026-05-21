@@ -1,9 +1,6 @@
 import global from './global'
 
-/* eslint-disable no-restricted-globals */
 var isWindowAwailable = typeof window !== 'undefined'
-
-/* eslint-enable no-restricted-globals */
 
 export default {
   isIE: isWindowAwailable && (navigator.userAgent.indexOf('MSIE') >= 0 || navigator.userAgent.indexOf('Trident') >= 0),

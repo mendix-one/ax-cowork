@@ -118,7 +118,6 @@ function initDataStores(gantt) {
   tasksStore.attachEvent('onBeforeItemMove', function (sid, parent, tindex) {
     // GS-125. Don't allow users to move the placeholder task
     if (isPlaceholderTask(sid, gantt, tasksStore)) {
-      //eslint-disable-next-line
       console.log('The placeholder task cannot be moved to another position.')
       return false
     }

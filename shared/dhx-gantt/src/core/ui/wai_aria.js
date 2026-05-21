@@ -1,4 +1,5 @@
 export default function (gantt) {
+  // eslint-disable-next-line no-control-regex -- upstream dhtmlx; literal \n is the line terminator they want to match.
   var htmlTags = new RegExp('<(?:.|\n)*?>', 'gm')
   var extraSpaces = new RegExp(' +', 'gm')
 

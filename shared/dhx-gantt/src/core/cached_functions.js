@@ -57,7 +57,7 @@ export default function (gantt) {
       cache[arguments_hash] = value
     },
     has_cached_value: function (cache, arguments_hash) {
-      return cache.hasOwnProperty(arguments_hash)
+      return Object.prototype.hasOwnProperty.call(cache, arguments_hash)
     },
     get_cached_value: function (cache, arguments_hash) {
       var data = cache[arguments_hash]

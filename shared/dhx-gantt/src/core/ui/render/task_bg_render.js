@@ -28,7 +28,7 @@ function createTaskBgRender(gantt) {
     var cssTemplate
     if (typeof templates.task_cell_class !== 'undefined') {
       cssTemplate = templates.task_cell_class
-      // eslint-disable-next-line no-console
+
       var log = console.warn || console.log
       log('gantt.templates.task_cell_class template is deprecated and will be removed soon. Please use gantt.templates.timeline_cell_class instead.')
     } else {

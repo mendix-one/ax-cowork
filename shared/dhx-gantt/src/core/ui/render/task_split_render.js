@@ -144,7 +144,7 @@ function createTaskRenderer(gantt) {
             renderedNodes[splitKey] = false
           }
         }
-        if (!!renderedNodes[splitKey]) {
+        if (renderedNodes[splitKey]) {
           el.appendChild(renderedNodes[splitKey])
         }
         itemNode.innerHTML = ''

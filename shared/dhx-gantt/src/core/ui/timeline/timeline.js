@@ -302,6 +302,7 @@ Timeline.prototype = {
           }
           staticRender.render(staticBgContainer, config, self.getScale(), staticBackgroundHeight, self.getItemHeight(item ? item.id : null))
         }
+        // eslint-disable-next-line no-dupe-else-if -- upstream dhtmlx logic; condition is already covered by the outer if, but preserved to avoid behavior change.
       } else if (config.static_background) {
         if (self.$task_bg_static && self.$task_bg_static.parentNode) {
           self.$task_bg_static.parentNode.removeChild(self.$task_bg_static)

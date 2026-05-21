@@ -220,7 +220,7 @@ var ScrollbarCell = (function (_super) {
 
       var sizes = view.$content.getSize()
       var cellScrollSize
-      if (sizes.hasOwnProperty(scrollProperty)) {
+      if (Object.prototype.hasOwnProperty.call(sizes, scrollProperty)) {
         cellScrollSize = sizes[scrollProperty]
       } else {
         cellScrollSize = sizes[innerSizeProperty]

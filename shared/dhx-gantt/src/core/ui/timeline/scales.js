@@ -137,7 +137,7 @@ function ScaleHelper(gantt) {
         if (gantt.env.isFF) {
           docLink = 'https://docs.dhtmlx.com/gantt/migrating.html#6162'
         }
-        // eslint-disable-next-line no-console
+
         console.warn(`You are using the obsolete scale configuration.
 It will stop working in the future versions.
 Please migrate the configuration to the newer version:

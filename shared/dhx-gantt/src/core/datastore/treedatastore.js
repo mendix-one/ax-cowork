@@ -189,7 +189,7 @@ TreeDataStore.prototype = utils.mixin(
       DataStore.prototype._addItemInner.call(this, item, targetIndex)
       this.setParent(item, parent)
 
-      if (item.hasOwnProperty('$rendered_parent')) {
+      if (Object.prototype.hasOwnProperty.call(item, '$rendered_parent')) {
         this._move_branch(item, item.$rendered_parent)
       }
       this._add_branch(item, index)
@@ -436,7 +436,7 @@ TreeDataStore.prototype = utils.mixin(
 
     _setParentInner: function (item, new_pid, silent) {
       if (!silent) {
-        if (item.hasOwnProperty('$rendered_parent')) {
+        if (Object.prototype.hasOwnProperty.call(item, '$rendered_parent')) {
           this._move_branch(item, item.$rendered_parent, new_pid)
         } else {
           this._move_branch(item, item[this.$parentProperty], new_pid)

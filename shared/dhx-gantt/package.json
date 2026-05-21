@@ -15,11 +15,19 @@
     "./dist/dhtmlxgantt.css": "./dist/dhtmlxgantt.css"
   },
   "scripts": {
-    "build": "vite build"
+    "build": "vite build",
+    "lint": "eslint src",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,scss,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,scss,md}\""
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.2.1",
+    "eslint-config-prettier": "^10.1.8",
+    "globals": "^17.5.0",
     "less": "^4.2.0",
     "typescript": "^5.7.3",
+    "typescript-eslint": "^8.58.2",
     "vite": "^6.0.5",
     "vite-plugin-dts": "^4.5.0"
   }

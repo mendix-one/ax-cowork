@@ -118,7 +118,7 @@ function hashToArray(hash) {
   var result = []
 
   for (var key in hash) {
-    if (hash.hasOwnProperty(key)) {
+    if (Object.prototype.hasOwnProperty.call(hash, key)) {
       result.push(hash[key])
     }
   }

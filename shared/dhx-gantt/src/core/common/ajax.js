@@ -20,6 +20,7 @@ function createConfig(method, args) {
       result.callback = args[0].callback
       result.headers = args[0].headers
     }
+    // eslint-disable-next-line no-constant-condition -- upstream dhtmlx bug; condition is always truthy because 'PUT' is a string. Preserved to avoid behavior change.
     if (method === 'POST' || 'PUT') {
       if (args[0].data) {
         if (typeof args[0].data !== 'string') {
@@ -159,10 +160,10 @@ export default function (gantt) {
     },
     _call: function (method, url, postData, async, onLoad, headers) {
       return new gantt.Promise(function (resolve, reject) {
-        var t = typeof XMLHttpRequest !== undefined ? new XMLHttpRequest() : new global.ActiveXObject('Microsoft.XMLHTTP')
+        var t = typeof XMLHttpRequest !== 'undefined' ? new XMLHttpRequest() : new global.ActiveXObject('Microsoft.XMLHTTP')
         var isQt = navigator.userAgent.match(/AppleWebKit/) !== null && navigator.userAgent.match(/Qt/) !== null && navigator.userAgent.match(/Safari/) !== null
 
-        if (!!async) {
+        if (async) {
           t.onreadystatechange = function () {
             if (t.readyState == 4 || (isQt && t.readyState == 3)) {
               // what for long response and status 404?

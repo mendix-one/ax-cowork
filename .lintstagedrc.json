@@ -4,5 +4,7 @@
   "services/ax-cdn-services/**/*.ts": ["pnpm --filter ax-cdn-services exec eslint --fix --no-warn-ignored", "pnpm exec prettier --write"],
   "shared/ax-common/src/**/*.ts": ["pnpm --filter @ax-cowork/shared exec eslint --fix --no-warn-ignored", "pnpm exec prettier --write"],
   "shared/ax-markdown/src/**/*.{ts,tsx}": ["pnpm --filter @ax-cowork/markdown exec eslint --fix --no-warn-ignored", "pnpm exec prettier --write"],
+  "shared/dhx-gantt/src/**/*.ts": ["pnpm --filter @dhx/gantt exec eslint --fix --no-warn-ignored", "pnpm exec prettier --write"],
+  "shared/dhx-react-gantt/src/**/*.{ts,tsx}": ["pnpm --filter @dhx/react-gantt exec eslint --fix --no-warn-ignored", "pnpm exec prettier --write"],
   "*.{js,mjs,cjs,jsx,json,md,yml,yaml,scss,css,html}": ["pnpm exec prettier --write"]
 }

@@ -1,201 +1,202 @@
-import export_api from "./index";
+import export_api from './index'
 
+export default function (gantt: any) {
+  gantt.ext.export_api = export_api(gantt)
 
-export default function(gantt: any) {
+  const nodeExportFunctions = {
+    _getTransport(url: string): { module: { request: any }; defaultPort: number } {
+      const protocol = url.split('://')[0]
+      let module
+      let defaultPort
+      switch (protocol) {
+        case 'https':
+          // eslint-disable-next-line @typescript-eslint/no-require-imports -- node export path intentionally uses CommonJS require to lazy-load node built-ins.
+          module = require('https')
+          defaultPort = 443
+          break
+        case 'http':
+          // eslint-disable-next-line @typescript-eslint/no-require-imports
+          module = require('http')
+          defaultPort = 80
+          break
+        default:
+          throw new Error(`Unsupported protocol: ${protocol}, url: ${url}`)
+      }
+      return {
+        module,
+        defaultPort,
+      }
+    },
 
-	gantt.ext.export_api = export_api(gantt);
+    _pdfExportRouter(config, type) {
+      gantt.ext.export_api._prepareConfigPDF(config, type)
+      config.version = gantt.version
+      gantt.ext.export_api._sendToExport(config, type)
+    },
 
-	const nodeExportFunctions = {
-		_getTransport(url: string): { module: { request: any }, defaultPort: number } {
-			const protocol = url.split("://")[0];
-			let module;
-			let defaultPort;
-			switch (protocol) {
-				case "https":
-					module = require("https");
-					defaultPort = 443;
-					break;
-				case "http":
-					module = require("http");
-					defaultPort = 80;
-					break;
-				default:
-					throw new Error(`Unsupported protocol: ${protocol}, url: ${url}`);
-			}
-			return {
-				module,
-				defaultPort
-			};
-		},
+    exportToExcel(config) {
+      config = config || {}
 
-		_pdfExportRouter(config, type) {
-			gantt.ext.export_api._prepareConfigPDF(config, type);
-			config.version = gantt.version;
-			gantt.ext.export_api._sendToExport(config, type);
-		},
+      config = gantt.mixin(config, {
+        name: 'gantt.xlsx',
+        title: 'Tasks',
+        data: null,
+        columns: gantt.ext.export_api._serializeGrid({ rawDates: true }),
+        version: gantt.version,
+      })
 
-		exportToExcel(config) {
-			config = config || {};
+      gantt.ext.export_api._sendToExport(config, 'excel')
+    },
 
-			config = gantt.mixin(config, {
-				name: "gantt.xlsx",
-				title: "Tasks",
-				data: null,
-				columns: gantt.ext.export_api._serializeGrid({ rawDates: true }),
-				version: gantt.version
-			});
+    importFromExcel(config) {
+      gantt.ext.export_api._processFormData(config, 'excel')
+    },
 
-			gantt.ext.export_api._sendToExport(config, "excel");
-		},
+    importFromMSProject(config) {
+      gantt.ext.export_api._processFormData(config)
+    },
 
-		importFromExcel(config) {
-			gantt.ext.export_api._processFormData (config, "excel");
-		},
+    _processFormData(config, type) {
+      // tslint:disable-next-line no-implicit-dependencies
+      // eslint-disable-next-line @typescript-eslint/no-require-imports
+      const formDataInstance = require('form-data')
 
-		importFromMSProject(config) {
-			gantt.ext.export_api._processFormData (config);
-		},
+      const url = config.server || gantt.ext.export_api._apiUrl
+      const network = gantt.ext.export_api._getTransport(url)
 
-		_processFormData(config, type){
-			// tslint:disable-next-line no-implicit-dependencies
-			const formDataInstance = require("form-data");
+      const { hostname, port, path } = gantt.ext.export_api._parseURL(url, network)
 
-			const url = config.server || gantt.ext.export_api._apiUrl;
-			const network = gantt.ext.export_api._getTransport(url);
+      const options = {
+        hostname,
+        port,
+        path,
+        method: 'POST',
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+      }
 
-			const { hostname, port, path } = gantt.ext.export_api._parseURL(url, network);
+      const formData = new formDataInstance()
+      if (type === 'excel') {
+        formData.append('file', config.data)
+        formData.append('type', 'excel-parse')
+        formData.append(
+          'data',
+          JSON.stringify({
+            sheet: config.sheet || 0,
+          }),
+        )
+      } else {
+        const settings = {
+          durationUnit: config.durationUnit || undefined,
+          projectProperties: config.projectProperties || undefined,
+          taskProperties: config.taskProperties || undefined,
+        }
 
-			const options = {
-				hostname,
-				port,
-				path,
-				method: "POST",
-				headers: {
-					"X-Requested-With": "XMLHttpRequest"
-				}
-			};
+        formData.append('file', config.data)
+        formData.append('type', config.type || 'msproject-parse')
+        formData.append('data', JSON.stringify(settings), options)
+      }
 
-			const formData = new formDataInstance();
-			if (type === "excel"){
-				formData.append("file", config.data);
-				formData.append("type", "excel-parse");
-				formData.append("data", JSON.stringify({
-					sheet: config.sheet || 0
-				}));
-			} else{
-				const settings = {
-					durationUnit: config.durationUnit || undefined,
-					projectProperties: config.projectProperties || undefined,
-					taskProperties: config.taskProperties || undefined
-				};
+      options.headers['Content-Type'] = formData.getHeaders()['content-type']
 
-				formData.append("file", config.data);
-				formData.append("type", config.type || "msproject-parse");
-				formData.append("data", JSON.stringify(settings), options);
-			}
+      const req = network.module.request(options, function (res) {
+        let resData = ''
+        res.on('data', function (d) {
+          resData += d
+        })
+        res.on('end', function (d) {
+          config.callback(resData.toString())
+        })
+      })
 
-			options.headers["Content-Type"] = formData.getHeaders()["content-type"];
+      req.on('error', function (error) {
+        console.error(error)
+      })
+      formData.pipe(req)
+    },
 
-			const req = network.module.request(options, function(res) {
-				let resData = "";
-				res.on("data", function(d) {
-					resData += d;
-				});
-				res.on("end", function(d) {
-					config.callback(resData.toString());
-				});
-			});
+    _sendPostRequest(url, pack, cb) {
+      const network = gantt.ext.export_api._getTransport(url)
 
-			req.on("error", function(error) {
-				// eslint-disable-next-line no-console
-				console.error(error);
-			});
-			formData.pipe(req);
-		},
+      const { hostname, port, path } = gantt.ext.export_api._parseURL(url, network)
 
+      const options = {
+        hostname,
+        port,
+        path,
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Content-Length': JSON.stringify(pack).length,
+        },
+      }
 
-		_sendPostRequest(url, pack, cb) {
-			const network = gantt.ext.export_api._getTransport(url);
+      const req = network.module.request(options, function (res) {
+        const resData = []
+        res.on('data', function (d) {
+          resData.push(d)
+        })
+        res.on('end', function (d) {
+          cb(Buffer.concat(resData))
+        })
+      })
 
-			const { hostname, port, path } = gantt.ext.export_api._parseURL(url, network);
+      req.on('error', function (error) {
+        console.error(error)
+      })
 
-			const options = {
-				hostname,
-				port,
-				path,
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-					"Content-Length": JSON.stringify(pack).length
-				}
-			};
+      req.write(JSON.stringify(pack))
+      req.end()
+    },
 
-			const req = network.module.request(options, function(res) {
-				const resData = [];
-				res.on("data", function(d) {
-					resData.push(d);
-				});
-				res.on("end", function(d) {
-					cb(Buffer.concat(resData));
-				});
-			});
+    _parseURL(url, network) {
+      const parts1 = url.split('://')[1]
+      const parts2 = parts1.split('/')[0].split(':')
+      const parts3 = parts1.split('/')
 
-			req.on("error", function(error) {
-				// eslint-disable-next-line no-console
-				console.error(error);
-			});
+      const hostname = parts2[0]
+      const port = parts2[1] || network.defaultPort
+      const path = '/' + parts3.slice(1).join('/')
 
-			req.write(JSON.stringify(pack));
-			req.end();
-		},
+      return { hostname, port, path }
+    },
 
-		_parseURL(url, network){
-			const parts1 = url.split("://")[1];
-			const parts2 = parts1.split("/")[0].split(":");
-			const parts3 = parts1.split("/");
+    _sendToExport(data, type) {
+      const convert = gantt.date.date_to_str(gantt.config.date_format || gantt.config.xml_date)
+      if (data.config) {
+        data.config = gantt.copy(gantt.ext.export_api._serializableGanttConfig(data.config))
+        gantt.ext.export_api._markColumns(data, type)
 
-			const hostname = parts2[0];
-			const port = parts2[1] || network.defaultPort;
-			const path = "/" + parts3.slice(1).join("/");
+        if (data.config.start_date && data.config.end_date) {
+          if (data.config.start_date instanceof Date) {
+            data.config.start_date = convert(data.config.start_date)
+          }
+          if (data.config.end_date instanceof Date) {
+            data.config.end_date = convert(data.config.end_date)
+          }
+        }
+      }
 
-			return { hostname, port, path };
-		},
+      const url = data.server || gantt.ext.export_api._apiUrl
+      const pack = {
+        type,
+        store: 0,
+        data: JSON.stringify(data),
+      }
+      const callbackFunction =
+        data.callback ||
+        function (response) {
+          console.log(response)
+        }
 
-		_sendToExport(data, type) {
-			const convert = gantt.date.date_to_str(gantt.config.date_format || gantt.config.xml_date);
-			if (data.config) {
-				data.config = gantt.copy(gantt.ext.export_api._serializableGanttConfig(data.config));
-				gantt.ext.export_api._markColumns(data, type);
+      return gantt.ext.export_api._sendPostRequest(url, pack, callbackFunction)
+    },
+  }
 
-				if (data.config.start_date && data.config.end_date) {
-					if (data.config.start_date instanceof Date) {
-						data.config.start_date = convert(data.config.start_date);
-					}
-					if (data.config.end_date instanceof Date) {
-						data.config.end_date = convert(data.config.end_date);
-					}
-				}
-			}
+  gantt.mixin(gantt.ext.export_api, nodeExportFunctions, true)
 
-			const url = data.server || gantt.ext.export_api._apiUrl;
-			const pack = {
-				type,
-				store: 0,
-				data: JSON.stringify(data)
-			};
-			const callbackFunction = data.callback || function(response) {
-				// eslint-disable-next-line no-console
-				console.log(response);
-			};
-
-			return gantt.ext.export_api._sendPostRequest(url, pack, callbackFunction);
-		}
-	};
-
-	gantt.mixin(gantt.ext.export_api, nodeExportFunctions, true);
-
-
-	gantt.exportToExcel = gantt.ext.export_api.exportToExcel;
-	gantt.importFromExcel = gantt.ext.export_api.importFromExcel;
-	gantt.importFromMSProject = gantt.ext.export_api.importFromMSProject;
+  gantt.exportToExcel = gantt.ext.export_api.exportToExcel
+  gantt.importFromExcel = gantt.ext.export_api.importFromExcel
+  gantt.importFromMSProject = gantt.ext.export_api.importFromMSProject
 }

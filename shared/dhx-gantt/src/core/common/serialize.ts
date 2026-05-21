@@ -1,27 +1,27 @@
 export default function serialize(data: object | string) {
-	if (typeof data === "string" || typeof data === "number") {
-		return data;
-	}
+  if (typeof data === 'string' || typeof data === 'number') {
+    return data
+  }
 
-	let result = "";
+  let result = ''
 
-	for (const key in data) {
-		let serialized = "";
-		if (data.hasOwnProperty(key)) {
-			if (typeof data[key] === "string") {
-				serialized = encodeURIComponent(data[key]);
-			} else if (typeof data[key] === "number") {
-				serialized = String(data[key]);
-			} else {
-				serialized = encodeURIComponent(JSON.stringify(data[key]));
-			}
-			serialized = key + "=" + serialized;
+  for (const key in data) {
+    let serialized = ''
+    if (Object.prototype.hasOwnProperty.call(data, key)) {
+      if (typeof data[key] === 'string') {
+        serialized = encodeURIComponent(data[key])
+      } else if (typeof data[key] === 'number') {
+        serialized = String(data[key])
+      } else {
+        serialized = encodeURIComponent(JSON.stringify(data[key]))
+      }
+      serialized = key + '=' + serialized
 
-			if (result.length) {
-				serialized = "&" + serialized;
-			}
-			result += serialized;
-		}
-	}
-	return result;
+      if (result.length) {
+        serialized = '&' + serialized
+      }
+      result += serialized
+    }
+  }
+  return result
 }

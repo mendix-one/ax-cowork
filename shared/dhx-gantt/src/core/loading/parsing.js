@@ -105,7 +105,7 @@ export default function (gantt) {
   gantt._load_collections = function (collections) {
     var collections_loaded = false
     for (var key in collections) {
-      if (collections.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(collections, key)) {
         collections_loaded = true
         var collection = collections[key]
         // GS-1728. Create an empty serverList if it doesn't exist
@@ -119,7 +119,7 @@ export default function (gantt) {
           obj.key = obj.value // resulting option object
 
           for (var option_key in option) {
-            if (option.hasOwnProperty(option_key)) {
+            if (Object.prototype.hasOwnProperty.call(option, option_key)) {
               if (option_key == 'value' || option_key == 'label') continue
               obj[option_key] = option[option_key] // obj['value'] = option['value']
             }
@@ -150,7 +150,7 @@ export default function (gantt) {
       }
 
       if (typeof data == 'string') {
-        if (typeof JSON != undefined) {
+        if (typeof JSON !== 'undefined') {
           try {
             data = JSON.parse(data)
           } catch (e) {

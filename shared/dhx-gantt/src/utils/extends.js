@@ -1,5 +1,5 @@
 export default function (d, b) {
-  for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]
+  for (var p in b) if (Object.prototype.hasOwnProperty.call(b, p)) d[p] = b[p]
   function __() {
     this.constructor = d
   }

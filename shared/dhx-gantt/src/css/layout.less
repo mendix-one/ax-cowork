@@ -74,7 +74,6 @@
   clear: both;
 }
 
-
 .gantt_grid_data {
   width: 100%;
   overflow: hidden; // otherwise we can see it
@@ -118,10 +117,9 @@
 
 .gantt_task_row,
 .gantt_row {
-  border-bottom:var(--dhx-gantt-task-row-border);
+  border-bottom: var(--dhx-gantt-task-row-border);
   background: var(--dhx-gantt-task-row-background);
 }
-
 
 .gantt_row.odd,
 .gantt_task_row.odd {
@@ -199,7 +197,7 @@
   display: flex;
 }
 
-.gantt_row>div {
+.gantt_row > div {
   flex-shrink: 0;
   flex-grow: 0;
 }
@@ -262,7 +260,7 @@
   z-index: 1;
 }
 
-.gantt_ver_scroll>div {
+.gantt_ver_scroll > div {
   width: 1px;
   height: 1px;
 }
@@ -280,7 +278,7 @@
   position: absolute;
 }
 
-.gantt_hor_scroll>div {
+.gantt_hor_scroll > div {
   width: 5000px;
   height: 1px;
 }
@@ -376,7 +374,7 @@
 }
 
 .gantt_invalid {
-  background-color: #FFE0E0;
+  background-color: #ffe0e0;
 }
 
 .gantt_error {
@@ -430,7 +428,7 @@
 .gantt_grid_target_marker::before,
 .gantt_grid_target_marker::after {
   display: block;
-  content: "";
+  content: '';
   position: absolute;
   left: -5px;
   width: 0px;

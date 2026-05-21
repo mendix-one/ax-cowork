@@ -1,6 +1,5 @@
-import { gantt, Gantt } from "./dhtmlxgantt.commercial";
+import { gantt, Gantt } from './dhtmlxgantt.commercial'
 
-export default gantt;
+export default gantt
 
-export { gantt, Gantt };
-
+export { gantt, Gantt }

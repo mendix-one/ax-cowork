@@ -231,7 +231,6 @@ export default function (gantt) {
         { passive: false },
       )
     } catch (e) {
-      // eslint-disable-next-line no-console
       console.warn('Cannot prevent touch event for the page drag')
     }
 

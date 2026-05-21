@@ -161,9 +161,11 @@ function createTaskDND(timeline, gantt) {
         new_end = null
       // GS-454: If we drag multiple tasks, rely on the dates instead of timeline coordinates
       if (multipleDragShift) {
-        ;((new_start = new Date(+drag.obj.start_date + multipleDragShift)), (new_end = new Date(+drag.obj.end_date + multipleDragShift)))
+        new_start = new Date(+drag.obj.start_date + multipleDragShift)
+        new_end = new Date(+drag.obj.end_date + multipleDragShift)
       } else {
-        ;((new_start = gantt.dateFromPos(coords_x.start + shift)), (new_end = gantt.dateFromPos(coords_x.end + shift)))
+        new_start = gantt.dateFromPos(coords_x.start + shift)
+        new_end = gantt.dateFromPos(coords_x.end + shift)
       }
       if (!new_start) {
         task.start_date = new Date(gantt.getState().min_date)

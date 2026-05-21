@@ -99,7 +99,7 @@ function createTaskRenderer(gantt) {
           renderedNodes[rollupKey] = false
         }
       }
-      if (!!renderedNodes[rollupKey]) {
+      if (renderedNodes[rollupKey]) {
         el.appendChild(renderedNodes[rollupKey])
       }
       itemNode.innerHTML = ''

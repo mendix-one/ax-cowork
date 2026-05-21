@@ -168,7 +168,6 @@ export default function (gantt) {
   function addMinimalSizes(gantt) {
     if (gantt.$container && !gantt.config.autosize) {
       if (gantt.$root.offsetHeight < 50) {
-        // eslint-disable-next-line no-console
         console.warn(`The Gantt container has a small height, so you cannot see its content. If it is not intended, you need to set the 'height' style rule to the container:
 https://docs.dhtmlx.com/gantt/faq.html#theganttchartisntrenderedcorrectly`)
       }

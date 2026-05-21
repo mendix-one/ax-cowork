@@ -46,7 +46,7 @@ DataStore.prototype = {
       }
 
       if (this.callEvent('onItemLoading', [item])) {
-        if (!this.pull.hasOwnProperty(item.id)) {
+        if (!Object.prototype.hasOwnProperty.call(this.pull, item.id)) {
           this.fullOrder.push(item.id)
         }
         loaded.push(item)
