@@ -17,6 +17,18 @@ export type PanelStates = Record<PanelId, PanelState>
 export type MainPanelId = 'gantt' | 'analysis' | 'project' | 'dataset' | 'tuning' | 'factor' | 'standard' | 'setting' | 'integration' | 'schema'
 export type SubPanelId = 'splitView' | 'aiAssistant' | 'progress'
 
+export type ProductionLine = {
+  id: string
+  name: string
+  description?: string
+}
+
+export type SimulationPlan = {
+  id: string
+  name: string
+  description?: string
+}
+
 const MAIN_PANEL_ID: PanelId = 'regionLeft'
 const SUB_REGION_ID: PanelId = 'regionRight'
 
@@ -25,10 +37,29 @@ const initialStates: PanelStates = {
   regionRight: 'hidden',
 }
 
+const PRODUCTION_LINES: ProductionLine[] = [
+  { id: 'm-soc', name: 'M-SOC', description: 'Mobile SoC line' },
+  { id: 'auto-sensor', name: 'Auto Sensor', description: 'Automotive sensor line' },
+  { id: 'memory-x', name: 'Memory X', description: 'Memory packaging line' },
+]
+
+const SIMULATION_PLANS: SimulationPlan[] = [
+  { id: 'plan-a', name: 'Plan A (Simulation)', description: 'Baseline scenario' },
+  { id: 'plan-b', name: 'Plan B (Simulation)', description: 'Throughput-optimized' },
+  { id: 'plan-c', name: 'Plan C (Simulation)', description: 'Cost-optimized' },
+]
+
 export class SimulationStore {
   panelStates: PanelStates = { ...initialStates }
   activeMainPanel: MainPanelId = 'gantt'
   activeSubPanel: SubPanelId = 'aiAssistant'
+
+  productionLines: ProductionLine[] = PRODUCTION_LINES
+  simulationPlans: SimulationPlan[] = SIMULATION_PLANS
+  activeProductionLineId: string = PRODUCTION_LINES[0].id
+  activeSimulationPlanId: string = SIMULATION_PLANS[0].id
+  productionLineModalOpen = false
+  simulationPlanModalOpen = false
 
   gantt = new GanttStore()
   analysis = new AnalysisStore()
@@ -45,6 +76,38 @@ export class SimulationStore {
 
   constructor() {
     makeAutoObservable(this)
+  }
+
+  get activeProductionLine(): ProductionLine {
+    return this.productionLines.find((line) => line.id === this.activeProductionLineId) ?? this.productionLines[0]
+  }
+
+  get activeSimulationPlan(): SimulationPlan {
+    return this.simulationPlans.find((plan) => plan.id === this.activeSimulationPlanId) ?? this.simulationPlans[0]
+  }
+
+  setActiveProductionLine(id: string) {
+    this.activeProductionLineId = id
+  }
+
+  setActiveSimulationPlan(id: string) {
+    this.activeSimulationPlanId = id
+  }
+
+  openProductionLineModal() {
+    this.productionLineModalOpen = true
+  }
+
+  closeProductionLineModal() {
+    this.productionLineModalOpen = false
+  }
+
+  openSimulationPlanModal() {
+    this.simulationPlanModalOpen = true
+  }
+
+  closeSimulationPlanModal() {
+    this.simulationPlanModalOpen = false
   }
 
   isHidden(id: PanelId): boolean {
