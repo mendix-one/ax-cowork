@@ -34,6 +34,8 @@ export default defineConfig([
         { type: 'shared', mode: 'folder', pattern: 'src/shared/*' },
         // Each layouts/<name>/ is its own element
         { type: 'layout', mode: 'folder', pattern: 'src/layouts/*' },
+        // Each modals/<name>/ is its own element
+        { type: 'modal', mode: 'folder', pattern: 'src/modals/*' },
         // Each pages/<name>/ is its own element
         { type: 'page', mode: 'folder', pattern: 'src/pages/*' },
         // Static assets
@@ -51,13 +53,14 @@ export default defineConfig([
         {
           default: 'disallow',
           rules: [
-            { from: 'root', allow: ['root', 'acore', 'router', 'shared', 'layout', 'page', 'asset'] },
-            { from: 'router', allow: ['acore', 'shared', 'layout', 'page', 'asset'] },
-            { from: 'page', allow: ['acore', 'shared', 'layout', 'asset'] },
-            { from: 'layout', allow: ['acore', 'shared', 'layout', 'asset'] },
+            { from: 'root', allow: ['root', 'acore', 'router', 'shared', 'layout', 'modal', 'page', 'asset'] },
+            { from: 'router', allow: ['acore', 'shared', 'layout', 'modal', 'page', 'asset'] },
+            { from: 'page', allow: ['acore', 'shared', 'layout', 'modal', 'asset'] },
+            { from: 'layout', allow: ['acore', 'shared', 'layout', 'modal', 'asset'] },
+            { from: 'modal', allow: ['acore', 'shared', 'modal', 'asset'] },
             { from: 'acore', allow: ['acore', 'shared', 'asset'] },
             { from: 'shared', allow: ['shared', 'asset'] },
-            { from: 'test', allow: ['acore', 'shared', 'layout', 'page', 'asset'] },
+            { from: 'test', allow: ['acore', 'shared', 'layout', 'modal', 'page', 'asset'] },
             { from: 'asset', allow: [] },
           ],
         },

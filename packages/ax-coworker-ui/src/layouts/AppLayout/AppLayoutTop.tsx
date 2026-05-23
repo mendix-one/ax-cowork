@@ -1,14 +1,17 @@
 import { Avatar, Divider, Flex, Layout, Space, Tooltip } from 'antd'
+import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
 import { useNavigate } from 'react-router-dom'
 import avatarLight from '@/assets/avatar-light.png'
+import { useStore } from '@/acore/store/store.context'
 import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 import { AxMenuBox } from '@/shared/menu-box/AxMenuBox.tsx'
 import { AxDocItem } from '@/shared/doc-item/AxDocItem.tsx'
 
-export const AppLayoutTop = () => {
+export const AppLayoutTop = observer(() => {
   const { t } = useTranslation('app')
   const navigate = useNavigate()
+  const { ui } = useStore()
   return (
     <Layout.Header className="ax-layout-top">
       <Flex align="center" justify="space-between" gap="small" style={{ height: '100%' }}>
@@ -21,8 +24,12 @@ export const AppLayoutTop = () => {
             </Flex>
           </Space>
           <Space size={8}>
-            <AxMenuBox icon="mdiFolderOutline" label="aPlanner" />
-            <AxMenuBox icon="mdiSourceBranch" label="Main" />
+            <AxMenuIcon icon="mdiApps" title="Home" placement="bottom" />
+            <AxMenuIcon icon="mdiEarth" title="World Map" placement="bottom" />
+          </Space>
+          <Space size={8}>
+            <AxMenuBox icon="mdiDnsOutline" label="M-SOC" title="Production Line: M-SOC" placement="bottom" />
+            <AxMenuBox icon="mdiCardBulletedOutline" label="Plan A (Simulation)" title="Simulation: Plan A" placement="bottom" />
           </Space>
         </Flex>
         <Flex align="center" justify="end" gap="small">
@@ -40,12 +47,30 @@ export const AppLayoutTop = () => {
           <Divider vertical style={{ height: '24px', margin: '0' }} className="ax-menu-divider" />
           <Space size={8}>
             <AxMenuIcon icon="mdiMagnify" title={t('tooltip.globalSearch')} placement="bottom" />
-            <AxMenuIcon icon="mdiBellOutline" title={t('tooltip.notification')} placement="bottom" />
-            <AxMenuIcon icon="mdiAccountCircleOutline" title={t('tooltip.userAccount')} placement="bottomRight" />
-            <AxMenuIcon icon="mdiCogOutline" title={t('tooltip.systemSettings')} placement="bottomRight" />
+            <AxMenuIcon
+              icon="mdiBellOutline"
+              title={t('tooltip.notification')}
+              placement="bottom"
+              isActive={ui.notifyModalOpen}
+              onClick={() => ui.openNotifyModal()}
+            />
+            <AxMenuIcon
+              icon="mdiAccountCircleOutline"
+              title={t('tooltip.userAccount')}
+              placement="bottomRight"
+              isActive={ui.accountModalOpen}
+              onClick={() => ui.openAccountModal()}
+            />
+            <AxMenuIcon
+              icon="mdiCogOutline"
+              title={t('tooltip.systemSettings')}
+              placement="bottomRight"
+              isActive={ui.settingModalOpen}
+              onClick={() => ui.openSettingModal()}
+            />
           </Space>
         </Flex>
       </Flex>
     </Layout.Header>
   )
-}
+})

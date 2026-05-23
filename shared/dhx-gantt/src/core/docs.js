@@ -1,0 +1,110 @@
+/*global gantt*/
+
+gantt.debug_freid_ignore = {
+  gantt: {
+    form_blocks: true,
+    setUserData: true,
+    getUserData: true,
+    _migrate_buttons: true,
+    show_loading: true,
+    onSectionButton: true,
+    onSectionToggle: true,
+    optimize_render: true,
+    parent_child_links: true,
+    worktimes: true,
+    keyboard_navigation_modes: true,
+    task_grid_row_resizer_attribute: true,
+    keyboardNavigation: true,
+    $keyboardNavigation: true,
+    keyboard_navigation_scopes: true,
+    timeCalculator: true,
+    $container: true,
+    $data: true,
+    $grid: true,
+    $layout: true,
+    $mouseEvents: true,
+    $root: true,
+    $services: true,
+    $task: true,
+    $ui: true,
+    getRowTop: true,
+    $inject: true,
+    attachAll: true,
+    RemoteEvents: true,
+    $resourcesStore: true,
+    onBeforeSelect: true,
+    onAfterSelect: true,
+    onAfterUnselect: true,
+    task_height_offset: true,
+  },
+}
+
+gantt.debug_freid_artf = {
+  gantt: {
+    calendar: true,
+    ignore_time: true,
+    dataprocessor: true,
+  },
+}
+
+gantt.debug_freid_config = {
+  gantt: {
+    start_date: true,
+    end_date: true,
+    order_branch: true,
+    tooltip_hide_timeout: true,
+    open_split_tasks: false,
+    inline_editors_date_processing: true,
+    click_drag: true,
+    auto_scheduling_compatibility: true,
+    drag_multiple: true,
+    resource_attribute: true,
+    grid_elastic_columns: true,
+    csp: true,
+    reorder_grid_columns: true,
+    dynamic_resource_calendars: true,
+    wide_form: true,
+    wheel_scroll_sensitivity: true,
+    external_render: true,
+    container_resize_method: true,
+    inline_editors_multiselect_open: true,
+    link_radius: true,
+  },
+}
+
+gantt.debug_freid_event = {
+  gantt: {
+    onBeforeUndo: true,
+    onAfterUndo: true,
+    onBeforeRedo: true,
+    onAfterRedo: true,
+    onBeforeUndoStack: true,
+    onBeforeRedoStack: true,
+    onBeforeTaskDrag: true,
+    onAfterTaskDrag: true,
+    onBeforeTaskChanged: true,
+    onTaskDrag: true,
+    onBeforeMultiSelect: true,
+    onBeforeTaskMultiSelect: true,
+    onTaskMultiSelect: true,
+    onMultiSelect: true,
+    onAfterSort: true,
+    onBeforeRowDragMove: true,
+    onLinkCreated: true,
+    onBeforeBranchLoading: true,
+    onAfterBranchLoading: true,
+    onBeforeRowResize: true,
+    onRowResize: true,
+    onBeforeRowResizeEnd: true,
+    onAfterRowResize: true,
+  },
+}
+
+gantt.debug_freid_template = {
+  gantt: {
+    rightside_text: true,
+    leftside_text: true,
+    lightbox_header: true,
+    marker_class: true,
+  },
+}
