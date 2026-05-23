@@ -2,38 +2,60 @@ import { getModelToken } from '@nestjs/mongoose'
 import { Test } from '@nestjs/testing'
 
 import { Session } from '../../../src/acore/database/schemas/session.schema'
+import { Token } from '../../../src/acore/database/schemas/token.schema'
 import { SignoutService } from '../../../src/services/signout/signout.service'
 
+function chain<T>(resolved: T) {
+  const exec = jest.fn().mockResolvedValue(resolved)
+  return { exec }
+}
+
 function mockSessionModel() {
-  const exec = jest.fn().mockResolvedValue({ acknowledged: true, deletedCount: 1 })
-  const deleteOne = jest.fn().mockReturnValue({ exec })
-  return { deleteOne, exec }
+  const sessionDelete = jest.fn().mockReturnValue(chain({ acknowledged: true, deletedCount: 1 }))
+  return { deleteOne: sessionDelete }
+}
+
+function mockTokenModel() {
+  const tokenDelete = jest.fn().mockReturnValue(chain({ acknowledged: true, deletedCount: 2 }))
+  return { deleteMany: tokenDelete }
 }
 
 describe('SignoutService', () => {
-  async function buildService(sessionModel: ReturnType<typeof mockSessionModel>): Promise<SignoutService> {
+  async function buildService(
+    sessionModel: ReturnType<typeof mockSessionModel>,
+    tokenModel: ReturnType<typeof mockTokenModel>,
+  ): Promise<SignoutService> {
     const moduleRef = await Test.createTestingModule({
-      providers: [SignoutService, { provide: getModelToken(Session.name), useValue: sessionModel }],
+      providers: [
+        SignoutService,
+        { provide: getModelToken(Session.name), useValue: sessionModel },
+        { provide: getModelToken(Token.name), useValue: tokenModel },
+      ],
     }).compile()
     return moduleRef.get(SignoutService)
   }
 
-  it('deletes the session with the supplied token', async () => {
+  it('deletes the session by uuid AND all tokens whose session matches', async () => {
     const sessionModel = mockSessionModel()
-    const service = await buildService(sessionModel)
+    const tokenModel = mockTokenModel()
+    const service = await buildService(sessionModel, tokenModel)
 
-    await service.signout('the-token')
+    await service.signout('session-uuid-123')
 
-    expect(sessionModel.deleteOne).toHaveBeenCalledWith({ token: 'the-token' })
-    expect(sessionModel.exec).toHaveBeenCalledTimes(1)
+    expect(sessionModel.deleteOne).toHaveBeenCalledWith({ uuid: 'session-uuid-123' })
+    expect(tokenModel.deleteMany).toHaveBeenCalledWith({ session: 'session-uuid-123' })
   })
 
-  it('resolves silently when the token does not match a session', async () => {
+  it('resolves silently when no session/tokens matched (idempotent)', async () => {
     const sessionModel = mockSessionModel()
-    sessionModel.exec.mockResolvedValueOnce({ acknowledged: true, deletedCount: 0 })
-    const service = await buildService(sessionModel)
+    const tokenModel = mockTokenModel()
+    // Pretend nothing matched.
+    sessionModel.deleteOne.mockReturnValueOnce(chain({ acknowledged: true, deletedCount: 0 }))
+    tokenModel.deleteMany.mockReturnValueOnce(chain({ acknowledged: true, deletedCount: 0 }))
+    const service = await buildService(sessionModel, tokenModel)
 
-    await expect(service.signout('unknown-token')).resolves.toBeUndefined()
-    expect(sessionModel.deleteOne).toHaveBeenCalledWith({ token: 'unknown-token' })
+    await expect(service.signout('unknown-uuid')).resolves.toBeUndefined()
+    expect(sessionModel.deleteOne).toHaveBeenCalledWith({ uuid: 'unknown-uuid' })
+    expect(tokenModel.deleteMany).toHaveBeenCalledWith({ session: 'unknown-uuid' })
   })
 })

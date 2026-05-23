@@ -10,6 +10,7 @@ import { API_KEY_HEADER, APP_KEY_HEADER } from '../../../src/acore/security'
 import { Account } from '../../../src/acore/database/schemas/account.schema'
 import { App as AppDoc } from '../../../src/acore/database/schemas/app.schema'
 import { Session } from '../../../src/acore/database/schemas/session.schema'
+import { Token } from '../../../src/acore/database/schemas/token.schema'
 import { MainModule } from '../../../src/main.module'
 
 const API_KEY = 'e2e-test-key'
@@ -21,6 +22,7 @@ describe('SignoutController (e2e)', () => {
   let accountModel: Model<Account>
   let appModel: Model<AppDoc>
   let sessionModel: Model<Session>
+  let tokenModel: Model<Token>
 
   beforeAll(async () => {
     const moduleFixture = await Test.createTestingModule({ imports: [MainModule] }).compile()
@@ -31,6 +33,7 @@ describe('SignoutController (e2e)', () => {
     accountModel = moduleFixture.get<Model<Account>>(getModelToken(Account.name))
     appModel = moduleFixture.get<Model<AppDoc>>(getModelToken(AppDoc.name))
     sessionModel = moduleFixture.get<Model<Session>>(getModelToken(Session.name))
+    tokenModel = moduleFixture.get<Model<Token>>(getModelToken(Token.name))
   }, 30_000)
 
   afterAll(async () => {
@@ -38,7 +41,12 @@ describe('SignoutController (e2e)', () => {
   })
 
   beforeEach(async () => {
-    await Promise.all([accountModel.deleteMany({}).exec(), appModel.deleteMany({}).exec(), sessionModel.deleteMany({}).exec()])
+    await Promise.all([
+      accountModel.deleteMany({}).exec(),
+      appModel.deleteMany({}).exec(),
+      sessionModel.deleteMany({}).exec(),
+      tokenModel.deleteMany({}).exec(),
+    ])
     await accountModel.create({
       username: USERNAME,
       passwordHash: await hash(PASSWORD, 4),
@@ -50,21 +58,22 @@ describe('SignoutController (e2e)', () => {
     await appModel.create({ key: 'SSO', type: 'INTERNAL_SERVICES', name: 'AX SSO' })
   })
 
-  async function signinAndGetToken(): Promise<string> {
+  async function signinAndGetSession(): Promise<{ token: string; sessionUuid: string }> {
     const res = await request(app.getHttpServer())
       .post('/signin')
       .set(API_KEY_HEADER, API_KEY)
       .set(APP_KEY_HEADER, 'SSO')
       .send({ username: USERNAME, password: PASSWORD })
       .expect(201)
-    return (res.body as { token: string }).token
+    const body = res.body as { token: string; uuid: string }
+    return { token: body.token, sessionUuid: body.uuid }
   }
 
   it('rejects requests without the API key', async () => {
     await request(app.getHttpServer()).post('/signout').expect(401)
   })
 
-  it('rejects requests without a bearer token', async () => {
+  it('rejects requests without a bearer token (SecurityCheckGuard)', async () => {
     await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).expect(401)
   })
 
@@ -72,20 +81,43 @@ describe('SignoutController (e2e)', () => {
     await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', 'NotBearer xyz').expect(401)
   })
 
-  it('invalidates the session and returns 204', async () => {
-    const token = await signinAndGetToken()
-    expect(await sessionModel.findOne({ token }).lean().exec()).not.toBeNull()
-
-    await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${token}`).expect(204)
-
-    expect(await sessionModel.findOne({ token }).lean().exec()).toBeNull()
-  })
-
-  it('is idempotent — signing out an unknown token still returns 204', async () => {
+  it('rejects an arbitrary (non-JWT) bearer string with 401', async () => {
+    // The previous controller would silently accept any string and no-op; the guard now rejects.
     await request(app.getHttpServer())
       .post('/signout')
       .set(API_KEY_HEADER, API_KEY)
-      .set('Authorization', 'Bearer unknown-token-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
-      .expect(204)
+      .set('Authorization', 'Bearer this-is-not-a-jwt')
+      .expect(401)
+  })
+
+  it('invalidates the session by uuid (from the `ses` claim) and returns 204', async () => {
+    const { token, sessionUuid } = await signinAndGetSession()
+
+    // Seed a Token row linked to this session so we can verify the cascade delete.
+    await tokenModel.create({
+      token: 'derived-token-xyz',
+      account: 'acct-uuid',
+      session: sessionUuid,
+      app: 'SSO',
+      roles: [],
+      expiresAt: new Date(Date.now() + 60 * 60 * 1000),
+    })
+
+    expect(await sessionModel.findOne({ uuid: sessionUuid }).lean().exec()).not.toBeNull()
+    expect(await tokenModel.findOne({ session: sessionUuid }).lean().exec()).not.toBeNull()
+
+    await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${token}`).expect(204)
+
+    expect(await sessionModel.findOne({ uuid: sessionUuid }).lean().exec()).toBeNull()
+    expect(await tokenModel.findOne({ session: sessionUuid }).lean().exec()).toBeNull()
+  })
+
+  it('is idempotent — signing out with a valid JWT whose session was already removed still returns 204', async () => {
+    const { token, sessionUuid } = await signinAndGetSession()
+
+    // Remove the session out-of-band; the JWT is still cryptographically valid.
+    await sessionModel.deleteOne({ uuid: sessionUuid }).exec()
+
+    await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${token}`).expect(204)
   })
 })

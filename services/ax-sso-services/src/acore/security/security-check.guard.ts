@@ -20,6 +20,11 @@ interface SessionTokenPayload {
   exp?: number
 }
 
+// Headers the guard writes onto the request after verifying the JWT. Downstream handlers can
+// read them via `@Headers('sub')` / `@Headers('app')` / `@Headers('ses')`. They are stripped
+// from every incoming request first so a client can't spoof them.
+const AUTH_HEADERS = ['sub', 'app', 'ses'] as const
+
 @Injectable()
 export class SecurityCheckGuard implements CanActivate {
   constructor(
@@ -28,6 +33,14 @@ export class SecurityCheckGuard implements CanActivate {
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
+    const req = this.getRequest(context)
+
+    // Defense in depth — never trust an incoming `sub`/`app`/`ses` header. Only the guard
+    // (after verifying a JWT) is allowed to set them.
+    if (req) {
+      for (const h of AUTH_HEADERS) delete req.headers[h]
+    }
+
     // `@SecurityBypassAll()` opts out of every security guard — health probes etc.
     const bypass = this.reflector.getAllAndOverride<boolean | undefined>(SECURITY_BYPASS_ALL_KEY, [context.getHandler(), context.getClass()])
     if (bypass) return true
@@ -37,7 +50,6 @@ export class SecurityCheckGuard implements CanActivate {
     const options = this.reflector.getAllAndOverride<SecurityCheckOptions | undefined>(SECURITY_CHECK_KEY, [context.getHandler(), context.getClass()])
     if (options === undefined) return true
 
-    const req = this.getRequest(context)
     const token = this.extractBearer(req)
     if (!token) {
       throw new UnauthorizedException('Missing bearer token')
@@ -65,6 +77,14 @@ export class SecurityCheckGuard implements CanActivate {
       if (!hasMatch) {
         throw new ForbiddenException('Missing required role')
       }
+    }
+
+    // Surface the verified identity on the request so handlers (and param decorators) can
+    // read it via `@Headers('sub'|'app'|'ses')` without re-decoding the token.
+    if (req) {
+      req.headers.sub = payload.sub
+      req.headers.app = payload.app
+      req.headers.ses = payload.ses
     }
     return true
   }

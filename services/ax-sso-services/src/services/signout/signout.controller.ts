@@ -1,30 +1,34 @@
-import { Controller, Headers, HttpCode, HttpStatus, Post, UnauthorizedException } from '@nestjs/common'
+import { Controller, Headers, HttpCode, HttpStatus, InternalServerErrorException, Post } from '@nestjs/common'
 import { ApiBearerAuth, ApiNoContentResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 
+import { SecurityCheck } from '../../acore/security'
 import { SignoutService } from './signout.service'
 
 @ApiTags('Auth')
 @ApiSecurity('ax-api-key')
 @ApiBearerAuth()
+// Empty roles + empty status: any valid, non-expired bearer is accepted regardless of account status.
+@SecurityCheck()
 @Controller('signout')
 export class SignoutController {
   constructor(private readonly signoutService: SignoutService) {}
 
   @Post()
   @HttpCode(HttpStatus.NO_CONTENT)
-  @ApiOperation({ summary: 'Sign out', description: 'Invalidates the session identified by the `Authorization: Bearer <token>` header.' })
+  @ApiOperation({
+    summary: 'Sign out',
+    description: 'Invalidates the session referenced by the bearer token (claim `ses`) and any tokens minted from that session.',
+  })
   @ApiNoContentResponse({ description: 'Session invalidated.' })
-  @ApiUnauthorizedResponse({ description: 'Missing or malformed Authorization header, or missing/invalid API key.' })
-  async signout(@Headers('authorization') authHeader?: string): Promise<void> {
-    const token = parseBearerToken(authHeader)
-    if (!token) throw new UnauthorizedException('Missing bearer token')
-    await this.signoutService.signout(token)
+  @ApiUnauthorizedResponse({ description: 'Missing/invalid bearer token, or missing/invalid API key.' })
+  async signout(@Headers('ses') ses: string | undefined): Promise<void> {
+    // `SecurityCheckGuard` verified the bearer and wrote the JWT's `ses` claim onto this header.
+    // Any client-supplied `ses` header is stripped by the guard up front, so we can trust this value.
+    if (!ses) {
+      // Defensive — the guard always sets `ses` after a successful verify; arriving here without
+      // it would mean the JWT was somehow missing the claim, which signin never does.
+      throw new InternalServerErrorException('Verified token missing `ses` claim')
+    }
+    await this.signoutService.signout(ses)
   }
-}
-
-function parseBearerToken(authHeader: string | undefined): string | null {
-  if (!authHeader) return null
-  const [scheme, value] = authHeader.split(' ')
-  if (scheme?.toLowerCase() !== 'bearer' || !value) return null
-  return value
 }
