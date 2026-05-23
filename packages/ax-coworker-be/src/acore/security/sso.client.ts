@@ -23,6 +23,21 @@ export interface SsoSigninResponse {
   roles: string[]
 }
 
+export interface SsoSessionResponse {
+  uuid: string
+  token: string
+  app: {
+    uuid: string
+    key: string
+    type: string
+    name: string
+    description?: string
+    avatar?: string
+  }
+  // Serialized as ISO string over the wire.
+  expiresAt: string
+}
+
 const API_KEY_HEADER = 'ax-api-key'
 const APP_KEY_HEADER = 'ax-app-key'
 
@@ -46,6 +61,18 @@ export class SsoClient {
         'content-type': 'application/json',
       },
     })
+  }
+
+  // Bootstrap an anonymous session against ax-sso-services. Returns the session uuid and a
+  // bearer JWT carrying only `app` + `ses` claims (no account yet). Used by the IndexController
+  // to seed first-time visitors with a session cookie before serving the SPA.
+  async initialize(): Promise<SsoSessionResponse> {
+    try {
+      const { data } = await this.http.post<SsoSessionResponse>('/session/initialize')
+      return data
+    } catch (err) {
+      throw this.translateError(err, 'session/initialize')
+    }
   }
 
   async signin(username: string, password: string): Promise<SsoSigninResponse> {

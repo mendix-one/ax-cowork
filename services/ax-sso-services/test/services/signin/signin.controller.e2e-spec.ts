@@ -96,17 +96,32 @@ describe('SigninController (e2e)', () => {
 
   it('rejects malformed bodies with 400', async () => {
     const { token } = await initializeSession()
-    await request(app.getHttpServer()).post('/signin').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${token}`).send({ username: USERNAME }).expect(400)
+    await request(app.getHttpServer())
+      .post('/signin')
+      .set(API_KEY_HEADER, API_KEY)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: USERNAME })
+      .expect(400)
   })
 
   it('rejects unknown accounts with 401', async () => {
     const { token } = await initializeSession()
-    await request(app.getHttpServer()).post('/signin').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${token}`).send({ username: 'nobody', password: PASSWORD }).expect(401)
+    await request(app.getHttpServer())
+      .post('/signin')
+      .set(API_KEY_HEADER, API_KEY)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: 'nobody', password: PASSWORD })
+      .expect(401)
   })
 
   it('rejects wrong passwords with 401', async () => {
     const { token } = await initializeSession()
-    await request(app.getHttpServer()).post('/signin').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${token}`).send({ username: USERNAME, password: 'wrong' }).expect(401)
+    await request(app.getHttpServer())
+      .post('/signin')
+      .set(API_KEY_HEADER, API_KEY)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: USERNAME, password: 'wrong' })
+      .expect(401)
   })
 
   it('returns { uuid, token, account, app, roles } on valid credentials and attaches the account to the existing session', async () => {
@@ -198,12 +213,22 @@ describe('SigninController (e2e)', () => {
     const aliceToken = (aliceRes.body as { token: string }).token
 
     // Mint a derived app token for the session so we can verify cascade-delete on switch.
-    await request(app.getHttpServer()).post('/token').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${aliceToken}`).send({ scope: APP_KEY }).expect(201)
+    await request(app.getHttpServer())
+      .post('/token')
+      .set(API_KEY_HEADER, API_KEY)
+      .set('Authorization', `Bearer ${aliceToken}`)
+      .send({ scope: APP_KEY })
+      .expect(201)
     expect(await tokenModel.find({ session: initialized.uuid }).lean().exec()).toHaveLength(1)
 
     // Switch to bob using the same anonymous bearer (the initialized session is still valid).
     // We use alice's signed-in token here because it shares the same `ses` claim.
-    await request(app.getHttpServer()).post('/signin').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${aliceToken}`).send({ username: 'bob', password: 'bob password' }).expect(201)
+    await request(app.getHttpServer())
+      .post('/signin')
+      .set(API_KEY_HEADER, API_KEY)
+      .set('Authorization', `Bearer ${aliceToken}`)
+      .send({ username: 'bob', password: 'bob password' })
+      .expect(201)
 
     // Token rows from alice are gone after the switch.
     expect(await tokenModel.find({ session: initialized.uuid }).lean().exec()).toHaveLength(0)

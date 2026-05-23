@@ -46,7 +46,7 @@ Aligned with the implementation order in [P002 §14](P002-design-proposal.md) an
 ### T-A05 — API Key guard
 
 - [x] `ApiKeyGuard` reads `x-api-key` header, compares against parsed CSV of `INTEGRATION_API_KEYS`
-- [x] Registered as a global guard via `APP_GUARD` in `AuthModule`
+- [x] Registered as a global guard via `APP_GUARD` in `SecurityModule`
 - [x] `@Public()` decorator marks routes/controllers exempt (via `Reflector` + `PUBLIC_ROUTE_KEY` metadata)
 - [x] `IndexController` and `HealthController` marked `@Public()` so liveness/readiness probes don't need credentials
 - [x] Constructor validates that the parsed key set is non-empty (fail-fast)

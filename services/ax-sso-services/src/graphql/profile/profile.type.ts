@@ -7,38 +7,38 @@ import { AccountType } from '../common/account.type'
 @ObjectType('ProfileSessionApp')
 export class ProfileSessionAppType {
   @Field(() => ID, { description: 'Stable UUIDv7 of the session.' })
-    uuid!: string
+  uuid!: string
 
   @Field({ nullable: true, description: 'App key (matches `App.key`) the session was created against.' })
-    key?: string
+  key?: string
 
   @Field({ nullable: true, description: 'Human-friendly app name copied from the session snapshot.' })
-    name?: string
+  name?: string
 
   @Field({ nullable: true, description: 'When the session expires. After this instant the JWT no longer verifies.' })
-    avatar?: string
+  avatar?: string
 
   @Field({ nullable: true, description: 'When the session was created — effectively the signin time.' })
-    description?: string
+  description?: string
 }
 
 @ObjectType('ProfileSession')
 export class ProfileSessionType {
   @Field(() => ID, { description: 'Stable UUIDv7 of the session.' })
-    uuid!: string
+  uuid!: string
 
   @Field({ description: 'App key (matches `App.key`) the session was created against.' })
-    app!: ProfileSessionAppType
+  app!: ProfileSessionAppType
 
   @Field(() => GraphQLISODateTime, { description: 'When the session expires. After this instant the JWT no longer verifies.' })
-    expiresAt!: Date
+  expiresAt!: Date
 }
 
 @ObjectType('Profile')
 export class ProfileType {
   @Field(() => AccountType, { description: 'The caller account record.' })
-    account!: AccountType
+  account!: AccountType
 
   @Field(() => [ProfileSessionType], { description: 'Active (non-expired) sessions belonging to the caller, newest first.' })
-    sessions!: ProfileSessionType[]
+  sessions!: ProfileSessionType[]
 }

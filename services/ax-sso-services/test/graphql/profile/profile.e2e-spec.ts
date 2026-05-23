@@ -111,7 +111,10 @@ describe('GraphQL — profile (e2e)', () => {
     const res = await gql(query, undefined, token).expect(200)
     const body = res.body as {
       data: {
-        getProfile: { account: { uuid: string; username: string; email: string; status: string }; sessions: { uuid: string; app: { uuid: string; key: string; name: string } }[] }
+        getProfile: {
+          account: { uuid: string; username: string; email: string; status: string }
+          sessions: { uuid: string; app: { uuid: string; key: string; name: string } }[]
+        }
       }
     }
     expect(body.data.getProfile.account.uuid).toBe(accountUuid)

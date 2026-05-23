@@ -93,7 +93,12 @@ describe('SignoutController (e2e)', () => {
     const { signedInToken, sessionUuid } = await initializeAndSignin()
 
     // Mint a derived app token so we can verify the cascade delete.
-    await request(app.getHttpServer()).post('/token').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${signedInToken}`).send({ scope: APP_KEY }).expect(201)
+    await request(app.getHttpServer())
+      .post('/token')
+      .set(API_KEY_HEADER, API_KEY)
+      .set('Authorization', `Bearer ${signedInToken}`)
+      .send({ scope: APP_KEY })
+      .expect(201)
     expect(await tokenModel.find({ session: sessionUuid }).lean().exec()).toHaveLength(1)
 
     const res = await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${signedInToken}`).expect(200)
