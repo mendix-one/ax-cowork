@@ -8,6 +8,7 @@ import { App, AppSchema } from './schemas/app.schema'
 import { AppRole, AppRoleSchema } from './schemas/app-role.schema'
 import { Cronjob, CronjobSchema } from './schemas/cronjob.schema'
 import { Session, SessionSchema } from './schemas/session.schema'
+import { Token, TokenSchema } from './schemas/token.schema'
 
 const FEATURE_MODELS = MongooseModule.forFeature([
   { name: Account.name, schema: AccountSchema },
@@ -16,6 +17,7 @@ const FEATURE_MODELS = MongooseModule.forFeature([
   { name: App.name, schema: AppSchema },
   { name: AppRole.name, schema: AppRoleSchema },
   { name: AccountRole.name, schema: AccountRoleSchema },
+  { name: Token.name, schema: TokenSchema },
 ])
 
 @Global()
