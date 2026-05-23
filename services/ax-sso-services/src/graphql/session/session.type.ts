@@ -1,11 +1,11 @@
 import { Field, GraphQLISODateTime, ID, ObjectType } from '@nestjs/graphql'
 
-import { UserStatusEnum } from '../user/user.type'
-import type { UserStatus } from '../../acore/database/schemas/user.schema'
+import { AccountStatusEnum } from '../account/account.type'
+import type { AccountStatus } from '../../acore/database/schemas/account.schema'
 
-// Embedded user snapshot mirrors `SessionUser` on the Mongoose schema.
-@ObjectType('SessionUser')
-export class SessionUserType {
+// Embedded account snapshot mirrors `SessionAccount` on the Mongoose schema.
+@ObjectType('SessionAccount')
+export class SessionAccountType {
   @Field(() => ID)
     uuid!: string
 
@@ -24,8 +24,8 @@ export class SessionUserType {
   @Field()
     email!: string
 
-  @Field(() => UserStatusEnum)
-    status!: UserStatus
+  @Field(() => AccountStatusEnum)
+    status!: AccountStatus
 }
 
 @ObjectType('Session')
@@ -36,8 +36,8 @@ export class SessionType {
   @Field()
     token!: string
 
-  @Field(() => SessionUserType)
-    user!: SessionUserType
+  @Field(() => SessionAccountType)
+    account!: SessionAccountType
 
   @Field(() => GraphQLISODateTime)
     expiresAt!: Date

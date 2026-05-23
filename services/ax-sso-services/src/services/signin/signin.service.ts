@@ -4,8 +4,8 @@ import { InjectModel } from '@nestjs/mongoose'
 import { compare } from 'bcryptjs'
 import type { Model } from 'mongoose'
 
+import { Account } from '../../acore/database/schemas/account.schema'
 import { Session } from '../../acore/database/schemas/session.schema'
-import { User } from '../../acore/database/schemas/user.schema'
 import { SigninResDto } from './dto/signin.res-dto'
 
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000
@@ -13,18 +13,18 @@ const SESSION_TTL_MS = 24 * 60 * 60 * 1000
 @Injectable()
 export class SigninService {
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<User>,
+    @InjectModel(Account.name) private readonly accountModel: Model<Account>,
     @InjectModel(Session.name) private readonly sessionModel: Model<Session>,
   ) {}
 
   async signin(username: string, password: string): Promise<SigninResDto> {
-    const user = await this.userModel.findOne({ username }).lean().exec()
-    // Identical error for unknown user vs wrong password — don't leak which case it is.
-    if (!user || !(await compare(password, user.passwordHash))) {
+    const account = await this.accountModel.findOne({ username }).lean().exec()
+    // Identical error for unknown account vs wrong password — don't leak which case it is.
+    if (!account || !(await compare(password, account.passwordHash))) {
       throw new UnauthorizedException('Invalid credentials')
     }
-    // Active is the only signin-eligible status; `locked` and `closed` block here.
-    if (user.status !== 'ACTIVE') {
+    // Active is the only signin-eligible status; `LOCKED` and `CLOSED` block here.
+    if (account.status !== 'ACTIVE') {
       throw new UnauthorizedException('Account is not active')
     }
 
@@ -32,14 +32,14 @@ export class SigninService {
     const expiresAt = new Date(Date.now() + SESSION_TTL_MS)
     await this.sessionModel.create({
       token,
-      user: {
-        uuid: user.uuid,
-        username: user.username,
-        display: user.display,
-        avatar: user.avatar,
-        phone: user.phone,
-        email: user.email,
-        status: user.status,
+      account: {
+        uuid: account.uuid,
+        username: account.username,
+        display: account.display,
+        avatar: account.avatar,
+        phone: account.phone,
+        email: account.email,
+        status: account.status,
       },
       expiresAt,
     })

@@ -7,8 +7,8 @@ import request from 'supertest'
 import { App } from 'supertest/types'
 
 import { API_KEY_HEADER } from '../../../src/acore/security'
+import { Account } from '../../../src/acore/database/schemas/account.schema'
 import { Session } from '../../../src/acore/database/schemas/session.schema'
-import { User } from '../../../src/acore/database/schemas/user.schema'
 import { MainModule } from '../../../src/main.module'
 
 const API_KEY = 'e2e-test-key'
@@ -17,7 +17,7 @@ const PASSWORD = 'correct horse battery staple'
 
 describe('SignoutController (e2e)', () => {
   let app: INestApplication<App>
-  let userModel: Model<User>
+  let accountModel: Model<Account>
   let sessionModel: Model<Session>
 
   beforeAll(async () => {
@@ -26,7 +26,7 @@ describe('SignoutController (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
     await app.init()
 
-    userModel = moduleFixture.get<Model<User>>(getModelToken(User.name))
+    accountModel = moduleFixture.get<Model<Account>>(getModelToken(Account.name))
     sessionModel = moduleFixture.get<Model<Session>>(getModelToken(Session.name))
   }, 30_000)
 
@@ -35,8 +35,8 @@ describe('SignoutController (e2e)', () => {
   })
 
   beforeEach(async () => {
-    await Promise.all([userModel.deleteMany({}).exec(), sessionModel.deleteMany({}).exec()])
-    await userModel.create({
+    await Promise.all([accountModel.deleteMany({}).exec(), sessionModel.deleteMany({}).exec()])
+    await accountModel.create({
       username: USERNAME,
       passwordHash: await hash(PASSWORD, 4),
       display: 'Alice',

@@ -2,10 +2,10 @@ import { NotFoundException } from '@nestjs/common'
 import { getModelToken } from '@nestjs/mongoose'
 import { Test } from '@nestjs/testing'
 
-import { User } from '../../../src/acore/database/schemas/user.schema'
-import { UserService } from '../../../src/graphql/user/user.service'
+import { Account } from '../../../src/acore/database/schemas/account.schema'
+import { AccountService } from '../../../src/graphql/account/account.service'
 
-function mockUserModel() {
+function mockAccountModel() {
   const findOneExec = jest.fn()
   const findOneLean = jest.fn().mockReturnValue({ exec: findOneExec })
   const findOne = jest.fn().mockReturnValue({ lean: findOneLean })
@@ -36,27 +36,27 @@ function mockUserModel() {
   }
 }
 
-describe('UserService (graphql)', () => {
-  let mocks: ReturnType<typeof mockUserModel>
-  let service: UserService
+describe('AccountService (graphql)', () => {
+  let mocks: ReturnType<typeof mockAccountModel>
+  let service: AccountService
 
   beforeEach(async () => {
-    mocks = mockUserModel()
+    mocks = mockAccountModel()
     const moduleRef = await Test.createTestingModule({
-      providers: [UserService, { provide: getModelToken(User.name), useValue: mocks.model }],
+      providers: [AccountService, { provide: getModelToken(Account.name), useValue: mocks.model }],
     }).compile()
-    service = moduleRef.get(UserService)
+    service = moduleRef.get(AccountService)
   })
 
   describe('findByUuid', () => {
-    it('queries by uuid via lean and returns the user', async () => {
-      const user = { uuid: 'u1', username: 'alice' }
-      mocks.findOneExec.mockResolvedValueOnce(user)
+    it('queries by uuid via lean and returns the account', async () => {
+      const account = { uuid: 'u1', username: 'alice' }
+      mocks.findOneExec.mockResolvedValueOnce(account)
 
       const result = await service.findByUuid('u1')
 
       expect(mocks.model.findOne).toHaveBeenCalledWith({ uuid: 'u1' })
-      expect(result).toBe(user)
+      expect(result).toBe(account)
     })
 
     it('returns null when the uuid does not exist', async () => {
@@ -67,8 +67,8 @@ describe('UserService (graphql)', () => {
 
   describe('list', () => {
     it('uses default limit=50/skip=0, newest first, no status filter when none provided', async () => {
-      const users = [{ uuid: 'a' }, { uuid: 'b' }]
-      mocks.findExec.mockResolvedValueOnce(users)
+      const accounts = [{ uuid: 'a' }, { uuid: 'b' }]
+      mocks.findExec.mockResolvedValueOnce(accounts)
 
       const result = await service.list()
 
@@ -76,7 +76,7 @@ describe('UserService (graphql)', () => {
       expect(mocks.findSort).toHaveBeenCalledWith({ createdAt: -1 })
       expect(mocks.findSkip).toHaveBeenCalledWith(0)
       expect(mocks.findLimit).toHaveBeenCalledWith(50)
-      expect(result).toBe(users)
+      expect(result).toBe(accounts)
     })
 
     it('honors status filter and custom pagination', async () => {
@@ -105,7 +105,7 @@ describe('UserService (graphql)', () => {
       expect(result).toBe(updated)
     })
 
-    it('throws NotFoundException when the user does not exist', async () => {
+    it('throws NotFoundException when the account does not exist', async () => {
       mocks.updateExec.mockResolvedValueOnce(null)
       await expect(service.update('missing', { display: 'X' })).rejects.toBeInstanceOf(NotFoundException)
     })

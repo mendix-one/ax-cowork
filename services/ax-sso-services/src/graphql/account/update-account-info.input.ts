@@ -1,10 +1,10 @@
 import { Field, InputType } from '@nestjs/graphql'
 import { IsEmail, IsOptional, IsString, MaxLength } from 'class-validator'
 
-// Fields a user is allowed to mutate. `username`, `passwordHash`, `status`, and tenant identity
+// Fields an account is allowed to mutate. `username`, `passwordHash`, `status`, and tenant identity
 // (`uuid`, `cdnOwnerId`) are intentionally omitted — they need other admin endpoints.
 @InputType()
-export class UpdateUserInfoInput {
+export class UpdateAccountInfoInput {
   @Field({ nullable: true })
   @IsOptional()
   @IsString()

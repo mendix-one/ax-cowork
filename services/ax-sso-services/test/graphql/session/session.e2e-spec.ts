@@ -35,7 +35,7 @@ describe('GraphQL — session (e2e)', () => {
   async function seedSession(token: string): Promise<Session> {
     const doc = await sessionModel.create({
       token,
-      user: {
+      account: {
         uuid: '0190a1b2-c3d4-7e5f-8901-234567890abc',
         username: 'alice',
         display: 'Alice',
@@ -61,12 +61,12 @@ describe('GraphQL — session (e2e)', () => {
   })
 
   describe('query session', () => {
-    it('returns the session and embedded user by token', async () => {
+    it('returns the session and embedded account by token', async () => {
       const session = await seedSession('t-abc')
 
       const query = `
         query GetSession($token: String!) {
-          session(token: $token) { uuid token user { username status email } }
+          session(token: $token) { uuid token account { username status email } }
         }
       `
       const res = await gql(query, { token: 't-abc' }).expect(200)
@@ -74,7 +74,7 @@ describe('GraphQL — session (e2e)', () => {
       expect(body.data.session).toEqual({
         uuid: session.uuid,
         token: 't-abc',
-        user: { username: 'alice', status: 'ACTIVE', email: 'alice@example.com' },
+        account: { username: 'alice', status: 'ACTIVE', email: 'alice@example.com' },
       })
     })
 

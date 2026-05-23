@@ -2,14 +2,20 @@ import { Global, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { MongooseModule } from '@nestjs/mongoose'
 
+import { Account, AccountSchema } from './schemas/account.schema'
+import { AccountRole, AccountRoleSchema } from './schemas/account-role.schema'
+import { App, AppSchema } from './schemas/app.schema'
+import { AppRole, AppRoleSchema } from './schemas/app-role.schema'
 import { Cronjob, CronjobSchema } from './schemas/cronjob.schema'
 import { Session, SessionSchema } from './schemas/session.schema'
-import { User, UserSchema } from './schemas/user.schema'
 
 const FEATURE_MODELS = MongooseModule.forFeature([
-  { name: User.name, schema: UserSchema },
+  { name: Account.name, schema: AccountSchema },
   { name: Session.name, schema: SessionSchema },
   { name: Cronjob.name, schema: CronjobSchema },
+  { name: App.name, schema: AppSchema },
+  { name: AppRole.name, schema: AppRoleSchema },
+  { name: AccountRole.name, schema: AccountRoleSchema },
 ])
 
 @Global()

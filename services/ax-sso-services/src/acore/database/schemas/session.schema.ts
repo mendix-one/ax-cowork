@@ -2,16 +2,16 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import type { HydratedDocument } from 'mongoose'
 import { v7 as uuidv7 } from 'uuid'
 
-import { USER_STATUSES } from './user.schema'
-import type { UserStatus } from './user.schema'
+import { ACCOUNT_STATUSES } from './account.schema'
+import type { AccountStatus } from './account.schema'
 
 export type SessionDocument = HydratedDocument<Session>
 
-// Denormalized snapshot of user fields captured at signin time.
-// Lets the API answer "who owns this token?" without joining users on every request.
+// Denormalized snapshot of account fields captured at signin time.
+// Lets the API answer "who owns this token?" without joining accounts on every request.
 @Schema({ _id: false })
-export class SessionUser {
-  // The owning user's stable UUIDv7 — copied from the users collection at signin time.
+export class SessionAccount {
+  // The owning account's stable UUIDv7 — copied from the accounts collection at signin time.
   @Prop({ required: true, index: true })
     uuid!: string
 
@@ -30,11 +30,11 @@ export class SessionUser {
   @Prop({ required: true })
     email!: string
 
-  @Prop({ type: String, required: true, enum: USER_STATUSES })
-    status!: UserStatus
+  @Prop({ type: String, required: true, enum: ACCOUNT_STATUSES })
+    status!: AccountStatus
 }
 
-const SessionUserSchema = SchemaFactory.createForClass(SessionUser)
+const SessionAccountSchema = SchemaFactory.createForClass(SessionAccount)
 
 @Schema({ collection: 'sessions', timestamps: { createdAt: true, updatedAt: false } })
 export class Session {
@@ -45,8 +45,8 @@ export class Session {
   @Prop({ required: true, unique: true, index: true })
     token!: string
 
-  @Prop({ type: SessionUserSchema, required: true })
-    user!: SessionUser
+  @Prop({ type: SessionAccountSchema, required: true })
+    account!: SessionAccount
 
   // TTL index — Mongo removes the document automatically once `expiresAt` is in the past.
   @Prop({ required: true, expires: 0 })

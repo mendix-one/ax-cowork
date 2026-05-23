@@ -7,8 +7,8 @@ import request from 'supertest'
 import { App } from 'supertest/types'
 
 import { API_KEY_HEADER } from '../../../src/acore/security'
+import { Account } from '../../../src/acore/database/schemas/account.schema'
 import { Session } from '../../../src/acore/database/schemas/session.schema'
-import { User } from '../../../src/acore/database/schemas/user.schema'
 import { MainModule } from '../../../src/main.module'
 
 const API_KEY = 'e2e-test-key'
@@ -17,7 +17,7 @@ const PASSWORD = 'correct horse battery staple'
 
 describe('SigninController (e2e)', () => {
   let app: INestApplication<App>
-  let userModel: Model<User>
+  let accountModel: Model<Account>
   let sessionModel: Model<Session>
 
   beforeAll(async () => {
@@ -26,7 +26,7 @@ describe('SigninController (e2e)', () => {
     app.useGlobalPipes(new ValidationPipe({ whitelist: true, transform: true }))
     await app.init()
 
-    userModel = moduleFixture.get<Model<User>>(getModelToken(User.name))
+    accountModel = moduleFixture.get<Model<Account>>(getModelToken(Account.name))
     sessionModel = moduleFixture.get<Model<Session>>(getModelToken(Session.name))
   }, 30_000)
 
@@ -35,8 +35,8 @@ describe('SigninController (e2e)', () => {
   })
 
   beforeEach(async () => {
-    await Promise.all([userModel.deleteMany({}).exec(), sessionModel.deleteMany({}).exec()])
-    await userModel.create({
+    await Promise.all([accountModel.deleteMany({}).exec(), sessionModel.deleteMany({}).exec()])
+    await accountModel.create({
       username: USERNAME,
       passwordHash: await hash(PASSWORD, 4),
       display: 'Alice',
@@ -54,7 +54,7 @@ describe('SigninController (e2e)', () => {
     await request(app.getHttpServer()).post('/signin').set(API_KEY_HEADER, API_KEY).send({ username: USERNAME }).expect(400)
   })
 
-  it('rejects unknown users with 401', async () => {
+  it('rejects unknown accounts with 401', async () => {
     await request(app.getHttpServer()).post('/signin').set(API_KEY_HEADER, API_KEY).send({ username: 'nobody', password: PASSWORD }).expect(401)
   })
 
@@ -74,14 +74,14 @@ describe('SigninController (e2e)', () => {
     // UUIDv7: 8-4-4(starts with 7)-4-12 hex.
     const uuidV7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
     expect(persisted?.uuid).toMatch(uuidV7)
-    expect(persisted?.user.uuid).toMatch(uuidV7)
-    expect(persisted?.user.username).toBe(USERNAME)
-    expect(persisted?.user.email).toBe(`${USERNAME}@example.com`)
-    expect(persisted?.user.display).toBe('Alice')
-    expect(persisted?.user.status).toBe('ACTIVE')
+    expect(persisted?.account.uuid).toMatch(uuidV7)
+    expect(persisted?.account.username).toBe(USERNAME)
+    expect(persisted?.account.email).toBe(`${USERNAME}@example.com`)
+    expect(persisted?.account.display).toBe('Alice')
+    expect(persisted?.account.status).toBe('ACTIVE')
 
-    // The session's embedded user.uuid must match the source user's uuid in the users collection.
-    const seedUser = await userModel.findOne({ username: USERNAME }).lean().exec()
-    expect(persisted?.user.uuid).toBe(seedUser?.uuid)
+    // The session's embedded account.uuid must match the source account's uuid in the accounts collection.
+    const seedAccount = await accountModel.findOne({ username: USERNAME }).lean().exec()
+    expect(persisted?.account.uuid).toBe(seedAccount?.uuid)
   })
 })

@@ -2,6 +2,26 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Account {
+  avatar: String
+  cdnAvatarId: String
+  cdnOwnerId: String!
+  createdAt: DateTime
+  display: String!
+  email: String!
+  phone: String
+  status: AccountStatus!
+  updatedAt: DateTime
+  username: String!
+  uuid: ID!
+}
+
+enum AccountStatus {
+  ACTIVE
+  CLOSED
+  LOCKED
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
@@ -13,65 +33,45 @@ type Mutation {
   """
   removeSession(token: String!): Boolean!
 
-  """Updates a user. Throws when the uuid does not exist."""
-  updateUserInfo(input: UpdateUserInfoInput!, uuid: ID!): User!
+  """Updates an account. Throws when the uuid does not exist."""
+  updateAccountInfo(input: UpdateAccountInfoInput!, uuid: ID!): Account!
 }
 
 type Query {
+  """Returns the account record by uuid, or null if missing."""
+  accountInfo(uuid: ID!): Account
+
+  """
+  Returns accounts (newest first). Optionally filter by status; paginate with limit/skip.
+  """
+  accounts(limit: Int = 50, skip: Int = 0, status: AccountStatus): [Account!]!
+
   """Returns the session by token, or null if missing/expired."""
   session(token: String!): Session
-
-  """Returns the user record by uuid, or null if missing."""
-  userInfo(uuid: ID!): User
-
-  """
-  Returns users (newest first). Optionally filter by status; paginate with limit/skip.
-  """
-  users(limit: Int = 50, skip: Int = 0, status: UserStatus): [User!]!
 }
 
 type Session {
+  account: SessionAccount!
   createdAt: DateTime
   expiresAt: DateTime!
   token: String!
-  user: SessionUser!
   uuid: ID!
 }
 
-type SessionUser {
+type SessionAccount {
   avatar: String
   display: String!
   email: String!
   phone: String
-  status: UserStatus!
+  status: AccountStatus!
   username: String!
   uuid: ID!
 }
 
-input UpdateUserInfoInput {
+input UpdateAccountInfoInput {
   avatar: String
   cdnAvatarId: String
   display: String
   email: String
   phone: String
-}
-
-type User {
-  avatar: String
-  cdnAvatarId: String
-  cdnOwnerId: String!
-  createdAt: DateTime
-  display: String!
-  email: String!
-  phone: String
-  status: UserStatus!
-  updatedAt: DateTime
-  username: String!
-  uuid: ID!
-}
-
-enum UserStatus {
-  ACTIVE
-  CLOSED
-  LOCKED
 }

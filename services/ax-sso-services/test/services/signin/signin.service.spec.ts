@@ -3,12 +3,12 @@ import { getModelToken } from '@nestjs/mongoose'
 import { Test } from '@nestjs/testing'
 import { hash } from 'bcryptjs'
 
+import { Account } from '../../../src/acore/database/schemas/account.schema'
+import type { AccountStatus } from '../../../src/acore/database/schemas/account.schema'
 import { Session } from '../../../src/acore/database/schemas/session.schema'
-import { User } from '../../../src/acore/database/schemas/user.schema'
-import type { UserStatus } from '../../../src/acore/database/schemas/user.schema'
 import { SigninService } from '../../../src/services/signin/signin.service'
 
-interface FoundUser {
+interface FoundAccount {
   uuid: string
   username: string
   passwordHash: string
@@ -16,10 +16,10 @@ interface FoundUser {
   email: string
   phone?: string
   avatar?: string
-  status: UserStatus
+  status: AccountStatus
 }
 
-const baseUser = (overrides: Partial<FoundUser> = {}): FoundUser => ({
+const baseAccount = (overrides: Partial<FoundAccount> = {}): FoundAccount => ({
   uuid: '0190a1b2-c3d4-7e5f-8901-234567890abc',
   username: 'alice',
   passwordHash: '__set in beforeAll__',
@@ -31,7 +31,7 @@ const baseUser = (overrides: Partial<FoundUser> = {}): FoundUser => ({
   ...overrides,
 })
 
-function mockUserModel(found: FoundUser | null) {
+function mockAccountModel(found: FoundAccount | null) {
   return {
     findOne: jest.fn().mockReturnValue({
       lean: () => ({ exec: () => Promise.resolve(found) }),
@@ -54,39 +54,39 @@ describe('SigninService', () => {
     passwordHash = await hash(password, 4)
   })
 
-  async function buildService(userModel: ReturnType<typeof mockUserModel>, sessionModel: ReturnType<typeof mockSessionModel>): Promise<SigninService> {
+  async function buildService(accountModel: ReturnType<typeof mockAccountModel>, sessionModel: ReturnType<typeof mockSessionModel>): Promise<SigninService> {
     const moduleRef = await Test.createTestingModule({
       providers: [
         SigninService,
-        { provide: getModelToken(User.name), useValue: userModel },
+        { provide: getModelToken(Account.name), useValue: accountModel },
         { provide: getModelToken(Session.name), useValue: sessionModel },
       ],
     }).compile()
     return moduleRef.get(SigninService)
   }
 
-  it('throws UnauthorizedException when the user does not exist', async () => {
-    const userModel = mockUserModel(null)
+  it('throws UnauthorizedException when the account does not exist', async () => {
+    const accountModel = mockAccountModel(null)
     const sessionModel = mockSessionModel()
-    const service = await buildService(userModel, sessionModel)
+    const service = await buildService(accountModel, sessionModel)
 
     await expect(service.signin(username, password)).rejects.toBeInstanceOf(UnauthorizedException)
     expect(sessionModel.create).not.toHaveBeenCalled()
   })
 
   it('throws UnauthorizedException when the password does not match', async () => {
-    const userModel = mockUserModel(baseUser({ passwordHash }))
+    const accountModel = mockAccountModel(baseAccount({ passwordHash }))
     const sessionModel = mockSessionModel()
-    const service = await buildService(userModel, sessionModel)
+    const service = await buildService(accountModel, sessionModel)
 
     await expect(service.signin(username, 'wrong password')).rejects.toBeInstanceOf(UnauthorizedException)
     expect(sessionModel.create).not.toHaveBeenCalled()
   })
 
   it('returns a token + expiresAt and persists a session on valid credentials', async () => {
-    const userModel = mockUserModel(baseUser({ passwordHash }))
+    const accountModel = mockAccountModel(baseAccount({ passwordHash }))
     const sessionModel = mockSessionModel()
-    const service = await buildService(userModel, sessionModel)
+    const service = await buildService(accountModel, sessionModel)
 
     const before = Date.now()
     const result = await service.signin(username, password)
@@ -99,7 +99,7 @@ describe('SigninService', () => {
     expect(sessionModel.create).toHaveBeenCalledTimes(1)
     expect(sessionModel.create).toHaveBeenCalledWith({
       token: result.token,
-      user: {
+      account: {
         uuid: '0190a1b2-c3d4-7e5f-8901-234567890abc',
         username,
         display: 'Alice',
@@ -112,19 +112,19 @@ describe('SigninService', () => {
     })
   })
 
-  it.each(['LOCKED', 'CLOSED'] as const)('throws UnauthorizedException when the user status is %s', async (status) => {
-    const userModel = mockUserModel(baseUser({ passwordHash, status }))
+  it.each(['LOCKED', 'CLOSED'] as const)('throws UnauthorizedException when the account status is %s', async (status) => {
+    const accountModel = mockAccountModel(baseAccount({ passwordHash, status }))
     const sessionModel = mockSessionModel()
-    const service = await buildService(userModel, sessionModel)
+    const service = await buildService(accountModel, sessionModel)
 
     await expect(service.signin(username, password)).rejects.toBeInstanceOf(UnauthorizedException)
     expect(sessionModel.create).not.toHaveBeenCalled()
   })
 
   it('returns a distinct token on each call', async () => {
-    const userModel = mockUserModel(baseUser({ passwordHash }))
+    const accountModel = mockAccountModel(baseAccount({ passwordHash }))
     const sessionModel = mockSessionModel()
-    const service = await buildService(userModel, sessionModel)
+    const service = await buildService(accountModel, sessionModel)
 
     const a = await service.signin(username, password)
     const b = await service.signin(username, password)

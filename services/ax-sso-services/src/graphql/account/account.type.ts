@@ -1,14 +1,14 @@
 import { Field, GraphQLISODateTime, ID, ObjectType, registerEnumType } from '@nestjs/graphql'
 
-import { USER_STATUSES } from '../../acore/database/schemas/user.schema'
-import type { UserStatus } from '../../acore/database/schemas/user.schema'
+import { ACCOUNT_STATUSES } from '../../acore/database/schemas/account.schema'
+import type { AccountStatus } from '../../acore/database/schemas/account.schema'
 
-// Build a real enum object so @nestjs/graphql can register it — `UserStatus` itself is a TS type alias.
-export const UserStatusEnum = Object.fromEntries(USER_STATUSES.map((s) => [s, s])) as Record<UserStatus, UserStatus>
-registerEnumType(UserStatusEnum, { name: 'UserStatus' })
+// Build a real enum object so @nestjs/graphql can register it — `AccountStatus` itself is a TS type alias.
+export const AccountStatusEnum = Object.fromEntries(ACCOUNT_STATUSES.map((s) => [s, s])) as Record<AccountStatus, AccountStatus>
+registerEnumType(AccountStatusEnum, { name: 'AccountStatus' })
 
-@ObjectType('User')
-export class UserType {
+@ObjectType('Account')
+export class AccountType {
   @Field(() => ID)
     uuid!: string
 
@@ -33,8 +33,8 @@ export class UserType {
   @Field()
     cdnOwnerId!: string
 
-  @Field(() => UserStatusEnum)
-    status!: UserStatus
+  @Field(() => AccountStatusEnum)
+    status!: AccountStatus
 
   @Field(() => GraphQLISODateTime, { nullable: true })
     createdAt?: Date

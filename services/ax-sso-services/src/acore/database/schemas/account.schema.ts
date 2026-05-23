@@ -2,13 +2,13 @@ import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import type { HydratedDocument } from 'mongoose'
 import { v7 as uuidv7 } from 'uuid'
 
-export type UserDocument = HydratedDocument<User>
+export type AccountDocument = HydratedDocument<Account>
 
-export const USER_STATUSES = ['ACTIVE', 'LOCKED', 'CLOSED'] as const
-export type UserStatus = (typeof USER_STATUSES)[number]
+export const ACCOUNT_STATUSES = ['ACTIVE', 'LOCKED', 'CLOSED'] as const
+export type AccountStatus = (typeof ACCOUNT_STATUSES)[number]
 
-@Schema({ collection: 'users', timestamps: true })
-export class User {
+@Schema({ collection: 'accounts', timestamps: true })
+export class Account {
   // UUIDv7 — time-ordered, sortable, stable external identifier.
   @Prop({ required: true, unique: true, index: true, default: () => uuidv7() })
     uuid!: string
@@ -16,12 +16,12 @@ export class User {
   @Prop({ required: true, unique: true, index: true })
     username!: string
 
-  // Bcrypt hash of the user's password. Never stored or returned in plaintext.
+  // Bcrypt hash of the account's password. Never stored or returned in plaintext.
   @Prop({ required: true })
     passwordHash!: string
 
-  @Prop({ type: String, required: true, enum: USER_STATUSES, default: 'ACTIVE', index: true })
-    status!: UserStatus
+  @Prop({ type: String, required: true, enum: ACCOUNT_STATUSES, default: 'ACTIVE', index: true })
+    status!: AccountStatus
 
   @Prop({ required: true })
     display!: string
@@ -32,7 +32,7 @@ export class User {
   @Prop()
     phone?: string
 
-  // Public URL of the user's avatar.
+  // Public URL of the account's avatar.
   @Prop()
     avatar?: string
 
@@ -40,7 +40,7 @@ export class User {
   @Prop()
     cdnAvatarId?: string
 
-  // UUID of the tenant/org this user belongs to in the CDN service.
+  // UUID of the tenant/org this account belongs to in the CDN service.
   @Prop({ required: true, default: () => uuidv7() })
     cdnOwnerId!: string
 
@@ -53,4 +53,4 @@ export class User {
     updatedAt?: Date
 }
 
-export const UserSchema = SchemaFactory.createForClass(User)
+export const AccountSchema = SchemaFactory.createForClass(Account)
