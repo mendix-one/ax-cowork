@@ -11,15 +11,7 @@ export default defineConfig({
       fileName: 'ax-control-table',
     },
     rollupOptions: {
-      external: [
-        'react',
-        'react-dom',
-        'react/jsx-runtime',
-        'antd',
-        '@ant-design/icons',
-        '@tanstack/react-table',
-        '@tanstack/react-virtual',
-      ],
+      external: ['react', 'react-dom', 'react/jsx-runtime', 'antd', '@ant-design/icons', '@tanstack/react-table', '@tanstack/react-virtual'],
     },
     sourcemap: true,
   },

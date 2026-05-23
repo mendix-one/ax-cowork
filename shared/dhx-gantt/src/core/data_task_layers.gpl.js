@@ -1,0 +1,4 @@
+export default function (gantt) {
+  delete gantt.addTaskLayer
+  delete gantt.addLinkLayer
+}

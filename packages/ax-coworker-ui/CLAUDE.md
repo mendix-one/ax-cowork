@@ -52,7 +52,7 @@ src/
 │   └── theme/                        # axTheme (AntD ThemeConfig) + token.ts raw values
 ├── assets/                           # static files (icon, avatar)
 ├── layouts/
-│   ├── AppLayout/                    # AppLayout + Top/Left/Right/Bottom (4-vùng shell, behind RequireAuth)
+│   ├── SimulationLayout/                    # SimulationLayout + Top/Left/Right/Bottom (4-vùng shell, behind RequireAuth)
 │   └── AuthLayout/                   # centered card + EN/KO language switcher (behind RedirectIfAuthed)
 ├── pages/                            # route entries; each <name>/ is its own boundary element
 │   ├── home/HomePage.tsx + views/*
@@ -88,11 +88,11 @@ Currently only `auth` and `ui` exist. Domain stores like `tasks`, `documents`, `
 
 `src/acore/router/index.tsx` exports `index = createBrowserRouter([...])`. Two layout groups + 404:
 
-| Path           | Layout           | Guard                  | Pages    |
-| -------------- | ---------------- | ---------------------- | -------- |
-| `/`            | `<AppLayout />`  | `<RequireAuth />`      | Home     |
-| `/auth/signin` | `<AuthLayout />` | `<RedirectIfAuthed />` | SignIn   |
-| `*`            | none             | none                   | NotFound |
+| Path           | Layout                 | Guard                  | Pages    |
+| -------------- | ---------------------- | ---------------------- | -------- |
+| `/`            | `<SimulationLayout />` | `<RequireAuth />`      | Home     |
+| `/auth/signin` | `<AuthLayout />`       | `<RedirectIfAuthed />` | SignIn   |
+| `*`            | none                   | none                   | NotFound |
 
 Conventions:
 

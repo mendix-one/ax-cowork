@@ -1,0 +1,158 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+type Account {
+  avatar: String
+  cdnAvatarId: String
+  cdnOwnerId: String!
+  createdAt: DateTime
+  display: String!
+  email: String!
+  phone: String
+  status: AccountStatus!
+  updatedAt: DateTime
+  username: String!
+  uuid: ID!
+}
+
+enum AccountStatus {
+  ACTIVE
+  CLOSED
+  LOCKED
+}
+
+input CreateAccountInput {
+  avatar: String
+  display: String!
+  email: String!
+
+  """
+  Plaintext password. Hashed with bcrypt server-side; never stored or returned.
+  """
+  password: String!
+  phone: String
+
+  """
+  Defaults to ACTIVE.
+  """
+  status: AccountStatus
+  username: String!
+}
+
+"""
+A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
+"""
+scalar DateTime
+
+type Mutation {
+  """
+  Creates a new account. Bcrypt-hashes the password server-side.
+  """
+  createAccount(input: CreateAccountInput!): Account!
+
+  """
+  Invalidates one of the caller's own active sessions. Returns true when a session was removed.
+  """
+  killSession(uuid: ID!): Boolean!
+
+  """
+  Updates an existing account. Throws when the uuid does not exist.
+  """
+  updateAccount(input: UpdateAccountInput!, uuid: ID!): Account!
+
+  """
+  Updates the caller's own account record.
+  """
+  updateProfile(input: UpdateProfileInput!): Account!
+}
+
+type Profile {
+  """
+  The caller account record.
+  """
+  account: Account!
+
+  """
+  Active (non-expired) sessions belonging to the caller, newest first.
+  """
+  sessions: [ProfileSession!]!
+}
+
+type ProfileSession {
+  """
+  App key (matches `App.key`) the session was created against.
+  """
+  app: ProfileSessionApp!
+
+  """
+  When the session expires. After this instant the JWT no longer verifies.
+  """
+  expiresAt: DateTime!
+
+  """
+  Stable UUIDv7 of the session.
+  """
+  uuid: ID!
+}
+
+type ProfileSessionApp {
+  """
+  When the session expires. After this instant the JWT no longer verifies.
+  """
+  avatar: String
+
+  """
+  When the session was created — effectively the signin time.
+  """
+  description: String
+
+  """
+  App key (matches `App.key`) the session was created against.
+  """
+  key: String
+
+  """
+  Human-friendly app name copied from the session snapshot.
+  """
+  name: String
+
+  """
+  Stable UUIDv7 of the session.
+  """
+  uuid: ID!
+}
+
+type Query {
+  """
+  Returns the account record by uuid, or null if missing.
+  """
+  getDetail(uuid: ID!): Account
+
+  """
+  Lists accounts (newest first). Optionally filter by status; paginate with limit/skip.
+  """
+  getList(limit: Int = 50, skip: Int = 0, status: AccountStatus): [Account!]!
+
+  """
+  Returns the caller's account record + active sessions.
+  """
+  getProfile: Profile!
+}
+
+input UpdateAccountInput {
+  avatar: String
+  cdnAvatarId: String
+  display: String
+  email: String
+  phone: String
+  status: AccountStatus
+}
+
+input UpdateProfileInput {
+  avatar: String
+  cdnAvatarId: String
+  display: String
+  email: String
+  phone: String
+}

@@ -4,6 +4,7 @@ import { AxMuiIcon, type MdiIconName } from '../mui-icon/AxMuiIcon.tsx'
 
 export type AxMenuIconProps = {
   icon: MdiIconName
+  isActive?: boolean
   title?: string
   placement?: TooltipPlacement
   onClick?: () => void
@@ -12,7 +13,7 @@ export type AxMenuIconProps = {
 export const AxMenuIcon = (props: AxMenuIconProps) => {
   return (
     <Tooltip title={props.title} placement={props.placement}>
-      <button className="ax-menu-icon" onClick={props.onClick}>
+      <button className={`ax-menu-icon ${props.isActive ? 'is-active' : ''}`} onClick={props.onClick}>
         <AxMuiIcon icon={props.icon} size="20px" className="ax-menu-icon_icon" />
       </button>
     </Tooltip>

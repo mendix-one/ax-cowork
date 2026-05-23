@@ -1,14 +1,15 @@
 import { createBrowserRouter } from 'react-router-dom'
-import { AppLayout } from '@/layouts/AppLayout'
-import { AuthLayout } from '@/layouts/AuthLayout'
+import { RouteError } from './RouteError.tsx'
 import { RequireAuth } from './RequireAuth.tsx'
 import { RedirectIfAuthed } from './RedirectIfAuthed.tsx'
-import { RouteError } from './RouteError.tsx'
+import { AuthLayout } from '@/layouts/AuthLayout'
+import { PageLayout } from '@/layouts/PageLayout'
+import { AppLayout } from '@/layouts/AppLayout'
 
 export const index = createBrowserRouter([
   {
     path: '/',
-    element: <AppLayout />,
+    element: <PageLayout />,
     errorElement: <RouteError />,
     children: [
       {
@@ -16,15 +17,30 @@ export const index = createBrowserRouter([
         children: [
           {
             index: true,
-            lazy: async () => ({ Component: (await import('@/pages/home/HomePage.tsx')).HomePage }),
+            lazy: async () => ({ Component: (await import('@/pages/simulation/SimulationPage.tsx')).SimulationPage }),
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: '/sample',
+    element: <AppLayout />,
+    errorElement: <RouteError />,
+    children: [
+      {
+        children: [
+          {
+            index: true,
+            lazy: async () => ({ Component: (await import('@/samples/control-table/ControlTableDemoPage.tsx')).ControlTableDemoPage }),
           },
           {
             path: 'control-table',
-            lazy: async () => ({ Component: (await import('@/pages/control-table-demo/ControlTableDemoPage.tsx')).ControlTableDemoPage }),
+            lazy: async () => ({ Component: (await import('@/samples/control-table/ControlTableDemoPage.tsx')).ControlTableDemoPage }),
           },
           {
-            path: 'docs/:id',
-            lazy: async () => ({ Component: (await import('@/pages/markdown-view/MarkdownViewPage.tsx')).MarkdownViewPage }),
+            path: 'markdown-view',
+            lazy: async () => ({ Component: (await import('@/samples/markdown-view/MarkdownViewPage.tsx')).MarkdownViewPage }),
           },
         ],
       },

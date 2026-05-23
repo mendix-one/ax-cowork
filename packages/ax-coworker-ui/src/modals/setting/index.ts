@@ -1,0 +1,1 @@
+export { SettingModal } from './SettingModal'

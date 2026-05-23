@@ -10,7 +10,7 @@ export const AppLayoutRight = () => {
         <Flex align="center" justify="start" gap="small" vertical style={{ width: '100%' }}>
           <Space size={8} vertical>
             <AxMenuIcon icon="mdiBookOpenOutline" title={t('tooltip.splitView')} placement="left" />
-            <AxMenuIcon icon="mdiCreationOutline" title={t('tooltip.generativeAI')} placement="left" />
+            <AxMenuIcon isActive icon="mdiCreationOutline" title={t('tooltip.generativeAI')} placement="left" />
           </Space>
         </Flex>
         <Flex align="center" justify="end" gap="small" vertical style={{ width: '100%' }}>

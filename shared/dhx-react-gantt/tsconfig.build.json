@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist/types",
+    "types": ["react", "react-dom"],
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "isolatedModules": false,
+
+    "module": "esnext",
+    "noEmit": false,
+    "skipLibCheck": false
+  },
+  "exclude": ["node_modules", "dist"]
+}
