@@ -11,6 +11,6 @@ export class ErrorController {
     const scripts = this.configService.get<string[]>('WEBAPP_SCRIPTS')
     const styles = this.configService.get<string[]>('WEBPAGE_STYLES')
 
-    return { scripts, styles }
+    return { meta: '{}', scripts, styles }
   }
 }
