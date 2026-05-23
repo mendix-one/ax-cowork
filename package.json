@@ -9,6 +9,7 @@
     "dev:fe": "pnpm --filter ax-cowork-ui run dev",
     "dev:be": "pnpm --filter ax-cowork-be run dev",
     "dev:cdn": "pnpm --filter ax-cdn-services run dev",
+    "dev:sso": "pnpm --filter ax-sso-services run dev",
     "dev:di": "pnpm --filter ax-data-integration run dev",
     "build": "pnpm -r run build",
     "lint": "pnpm -r run lint",
