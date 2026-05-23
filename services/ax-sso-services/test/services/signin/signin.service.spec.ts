@@ -9,6 +9,7 @@ import type { UserStatus } from '../../../src/acore/database/schemas/user.schema
 import { SigninService } from '../../../src/services/signin/signin.service'
 
 interface FoundUser {
+  uuid: string
   username: string
   passwordHash: string
   display: string
@@ -19,6 +20,7 @@ interface FoundUser {
 }
 
 const baseUser = (overrides: Partial<FoundUser> = {}): FoundUser => ({
+  uuid: '0190a1b2-c3d4-7e5f-8901-234567890abc',
   username: 'alice',
   passwordHash: '__set in beforeAll__',
   display: 'Alice',
@@ -98,6 +100,7 @@ describe('SigninService', () => {
     expect(sessionModel.create).toHaveBeenCalledWith({
       token: result.token,
       user: {
+        uuid: '0190a1b2-c3d4-7e5f-8901-234567890abc',
         username,
         display: 'Alice',
         email: 'alice@example.com',

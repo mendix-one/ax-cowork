@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import type { HydratedDocument } from 'mongoose'
+import { v7 as uuidv7 } from 'uuid'
 
 import { USER_STATUSES } from './user.schema'
 import type { UserStatus } from './user.schema'
@@ -10,6 +11,10 @@ export type SessionDocument = HydratedDocument<Session>
 // Lets the API answer "who owns this token?" without joining users on every request.
 @Schema({ _id: false })
 export class SessionUser {
+  // The owning user's stable UUIDv7 — copied from the users collection at signin time.
+  @Prop({ required: true, index: true })
+    uuid!: string
+
   @Prop({ required: true, index: true })
     username!: string
 
@@ -33,6 +38,10 @@ const SessionUserSchema = SchemaFactory.createForClass(SessionUser)
 
 @Schema({ collection: 'sessions', timestamps: { createdAt: true, updatedAt: false } })
 export class Session {
+  // UUIDv7 — time-ordered, sortable, stable external identifier for this session.
+  @Prop({ required: true, unique: true, index: true, default: () => uuidv7() })
+    uuid!: string
+
   @Prop({ required: true, unique: true, index: true })
     token!: string
 

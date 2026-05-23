@@ -71,9 +71,17 @@ describe('SigninController (e2e)', () => {
 
     const persisted = await sessionModel.findOne({ token: body.token }).lean().exec()
     expect(persisted).not.toBeNull()
+    // UUIDv7: 8-4-4(starts with 7)-4-12 hex.
+    const uuidV7 = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
+    expect(persisted?.uuid).toMatch(uuidV7)
+    expect(persisted?.user.uuid).toMatch(uuidV7)
     expect(persisted?.user.username).toBe(USERNAME)
     expect(persisted?.user.email).toBe(`${USERNAME}@example.com`)
     expect(persisted?.user.display).toBe('Alice')
     expect(persisted?.user.status).toBe('ACTIVE')
+
+    // The session's embedded user.uuid must match the source user's uuid in the users collection.
+    const seedUser = await userModel.findOne({ username: USERNAME }).lean().exec()
+    expect(persisted?.user.uuid).toBe(seedUser?.uuid)
   })
 })

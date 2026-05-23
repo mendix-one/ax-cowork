@@ -33,6 +33,7 @@ export class SigninService {
     await this.sessionModel.create({
       token,
       user: {
+        uuid: user.uuid,
         username: user.username,
         display: user.display,
         avatar: user.avatar,

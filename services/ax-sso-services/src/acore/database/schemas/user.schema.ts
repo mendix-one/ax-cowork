@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose'
 import type { HydratedDocument } from 'mongoose'
+import { v7 as uuidv7 } from 'uuid'
 
 export type UserDocument = HydratedDocument<User>
 
@@ -8,6 +9,10 @@ export type UserStatus = (typeof USER_STATUSES)[number]
 
 @Schema({ collection: 'users', timestamps: true })
 export class User {
+  // UUIDv7 — time-ordered, sortable, stable external identifier.
+  @Prop({ required: true, unique: true, index: true, default: () => uuidv7() })
+    uuid!: string
+
   @Prop({ required: true, unique: true, index: true })
     username!: string
 
@@ -36,7 +41,7 @@ export class User {
     cdnAvatarId?: string
 
   // UUID of the tenant/org this user belongs to in the CDN service.
-  @Prop({ required: true, index: true })
+  @Prop({ required: true, default: () => uuidv7() })
     cdnOwnerId!: string
 }
 
