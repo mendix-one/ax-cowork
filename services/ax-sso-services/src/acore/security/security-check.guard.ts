@@ -21,9 +21,9 @@ interface SessionTokenPayload {
 }
 
 // Headers the guard writes onto the request after verifying the JWT. Downstream handlers can
-// read them via `@Headers('sub')` / `@Headers('app')` / `@Headers('ses')`. They are stripped
-// from every incoming request first so a client can't spoof them.
-const AUTH_HEADERS = ['sub', 'app', 'ses'] as const
+// read them via `@Headers('account')` / `@Headers('app')` / `@Headers('session')` / `@Headers('state')`.
+// They are stripped from every incoming request first so a client can't spoof them.
+const AUTH_HEADERS = ['account', 'app', 'session', 'state'] as const
 
 @Injectable()
 export class SecurityCheckGuard implements CanActivate {
@@ -35,7 +35,7 @@ export class SecurityCheckGuard implements CanActivate {
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const req = this.getRequest(context)
 
-    // Defense in depth — never trust an incoming `sub`/`app`/`ses` header. Only the guard
+    // Defense in depth — never trust an incoming `account`/`app`/`session`/`state` header. Only the guard
     // (after verifying a JWT) is allowed to set them.
     if (req) {
       for (const h of AUTH_HEADERS) delete req.headers[h]
@@ -80,12 +80,13 @@ export class SecurityCheckGuard implements CanActivate {
     }
 
     // Surface the verified identity on the request so handlers (and param decorators) can
-    // read it via `@Headers('sub'|'app'|'ses')` without re-decoding the token.
+    // read it via `@Headers('account'|'app'|'session'|'state')` without re-decoding the token.
     if (req) {
       req.headers.app = payload.app
       req.headers.account = payload.sub
       req.headers.session = payload.ses
       req.headers.state = payload.sta
+      req.headers.roles = payload.roles
     }
     return true
   }
