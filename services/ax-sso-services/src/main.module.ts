@@ -5,6 +5,7 @@ import { ScheduleModule } from '@nestjs/schedule'
 import { SecurityModule } from './acore/security'
 import { ConfigModule } from './acore/config/config.module'
 import { DatabaseModule } from './acore/database/database.module'
+import { GraphQLModule } from './graphql/graphql.module'
 import { WorkersModule } from './workers/workers.module'
 import { ServicesModule } from './services/services.module'
 
@@ -15,6 +16,7 @@ import { ServicesModule } from './services/services.module'
     ConfigModule,
     SecurityModule,
     DatabaseModule,
+    GraphQLModule,
     WorkersModule,
     ServicesModule,
   ],
