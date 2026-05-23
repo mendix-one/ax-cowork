@@ -628,6 +628,9 @@ importers:
       jest:
         specifier: ^30.0.0
         version: 30.4.2(@types/node@24.12.3)(babel-plugin-macros@3.1.0)(ts-node@10.9.2(@types/node@24.12.3)(typescript@5.9.3))
+      mongodb-memory-server:
+        specifier: ^10.4.3
+        version: 10.4.3
       source-map-support:
         specifier: ^0.5.21
         version: 0.5.21
