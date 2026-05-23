@@ -129,10 +129,7 @@ describe('TokenService', () => {
     expect(tokenModel.findOne).toHaveBeenCalledWith({ account: ACCOUNT, session: SESSION, app: SCOPE }, { uuid: 1 })
     expect(tokenModel.create).not.toHaveBeenCalled()
     expect(tokenModel.updateOne).toHaveBeenCalledTimes(1)
-    expect(tokenModel.updateOne).toHaveBeenCalledWith(
-      { uuid: existingUuid },
-      { $set: { token: STUB_JWT, expiresAt: SESSION_EXPIRES_AT, roles: ['VIEWER'] } },
-    )
+    expect(tokenModel.updateOne).toHaveBeenCalledWith({ uuid: existingUuid }, { $set: { token: STUB_JWT, expiresAt: SESSION_EXPIRES_AT, roles: ['VIEWER'] } })
 
     expect(jwt.signAsync).toHaveBeenCalledWith(
       { app: SCOPE, sub: ACCOUNT, ses: SESSION, sta: STATE, roles: ['VIEWER'] },

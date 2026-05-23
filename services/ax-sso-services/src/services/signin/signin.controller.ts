@@ -14,7 +14,10 @@ export class SigninController {
   constructor(private readonly signinService: SigninService) {}
 
   @Post()
-  @ApiOperation({ summary: 'Sign in', description: 'Validates credentials against the requested app and returns a session token with the account/app snapshots and granted roles.' })
+  @ApiOperation({
+    summary: 'Sign in',
+    description: 'Validates credentials against the requested app and returns a session token with the account/app snapshots and granted roles.',
+  })
   @ApiOkResponse({ type: SigninResDto, description: 'Session created.' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials or unknown app.' })
   signin(@Headers(APP_KEY_HEADER) appKey: string | undefined, @Body() dto: SigninReqDto): Promise<SigninResDto> {

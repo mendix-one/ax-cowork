@@ -24,10 +24,7 @@ function mockTokenModel() {
 }
 
 describe('SignoutService', () => {
-  async function buildService(
-    sessionModel: ReturnType<typeof mockSessionModel>,
-    tokenModel: ReturnType<typeof mockTokenModel>,
-  ): Promise<SignoutService> {
+  async function buildService(sessionModel: ReturnType<typeof mockSessionModel>, tokenModel: ReturnType<typeof mockTokenModel>): Promise<SignoutService> {
     const moduleRef = await Test.createTestingModule({
       providers: [
         SignoutService,

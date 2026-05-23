@@ -66,6 +66,7 @@ export class SigninService {
     }
     const appSnapshot = {
       uuid: app.uuid,
+      key: app.key,
       type: app.type,
       name: app.name,
       description: app.description,

@@ -8,58 +8,58 @@ import type { AppType } from '../../../acore/database/schemas/app.schema'
 // Mirrors `SessionAccount` (embedded subdocument) — the snapshot copied onto the session at signin.
 export class SigninResAccountDto {
   @ApiProperty({ description: 'Stable UUIDv7 of the account.' })
-    uuid!: string
+  uuid!: string
 
   @ApiProperty()
-    username!: string
+  username!: string
 
   @ApiProperty()
-    display!: string
+  display!: string
 
   @ApiProperty({ required: false })
-    avatar?: string
+  avatar?: string
 
   @ApiProperty({ required: false })
-    phone?: string
+  phone?: string
 
   @ApiProperty()
-    email!: string
+  email!: string
 
   @ApiProperty({ enum: ACCOUNT_STATUSES })
-    status!: AccountStatus
+  status!: AccountStatus
 }
 
 // Mirrors `SessionApp` (embedded subdocument).
 export class SigninResAppDto {
   @ApiProperty({ description: 'Stable UUIDv7 of the app.' })
-    uuid!: string
+  uuid!: string
 
   @ApiProperty({ enum: APP_TYPES })
-    type!: AppType
+  type!: AppType
 
   @ApiProperty()
-    name!: string
+  name!: string
 
   @ApiProperty({ required: false })
-    description?: string
+  description?: string
 
   @ApiProperty({ required: false })
-    avatar?: string
+  avatar?: string
 }
 
 export class SigninResDto {
   @ApiProperty({ description: 'Stable UUIDv7 of the newly-created session.' })
-    uuid!: string
+  uuid!: string
 
   @ApiProperty({ description: 'Signed JWT. Send back as `Authorization: Bearer <token>` on subsequent requests.' })
-    token!: string
+  token!: string
 
   @ApiProperty({ type: SigninResAccountDto })
-    account!: SigninResAccountDto
+  account!: SigninResAccountDto
 
   @ApiProperty({ type: SigninResAppDto })
-    app!: SigninResAppDto
+  app!: SigninResAppDto
 
   @ApiProperty({ type: [String], description: 'Role keys carried by this session (within the target app).' })
-    roles!: string[]
+  roles!: string[]
 }

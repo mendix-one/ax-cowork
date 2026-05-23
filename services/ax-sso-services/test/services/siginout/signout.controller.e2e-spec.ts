@@ -83,11 +83,7 @@ describe('SignoutController (e2e)', () => {
 
   it('rejects an arbitrary (non-JWT) bearer string with 401', async () => {
     // The previous controller would silently accept any string and no-op; the guard now rejects.
-    await request(app.getHttpServer())
-      .post('/signout')
-      .set(API_KEY_HEADER, API_KEY)
-      .set('Authorization', 'Bearer this-is-not-a-jwt')
-      .expect(401)
+    await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', 'Bearer this-is-not-a-jwt').expect(401)
   })
 
   it('invalidates the session by uuid (from the `ses` claim) and returns the 200 success payload', async () => {
