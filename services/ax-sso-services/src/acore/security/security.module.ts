@@ -4,6 +4,7 @@ import { APP_GUARD } from '@nestjs/core'
 import { JwtModule } from '@nestjs/jwt'
 
 import { ApiKeyGuard } from './api-key.guard'
+import { SecurityCheckGuard } from './security-check.guard'
 
 @Module({
   imports: [
@@ -19,6 +20,12 @@ import { ApiKeyGuard } from './api-key.guard'
       }),
     }),
   ],
-  providers: [{ provide: APP_GUARD, useClass: ApiKeyGuard }],
+  providers: [
+    // APP_GUARDs run in registration order — ApiKeyGuard validates the service-to-service
+    // `ax-api-key` header first; SecurityCheckGuard then enforces the per-route `@SecurityCheck()`
+    // decorator (bearer JWT + role match).
+    { provide: APP_GUARD, useClass: ApiKeyGuard },
+    { provide: APP_GUARD, useClass: SecurityCheckGuard },
+  ],
 })
 export class SecurityModule {}
