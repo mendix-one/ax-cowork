@@ -42,7 +42,12 @@ describe('GraphQL — session (e2e)', () => {
         email: 'alice@example.com',
         status: 'ACTIVE',
       },
-      app: 'sso',
+      app: {
+        uuid: 'app-uuid-stub',
+        type: 'INTERNAL_SERVICES',
+        name: 'AX SSO',
+        description: 'Single sign-on administration',
+      },
       roles: [],
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
     })

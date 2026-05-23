@@ -3,64 +3,101 @@ import { InjectModel } from '@nestjs/mongoose'
 import { JwtService } from '@nestjs/jwt'
 import { compare } from 'bcryptjs'
 import type { Model } from 'mongoose'
+import { v7 as uuidv7 } from 'uuid'
 
 import { Account } from '../../acore/database/schemas/account.schema'
+import { AccountRole } from '../../acore/database/schemas/account-role.schema'
+import { App } from '../../acore/database/schemas/app.schema'
 import { Session } from '../../acore/database/schemas/session.schema'
 import { SigninResDto } from './dto/signin.res-dto'
 
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000
 
-// `Session.app` is required by the schema; until the signin payload carries the target app
-// explicitly, every signin is treated as a session against the SSO app itself.
-const DEFAULT_APP_KEY = 'sso'
-
 @Injectable()
 export class SigninService {
   constructor(
     @InjectModel(Account.name) private readonly accountModel: Model<Account>,
+    @InjectModel(AccountRole.name) private readonly accountRoleModel: Model<AccountRole>,
+    @InjectModel(App.name) private readonly appModel: Model<App>,
     @InjectModel(Session.name) private readonly sessionModel: Model<Session>,
     private readonly jwtService: JwtService,
   ) {}
 
-  async signin(username: string, password: string): Promise<SigninResDto> {
+  async signin(appKey: string, username: string, password: string): Promise<SigninResDto> {
+    // 1. Resolve the target app first. Missing app is its own error so clients can surface a clear "wrong app" message.
+    const app = await this.appModel.findOne({ key: appKey }).lean().exec()
+    if (!app) {
+      throw new UnauthorizedException('Unknown app')
+    }
+
+    // 2. Resolve the account by username.
     const account = await this.accountModel.findOne({ username }).lean().exec()
-    // Identical error for unknown account vs wrong password — don't leak which case it is.
-    if (!account || !(await compare(password, account.passwordHash))) {
+    if (!account) {
+      // Same message as the wrong-password branch below so callers can't enumerate usernames.
       throw new UnauthorizedException('Invalid credentials')
     }
-    // Active is the only signin-eligible status; `LOCKED` and `CLOSED` block here.
+
+    // 3. Verify the supplied password matches the stored bcrypt hash.
+    const passwordMatched = await compare(password, account.passwordHash)
+    if (!passwordMatched) {
+      throw new UnauthorizedException('Invalid credentials')
+    }
+
+    // 4. Only `ACTIVE` accounts may sign in — `LOCKED` and `CLOSED` block here with a distinct message
+    //    (safe because the caller has already proven they know the password).
     if (account.status !== 'ACTIVE') {
       throw new UnauthorizedException('Account is not active')
     }
 
+    // 5. Resolve granted roles for (account, app). Empty array is allowed — the account simply has no roles for this app.
+    const roleRows = await this.accountRoleModel.find({ account: account.uuid, app: app.key }).lean<{ role: string }[]>().exec()
+    const roles = roleRows.map((r) => r.role)
+
+    // 6. Issue JWT with roles in the payload; persist the session document carrying the same snapshot.
     const expiresAt = new Date(Date.now() + SESSION_TTL_MS)
-    // Standard JWT claim names (`sub`, `iat`, `exp`) — `exp` is auto-populated by JwtService from `signOptions.expiresIn`.
-    const payload = {
-      sub: account.uuid,
+    const accountSnapshot = {
+      uuid: account.uuid,
       username: account.username,
+      display: account.display,
+      avatar: account.avatar,
+      phone: account.phone,
       email: account.email,
       status: account.status,
-      app: DEFAULT_APP_KEY,
-      roles: [] as string[],
     }
-    const token = await this.jwtService.signAsync(payload)
+    const appSnapshot = {
+      uuid: app.uuid,
+      type: app.type,
+      name: app.name,
+      description: app.description,
+      avatar: app.avatar,
+    }
+    // Generate the session UUID upfront so the JWT payload can reference it without a chicken-and-egg
+    // dependency on the persisted document. The schema's default is also `uuidv7()`; passing it
+    // explicitly here just gives us a value to embed in the token claims.
+    const sessionUuid = uuidv7()
+    const token = await this.jwtService.signAsync({
+      sub: account.uuid,
+      app: app.key,
+      ses: sessionUuid,
+      sta: account.status,
+      roles,
+    })
 
     await this.sessionModel.create({
+      uuid: sessionUuid,
       token,
-      account: {
-        uuid: account.uuid,
-        username: account.username,
-        display: account.display,
-        avatar: account.avatar,
-        phone: account.phone,
-        email: account.email,
-        status: account.status,
-      },
-      app: DEFAULT_APP_KEY,
-      roles: [],
+      account: accountSnapshot,
+      app: appSnapshot,
+      roles,
       expiresAt,
     })
 
-    return { token, expiresAt }
+    return {
+      uuid: sessionUuid,
+      token,
+      account: accountSnapshot,
+      app: appSnapshot,
+      roles,
+    }
   }
 }

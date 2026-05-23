@@ -7,41 +7,41 @@ import type { AccountStatus } from '../../acore/database/schemas/account.schema'
 @ObjectType('SessionAccount')
 export class SessionAccountType {
   @Field(() => ID)
-  uuid!: string
+    uuid!: string
 
   @Field()
-  username!: string
+    username!: string
 
   @Field()
-  display!: string
+    display!: string
 
   @Field({ nullable: true })
-  avatar?: string
+    avatar?: string
 
   @Field({ nullable: true })
-  phone?: string
+    phone?: string
 
   @Field()
-  email!: string
+    email!: string
 
   @Field(() => AccountStatusEnum)
-  status!: AccountStatus
+    status!: AccountStatus
 }
 
 @ObjectType('Session')
 export class SessionType {
   @Field(() => ID)
-  uuid!: string
+    uuid!: string
 
   @Field()
-  token!: string
+    token!: string
 
   @Field(() => SessionAccountType)
-  account!: SessionAccountType
+    account!: SessionAccountType
 
   @Field(() => GraphQLISODateTime)
-  expiresAt!: Date
+    expiresAt!: Date
 
   @Field(() => GraphQLISODateTime, { nullable: true })
-  createdAt?: Date
+    createdAt?: Date
 }

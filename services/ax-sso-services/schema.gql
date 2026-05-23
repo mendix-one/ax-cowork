@@ -33,16 +33,12 @@ type Mutation {
   """
   removeSession(token: String!): Boolean!
 
-  """
-  Updates an account. Throws when the uuid does not exist.
-  """
+  """Updates an account. Throws when the uuid does not exist."""
   updateAccountInfo(input: UpdateAccountInfoInput!, uuid: ID!): Account!
 }
 
 type Query {
-  """
-  Returns the account record by uuid, or null if missing.
-  """
+  """Returns the account record by uuid, or null if missing."""
   accountInfo(uuid: ID!): Account
 
   """
@@ -50,9 +46,7 @@ type Query {
   """
   accounts(limit: Int = 50, skip: Int = 0, status: AccountStatus): [Account!]!
 
-  """
-  Returns the session by token, or null if missing/expired.
-  """
+  """Returns the session by token, or null if missing/expired."""
   session(token: String!): Session
 }
 

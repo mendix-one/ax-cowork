@@ -28,7 +28,7 @@ const APPS: AppSeed[] = [
   { key: 'SSO', type: 'INTERNAL_SERVICES', name: 'AX SSO', description: 'Single sign-on administration' },
   { key: 'CDN', type: 'INTERNAL_SERVICES', name: 'AX CDN', description: 'Content Delivery Network' },
   { key: 'NOTIFY', type: 'INTERNAL_SERVICES', name: 'AX Notify', description: 'Notification Adapter' },
-  { key: 'APLANNER', type: 'WEBAPP', name: 'AX Notify', description: 'aPlanner - WebApp' },
+  { key: 'APLANNER', type: 'WEB_APP', name: 'AX Notify', description: 'aPlanner - WebApp' },
 ]
 
 const APP_ROLES: { app: string; key: string; name: string; description?: string }[] = [
@@ -72,12 +72,14 @@ export class InitializationHandler {
 
   private async seedApps(): Promise<void> {
     for (const app of APPS) {
+      // `$set` (not `$setOnInsert`) for mutable fields so re-running initialization migrates
+      // existing rows to the current schema shape — e.g. backfilling `type` on docs created
+      // before the schema rename from `status` to `type`.
       await this.appModel
         .updateOne(
           { key: app.key },
           {
-            $setOnInsert: {
-              key: app.key,
+            $set: {
               type: app.type,
               name: app.name,
               description: app.description,

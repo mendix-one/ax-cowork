@@ -5,7 +5,7 @@ import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
 import { CronjobManager } from './acore/cronjob'
-import { API_KEY_HEADER } from './acore/security'
+import { API_KEY_HEADER, APP_KEY_HEADER } from './acore/security'
 import { MainModule } from './main.module'
 
 async function bootstrap() {
@@ -28,7 +28,7 @@ async function bootstrap() {
   const options = {
     origin: '*',
     methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['content-type', 'authorization', API_KEY_HEADER, 'cdn-owner-id', 'timezone', 'lang'],
+    allowedHeaders: ['content-type', 'authorization', API_KEY_HEADER, APP_KEY_HEADER, 'cdn-owner-id', 'timezone', 'lang'],
     exposedHeaders: ['authorization', 'code'],
     optionsSuccessStatus: 200,
   }
