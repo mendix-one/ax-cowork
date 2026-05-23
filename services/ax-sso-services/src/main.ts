@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
+import { CronjobManager } from './acore/cronjob'
 import { API_KEY_HEADER } from './acore/security'
 import { MainModule } from './main.module'
 
@@ -45,6 +46,12 @@ async function bootstrap() {
 
   // Start listing
   await app.listen(configService.get<number>('PORT') ?? 3001)
+
+  // Seed the one-shot initialization cronjob. `checkDuplicated: true` makes the call idempotent
+  // across restarts — if a job named "initialization" already exists, nothing is inserted.
+  // The next cron tick picks it up via the regular scan/start/listener pipeline.
+  const cronjobManager = app.get(CronjobManager)
+  await cronjobManager.create('initialization', {}, true)
 }
 
 void bootstrap()
