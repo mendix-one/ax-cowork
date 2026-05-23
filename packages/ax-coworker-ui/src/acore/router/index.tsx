@@ -1,9 +1,10 @@
 import { createBrowserRouter } from 'react-router-dom'
+import { RouteError } from './RouteError.tsx'
+import { RequireAuth } from './RequireAuth.tsx'
+import { RedirectIfAuthed } from './RedirectIfAuthed.tsx'
 import { AuthLayout } from '@/layouts/AuthLayout'
 import { PageLayout } from '@/layouts/PageLayout'
-import { RequireAuth } from './RequireAuth.tsx'
-import { RouteError } from './RouteError.tsx'
-import { RedirectIfAuthed } from './RedirectIfAuthed.tsx'
+import { AppLayout } from '@/layouts/AppLayout'
 
 export const index = createBrowserRouter([
   {
@@ -17,6 +18,29 @@ export const index = createBrowserRouter([
           {
             index: true,
             lazy: async () => ({ Component: (await import('@/pages/simulation/SimulationPage.tsx')).SimulationPage }),
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: '/sample',
+    element: <AppLayout />,
+    errorElement: <RouteError />,
+    children: [
+      {
+        children: [
+          {
+            index: true,
+            lazy: async () => ({ Component: (await import('@/samples/control-table/ControlTableDemoPage.tsx')).ControlTableDemoPage }),
+          },
+          {
+            path: 'control-table',
+            lazy: async () => ({ Component: (await import('@/samples/control-table/ControlTableDemoPage.tsx')).ControlTableDemoPage }),
+          },
+          {
+            path: 'markdown-view',
+            lazy: async () => ({ Component: (await import('@/samples/markdown-view/MarkdownViewPage.tsx')).MarkdownViewPage }),
           },
         ],
       },
