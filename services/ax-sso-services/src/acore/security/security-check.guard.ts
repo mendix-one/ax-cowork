@@ -82,9 +82,10 @@ export class SecurityCheckGuard implements CanActivate {
     // Surface the verified identity on the request so handlers (and param decorators) can
     // read it via `@Headers('sub'|'app'|'ses')` without re-decoding the token.
     if (req) {
-      req.headers.sub = payload.sub
       req.headers.app = payload.app
-      req.headers.ses = payload.ses
+      req.headers.account = payload.sub
+      req.headers.session = payload.ses
+      req.headers.state = payload.sta
     }
     return true
   }

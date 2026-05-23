@@ -21,14 +21,14 @@ export class SignoutController {
   })
   @ApiNoContentResponse({ description: 'Session invalidated.' })
   @ApiUnauthorizedResponse({ description: 'Missing/invalid bearer token, or missing/invalid API key.' })
-  async signout(@Headers('ses') ses: string | undefined): Promise<void> {
+  async signout(@Headers('session') session: string | undefined): Promise<void> {
     // `SecurityCheckGuard` verified the bearer and wrote the JWT's `ses` claim onto this header.
     // Any client-supplied `ses` header is stripped by the guard up front, so we can trust this value.
-    if (!ses) {
+    if (!session) {
       // Defensive — the guard always sets `ses` after a successful verify; arriving here without
       // it would mean the JWT was somehow missing the claim, which signin never does.
       throw new InternalServerErrorException('Verified token missing `ses` claim')
     }
-    await this.signoutService.signout(ses)
+    await this.signoutService.signout(session)
   }
 }
