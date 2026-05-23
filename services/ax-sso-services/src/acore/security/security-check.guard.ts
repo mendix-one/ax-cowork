@@ -11,10 +11,13 @@ interface RequestLike {
 }
 
 interface SessionTokenPayload {
-  sub: string
+  // `app` and `ses` are present on every JWT this service issues.
   app: string
   ses: string
-  sta: string
+  // `sub`, `sta`, `roles` are only populated after a real signin. Anonymous-session JWTs
+  // (from /session/initialize) carry only `app` + `ses`.
+  sub?: string
+  sta?: string
   roles?: string[]
   iat?: number
   exp?: number
@@ -63,30 +66,40 @@ export class SecurityCheckGuard implements CanActivate {
       throw new UnauthorizedException('Invalid or expired token')
     }
 
-    // Status gate. Empty/omitted `status` list = any status is allowed.
-    const allowedStatuses = options.status ?? []
-    if (allowedStatuses.length > 0 && !allowedStatuses.includes(payload.sta)) {
-      throw new UnauthorizedException(`Account status "${payload.sta}" is not allowed`)
-    }
+    // Universal claims — every session JWT (signed-in or anonymous) carries these.
+    if (!payload.app) throw new UnauthorizedException('Token missing `app` claim')
+    if (!payload.ses) throw new UnauthorizedException('Token missing `ses` claim')
 
-    // Roles gate. Empty/omitted `roles` list = role check skipped.
-    const requiredRoles = options.roles ?? []
-    if (requiredRoles.length > 0) {
-      const tokenRoles = Array.isArray(payload.roles) ? payload.roles : []
-      const hasMatch = requiredRoles.some((r) => tokenRoles.includes(r))
-      if (!hasMatch) {
-        throw new ForbiddenException('Missing required role')
+    const requireSignedIn = options.sign !== false
+    if (requireSignedIn) {
+      if (!payload.sub) throw new UnauthorizedException('Token missing `sub` claim')
+
+      // Status gate. Empty/omitted `status` list = any status is allowed.
+      const allowedStatuses = options.status ?? []
+      if (allowedStatuses.length > 0 && (!payload.sta || !allowedStatuses.includes(payload.sta))) {
+        throw new UnauthorizedException(`Account status "${payload.sta ?? ''}" is not allowed`)
+      }
+
+      // Roles gate. Empty/omitted `roles` list = role check skipped.
+      const requiredRoles = options.roles ?? []
+      if (requiredRoles.length > 0) {
+        const tokenRoles = Array.isArray(payload.roles) ? payload.roles : []
+        const hasMatch = requiredRoles.some((r) => tokenRoles.includes(r))
+        if (!hasMatch) {
+          throw new ForbiddenException('Missing required role')
+        }
       }
     }
 
     // Surface the verified identity on the request so handlers (and param decorators) can
     // read it via `@Headers('account'|'app'|'session'|'state')` without re-decoding the token.
+    // Anonymous-session JWTs leave `account` / `state` / `roles` unset (they were deleted up top).
     if (req) {
       req.headers.app = payload.app
-      req.headers.account = payload.sub
       req.headers.session = payload.ses
-      req.headers.state = payload.sta
-      req.headers.roles = payload.roles
+      if (payload.sub) req.headers.account = payload.sub
+      if (payload.sta) req.headers.state = payload.sta
+      if (payload.roles) req.headers.roles = payload.roles
     }
     return true
   }

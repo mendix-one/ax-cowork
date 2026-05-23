@@ -11,39 +11,39 @@ export type AppType = (typeof APP_TYPES)[number]
 export class App {
   // UUIDv7 — time-ordered, sortable, stable external identifier.
   @Prop({ required: true, unique: true, index: true, default: () => uuidv7() })
-  uuid!: string
+    uuid!: string
 
   @Prop({ required: true, unique: true, index: true, trim: true })
-  key!: string
+    key!: string
 
   @Prop({ type: String, required: true, enum: APP_TYPES, default: 'INTERNAL_SERVICES', index: true })
-  type!: AppType
+    type!: AppType
 
   @Prop({ required: true, index: true, trim: true })
-  name!: string
+    name!: string
 
   @Prop()
-  description?: string
+    description?: string
 
   // Public URL of the app's avatar/icon.
   @Prop()
-  avatar?: string
+    avatar?: string
 
   // UUID of the avatar asset in the CDN service, if uploaded there.
   @Prop()
-  cdnAvatarId?: string
+    cdnAvatarId?: string
 
   // UUID of the tenant/org this app belongs to in the CDN service.
   @Prop({ required: true, unique: true, index: true, trim: true, default: () => uuidv7() })
-  cdnOwnerId!: string
+    cdnOwnerId!: string
 
   // Populated automatically by `timestamps: true` on the @Schema decorator —
   // declared here so they show on the TypeScript surface.
   @Prop()
-  createdAt?: Date
+    createdAt?: Date
 
   @Prop()
-  updatedAt?: Date
+    updatedAt?: Date
 }
 
 export const AppSchema = SchemaFactory.createForClass(App)

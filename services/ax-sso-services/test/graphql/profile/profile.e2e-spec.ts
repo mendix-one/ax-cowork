@@ -59,11 +59,13 @@ describe('GraphQL — profile (e2e)', () => {
     await appModel.create({ key: APP_KEY, type: 'INTERNAL_SERVICES', name: 'AX SSO' })
   })
 
-  async function signinAndGetBearer(): Promise<{ token: string; accountUuid: string; sessionUuid: string }> {
+  async function initializeAndSignin(): Promise<{ token: string; accountUuid: string; sessionUuid: string }> {
+    const init = await request(app.getHttpServer()).post('/session/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
+    const initBody = init.body as { token: string }
     const res = await request(app.getHttpServer())
       .post('/signin')
       .set(API_KEY_HEADER, API_KEY)
-      .set(APP_KEY_HEADER, APP_KEY)
+      .set('Authorization', `Bearer ${initBody.token}`)
       .send({ username: USERNAME, password: PASSWORD })
       .expect(201)
     const body = res.body as { token: string; uuid: string; account: { uuid: string } }
@@ -76,19 +78,18 @@ describe('GraphQL — profile (e2e)', () => {
     return req.send({ query, variables })
   }
 
-  it('rejects getAccount without a bearer token (SecurityCheckGuard returns 401 as a GraphQL error)', async () => {
-    const res = await gql('{ getAccount { account { uuid } } }').expect(200)
+  it('rejects getProfile without a bearer token (SecurityCheckGuard returns 401 as a GraphQL error)', async () => {
+    const res = await gql('{ getProfile { account { uuid } } }').expect(200)
     const body = res.body as { errors?: { message: string }[] }
     expect(body.errors).toBeDefined()
     expect(body.errors?.[0].message).toMatch(/bearer/i)
   })
 
-  it('getAccount returns the caller account and active sessions, never someone else', async () => {
-    const { token, accountUuid, sessionUuid } = await signinAndGetBearer()
+  it('getProfile returns the caller account and active sessions, never someone else', async () => {
+    const { token, accountUuid, sessionUuid } = await initializeAndSignin()
 
     // Seed a stray session that belongs to a different account — it must NOT appear in the response.
     await sessionModel.create({
-      token: 'foreign-token',
       account: {
         uuid: 'a-different-account',
         username: 'bob',
@@ -96,32 +97,32 @@ describe('GraphQL — profile (e2e)', () => {
         email: 'bob@example.com',
         status: 'ACTIVE',
       },
-      app: { uuid: 'app-x', type: 'INTERNAL_SERVICES', name: 'Other' },
+      app: { uuid: 'app-x', key: 'OTHER', type: 'INTERNAL_SERVICES', name: 'Other' },
       roles: [],
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
     })
 
     const query = `{
-      getAccount {
+      getProfile {
         account { uuid username email status }
-        sessions { uuid app appName }
+        sessions { uuid app { uuid key name } }
       }
     }`
     const res = await gql(query, undefined, token).expect(200)
     const body = res.body as {
       data: {
-        getAccount: { account: { uuid: string; username: string; email: string; status: string }; sessions: { uuid: string; app: string; appName: string }[] }
+        getProfile: { account: { uuid: string; username: string; email: string; status: string }; sessions: { uuid: string; app: { uuid: string; key: string; name: string } }[] }
       }
     }
-    expect(body.data.getAccount.account.uuid).toBe(accountUuid)
-    expect(body.data.getAccount.account.username).toBe(USERNAME)
-    expect(body.data.getAccount.sessions).toHaveLength(1)
-    expect(body.data.getAccount.sessions[0].uuid).toBe(sessionUuid)
-    expect(body.data.getAccount.sessions[0].appName).toBe('AX SSO')
+    expect(body.data.getProfile.account.uuid).toBe(accountUuid)
+    expect(body.data.getProfile.account.username).toBe(USERNAME)
+    expect(body.data.getProfile.sessions).toHaveLength(1)
+    expect(body.data.getProfile.sessions[0].uuid).toBe(sessionUuid)
+    expect(body.data.getProfile.sessions[0].app.name).toBe('AX SSO')
   })
 
   it('updateProfile mutates the caller record and ignores any client-supplied account header', async () => {
-    const { token, accountUuid } = await signinAndGetBearer()
+    const { token, accountUuid } = await initializeAndSignin()
 
     const mutation = `mutation UP($input: UpdateProfileInput!) {
       updateProfile(input: $input) { uuid display phone email }
@@ -130,7 +131,6 @@ describe('GraphQL — profile (e2e)', () => {
       .post('/graphql')
       .set(API_KEY_HEADER, API_KEY)
       .set('Authorization', `Bearer ${token}`)
-      // Try to spoof the verified-account header — the guard strips it on entry.
       .set('account', 'a-different-account')
       .send({ query: mutation, variables: { input: { display: 'Alice Updated', phone: '+1-555-9999' } } })
       .expect(200)
@@ -140,13 +140,12 @@ describe('GraphQL — profile (e2e)', () => {
     expect(body.data.updateProfile.display).toBe('Alice Updated')
     expect(body.data.updateProfile.phone).toBe('+1-555-9999')
 
-    // DB row reflects the mutation.
     const persisted = await accountModel.findOne({ uuid: accountUuid }).lean().exec()
     expect(persisted?.display).toBe('Alice Updated')
   })
 
   it('killSession removes the caller-owned session and returns true', async () => {
-    const { token, sessionUuid } = await signinAndGetBearer()
+    const { token, sessionUuid } = await initializeAndSignin()
 
     const mutation = 'mutation Kill($uuid: ID!) { killSession(uuid: $uuid) }'
     const res = await gql(mutation, { uuid: sessionUuid }, token).expect(200)
@@ -157,12 +156,11 @@ describe('GraphQL — profile (e2e)', () => {
   })
 
   it('killSession returns a Forbidden error when trying to kill a session belonging to someone else', async () => {
-    const { token } = await signinAndGetBearer()
+    const { token } = await initializeAndSignin()
 
     const foreign = await sessionModel.create({
-      token: 'foreign-jwt',
       account: { uuid: 'a-different-account', username: 'bob', display: 'Bob', email: 'bob@example.com', status: 'ACTIVE' },
-      app: { uuid: 'app-x', type: 'INTERNAL_SERVICES', name: 'Other' },
+      app: { uuid: 'app-x', key: 'OTHER', type: 'INTERNAL_SERVICES', name: 'Other' },
       roles: [],
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
     })
@@ -172,12 +170,11 @@ describe('GraphQL — profile (e2e)', () => {
     const body = res.body as { errors?: { message: string }[] }
     expect(body.errors?.[0].message).toMatch(/does not belong/i)
 
-    // The foreign session must still be present after the rejected attempt.
     expect(await sessionModel.findOne({ uuid: foreign.uuid }).lean().exec()).not.toBeNull()
   })
 
   it('killSession returns false (no error) when the uuid simply does not exist', async () => {
-    const { token } = await signinAndGetBearer()
+    const { token } = await initializeAndSignin()
     const mutation = 'mutation Kill($uuid: ID!) { killSession(uuid: $uuid) }'
     const res = await gql(mutation, { uuid: 'never-existed' }, token).expect(200)
     const body = res.body as { data: { killSession: boolean } }

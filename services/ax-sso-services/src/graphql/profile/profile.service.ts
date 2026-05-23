@@ -59,11 +59,12 @@ export class ProfileService {
 
   // Kills one of the caller's own sessions. The session must belong to the caller (matched by
   // embedded `account.uuid`) — otherwise we 403 so callers can't enumerate or terminate someone
-  // else's sessions. Tokens minted from the killed session cascade-delete alongside it.
+  // else's sessions. Anonymous sessions (no account yet) are treated as "not yours". Tokens
+  // minted from the killed session cascade-delete alongside it.
   async killSession(callerAccountUuid: string, sessionUuid: string): Promise<boolean> {
-    const session = await this.sessionModel.findOne({ uuid: sessionUuid }, { 'account.uuid': 1 }).lean<{ account: { uuid: string } } | null>().exec()
+    const session = await this.sessionModel.findOne({ uuid: sessionUuid }, { 'account.uuid': 1 }).lean<{ account?: { uuid: string } } | null>().exec()
     if (!session) return false
-    if (session.account.uuid !== callerAccountUuid) {
+    if (session.account?.uuid !== callerAccountUuid) {
       throw new ForbiddenException('Session does not belong to the caller')
     }
     await this.sessionModel.deleteOne({ uuid: sessionUuid }).exec()
