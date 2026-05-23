@@ -22,6 +22,10 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
       },
       body: body !== undefined ? JSON.stringify(body) : undefined,
       signal,
+      // Send the HttpOnly session cookie set by ax-cowork-be on every request.
+      // Works same-origin (Vite proxy in dev, served by BE in prod); for true
+      // cross-origin the BE must reply with Access-Control-Allow-Credentials: true.
+      credentials: 'include',
     })
   } catch (err) {
     throw new NetworkError(err instanceof Error ? err.message : 'Network request failed')

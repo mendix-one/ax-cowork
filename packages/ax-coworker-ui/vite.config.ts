@@ -14,5 +14,12 @@ export default defineConfig({
   server: {
     host: true,
     allowedHosts: ['dev.amoza.xyz'],
+    // Proxy BE paths so the browser sees everything as same-origin in dev — keeps
+    // the HttpOnly session cookie attached without CORS / SameSite=None gymnastics.
+    proxy: {
+      '/api': { target: 'http://localhost:3000', changeOrigin: true },
+      '/signin': { target: 'http://localhost:3000', changeOrigin: true },
+      '/signout': { target: 'http://localhost:3000', changeOrigin: true },
+    },
   },
 })
