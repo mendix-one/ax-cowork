@@ -10,15 +10,6 @@ import { WorkersModule } from './workers/workers.module'
 import { ServicesModule } from './services/services.module'
 
 @Module({
-  imports: [
-    ScheduleModule.forRoot(),
-    EventEmitterModule.forRoot(),
-    ConfigModule,
-    SecurityModule,
-    DatabaseModule,
-    GraphQLModule,
-    WorkersModule,
-    ServicesModule,
-  ],
+  imports: [ScheduleModule.forRoot(), EventEmitterModule.forRoot(), ConfigModule, SecurityModule, DatabaseModule, GraphQLModule, WorkersModule, ServicesModule],
 })
 export class MainModule {}

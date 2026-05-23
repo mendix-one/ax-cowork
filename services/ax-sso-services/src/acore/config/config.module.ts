@@ -11,7 +11,9 @@ import { ConfigModule as NestConfigModule, ConfigService } from '@nestjs/config'
       validationSchema: Joi.object({
         NODE_ENV: Joi.string().valid('development', 'production', 'test').default('development'),
         PORT: Joi.number().default(3001),
-        MONGODB_URI: Joi.string().uri({ scheme: ['mongodb', 'mongodb+srv'] }).required(),
+        MONGODB_URI: Joi.string()
+          .uri({ scheme: ['mongodb', 'mongodb+srv'] })
+          .required(),
         // Comma-separated list of accepted API keys. At least one non-empty key is required.
         API_KEYS: Joi.string().min(1).required(),
         // HMAC secret used to sign session JWTs. Must be at least 16 chars in production-quality setups.

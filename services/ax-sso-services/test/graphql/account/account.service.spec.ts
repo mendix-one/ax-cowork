@@ -97,11 +97,7 @@ describe('AccountService (graphql)', () => {
 
       const result = await service.update('u1', { display: 'Alice', email: undefined, phone: '+1' })
 
-      expect(mocks.model.findOneAndUpdate).toHaveBeenCalledWith(
-        { uuid: 'u1' },
-        { $set: { display: 'Alice', phone: '+1' } },
-        { new: true },
-      )
+      expect(mocks.model.findOneAndUpdate).toHaveBeenCalledWith({ uuid: 'u1' }, { $set: { display: 'Alice', phone: '+1' } }, { new: true })
       expect(result).toBe(updated)
     })
 

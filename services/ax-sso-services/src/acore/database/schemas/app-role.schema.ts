@@ -8,30 +8,30 @@ export type AppRoleDocument = HydratedDocument<AppRole>
 export class AppRole {
   // UUIDv7 — time-ordered, sortable, stable external identifier for this role.
   @Prop({ required: true, unique: true, index: true, default: () => uuidv7() })
-    uuid!: string
+  uuid!: string
 
   // The owning App's `key`. Indexed so "all roles for app X" is a fast query.
   @Prop({ required: true, index: true })
-    app!: string
+  app!: string
 
   // Stable machine identifier within the owning app (e.g. "admin", "viewer").
   // Unique-per-app — enforced by the compound index below.
   @Prop({ required: true, unique: true, index: true, trim: true })
-    key!: string
+  key!: string
 
   @Prop({ required: true, index: true, trim: true })
-    name!: string
+  name!: string
 
   @Prop()
-    description?: string
+  description?: string
 
   // Populated automatically by `timestamps: true` on the @Schema decorator —
   // declared here so they show on the TypeScript surface.
   @Prop()
-    createdAt?: Date
+  createdAt?: Date
 
   @Prop()
-    updatedAt?: Date
+  updatedAt?: Date
 }
 
 export const AppRoleSchema = SchemaFactory.createForClass(AppRole)

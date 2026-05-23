@@ -6,11 +6,11 @@ export class SigninReqDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(64)
-    username!: string
+  username!: string
 
   @ApiProperty({ description: 'Plaintext password. Sent over TLS, never logged.', example: '***', maxLength: 256 })
   @IsString()
   @IsNotEmpty()
   @MaxLength(256)
-    password!: string
+  password!: string
 }

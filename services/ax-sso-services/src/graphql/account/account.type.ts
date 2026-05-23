@@ -10,35 +10,35 @@ registerEnumType(AccountStatusEnum, { name: 'AccountStatus' })
 @ObjectType('Account')
 export class AccountType {
   @Field(() => ID)
-    uuid!: string
+  uuid!: string
 
   @Field()
-    username!: string
+  username!: string
 
   @Field()
-    display!: string
+  display!: string
 
   @Field()
-    email!: string
+  email!: string
 
   @Field({ nullable: true })
-    phone?: string
+  phone?: string
 
   @Field({ nullable: true })
-    avatar?: string
+  avatar?: string
 
   @Field({ nullable: true })
-    cdnAvatarId?: string
+  cdnAvatarId?: string
 
   @Field()
-    cdnOwnerId!: string
+  cdnOwnerId!: string
 
   @Field(() => AccountStatusEnum)
-    status!: AccountStatus
+  status!: AccountStatus
 
   @Field(() => GraphQLISODateTime, { nullable: true })
-    createdAt?: Date
+  createdAt?: Date
 
   @Field(() => GraphQLISODateTime, { nullable: true })
-    updatedAt?: Date
+  updatedAt?: Date
 }
