@@ -1,9 +1,10 @@
 import { Controller, Get } from '@nestjs/common'
-import { ApiOkResponse, ApiOperation, ApiTags } from '@nestjs/swagger'
+import { ApiOkResponse, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger'
 
 import { IndexResDto } from './dto/index.res-dto'
 
 @ApiTags('Service')
+@ApiSecurity('ax-api-key')
 @Controller()
 export class IndexController {
   @Get()

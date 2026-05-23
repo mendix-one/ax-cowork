@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common'
 import { NestExpressApplication } from '@nestjs/platform-express'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
 
+import { API_KEY_HEADER } from './acore/security'
 import { MainModule } from './main.module'
 
 async function bootstrap() {
@@ -26,14 +27,19 @@ async function bootstrap() {
   const options = {
     origin: '*',
     methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['content-type', 'authorization', 'cdn-owner-id', 'timezone', 'lang'],
+    allowedHeaders: ['content-type', 'authorization', API_KEY_HEADER, 'cdn-owner-id', 'timezone', 'lang'],
     exposedHeaders: ['authorization', 'code'],
     optionsSuccessStatus: 200,
   }
   app.enableCors(options)
 
   // OpenAPI / Swagger
-  const swaggerConfig = new DocumentBuilder().setTitle('AX CDN Services').setDescription('AX CDN Services API').setVersion('1.0').addBearerAuth().build()
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('AX SSO Services')
+    .setDescription('AX SSO Services API')
+    .setVersion('1.0')
+    .addApiKey({ type: 'apiKey', name: API_KEY_HEADER, in: 'header' }, 'ax-api-key')
+    .build()
   const document = SwaggerModule.createDocument(app, swaggerConfig)
   SwaggerModule.setup('api-docs', app, document)
 

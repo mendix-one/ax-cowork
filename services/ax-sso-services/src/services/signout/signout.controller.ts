@@ -1,9 +1,10 @@
 import { Controller, Headers, HttpCode, HttpStatus, Post, UnauthorizedException } from '@nestjs/common'
-import { ApiBearerAuth, ApiNoContentResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiNoContentResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 
 import { SignoutService } from './signout.service'
 
 @ApiTags('Auth')
+@ApiSecurity('ax-api-key')
 @ApiBearerAuth()
 @Controller('signout')
 export class SignoutController {
@@ -13,7 +14,7 @@ export class SignoutController {
   @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Sign out', description: 'Invalidates the session identified by the `Authorization: Bearer <token>` header.' })
   @ApiNoContentResponse({ description: 'Session invalidated.' })
-  @ApiUnauthorizedResponse({ description: 'Missing or malformed Authorization header.' })
+  @ApiUnauthorizedResponse({ description: 'Missing or malformed Authorization header, or missing/invalid API key.' })
   async signout(@Headers('authorization') authHeader?: string): Promise<void> {
     const token = parseBearerToken(authHeader)
     if (!token) throw new UnauthorizedException('Missing bearer token')
