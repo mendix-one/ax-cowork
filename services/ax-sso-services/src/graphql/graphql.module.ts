@@ -5,10 +5,10 @@ import { ApolloDriver } from '@nestjs/apollo'
 import type { ApolloDriverConfig } from '@nestjs/apollo'
 import { GraphQLModule as NestGraphQLModule } from '@nestjs/graphql'
 
-import { AccountResolver } from './account/account.resolver'
-import { AccountService } from './account/account.service'
-import { SessionResolver } from './session/session.resolver'
-import { SessionService } from './session/session.service'
+import { ManageResolver } from './manage/manage.resolver'
+import { ManageService } from './manage/manage.service'
+import { ProfileResolver } from './profile/profile.resolver'
+import { ProfileService } from './profile/profile.service'
 
 @Module({
   imports: [
@@ -29,6 +29,6 @@ import { SessionService } from './session/session.service'
       plugins: [ApolloServerPluginLandingPageLocalDefault({ embed: true, includeCookies: false })],
     }),
   ],
-  providers: [AccountService, AccountResolver, SessionService, SessionResolver],
+  providers: [ProfileService, ProfileResolver, ManageService, ManageResolver],
 })
 export class GraphQLModule {}

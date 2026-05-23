@@ -22,53 +22,93 @@ enum AccountStatus {
   LOCKED
 }
 
+input CreateAccountInput {
+  avatar: String
+  display: String!
+  email: String!
+
+  """
+  Plaintext password. Hashed with bcrypt server-side; never stored or returned.
+  """
+  password: String!
+  phone: String
+
+  """Defaults to ACTIVE."""
+  status: AccountStatus
+  username: String!
+}
+
 """
 A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date-time format.
 """
 scalar DateTime
 
 type Mutation {
-  """
-  Invalidates the session with the given token. Returns true if a session was removed.
-  """
-  removeSession(token: String!): Boolean!
+  """Creates a new account. Bcrypt-hashes the password server-side."""
+  createAccount(input: CreateAccountInput!): Account!
 
-  """Updates an account. Throws when the uuid does not exist."""
-  updateAccountInfo(input: UpdateAccountInfoInput!, uuid: ID!): Account!
+  """
+  Invalidates one of the caller's own active sessions. Returns true when a session was removed.
+  """
+  killSession(uuid: ID!): Boolean!
+
+  """Updates an existing account. Throws when the uuid does not exist."""
+  updateAccount(input: UpdateAccountInput!, uuid: ID!): Account!
+
+  """Updates the caller's own account record."""
+  updateProfile(input: UpdateProfileInput!): Account!
+}
+
+type Profile {
+  """The caller account record."""
+  account: Account!
+
+  """Active (non-expired) sessions belonging to the caller, newest first."""
+  sessions: [ProfileSession!]!
+}
+
+type ProfileSession {
+  """App key (matches `App.key`) the session was created against."""
+  app: String!
+
+  """Human-friendly app name copied from the session snapshot."""
+  appName: String
+
+  """
+  When the session expires. After this instant the JWT no longer verifies.
+  """
+  expiresAt: DateTime!
+
+  """When the session was created — effectively the signin time."""
+  signedInAt: DateTime!
+
+  """Stable UUIDv7 of the session."""
+  uuid: ID!
 }
 
 type Query {
+  """Returns the caller's account record + active sessions."""
+  getAccount: Profile!
+
   """Returns the account record by uuid, or null if missing."""
-  accountInfo(uuid: ID!): Account
+  getDetail(uuid: ID!): Account
 
   """
-  Returns accounts (newest first). Optionally filter by status; paginate with limit/skip.
+  Lists accounts (newest first). Optionally filter by status; paginate with limit/skip.
   """
-  accounts(limit: Int = 50, skip: Int = 0, status: AccountStatus): [Account!]!
-
-  """Returns the session by token, or null if missing/expired."""
-  session(token: String!): Session
+  getList(limit: Int = 50, skip: Int = 0, status: AccountStatus): [Account!]!
 }
 
-type Session {
-  account: SessionAccount!
-  createdAt: DateTime
-  expiresAt: DateTime!
-  token: String!
-  uuid: ID!
-}
-
-type SessionAccount {
+input UpdateAccountInput {
   avatar: String
-  display: String!
-  email: String!
+  cdnAvatarId: String
+  display: String
+  email: String
   phone: String
-  status: AccountStatus!
-  username: String!
-  uuid: ID!
+  status: AccountStatus
 }
 
-input UpdateAccountInfoInput {
+input UpdateProfileInput {
   avatar: String
   cdnAvatarId: String
   display: String
