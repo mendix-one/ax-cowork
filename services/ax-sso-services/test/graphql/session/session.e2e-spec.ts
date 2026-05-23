@@ -42,6 +42,8 @@ describe('GraphQL — session (e2e)', () => {
         email: 'alice@example.com',
         status: 'ACTIVE',
       },
+      app: 'sso',
+      roles: [],
       expiresAt: new Date(Date.now() + 60 * 60 * 1000),
     })
     return doc.toObject()

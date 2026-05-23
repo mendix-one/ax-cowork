@@ -66,7 +66,8 @@ describe('SigninController (e2e)', () => {
     const res = await request(app.getHttpServer()).post('/signin').set(API_KEY_HEADER, API_KEY).send({ username: USERNAME, password: PASSWORD }).expect(201)
 
     const body = res.body as { token: string; expiresAt: string }
-    expect(body.token).toMatch(/^[a-f0-9]{64}$/)
+    // JWT format: three base64url segments separated by dots.
+    expect(body.token).toMatch(/^[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+$/)
     expect(new Date(body.expiresAt).getTime()).toBeGreaterThan(Date.now())
 
     const persisted = await sessionModel.findOne({ token: body.token }).lean().exec()

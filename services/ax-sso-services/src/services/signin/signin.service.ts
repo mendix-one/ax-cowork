@@ -1,6 +1,6 @@
-import { randomBytes } from 'node:crypto'
 import { Injectable, UnauthorizedException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
+import { JwtService } from '@nestjs/jwt'
 import { compare } from 'bcryptjs'
 import type { Model } from 'mongoose'
 
@@ -10,11 +10,16 @@ import { SigninResDto } from './dto/signin.res-dto'
 
 const SESSION_TTL_MS = 24 * 60 * 60 * 1000
 
+// `Session.app` is required by the schema; until the signin payload carries the target app
+// explicitly, every signin is treated as a session against the SSO app itself.
+const DEFAULT_APP_KEY = 'sso'
+
 @Injectable()
 export class SigninService {
   constructor(
     @InjectModel(Account.name) private readonly accountModel: Model<Account>,
     @InjectModel(Session.name) private readonly sessionModel: Model<Session>,
+    private readonly jwtService: JwtService,
   ) {}
 
   async signin(username: string, password: string): Promise<SigninResDto> {
@@ -28,8 +33,18 @@ export class SigninService {
       throw new UnauthorizedException('Account is not active')
     }
 
-    const token = randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + SESSION_TTL_MS)
+    // Standard JWT claim names (`sub`, `iat`, `exp`) — `exp` is auto-populated by JwtService from `signOptions.expiresIn`.
+    const payload = {
+      sub: account.uuid,
+      username: account.username,
+      email: account.email,
+      status: account.status,
+      app: DEFAULT_APP_KEY,
+      roles: [] as string[],
+    }
+    const token = await this.jwtService.signAsync(payload)
+
     await this.sessionModel.create({
       token,
       account: {
@@ -41,6 +56,8 @@ export class SigninService {
         email: account.email,
         status: account.status,
       },
+      app: DEFAULT_APP_KEY,
+      roles: [],
       expiresAt,
     })
 

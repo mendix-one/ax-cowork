@@ -3,7 +3,7 @@ import { ConfigService } from '@nestjs/config'
 import { Reflector } from '@nestjs/core'
 import { GqlExecutionContext } from '@nestjs/graphql'
 
-import { API_KEY_HEADER, PUBLIC_ROUTE_KEY } from './api-key.constants'
+import { API_KEY_HEADER, SECURITY_BYPASS_ALL_KEY } from './security.constants'
 
 interface RequestLike {
   method?: string
@@ -33,7 +33,7 @@ export class ApiKeyGuard implements CanActivate {
   }
 
   canActivate(context: ExecutionContext): boolean {
-    const isPublic = this.reflector.getAllAndOverride<boolean | undefined>(PUBLIC_ROUTE_KEY, [context.getHandler(), context.getClass()])
+    const isPublic = this.reflector.getAllAndOverride<boolean | undefined>(SECURITY_BYPASS_ALL_KEY, [context.getHandler(), context.getClass()])
     if (isPublic) return true
 
     const req = this.getRequest(context)
