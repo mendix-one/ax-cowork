@@ -52,7 +52,7 @@ export class ProfileService {
       if (v !== undefined) $set[k] = v
     }
 
-    const updated = await this.accountModel.findOneAndUpdate({ uuid: callerAccountUuid }, { $set }, { new: true }).lean<Account>().exec()
+    const updated = await this.accountModel.findOneAndUpdate({ uuid: callerAccountUuid }, { $set }, { returnDocument: 'after' }).lean<Account>().exec()
     if (!updated) throw new NotFoundException('Account not found')
     return updated
   }

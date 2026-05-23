@@ -60,7 +60,7 @@ export class ManageService {
       if (v !== undefined) $set[k] = v
     }
 
-    const updated = await this.accountModel.findOneAndUpdate({ uuid }, { $set }, { new: true }).lean<Account>().exec()
+    const updated = await this.accountModel.findOneAndUpdate({ uuid }, { $set }, { returnDocument: 'after' }).lean<Account>().exec()
     if (!updated) throw new NotFoundException(`Account ${uuid} not found`)
     return updated
   }

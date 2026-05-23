@@ -103,7 +103,7 @@ describe('ProfileService', () => {
 
       const result = await service.updateProfile(CALLER, { display: 'Alice', email: undefined, phone: '+1' })
 
-      expect(accountMocks.model.findOneAndUpdate).toHaveBeenCalledWith({ uuid: CALLER }, { $set: { display: 'Alice', phone: '+1' } }, { new: true })
+      expect(accountMocks.model.findOneAndUpdate).toHaveBeenCalledWith({ uuid: CALLER }, { $set: { display: 'Alice', phone: '+1' } }, { returnDocument: 'after' })
       expect(result).toBe(updated)
     })
 
