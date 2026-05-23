@@ -36,7 +36,14 @@ describe('SigninController (e2e)', () => {
 
   beforeEach(async () => {
     await Promise.all([userModel.deleteMany({}).exec(), sessionModel.deleteMany({}).exec()])
-    await userModel.create({ username: USERNAME, passwordHash: await hash(PASSWORD, 4) })
+    await userModel.create({
+      username: USERNAME,
+      passwordHash: await hash(PASSWORD, 4),
+      display: 'Alice',
+      email: `${USERNAME}@example.com`,
+      cdnOwnerId: '00000000-0000-0000-0000-000000000001',
+      status: 'ACTIVE',
+    })
   })
 
   it('rejects requests without the API key', async () => {
@@ -64,6 +71,9 @@ describe('SigninController (e2e)', () => {
 
     const persisted = await sessionModel.findOne({ token: body.token }).lean().exec()
     expect(persisted).not.toBeNull()
-    expect(persisted?.username).toBe(USERNAME)
+    expect(persisted?.user.username).toBe(USERNAME)
+    expect(persisted?.user.email).toBe(`${USERNAME}@example.com`)
+    expect(persisted?.user.display).toBe('Alice')
+    expect(persisted?.user.status).toBe('ACTIVE')
   })
 })

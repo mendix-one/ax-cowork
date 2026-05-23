@@ -23,10 +23,25 @@ export class SigninService {
     if (!user || !(await compare(password, user.passwordHash))) {
       throw new UnauthorizedException('Invalid credentials')
     }
+    // Active is the only signin-eligible status; `locked` and `closed` block here.
+    if (user.status !== 'ACTIVE') {
+      throw new UnauthorizedException('Account is not active')
+    }
 
     const token = randomBytes(32).toString('hex')
     const expiresAt = new Date(Date.now() + SESSION_TTL_MS)
-    await this.sessionModel.create({ token, username: user.username, expiresAt })
+    await this.sessionModel.create({
+      token,
+      user: {
+        username: user.username,
+        display: user.display,
+        avatar: user.avatar,
+        phone: user.phone,
+        email: user.email,
+        status: user.status,
+      },
+      expiresAt,
+    })
 
     return { token, expiresAt }
   }
