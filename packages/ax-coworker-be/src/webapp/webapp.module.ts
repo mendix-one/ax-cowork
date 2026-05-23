@@ -1,8 +1,12 @@
 import { Module } from '@nestjs/common'
 
-import { WebappController } from './webapp.controller'
+import { IndexController } from './index/index.controller'
+import { SigninController } from './signin/signin.controller'
+import { SignoutController } from './signout/signout.controller'
 
+// Explicit /signin and /signout routes are registered before IndexController's
+// wildcard catch-all so they win the route match.
 @Module({
-  controllers: [WebappController],
+  controllers: [SigninController, SignoutController, IndexController],
 })
 export class WebappModule {}
