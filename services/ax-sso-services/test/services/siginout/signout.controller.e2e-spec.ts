@@ -90,7 +90,7 @@ describe('SignoutController (e2e)', () => {
       .expect(401)
   })
 
-  it('invalidates the session by uuid (from the `ses` claim) and returns 204', async () => {
+  it('invalidates the session by uuid (from the `ses` claim) and returns the 200 success payload', async () => {
     const { token, sessionUuid } = await signinAndGetSession()
 
     // Seed a Token row linked to this session so we can verify the cascade delete.
@@ -106,18 +106,21 @@ describe('SignoutController (e2e)', () => {
     expect(await sessionModel.findOne({ uuid: sessionUuid }).lean().exec()).not.toBeNull()
     expect(await tokenModel.findOne({ session: sessionUuid }).lean().exec()).not.toBeNull()
 
-    await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${token}`).expect(204)
+    const res = await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${token}`).expect(200)
+    expect(res.body).toEqual({ statusCode: 200, message: 'Signed out successfully' })
 
     expect(await sessionModel.findOne({ uuid: sessionUuid }).lean().exec()).toBeNull()
     expect(await tokenModel.findOne({ session: sessionUuid }).lean().exec()).toBeNull()
   })
 
-  it('is idempotent — signing out with a valid JWT whose session was already removed still returns 204', async () => {
+  it('returns HTTP 200 with a 400 payload when the bearer is valid but its session was already removed', async () => {
     const { token, sessionUuid } = await signinAndGetSession()
 
     // Remove the session out-of-band; the JWT is still cryptographically valid.
     await sessionModel.deleteOne({ uuid: sessionUuid }).exec()
 
-    await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${token}`).expect(204)
+    // Service returns the failure payload in-band (statusCode is a body field, not the HTTP status).
+    const res = await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${token}`).expect(200)
+    expect(res.body).toEqual({ statusCode: 400, message: 'Session not found' })
   })
 })

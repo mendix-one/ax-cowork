@@ -80,8 +80,14 @@ function mockAccountRoleModel(roles: string[] = []) {
 // Tests assert on shape, not on a fixed value.
 const UUID_V7_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i
 
-function mockSessionModel() {
+function mockSessionModel(existing: { uuid: string } | null = null) {
   return {
+    findOne: jest.fn().mockReturnValue({
+      lean: () => ({ exec: () => Promise.resolve(existing) }),
+    }),
+    updateOne: jest.fn().mockReturnValue({
+      exec: () => Promise.resolve({ acknowledged: true, matchedCount: 1, modifiedCount: 1 }),
+    }),
     create: jest.fn().mockImplementation((doc: Record<string, unknown>) => Promise.resolve(doc)),
   }
 }
@@ -209,6 +215,37 @@ describe('SigninService', () => {
     const createdArg = (sessionModel.create.mock.calls[0] as [{ uuid: string }])[0]
     expect(signedArg.ses).toBe(createdArg.uuid)
     expect(signedArg.ses).toBe(result.uuid)
+  })
+
+  it('reuses the existing session for (account, app) and updates instead of inserting', async () => {
+    const accountModel = mockAccountModel(baseAccount({ passwordHash }))
+    const existingUuid = '0190a1b2-c3d4-7e5f-8901-existing0000'
+    const sessionModel = mockSessionModel({ uuid: existingUuid })
+    const accountRoleModel = mockAccountRoleModel(['ADMIN'])
+    const { service, jwt } = await buildService(accountModel, sessionModel, mockJwtService(), mockAppModel(), accountRoleModel)
+
+    const result = await service.signin(APP_KEY, username, password)
+
+    expect(sessionModel.findOne).toHaveBeenCalledWith({ 'account.uuid': '0190a1b2-c3d4-7e5f-8901-234567890abc', 'app.uuid': STUB_APP.uuid }, { uuid: 1 })
+    expect(sessionModel.create).not.toHaveBeenCalled()
+    expect(sessionModel.updateOne).toHaveBeenCalledTimes(1)
+    expect(sessionModel.updateOne).toHaveBeenCalledWith(
+      { uuid: existingUuid },
+      {
+        $set: {
+          token: STUB_JWT,
+          account: expect.objectContaining({ uuid: '0190a1b2-c3d4-7e5f-8901-234567890abc' }) as unknown,
+          app: expect.objectContaining({ uuid: STUB_APP.uuid }) as unknown,
+          roles: ['ADMIN'],
+          expiresAt: expect.any(Date) as Date,
+        },
+      },
+    )
+
+    // The refreshed JWT must reference the *existing* session uuid (not a fresh one).
+    expect(jwt.signAsync).toHaveBeenCalledWith(expect.objectContaining({ ses: existingUuid }))
+    expect(result.uuid).toBe(existingUuid)
+    expect(result.token).toBe(STUB_JWT)
   })
 
   it.each(['LOCKED', 'CLOSED'] as const)('throws UnauthorizedException when the account status is %s', async (status) => {

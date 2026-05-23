@@ -1,9 +1,10 @@
-import { Injectable } from '@nestjs/common'
+import { Injectable, NotFoundException } from '@nestjs/common'
 import { InjectModel } from '@nestjs/mongoose'
 import type { Model } from 'mongoose'
 
 import { Session } from '../../acore/database/schemas/session.schema'
 import { Token } from '../../acore/database/schemas/token.schema'
+import { SignoutResDto } from './dto/signout.res-dto'
 
 @Injectable()
 export class SignoutService {
@@ -12,10 +13,18 @@ export class SignoutService {
     @InjectModel(Token.name) private readonly tokenModel: Model<Token>,
   ) {}
 
-  // Removes the session and any tokens minted from it. Idempotent — calling with a uuid that
-  // no longer exists deletes nothing and resolves silently (the controller still returns 204).
-  async signout(sessionUuid: string): Promise<void> {
+  // Verifies the session exists before deleting. Calling with a uuid that has no matching
+  // session (e.g. already signed out elsewhere, or TTL-expired) raises NotFoundException
+  // so the client sees a concrete error rather than a silent success.
+  async signout(sessionUuid: string): Promise<SignoutResDto> {
+    const existing = await this.sessionModel.findOne({ uuid: sessionUuid }, { uuid: 1 }).lean<{ uuid: string } | null>().exec()
+    if (!existing) {
+      return { statusCode: 400, message: 'Session not found' }
+    }
+
     await this.sessionModel.deleteOne({ uuid: sessionUuid }).exec()
     await this.tokenModel.deleteMany({ session: sessionUuid }).exec()
+
+    return { statusCode: 200, message: 'Signed out successfully' }
   }
 }

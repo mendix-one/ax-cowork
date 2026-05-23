@@ -1,7 +1,8 @@
 import { Controller, Headers, HttpCode, HttpStatus, InternalServerErrorException, Post } from '@nestjs/common'
-import { ApiBearerAuth, ApiNoContentResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
+import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 
 import { SecurityCheck } from '../../acore/security'
+import { SignoutResDto } from './dto/signout.res-dto'
 import { SignoutService } from './signout.service'
 
 @ApiTags('Auth')
@@ -14,21 +15,22 @@ export class SignoutController {
   constructor(private readonly signoutService: SignoutService) {}
 
   @Post()
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Sign out',
     description: 'Invalidates the session referenced by the bearer token (claim `ses`) and any tokens minted from that session.',
   })
-  @ApiNoContentResponse({ description: 'Session invalidated.' })
+  @ApiOkResponse({ type: SignoutResDto, description: 'Session invalidated.' })
   @ApiUnauthorizedResponse({ description: 'Missing/invalid bearer token, or missing/invalid API key.' })
-  async signout(@Headers('session') session: string | undefined): Promise<void> {
+  @ApiNotFoundResponse({ description: 'No session matches the bearer token (e.g. already signed out or TTL-expired).' })
+  signout(@Headers('session') session: string | undefined): Promise<SignoutResDto> {
     // `SecurityCheckGuard` verified the bearer and wrote the JWT's `ses` claim onto this header.
-    // Any client-supplied `ses` header is stripped by the guard up front, so we can trust this value.
+    // Any client-supplied `session` header is stripped by the guard up front, so we can trust this value.
     if (!session) {
-      // Defensive — the guard always sets `ses` after a successful verify; arriving here without
+      // Defensive — the guard always sets `session` after a successful verify; arriving here without
       // it would mean the JWT was somehow missing the claim, which signin never does.
       throw new InternalServerErrorException('Verified token missing `ses` claim')
     }
-    await this.signoutService.signout(session)
+    return this.signoutService.signout(session)
   }
 }

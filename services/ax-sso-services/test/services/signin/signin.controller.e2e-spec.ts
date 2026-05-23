@@ -139,4 +139,30 @@ describe('SigninController (e2e)', () => {
     expect(typeof claims.iat).toBe('number')
     expect(typeof claims.exp).toBe('number')
   })
+
+  it('reuses the existing session for the same (account, app) instead of inserting a new one', async () => {
+    const first = await postSignin().send({ username: USERNAME, password: PASSWORD }).expect(201)
+    const firstBody = first.body as { uuid: string; token: string }
+
+    // Second signin (same credentials, same app) — must reuse the same session uuid and refresh
+    // token + expiresAt in place, leaving exactly one session document.
+    const firstPersisted = await sessionModel.findOne({ uuid: firstBody.uuid }).lean().exec()
+    // Wait a tick so the JWT `iat` (in seconds) differs between calls — otherwise the two tokens
+    // can come out byte-identical and the "token changed" assertion is meaningless.
+    await new Promise((r) => setTimeout(r, 1100))
+
+    const second = await postSignin().send({ username: USERNAME, password: PASSWORD }).expect(201)
+    const secondBody = second.body as { uuid: string; token: string }
+
+    expect(secondBody.uuid).toBe(firstBody.uuid)
+    expect(secondBody.token).not.toBe(firstBody.token)
+
+    const sessions = await sessionModel.find({ 'account.username': USERNAME }).lean().exec()
+    expect(sessions).toHaveLength(1)
+    expect(sessions[0].uuid).toBe(firstBody.uuid)
+    expect(sessions[0].token).toBe(secondBody.token)
+    if (firstPersisted?.expiresAt && sessions[0].expiresAt) {
+      expect(sessions[0].expiresAt.getTime()).toBeGreaterThanOrEqual(firstPersisted.expiresAt.getTime())
+    }
+  })
 })

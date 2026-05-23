@@ -10,14 +10,17 @@ function chain<T>(resolved: T) {
   return { exec }
 }
 
-function mockSessionModel() {
-  const sessionDelete = jest.fn().mockReturnValue(chain({ acknowledged: true, deletedCount: 1 }))
-  return { deleteOne: sessionDelete }
+function mockSessionModel(existing: { uuid: string } | null = { uuid: 'session-uuid-123' }) {
+  const findOne = jest.fn().mockReturnValue({
+    lean: () => ({ exec: () => Promise.resolve(existing) }),
+  })
+  const deleteOne = jest.fn().mockReturnValue(chain({ acknowledged: true, deletedCount: 1 }))
+  return { findOne, deleteOne }
 }
 
 function mockTokenModel() {
-  const tokenDelete = jest.fn().mockReturnValue(chain({ acknowledged: true, deletedCount: 2 }))
-  return { deleteMany: tokenDelete }
+  const deleteMany = jest.fn().mockReturnValue(chain({ acknowledged: true, deletedCount: 2 }))
+  return { deleteMany }
 }
 
 describe('SignoutService', () => {
@@ -35,27 +38,30 @@ describe('SignoutService', () => {
     return moduleRef.get(SignoutService)
   }
 
-  it('deletes the session by uuid AND all tokens whose session matches', async () => {
-    const sessionModel = mockSessionModel()
+  it('deletes the session by uuid, cascades token deletes, and returns a 200 success payload', async () => {
+    const sessionModel = mockSessionModel({ uuid: 'session-uuid-123' })
     const tokenModel = mockTokenModel()
     const service = await buildService(sessionModel, tokenModel)
 
-    await service.signout('session-uuid-123')
+    const result = await service.signout('session-uuid-123')
 
+    expect(sessionModel.findOne).toHaveBeenCalledWith({ uuid: 'session-uuid-123' }, { uuid: 1 })
     expect(sessionModel.deleteOne).toHaveBeenCalledWith({ uuid: 'session-uuid-123' })
     expect(tokenModel.deleteMany).toHaveBeenCalledWith({ session: 'session-uuid-123' })
+    expect(result).toEqual({ statusCode: 200, message: 'Signed out successfully' })
   })
 
-  it('resolves silently when no session/tokens matched (idempotent)', async () => {
-    const sessionModel = mockSessionModel()
+  it('returns a 400 payload (and skips the cascade delete) when no session matches', async () => {
+    const sessionModel = mockSessionModel(null)
     const tokenModel = mockTokenModel()
-    // Pretend nothing matched.
-    sessionModel.deleteOne.mockReturnValueOnce(chain({ acknowledged: true, deletedCount: 0 }))
-    tokenModel.deleteMany.mockReturnValueOnce(chain({ acknowledged: true, deletedCount: 0 }))
     const service = await buildService(sessionModel, tokenModel)
 
-    await expect(service.signout('unknown-uuid')).resolves.toBeUndefined()
-    expect(sessionModel.deleteOne).toHaveBeenCalledWith({ uuid: 'unknown-uuid' })
-    expect(tokenModel.deleteMany).toHaveBeenCalledWith({ session: 'unknown-uuid' })
+    const result = await service.signout('unknown-uuid')
+
+    expect(result).toEqual({ statusCode: 400, message: 'Session not found' })
+    expect(sessionModel.findOne).toHaveBeenCalledWith({ uuid: 'unknown-uuid' }, { uuid: 1 })
+    // No deletes happen when the session was never there in the first place.
+    expect(sessionModel.deleteOne).not.toHaveBeenCalled()
+    expect(tokenModel.deleteMany).not.toHaveBeenCalled()
   })
 })

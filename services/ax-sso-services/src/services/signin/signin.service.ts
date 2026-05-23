@@ -71,10 +71,16 @@ export class SigninService {
       description: app.description,
       avatar: app.avatar,
     }
-    // Generate the session UUID upfront so the JWT payload can reference it without a chicken-and-egg
-    // dependency on the persisted document. The schema's default is also `uuidv7()`; passing it
-    // explicitly here just gives us a value to embed in the token claims.
-    const sessionUuid = uuidv7()
+
+    // Reuse-or-create: one session per (account, app). If a session already exists for this pair,
+    // refresh it in place — same `uuid`, new token + expiresAt + snapshots + roles — so callers
+    // signing in twice don't accumulate stale rows. Otherwise mint a new UUID and insert.
+    const existingSession = await this.sessionModel
+      .findOne({ 'account.uuid': account.uuid, 'app.uuid': app.uuid }, { uuid: 1 })
+      .lean<{ uuid: string } | null>()
+      .exec()
+
+    const sessionUuid = existingSession?.uuid ?? uuidv7()
     const token = await this.jwtService.signAsync({
       sub: account.uuid,
       app: app.key,
@@ -83,14 +89,18 @@ export class SigninService {
       roles,
     })
 
-    await this.sessionModel.create({
-      uuid: sessionUuid,
-      token,
-      account: accountSnapshot,
-      app: appSnapshot,
-      roles,
-      expiresAt,
-    })
+    if (existingSession) {
+      await this.sessionModel.updateOne({ uuid: sessionUuid }, { $set: { token, account: accountSnapshot, app: appSnapshot, roles, expiresAt } }).exec()
+    } else {
+      await this.sessionModel.create({
+        uuid: sessionUuid,
+        token,
+        account: accountSnapshot,
+        app: appSnapshot,
+        roles,
+        expiresAt,
+      })
+    }
 
     return {
       uuid: sessionUuid,
