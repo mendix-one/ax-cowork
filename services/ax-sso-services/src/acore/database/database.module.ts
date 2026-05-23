@@ -2,12 +2,14 @@ import { Global, Module } from '@nestjs/common'
 import { ConfigService } from '@nestjs/config'
 import { MongooseModule } from '@nestjs/mongoose'
 
+import { Cronjob, CronjobSchema } from './schemas/cronjob.schema'
 import { Session, SessionSchema } from './schemas/session.schema'
 import { User, UserSchema } from './schemas/user.schema'
 
 const FEATURE_MODELS = MongooseModule.forFeature([
   { name: User.name, schema: UserSchema },
   { name: Session.name, schema: SessionSchema },
+  { name: Cronjob.name, schema: CronjobSchema },
 ])
 
 @Global()

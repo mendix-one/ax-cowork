@@ -51,6 +51,11 @@ export class Session {
   // TTL index — Mongo removes the document automatically once `expiresAt` is in the past.
   @Prop({ required: true, expires: 0 })
     expiresAt!: Date
+
+  // Populated automatically by `timestamps: { createdAt: true }` on the @Schema decorator —
+  // declared here so it shows on the TypeScript surface.
+  @Prop()
+    createdAt?: Date
 }
 
 export const SessionSchema = SchemaFactory.createForClass(Session)

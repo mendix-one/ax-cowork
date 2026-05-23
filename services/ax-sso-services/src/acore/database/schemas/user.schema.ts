@@ -43,6 +43,14 @@ export class User {
   // UUID of the tenant/org this user belongs to in the CDN service.
   @Prop({ required: true, default: () => uuidv7() })
     cdnOwnerId!: string
+
+  // Populated automatically by `timestamps: true` on the @Schema decorator —
+  // declared here so they show on the TypeScript surface.
+  @Prop()
+    createdAt?: Date
+
+  @Prop()
+    updatedAt?: Date
 }
 
 export const UserSchema = SchemaFactory.createForClass(User)
