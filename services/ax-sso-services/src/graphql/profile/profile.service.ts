@@ -3,22 +3,29 @@ import { InjectModel } from '@nestjs/mongoose'
 import type { Model } from 'mongoose'
 
 import { Account } from '../../acore/database/schemas/account.schema'
+import { AccountRole } from '../../acore/database/schemas/account-role.schema'
+import { App } from '../../acore/database/schemas/app.schema'
+import { AppRole } from '../../acore/database/schemas/app-role.schema'
 import { Session } from '../../acore/database/schemas/session.schema'
 import { Token } from '../../acore/database/schemas/token.schema'
-import { ProfileSessionType, ProfileType } from './profile.type'
+import { ProfileAppRolesType, ProfileSessionType, ProfileType } from './profile.type'
 import { UpdateProfileInput } from './update-profile.input'
 
 @Injectable()
 export class ProfileService {
   constructor(
     @InjectModel(Account.name) private readonly accountModel: Model<Account>,
+    @InjectModel(AccountRole.name) private readonly accountRoleModel: Model<AccountRole>,
+    @InjectModel(App.name) private readonly appModel: Model<App>,
+    @InjectModel(AppRole.name) private readonly appRoleModel: Model<AppRole>,
     @InjectModel(Session.name) private readonly sessionModel: Model<Session>,
     @InjectModel(Token.name) private readonly tokenModel: Model<Token>,
   ) {}
 
-  // Returns the caller's account record plus all their currently-active sessions. The TTL index on
-  // `sessions.expiresAt` removes expired rows automatically, so a simple "all sessions for this
-  // account" lookup is sufficient — no extra `expiresAt > now` predicate needed.
+  // Returns the caller's account record + active sessions + the apps and roles they're
+  // assigned to. The TTL index on `sessions.expiresAt` removes expired rows automatically,
+  // so a simple "all sessions for this account" lookup is sufficient — no extra
+  // `expiresAt > now` predicate needed.
   async getProfile(callerAccountUuid: string): Promise<ProfileType> {
     const account = await this.accountModel.findOne({ uuid: callerAccountUuid }).lean<Account>().exec()
     if (!account) {
@@ -42,7 +49,79 @@ export class ProfileService {
       expiresAt: s.expiresAt,
     }))
 
-    return { account, sessions }
+    const appRoles = await this.buildAppRoles(callerAccountUuid)
+
+    return { account, sessions, appRoles }
+  }
+
+  // Build the "apps + roles" projection. AccountRole stores (account, app, role) — we join
+  // each row against the parent App + AppRole records so the client gets human-friendly
+  // names/descriptions/avatars without N round trips.
+  //
+  // Two queries instead of one per (app, role) pair: we fetch all referenced Apps and
+  // AppRoles in `$in` batches, then assemble the response from in-memory maps. AppRoles
+  // referenced by AccountRole rows but missing from the AppRole collection (data drift)
+  // are still surfaced — their `name` falls back to the role key — rather than dropping
+  // the role and silently telling the caller they have fewer permissions than they do.
+  private async buildAppRoles(callerAccountUuid: string): Promise<ProfileAppRolesType[]> {
+    const accountRoles = await this.accountRoleModel.find({ account: callerAccountUuid }).lean<Array<{ app: string; role: string }>>().exec()
+    if (accountRoles.length === 0) return []
+
+    // Group role keys by app, preserving insertion order so the output is stable.
+    const roleKeysByApp = new Map<string, string[]>()
+    for (const row of accountRoles) {
+      const list = roleKeysByApp.get(row.app) ?? []
+      if (!list.includes(row.role)) list.push(row.role)
+      roleKeysByApp.set(row.app, list)
+    }
+
+    const appKeys = Array.from(roleKeysByApp.keys())
+
+    const [appDocs, appRoleDocs] = await Promise.all([
+      this.appModel
+        .find({ key: { $in: appKeys } })
+        .lean<Array<{ uuid: string; key: string; name: string; avatar?: string; description?: string }>>()
+        .exec(),
+      this.appRoleModel
+        .find({ app: { $in: appKeys } })
+        .lean<Array<{ app: string; key: string; name: string; description?: string }>>()
+        .exec(),
+    ])
+
+    const appByKey = new Map(appDocs.map((a) => [a.key, a]))
+    // Nested map: appKey → (roleKey → AppRole document).
+    const appRolesByApp = new Map<string, Map<string, { name: string; description?: string }>>()
+    for (const r of appRoleDocs) {
+      let inner = appRolesByApp.get(r.app)
+      if (!inner) {
+        inner = new Map()
+        appRolesByApp.set(r.app, inner)
+      }
+      inner.set(r.key, { name: r.name, description: r.description })
+    }
+
+    return appKeys.map((appKey) => {
+      const appDoc = appByKey.get(appKey)
+      const roleKeys = roleKeysByApp.get(appKey) ?? []
+      const roleLookup = appRolesByApp.get(appKey)
+      return {
+        app: {
+          uuid: appDoc?.uuid ?? '',
+          key: appKey,
+          name: appDoc?.name ?? appKey,
+          avatar: appDoc?.avatar,
+          description: appDoc?.description,
+        },
+        roles: roleKeys.map((rk) => {
+          const meta = roleLookup?.get(rk)
+          return {
+            key: rk,
+            name: meta?.name ?? rk,
+            description: meta?.description,
+          }
+        }),
+      }
+    })
   }
 
   async updateProfile(callerAccountUuid: string, input: UpdateProfileInput): Promise<Account> {

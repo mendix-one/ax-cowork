@@ -1,7 +1,9 @@
 import { useEffect } from 'react'
+import { ApolloProvider } from '@apollo/client/react'
 import { App as AntApp, ConfigProvider } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { RouterProvider } from 'react-router-dom'
+import { apolloClient } from '@/acore/apollo'
 import { StoreContext } from '@/acore/store/store.context'
 import { rootStore } from '@/acore/store/root.store'
 import { index } from '@/acore/router'
@@ -55,11 +57,12 @@ const AppShell = observer(() => {
 })
 
 function AxApp() {
-  console.log('Reload AxApp')
   return (
-    <StoreContext.Provider value={rootStore}>
-      <AppShell />
-    </StoreContext.Provider>
+    <ApolloProvider client={apolloClient}>
+      <StoreContext.Provider value={rootStore}>
+        <AppShell />
+      </StoreContext.Provider>
+    </ApolloProvider>
   )
 }
 

@@ -25,11 +25,13 @@ export const AccountModal = observer(() => {
   // across opens; the sync effect below refreshes it on each open.
   const store = useMemo(() => new AccountStore(), [])
 
-  // Sync auth's snapshot into the local store on every open. After signout / re-signin
-  // the modal reopens with fresh data without needing to manually reset.
+  // On open: seed from the auth snapshot so the modal paints instantly, then fire the
+  // GraphQL profile fetch to refresh against fresh SSO data (which also brings the sessions
+  // list back). On close: reset so the next open starts from a clean state.
   useEffect(() => {
     if (app.accountModalOpen) {
       store.syncFromAuth(auth.currentAccount)
+      void store.init()
     } else {
       store.reset()
     }
