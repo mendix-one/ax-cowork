@@ -1,4 +1,4 @@
-import { Body, Controller, Headers, InternalServerErrorException, Post } from '@nestjs/common'
+import { Body, Controller, Headers, Post, UnauthorizedException } from '@nestjs/common'
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 
 import { SecurityCheck } from '../../acore/security'
@@ -23,12 +23,10 @@ export class SigninController {
   })
   @ApiOkResponse({ type: SigninResDto, description: 'Session signed in.' })
   @ApiUnauthorizedResponse({ description: 'Invalid credentials, unknown app, or session/app mismatch.' })
-  signin(@Headers('app') appKey: string | undefined, @Headers('session') sessionUuid: string | undefined, @Body() dto: SigninReqDto): Promise<SigninResDto> {
-    // Guard verified the anonymous-session JWT and wrote `app` / `session` (from claims `app` / `ses`)
-    // onto the request. Any client-supplied values for those headers were stripped beforehand.
-    if (!appKey || !sessionUuid) {
-      throw new InternalServerErrorException('Verified token missing `app` or `ses` claim')
+  signin(@Headers('session') sessionUuid: string | undefined, @Body() dto: SigninReqDto): Promise<SigninResDto> {
+    if (!sessionUuid) {
+      throw new UnauthorizedException('Verified token missing `app` or `ses` claim')
     }
-    return this.signinService.signin(appKey, sessionUuid, dto.username, dto.password)
+    return this.signinService.signin(sessionUuid, dto.username, dto.password)
   }
 }

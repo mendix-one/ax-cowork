@@ -29,20 +29,16 @@ export class SigninService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async signin(appKey: string, sessionUuid: string, username: string, password: string): Promise<SigninResDto> {
+  async signin(sessionUuid: string, username: string, password: string): Promise<SigninResDto> {
     // 1. Resolve the anonymous session — caller proved ownership via the JWT verified by the guard.
     const session = await this.sessionModel.findOne({ uuid: sessionUuid }).lean().exec()
     if (!session) {
       throw new UnauthorizedException('Session not found')
     }
-    // Defense in depth: the JWT's `app` claim and the session's stored app must match.
-    if (session.app.key !== appKey) {
-      throw new UnauthorizedException('Session app mismatch')
-    }
 
     // 2. Resolve the target app from the session's snapshot key. Missing app would mean the
     //    app was deleted after the session was initialized — surface as a clear error.
-    const app = await this.appModel.findOne({ key: appKey }).lean().exec()
+    const app = await this.appModel.findOne({ key: session.app.key }).lean().exec()
     if (!app) {
       throw new UnauthorizedException('Unknown app')
     }

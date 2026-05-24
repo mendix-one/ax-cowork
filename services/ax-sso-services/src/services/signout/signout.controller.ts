@@ -1,4 +1,4 @@
-import { Controller, Headers, HttpCode, HttpStatus, InternalServerErrorException, Post } from '@nestjs/common'
+import { Controller, Headers, HttpCode, HttpStatus, Post, UnauthorizedException } from '@nestjs/common'
 import { ApiBearerAuth, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiSecurity, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger'
 
 import { SecurityCheck } from '../../acore/security'
@@ -29,7 +29,7 @@ export class SignoutController {
     if (!session) {
       // Defensive — the guard always sets `session` after a successful verify; arriving here without
       // it would mean the JWT was somehow missing the claim, which signin never does.
-      throw new InternalServerErrorException('Verified token missing `ses` claim')
+      throw new UnauthorizedException('Verified token missing `ses` claim')
     }
     return this.signoutService.signout(session)
   }
