@@ -28,7 +28,7 @@ const APPS: AppSeed[] = [
   { key: 'SSO', type: 'INTERNAL_SERVICES', name: 'AX SSO', description: 'Single sign-on administration' },
   { key: 'CDN', type: 'INTERNAL_SERVICES', name: 'AX CDN', description: 'Content Delivery Network' },
   { key: 'NOTIFY', type: 'INTERNAL_SERVICES', name: 'AX Notify', description: 'Notification Adapter' },
-  { key: 'APLANNER', type: 'WEB_APP', name: 'AX Notify', description: 'aPlanner - WebApp' },
+  { key: 'APLANNER', type: 'WEB_APP', name: 'AX aPlanner', description: 'aPlanner - WebApp' },
 ]
 
 const APP_ROLES: { app: string; key: string; name: string; description?: string }[] = [

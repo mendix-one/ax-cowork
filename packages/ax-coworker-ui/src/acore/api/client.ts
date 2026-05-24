@@ -1,6 +1,6 @@
 import { ApiError, NetworkError } from './errors'
 
-const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? '/api'
+const BASE_URL = (import.meta.env.VITE_API_URL as string | undefined) ?? '/app'
 
 export type RequestOptions = {
   method?: 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE'
@@ -32,14 +32,14 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   }
 
   if (!response.ok) {
-    let code = 'unknown_error'
+    let code = 'Unknown_Error'
     let message = response.statusText
     try {
       const data = (await response.json()) as { code?: string; message?: string }
       if (data.code) code = data.code
       if (data.message) message = data.message
     } catch {
-      // response body không phải JSON — bỏ qua, dùng statusText
+      throw new ApiError(400, 'Bad_Request', 'Cound not parse the body')
     }
     throw new ApiError(response.status, code, message)
   }

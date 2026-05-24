@@ -7,13 +7,13 @@ export const AccountModal = observer(() => {
   const { ui, auth } = useStore()
   const { t } = useTranslation('app')
 
-  const user = auth.currentUser
-  const name = user?.name ?? t('account.guest')
-  const email = user?.email ?? '—'
-  const initial = (user?.name ?? 'G').charAt(0).toUpperCase()
+  const account = auth.currentAccount
+  const display = account?.display ?? t('account.guest')
+  const email = account?.email ?? '—'
+  const initial = (account?.display ?? 'G').charAt(0).toUpperCase()
 
-  const handleSignOut = () => {
-    auth.logout()
+  const handleSignOut = async () => {
+    await auth.signout()
     ui.closeAccountModal()
   }
 
@@ -23,7 +23,7 @@ export const AccountModal = observer(() => {
       open={ui.accountModalOpen}
       onCancel={() => ui.closeAccountModal()}
       footer={[
-        <Button key="signout" danger disabled={!user} onClick={handleSignOut}>
+        <Button key="signout" danger disabled={!account || auth.loading} loading={auth.loading} onClick={() => void handleSignOut()}>
           {t('account.signOut')}
         </Button>,
         <Button key="close" type="primary" onClick={() => ui.closeAccountModal()}>
@@ -34,16 +34,18 @@ export const AccountModal = observer(() => {
       width={480}
     >
       <Flex align="center" gap={16} style={{ marginTop: 8, marginBottom: 16 }}>
-        <Avatar size={56}>{initial}</Avatar>
+        <Avatar size={56} src={account?.avatar}>
+          {initial}
+        </Avatar>
         <Flex vertical>
           <Typography.Text type="secondary">{t('account.signedInAs')}</Typography.Text>
           <Typography.Title level={5} style={{ margin: 0 }}>
-            {name}
+            {display}
           </Typography.Title>
         </Flex>
       </Flex>
       <Descriptions column={1} size="small" bordered>
-        <Descriptions.Item label={t('account.name')}>{name}</Descriptions.Item>
+        <Descriptions.Item label={t('account.name')}>{display}</Descriptions.Item>
         <Descriptions.Item label={t('account.email')}>{email}</Descriptions.Item>
       </Descriptions>
     </Modal>

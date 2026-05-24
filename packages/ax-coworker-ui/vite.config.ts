@@ -17,9 +17,7 @@ export default defineConfig({
     // Proxy BE paths so the browser sees everything as same-origin in dev — keeps
     // the HttpOnly session cookie attached without CORS / SameSite=None gymnastics.
     proxy: {
-      '/api': { target: 'http://localhost:3000', changeOrigin: true },
-      '/signin': { target: 'http://localhost:3000', changeOrigin: true },
-      '/signout': { target: 'http://localhost:3000', changeOrigin: true },
+      '/app': { target: 'http://localhost:3000', changeOrigin: true },
     },
   },
 })
