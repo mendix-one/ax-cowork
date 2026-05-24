@@ -1,5 +1,5 @@
 import { makeAutoObservable, runInAction } from 'mobx'
-import { api } from '@/acore/api'
+import { axios, BusinessError } from '@/acore/axios'
 
 // Mirrors `SessionInfoResDto` from ax-sso-services. `account` + `status` are absent on
 // anonymous sessions; `roles` is empty in that case.
@@ -42,12 +42,13 @@ export class AuthStore {
 
   // App-boot flag. `initialized` flips to true once `init()` has finished its first call
   // (success or failure) so the AxApp can gate the router behind a loading screen.
-  initialized = false
+  isInitialized = false
+  isInterrupted = false
 
   // Per-action flags. `loading` is set during signin/signout/init so the UI can disable
   // form controls; `error` carries the most recent failure message (cleared on next attempt).
-  loading = false
-  error: string | null = null
+  isLoading = false
+  errorCode: number | 0 = 0
 
   constructor() {
     makeAutoObservable(this)
@@ -66,10 +67,10 @@ export class AuthStore {
   // once `initialized` is true); the post-signin/signout call sites invoke `refreshSession`
   // directly to bypass that guard.
   async init(): Promise<void> {
-    if (this.initialized) return
+    if (this.isInitialized) return
     await this.refreshSession()
     runInAction(() => {
-      this.initialized = true
+      this.isInitialized = true
     })
   }
 
@@ -77,19 +78,22 @@ export class AuthStore {
   // refresh the local session. Throws on failure so the caller can react (e.g. focus the
   // password field); the error message is also stashed on `auth.error` for shared UI.
   async signin(payload: SigninPayload): Promise<void> {
-    this.loading = true
-    this.error = null
+    this.isLoading = true
+    this.errorCode = 0
     try {
-      await api.post('/sso/signin', payload)
+      await axios.post('/sso/signin', payload)
       await this.refreshSession()
     } catch (err) {
-      runInAction(() => {
-        this.error = err instanceof Error ? err.message : 'Sign-in failed'
-      })
-      throw err
+      console.error(err)
+      if (err instanceof BusinessError) {
+        runInAction(() => {
+          this.errorCode = err.code
+        })
+        throw err
+      }
     } finally {
       runInAction(() => {
-        this.loading = false
+        this.isLoading = false
       })
     }
   }
@@ -98,19 +102,20 @@ export class AuthStore {
   // fails, refresh the session afterwards — the session row stays put but its account
   // snapshot is detached, so the refresh shows the now-anonymous state.
   async signout(): Promise<void> {
-    this.loading = true
-    this.error = null
+    this.isLoading = true
+    this.errorCode = 0
     try {
-      await api.post('/sso/signout')
+      await axios.post('/sso/signout')
     } catch (err) {
-      runInAction(() => {
-        this.error = err instanceof Error ? err.message : 'Sign-out failed'
-      })
-      // Don't rethrow — still try to refresh so local state reflects whatever the server thinks.
+      if (err instanceof BusinessError) {
+        runInAction(() => {
+          this.errorCode = (err as BusinessError).code
+        })
+      }
     } finally {
       await this.refreshSession()
       runInAction(() => {
-        this.loading = false
+        this.isLoading = false
       })
     }
   }
@@ -119,15 +124,20 @@ export class AuthStore {
   // never throws — downstream code (route guards, page-level loaders) handles missing session.
   private async refreshSession(): Promise<void> {
     try {
-      const session = await api.get<SessionInfo>('/sso/session')
+      const session = await axios.get<SessionInfo>('/sso/session')
       console.log('Session:', session)
       runInAction(() => {
         this.session = session
       })
     } catch (err) {
+      if (err instanceof BusinessError) {
+        runInAction(() => {
+          this.errorCode = (err as BusinessError).code
+        })
+      }
       runInAction(() => {
         this.session = null
-        this.error = err instanceof Error ? err.message : 'Failed to load session'
+        this.isInterrupted = true
       })
     }
   }

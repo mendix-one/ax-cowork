@@ -39,10 +39,10 @@ async function bootstrap() {
     .setTitle('AX SSO Services')
     .setDescription('AX SSO Services API')
     .setVersion('1.0')
-    .addApiKey({ type: 'apiKey', name: API_KEY_HEADER, in: 'header' }, 'ax-api-key')
+    .addApiKey({ type: 'apiKey', name: API_KEY_HEADER, in: 'header' }, 'ax-axios-key')
     .build()
   const document = SwaggerModule.createDocument(app, swaggerConfig)
-  SwaggerModule.setup('api-docs', app, document)
+  SwaggerModule.setup('axios-docs', app, document)
 
   // Start listing
   await app.listen(configService.get<number>('PORT') ?? 3001)

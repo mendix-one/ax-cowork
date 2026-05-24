@@ -63,6 +63,18 @@ export const index = createBrowserRouter([
     ],
   },
   {
+    path: '/system-error',
+    lazy: async () => ({ Component: (await import('@/pages/error/SystemErrorPage.tsx')).SystemErrorPage }),
+  },
+  {
+    path: '/system-exception',
+    lazy: async () => ({ Component: (await import('@/pages/error/SystemExceptionPage.tsx')).SystemExceptionPage }),
+  },
+  {
+    path: '/access-denied',
+    lazy: async () => ({ Component: (await import('@/pages/error/AccessDeniedPage.tsx')).AccessDeniedPage }),
+  },
+  {
     path: '*',
     lazy: async () => ({ Component: (await import('@/pages/error/NotFoundPage.tsx')).NotFoundPage }),
   },

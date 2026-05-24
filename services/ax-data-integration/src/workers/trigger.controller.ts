@@ -19,7 +19,7 @@ export interface TriggerResponse {
  * tag still group it visually with the rest of the job-config CRUD.
  */
 @ApiTags('Job configs')
-@ApiSecurity('api-key')
+@ApiSecurity('axios-key')
 @Controller('job-configs')
 export class TriggerController {
   constructor(

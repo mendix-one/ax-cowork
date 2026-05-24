@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { App as AntApp, ConfigProvider, Spin } from 'antd'
+import { App as AntApp, ConfigProvider } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { RouterProvider } from 'react-router-dom'
 import { StoreContext } from '@/acore/store/store.context'
@@ -15,41 +15,50 @@ const AppShell = observer(() => {
 
   useEffect(() => {
     void auth.init()
-  }, [auth])
+  })
 
-  if (!auth.initialized) {
+  useEffect(() => {
+    if (auth.isInterrupted) {
+      window.location.href = '/system-error'
+    }
+  }, [auth.isInterrupted])
+
+  if (!auth.isInitialized) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Spin size="large" />
+      <div className="ax-loading-container">
+        <div className="ax-app-loader">&nbsp;</div>
       </div>
     )
   }
 
-  return <RouterProvider router={index} />
+  return (
+    <ConfigProvider
+      theme={axTheme}
+      form={{
+        requiredMark: (labelNode, { required }) => (
+          <>
+            {labelNode}
+            {required && (
+              <span aria-hidden="true" style={{ color: axColors.error, marginInlineStart: 4 }}>
+                *
+              </span>
+            )}
+          </>
+        ),
+      }}
+    >
+      <AntApp>
+        <RouterProvider router={index} />
+      </AntApp>
+    </ConfigProvider>
+  )
 })
 
 function AxApp() {
+  console.log('Reload AxApp')
   return (
     <StoreContext.Provider value={rootStore}>
-      <ConfigProvider
-        theme={axTheme}
-        form={{
-          requiredMark: (labelNode, { required }) => (
-            <>
-              {labelNode}
-              {required && (
-                <span aria-hidden="true" style={{ color: axColors.error, marginInlineStart: 4 }}>
-                  *
-                </span>
-              )}
-            </>
-          ),
-        }}
-      >
-        <AntApp>
-          <AppShell />
-        </AntApp>
-      </ConfigProvider>
+      <AppShell />
     </StoreContext.Provider>
   )
 }

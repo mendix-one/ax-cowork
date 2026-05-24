@@ -8,7 +8,7 @@ import { SigninResDto } from './dto/signin.res-dto'
 import { SIGNIN_ERR_ACCOUNT_NOT_ACTIVE, SIGNIN_ERR_INVALID_CREDENTIALS, SigninService } from './signin.service'
 
 @ApiTags('Auth')
-@ApiSecurity('ax-api-key')
+@ApiSecurity('ax-axios-key')
 @ApiBearerAuth()
 // Anonymous-session JWT required — caller must have initialized a session via /session/initialize first.
 @SecurityCheck({ sign: false })

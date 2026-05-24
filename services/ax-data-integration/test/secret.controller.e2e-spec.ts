@@ -38,18 +38,18 @@ describe('SecretsController (e2e)', () => {
     await cleanupClient.close()
   })
 
-  it('rejects requests with no x-api-key header (401)', async () => {
+  it('rejects requests with no x-axios-key header (401)', async () => {
     await request(app.getHttpServer()).post('/secrets').send({ name: 'n', type: 'db', plaintext: 'p' }).expect(401)
   })
 
-  it('rejects requests with an invalid x-api-key (401)', async () => {
-    await request(app.getHttpServer()).get('/secrets').set('x-api-key', 'wrong-key').expect(401)
+  it('rejects requests with an invalid x-axios-key (401)', async () => {
+    await request(app.getHttpServer()).get('/secrets').set('x-axios-key', 'wrong-key').expect(401)
   })
 
   it('POST /secrets creates a secret and returns a summary (no ciphertext)', async () => {
     const res = await request(app.getHttpServer())
       .post('/secrets')
-      .set('x-api-key', API_KEY)
+      .set('x-axios-key', API_KEY)
       .send({ name: 'oracle-prod', type: 'db', plaintext: 'super-secret' })
       .expect(201)
 
@@ -61,23 +61,23 @@ describe('SecretsController (e2e)', () => {
   })
 
   it('POST /secrets with a duplicate name returns 409', async () => {
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'dup', type: 'api', plaintext: 'a' }).expect(201)
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'dup', type: 'api', plaintext: 'b' }).expect(409)
+    await request(app.getHttpServer()).post('/secrets').set('x-axios-key', API_KEY).send({ name: 'dup', type: 'axios', plaintext: 'a' }).expect(201)
+    await request(app.getHttpServer()).post('/secrets').set('x-axios-key', API_KEY).send({ name: 'dup', type: 'axios', plaintext: 'b' }).expect(409)
   })
 
   it('POST /secrets with an unknown type returns 400 (DTO validation)', async () => {
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'x', type: 'bogus', plaintext: 'p' }).expect(400)
+    await request(app.getHttpServer()).post('/secrets').set('x-axios-key', API_KEY).send({ name: 'x', type: 'bogus', plaintext: 'p' }).expect(400)
   })
 
   it('POST /secrets without plaintext returns 400 (DTO validation)', async () => {
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'x', type: 'api' }).expect(400)
+    await request(app.getHttpServer()).post('/secrets').set('x-axios-key', API_KEY).send({ name: 'x', type: 'axios' }).expect(400)
   })
 
   it('GET /secrets lists existing summaries; no ciphertext leakage', async () => {
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'a', type: 'api', plaintext: '1' }).expect(201)
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'b', type: 'api', plaintext: '2' }).expect(201)
+    await request(app.getHttpServer()).post('/secrets').set('x-axios-key', API_KEY).send({ name: 'a', type: 'axios', plaintext: '1' }).expect(201)
+    await request(app.getHttpServer()).post('/secrets').set('x-axios-key', API_KEY).send({ name: 'b', type: 'axios', plaintext: '2' }).expect(201)
 
-    const res = await request(app.getHttpServer()).get('/secrets').set('x-api-key', API_KEY).expect(200)
+    const res = await request(app.getHttpServer()).get('/secrets').set('x-axios-key', API_KEY).expect(200)
     expect(res.body).toHaveLength(2)
     for (const item of res.body) {
       expect(item).not.toHaveProperty('encrypted')
@@ -86,17 +86,21 @@ describe('SecretsController (e2e)', () => {
   })
 
   it('GET /secrets/:id returns 400 for malformed ObjectId and 404 for missing id', async () => {
-    await request(app.getHttpServer()).get('/secrets/not-an-id').set('x-api-key', API_KEY).expect(400)
-    await request(app.getHttpServer()).get('/secrets/507f1f77bcf86cd799439011').set('x-api-key', API_KEY).expect(404)
+    await request(app.getHttpServer()).get('/secrets/not-an-id').set('x-axios-key', API_KEY).expect(400)
+    await request(app.getHttpServer()).get('/secrets/507f1f77bcf86cd799439011').set('x-axios-key', API_KEY).expect(404)
   })
 
   it('PATCH /secrets/:id updates fields; subsequent GET reflects the change', async () => {
-    const created = await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'old', type: 'db', plaintext: '1' }).expect(201)
+    const created = await request(app.getHttpServer())
+      .post('/secrets')
+      .set('x-axios-key', API_KEY)
+      .send({ name: 'old', type: 'db', plaintext: '1' })
+      .expect(201)
     const { id } = created.body as { id: string }
 
-    await request(app.getHttpServer()).patch(`/secrets/${id}`).set('x-api-key', API_KEY).send({ name: 'new', plaintext: '2' }).expect(200)
+    await request(app.getHttpServer()).patch(`/secrets/${id}`).set('x-axios-key', API_KEY).send({ name: 'new', plaintext: '2' }).expect(200)
 
-    const fetched = await request(app.getHttpServer()).get(`/secrets/${id}`).set('x-api-key', API_KEY).expect(200)
+    const fetched = await request(app.getHttpServer()).get(`/secrets/${id}`).set('x-axios-key', API_KEY).expect(200)
     const fetchedBody = fetched.body as { name: string }
     expect(fetchedBody.name).toBe('new')
   })
@@ -104,20 +108,20 @@ describe('SecretsController (e2e)', () => {
   it('DELETE /secrets/:id returns 204; subsequent GET returns 404', async () => {
     const created = await request(app.getHttpServer())
       .post('/secrets')
-      .set('x-api-key', API_KEY)
+      .set('x-axios-key', API_KEY)
       .send({ name: 'goodbye', type: 'file', plaintext: 'x' })
       .expect(201)
     const { id } = created.body as { id: string }
 
-    await request(app.getHttpServer()).delete(`/secrets/${id}`).set('x-api-key', API_KEY).expect(204)
-    await request(app.getHttpServer()).get(`/secrets/${id}`).set('x-api-key', API_KEY).expect(404)
-    await request(app.getHttpServer()).delete(`/secrets/${id}`).set('x-api-key', API_KEY).expect(404)
+    await request(app.getHttpServer()).delete(`/secrets/${id}`).set('x-axios-key', API_KEY).expect(204)
+    await request(app.getHttpServer()).get(`/secrets/${id}`).set('x-axios-key', API_KEY).expect(404)
+    await request(app.getHttpServer()).delete(`/secrets/${id}`).set('x-axios-key', API_KEY).expect(404)
   })
 
   it('DELETE /secrets/:id returns 409 when a job_config still references it', async () => {
     const created = await request(app.getHttpServer())
       .post('/secrets')
-      .set('x-api-key', API_KEY)
+      .set('x-axios-key', API_KEY)
       .send({ name: 'in-use', type: 'db', plaintext: 'x' })
       .expect(201)
     const { id } = created.body as { id: string }
@@ -147,6 +151,6 @@ describe('SecretsController (e2e)', () => {
       await refClient.close()
     }
 
-    await request(app.getHttpServer()).delete(`/secrets/${id}`).set('x-api-key', API_KEY).expect(409)
+    await request(app.getHttpServer()).delete(`/secrets/${id}`).set('x-axios-key', API_KEY).expect(409)
   })
 })

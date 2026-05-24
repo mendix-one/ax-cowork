@@ -77,7 +77,7 @@ export class OptionsDto {
 }
 
 export class CreateJobConfigDto {
-  @ApiProperty({ maxLength: 100, example: 'daily-sales-api' })
+  @ApiProperty({ maxLength: 100, example: 'daily-sales-axios' })
   @IsString()
   @IsNotEmpty()
   @MaxLength(100)

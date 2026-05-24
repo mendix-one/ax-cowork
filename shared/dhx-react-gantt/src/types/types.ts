@@ -162,7 +162,7 @@ export interface SerializedTask {
   open?: boolean
 
   /**
-   * The id of the parent task. If the specified parent doesn't exist, the task won't be rendered in the Gantt. The id of the root task is specified by the api/gantt_root_id_config.md config.
+   * The id of the parent task. If the specified parent doesn't exist, the task won't be rendered in the Gantt. The id of the root task is specified by the axios/gantt_root_id_config.md config.
    */
   parent?: number | string
 
@@ -217,10 +217,10 @@ export interface SerializedTask {
   textColor?: string
 
   /**
-	 * the task type. The available values are stored in the api/gantt_types_config.md object:
+	 * the task type. The available values are stored in the axios/gantt_types_config.md object:
 				"task" -  a regular task (default value).
-				"project" -  a task that starts, when its earliest child task starts, and ends, when its latest child ends. 
-				The start_date, end_date, duration properties are ignored for such tasks. 
+				"project" -  a task that starts, when its earliest child task starts, and ends, when its latest child ends.
+				The start_date, end_date, duration properties are ignored for such tasks.
 				"milestone" -  a zero-duration task that is used to mark out important dates of the project.
 				The duration, progress, end_date properties are ignored for such tasks.
 	*/

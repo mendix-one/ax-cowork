@@ -49,7 +49,7 @@ export interface SsoTokenResponse {
   expiresAt: string
 }
 
-const API_KEY_HEADER = 'ax-api-key'
+const API_KEY_HEADER = 'ax-axios-key'
 const APP_KEY_HEADER = 'ax-app-key'
 
 @Injectable()

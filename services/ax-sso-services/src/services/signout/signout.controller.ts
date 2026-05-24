@@ -7,7 +7,7 @@ import { SignoutResDto } from './dto/signout.res-dto'
 import { SIGNOUT_ERR_NOT_SIGNED_IN, SIGNOUT_ERR_SESSION_NOT_FOUND, SignoutService } from './signout.service'
 
 @ApiTags('Auth')
-@ApiSecurity('ax-api-key')
+@ApiSecurity('ax-axios-key')
 @ApiBearerAuth()
 // Empty roles + empty status: any valid, non-expired bearer is accepted regardless of account status.
 @SecurityCheck()

@@ -85,19 +85,19 @@ describe('RawRecordController (e2e)', () => {
 
   describe('GET /raw-records', () => {
     it('returns 400 when jobConfigId is missing', async () => {
-      await request(app.getHttpServer()).get('/raw-records').set('x-api-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get('/raw-records').set('x-axios-key', API_KEY).expect(400)
     })
 
     it('returns 400 when jobConfigId is malformed', async () => {
-      await request(app.getHttpServer()).get('/raw-records?jobConfigId=bogus').set('x-api-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get('/raw-records?jobConfigId=bogus').set('x-axios-key', API_KEY).expect(400)
     })
 
     it('returns 400 for an invalid status enum', async () => {
-      await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${new ObjectId().toHexString()}&status=archived`).set('x-api-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${new ObjectId().toHexString()}&status=archived`).set('x-axios-key', API_KEY).expect(400)
     })
 
     it('returns empty page when no records match', async () => {
-      const res = await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${new ObjectId().toHexString()}`).set('x-api-key', API_KEY).expect(200)
+      const res = await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${new ObjectId().toHexString()}`).set('x-axios-key', API_KEY).expect(200)
       expect(res.body).toEqual({ items: [], total: 0, page: 1, pageSize: 50 })
     })
 
@@ -108,7 +108,7 @@ describe('RawRecordController (e2e)', () => {
       await seed({ jobConfigId: jobA, recordKey: 'a-1', firstSeenRunId: run, lastUpdatedRunId: run })
       await seed({ jobConfigId: jobB, recordKey: 'b-1', firstSeenRunId: run, lastUpdatedRunId: run })
 
-      const res = await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobA.toHexString()}`).set('x-api-key', API_KEY).expect(200)
+      const res = await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobA.toHexString()}`).set('x-axios-key', API_KEY).expect(200)
       const body = res.body as ListBody
       expect(body.total).toBe(1)
       expect(body.items[0].recordKey).toBe('a-1')
@@ -121,7 +121,7 @@ describe('RawRecordController (e2e)', () => {
       await seed({ jobConfigId: job, recordKey: 'k-2', firstSeenRunId: run, lastUpdatedRunId: run, status: 'deleted', deletedInRunId: run })
 
       const deleted = (
-        await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${job.toHexString()}&status=deleted`).set('x-api-key', API_KEY).expect(200)
+        await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${job.toHexString()}&status=deleted`).set('x-axios-key', API_KEY).expect(200)
       ).body as ListBody
       expect(deleted.total).toBe(1)
       expect(deleted.items[0].recordKey).toBe('k-2')
@@ -134,7 +134,7 @@ describe('RawRecordController (e2e)', () => {
       await seed({ jobConfigId: job, recordKey: 'beta', firstSeenRunId: run, lastUpdatedRunId: run })
 
       const res = (
-        await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${job.toHexString()}&recordKey=alpha`).set('x-api-key', API_KEY).expect(200)
+        await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${job.toHexString()}&recordKey=alpha`).set('x-axios-key', API_KEY).expect(200)
       ).body as ListBody
       expect(res.total).toBe(1)
       expect(res.items[0].recordKey).toBe('alpha')
@@ -157,7 +157,7 @@ describe('RawRecordController (e2e)', () => {
       const res = (
         await request(app.getHttpServer())
           .get(`/raw-records?jobConfigId=${job.toHexString()}&runId=${runA.toHexString()}`)
-          .set('x-api-key', API_KEY)
+          .set('x-axios-key', API_KEY)
           .expect(200)
       ).body as ListBody
       expect(res.total).toBe(3)
@@ -172,14 +172,14 @@ describe('RawRecordController (e2e)', () => {
       }
 
       const page1 = (
-        await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${job.toHexString()}&page=1&pageSize=2`).set('x-api-key', API_KEY).expect(200)
+        await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${job.toHexString()}&page=1&pageSize=2`).set('x-axios-key', API_KEY).expect(200)
       ).body as ListBody
       expect(page1.items).toHaveLength(2)
       expect(page1.total).toBe(5)
       expect(page1.pageSize).toBe(2)
 
       const capped = (
-        await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${job.toHexString()}&pageSize=999`).set('x-api-key', API_KEY).expect(200)
+        await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${job.toHexString()}&pageSize=999`).set('x-axios-key', API_KEY).expect(200)
       ).body as ListBody
       expect(capped.pageSize).toBe(200)
     })
@@ -188,7 +188,7 @@ describe('RawRecordController (e2e)', () => {
       const job = new ObjectId()
       const run = new ObjectId()
       await seed({ jobConfigId: job, recordKey: 'k-1', firstSeenRunId: run, lastUpdatedRunId: run, payload: { huge: 'x'.repeat(100) } })
-      const res = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${job.toHexString()}`).set('x-api-key', API_KEY).expect(200))
+      const res = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${job.toHexString()}`).set('x-axios-key', API_KEY).expect(200))
         .body as ListBody
       expect(res.items[0]).not.toHaveProperty('payload')
     })
@@ -196,11 +196,11 @@ describe('RawRecordController (e2e)', () => {
 
   describe('GET /raw-records/:id', () => {
     it('returns 404 for a missing id', async () => {
-      await request(app.getHttpServer()).get(`/raw-records/${new ObjectId().toHexString()}`).set('x-api-key', API_KEY).expect(404)
+      await request(app.getHttpServer()).get(`/raw-records/${new ObjectId().toHexString()}`).set('x-axios-key', API_KEY).expect(404)
     })
 
     it('returns 400 for a malformed id', async () => {
-      await request(app.getHttpServer()).get('/raw-records/not-an-id').set('x-api-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get('/raw-records/not-an-id').set('x-axios-key', API_KEY).expect(400)
     })
 
     it('returns the full detail including payload', async () => {
@@ -215,7 +215,7 @@ describe('RawRecordController (e2e)', () => {
         version: 3,
       })
 
-      const res = await request(app.getHttpServer()).get(`/raw-records/${id.toHexString()}`).set('x-api-key', API_KEY).expect(200)
+      const res = await request(app.getHttpServer()).get(`/raw-records/${id.toHexString()}`).set('x-axios-key', API_KEY).expect(200)
       const body = res.body as DetailBody
       expect(body.id).toBe(id.toHexString())
       expect(body.recordKey).toBe('k-1')

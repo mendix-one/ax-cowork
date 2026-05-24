@@ -22,7 +22,13 @@
   },
   "error": {
     "notFound": "페이지를 찾을 수 없습니다",
-    "generic": "오류가 발생했습니다"
+    "generic": "오류가 발생했습니다",
+    "systemErrorTitle": "시스템 오류",
+    "systemErrorSubtitle": "서비스에 연결할 수 없습니다. 잠시 후 다시 시도해 주세요.",
+    "systemExceptionTitle": "예기치 않은 오류",
+    "systemExceptionSubtitle": "페이지를 불러오는 중 문제가 발생했습니다.",
+    "accessDeniedTitle": "접근이 거부되었습니다",
+    "accessDeniedSubtitle": "이 페이지를 볼 수 있는 권한이 없습니다."
   },
   "lang": {
     "en": "EN",

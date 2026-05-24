@@ -23,7 +23,7 @@ export const AccountModal = observer(() => {
       open={ui.accountModalOpen}
       onCancel={() => ui.closeAccountModal()}
       footer={[
-        <Button key="signout" danger disabled={!account || auth.loading} loading={auth.loading} onClick={() => void handleSignOut()}>
+        <Button key="signout" danger disabled={!account || auth.isLoading} loading={auth.isLoading} onClick={() => void handleSignOut()}>
           {t('account.signOut')}
         </Button>,
         <Button key="close" type="primary" onClick={() => ui.closeAccountModal()}>
