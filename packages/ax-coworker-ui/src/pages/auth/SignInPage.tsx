@@ -4,6 +4,7 @@ import { Alert, Button, Form, Input, Typography } from 'antd'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import { useTranslation } from 'react-i18next'
 import { BusinessError } from '@/acore/axios'
+import { readNextFromSearch } from '@/acore/router/redirect-url'
 import { useStore } from '@/acore/store/store.context'
 
 const { Text } = Typography
@@ -20,6 +21,8 @@ type FormValues = {
   password: string
 }
 
+// Legacy `state.from` shape — kept as a fallback so older in-app navigations (anything still
+// passing `<Navigate state={{ from: '/x' }} />` rather than the `?next=` query) keep working.
 type LocationState = {
   from?: string
 } | null
@@ -36,7 +39,11 @@ export const SignInPage = observer(() => {
   // we don't double-surface them.
   const [credentialError, setCredentialError] = useState<string | null>(null)
 
-  const from = (location.state as LocationState)?.from ?? '/'
+  // Where to bounce after successful signin. Prefer the `?next=` query (survives reloads and
+  // can be set by anyone redirecting here), fall back to legacy `location.state.from`, then '/'.
+  const nextFromQuery = readNextFromSearch(location.search)
+  const nextFromState = (location.state as LocationState)?.from
+  const from = nextFromQuery !== '/' ? nextFromQuery : (nextFromState ?? '/')
 
   const onSubmit = async (values: FormValues) => {
     setCredentialError(null)
