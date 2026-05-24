@@ -39,8 +39,18 @@
     "signOut": "Sign out",
     "signedInAs": "Signed in as",
     "guest": "Guest",
+    "username": "Username",
+    "display": "Display name",
     "name": "Name",
-    "email": "Email"
+    "email": "Email",
+    "phone": "Phone",
+    "todo": "Coming soon",
+    "menu": {
+      "profile": "Account profile",
+      "setting": "Account setting",
+      "roles": "Application roles",
+      "session": "Active session"
+    }
   },
   "notify": {
     "title": "Notifications",

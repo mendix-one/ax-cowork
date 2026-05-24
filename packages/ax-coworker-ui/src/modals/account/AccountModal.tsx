@@ -1,16 +1,97 @@
-import { Avatar, Button, Descriptions, Flex, Modal, Typography } from 'antd'
+import { useEffect, useMemo } from 'react'
+import { Avatar, Button, Card, Flex, Menu, Modal, Typography } from 'antd'
+import type { MenuProps } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
 import { useStore } from '@/acore/store/store.context'
+import { AccountStore, type AccountMenuKey } from './store/account.store'
+import { AccountStoreContext, useAccountStore } from './store/account.context'
+import { AccountProfileView } from './views/AccountProfileView'
+import { AccountSettingView } from './views/AccountSettingView'
+import { ActiveSessionView } from './views/ActiveSessionView'
+import { ApplicationRolesView } from './views/ApplicationRolesView'
+
+// Modal vertical metrics. The body fills the remaining space after the title bar so the
+// modal occupies ~80% of the viewport regardless of screen height. ~56px is AntD's title
+// strip height — close enough; the body uses min-height-0 so any small rounding doesn't
+// produce a stray scrollbar on the modal shell itself.
+const MODAL_BODY_HEIGHT = 'calc(80vh - 56px)'
 
 export const AccountModal = observer(() => {
   const { app, auth } = useStore()
+
+  // Modal-local store — instantiated once and kept stable for the modal's lifetime.
+  // `destroyOnHidden` on <Modal> means the children unmount on close but `store` survives
+  // across opens; the sync effect below refreshes it on each open.
+  const store = useMemo(() => new AccountStore(), [])
+
+  // Sync auth's snapshot into the local store on every open. After signout / re-signin
+  // the modal reopens with fresh data without needing to manually reset.
+  useEffect(() => {
+    if (app.accountModalOpen) {
+      store.syncFromAuth(auth.currentAccount)
+    } else {
+      store.reset()
+    }
+  }, [app.accountModalOpen, auth.currentAccount, store])
+
   const { t } = useTranslation('app')
 
-  const account = auth.currentAccount
+  return (
+    <Modal
+      title={t('account.title')}
+      open={app.accountModalOpen}
+      onCancel={() => app.closeAccountModal()}
+      footer={null}
+      destroyOnHidden
+      centered
+      width={880}
+      // Body padding 0 so the two columns hug the modal edges; overflow hidden so the body
+      // shell itself never scrolls — the main view inside owns its scroll.
+      styles={{ body: { padding: 0, height: MODAL_BODY_HEIGHT, overflow: 'hidden' } }}
+    >
+      <AccountStoreContext.Provider value={store}>
+        <AccountModalBody />
+      </AccountStoreContext.Provider>
+    </Modal>
+  )
+})
+
+// Split into a child so observer() re-renders independently of the outer open observable
+// and can read the AccountStore context.
+const AccountModalBody = observer(() => {
+  const store = useAccountStore()
+
+  return (
+    <Flex gap={12} style={{ height: '100%' }}>
+      <AccountSidebar />
+      {/* Main view — only this region scrolls. */}
+      <div style={{ flex: 1, height: '100%', overflowY: 'auto' }}>
+        {store.activeMenu === 'profile' && <AccountProfileView />}
+        {store.activeMenu === 'setting' && <AccountSettingView />}
+        {store.activeMenu === 'roles' && <ApplicationRolesView />}
+        {store.activeMenu === 'session' && <ActiveSessionView />}
+      </div>
+    </Flex>
+  )
+})
+
+const AccountSidebar = observer(() => {
+  const { app, auth } = useStore()
+  const store = useAccountStore()
+  const { t } = useTranslation('app')
+
+  const account = store.account
   const display = account?.display ?? t('account.guest')
-  const email = account?.email ?? '—'
+  const username = account?.username ?? '—'
   const initial = (account?.display ?? 'G').charAt(0).toUpperCase()
+
+  const menuItems: MenuProps['items'] = [
+    { key: 'profile', label: t('account.menu.profile') },
+    { key: 'setting', label: t('account.menu.setting') },
+    { key: 'roles', label: t('account.menu.roles') },
+    { key: 'session', label: t('account.menu.session') },
+  ]
 
   const handleSignOut = async () => {
     await auth.signout()
@@ -18,36 +99,44 @@ export const AccountModal = observer(() => {
   }
 
   return (
-    <Modal
-      title={t('account.title')}
-      open={app.accountModalOpen}
-      onCancel={() => app.closeAccountModal()}
-      footer={[
-        <Button key="signout" danger disabled={!account || auth.isLoading} loading={auth.isLoading} onClick={() => void handleSignOut()}>
-          {t('account.signOut')}
-        </Button>,
-        <Button key="close" type="primary" onClick={() => app.closeAccountModal()}>
-          {t('account.close')}
-        </Button>,
-      ]}
-      destroyOnHidden
-      width={480}
+    <Card
+      variant="outlined"
+      style={{ width: 240, height: '100%', flexShrink: 0 }}
+      styles={{ body: { padding: 0, height: '100%', display: 'flex', flexDirection: 'column' } }}
     >
-      <Flex align="center" gap={16} style={{ marginTop: 8, marginBottom: 16 }}>
-        <Avatar size={56} src={account?.avatar}>
+      {/* Header — compact: avatar on the left, display + @username stacked on the right. */}
+      <Flex align="center" gap={12} style={{ padding: 12 }}>
+        <Avatar size={40} src={account?.avatar}>
           {initial}
         </Avatar>
-        <Flex vertical>
-          <Typography.Text type="secondary">{t('account.signedInAs')}</Typography.Text>
-          <Typography.Title level={5} style={{ margin: 0 }}>
+        <Flex vertical style={{ minWidth: 0, flex: 1 }}>
+          <Typography.Text strong ellipsis>
             {display}
-          </Typography.Title>
+          </Typography.Text>
+          <Typography.Text type="secondary" style={{ fontSize: 12 }} ellipsis>
+            @{username}
+          </Typography.Text>
         </Flex>
       </Flex>
-      <Descriptions column={1} size="small" bordered>
-        <Descriptions.Item label={t('account.name')}>{display}</Descriptions.Item>
-        <Descriptions.Item label={t('account.email')}>{email}</Descriptions.Item>
-      </Descriptions>
-    </Modal>
+
+      {/* Action menu — sidebar has no scroll; menu fills available space and pushes the signout
+          button down naturally via flex layout. */}
+      <div style={{ flex: 1, minHeight: 0 }}>
+        <Menu
+          mode="inline"
+          selectedKeys={[store.activeMenu]}
+          items={menuItems}
+          onClick={({ key }) => store.setActiveMenu(key as AccountMenuKey)}
+          style={{ background: 'transparent', borderInlineEnd: 'none' }}
+        />
+      </div>
+
+      {/* Sign out — fixed at the bottom of the sidebar. */}
+      <div style={{ padding: 12 }}>
+        <Button block danger disabled={!account || auth.isLoading} loading={auth.isLoading} onClick={() => void handleSignOut()}>
+          {t('account.signOut')}
+        </Button>
+      </div>
+    </Card>
   )
 })
