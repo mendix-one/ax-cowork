@@ -5,6 +5,8 @@ FROM node:24-alpine
 WORKDIR /app
 
 COPY ./deploy/out/sso/ ./
+COPY ./deploy/out/sso/dist ./dist
+COPY ./deploy/out/sso/node_modules ./node_modules
 RUN pwd
 RUN ls -a
 
