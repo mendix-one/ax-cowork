@@ -7,7 +7,7 @@ PORT=15000
 
 # SSO upstream the BE talks to. The compose-network hostname `amz-cowork-sso` resolves
 # to the sso container when both run on the same docker-compose network.
-SSO_BASE_URL=http://amz-cowork-sso:3001
+SSO_BASE_URL=http://10.0.0.20:15501
 SSO_APP_KEY=APLANNER
 
 # Must appear in the sso service's API_KEYS list. Keep in sync with deploy/.env.sso.
