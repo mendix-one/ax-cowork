@@ -2,7 +2,11 @@ import { makeAutoObservable } from 'mobx'
 
 export type ThemeMode = 'light' | 'dark'
 
-export class UiStore {
+// App-wide store: owns layout/UI state (theme, modals, error queue) and any global app-level
+// actions/state that don't belong to a specific domain store (auth, documents, etc.). When
+// adding a new piece of state, ask: "is this scoped to a feature?" — if yes, add to that
+// feature's domain store instead. AppStore stays the catch-all for *truly* app-global concerns.
+export class AppStore {
   theme: ThemeMode = 'light'
   errors: string[] = []
   settingModalOpen = false

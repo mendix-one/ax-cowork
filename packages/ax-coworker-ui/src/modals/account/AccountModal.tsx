@@ -4,7 +4,7 @@ import { useTranslation } from 'react-i18next'
 import { useStore } from '@/acore/store/store.context'
 
 export const AccountModal = observer(() => {
-  const { ui, auth } = useStore()
+  const { app, auth } = useStore()
   const { t } = useTranslation('app')
 
   const account = auth.currentAccount
@@ -14,19 +14,19 @@ export const AccountModal = observer(() => {
 
   const handleSignOut = async () => {
     await auth.signout()
-    ui.closeAccountModal()
+    app.closeAccountModal()
   }
 
   return (
     <Modal
       title={t('account.title')}
-      open={ui.accountModalOpen}
-      onCancel={() => ui.closeAccountModal()}
+      open={app.accountModalOpen}
+      onCancel={() => app.closeAccountModal()}
       footer={[
         <Button key="signout" danger disabled={!account || auth.isLoading} loading={auth.isLoading} onClick={() => void handleSignOut()}>
           {t('account.signOut')}
         </Button>,
-        <Button key="close" type="primary" onClick={() => ui.closeAccountModal()}>
+        <Button key="close" type="primary" onClick={() => app.closeAccountModal()}>
           {t('account.close')}
         </Button>,
       ]}

@@ -9,7 +9,7 @@ import { useSimulationContext } from '../store/simulation.context'
 
 export const SimulationLayoutTop = observer(() => {
   const { t } = useTranslation('app')
-  const { ui } = useStore()
+  const { app } = useStore()
   const simulation = useSimulationContext()
   const line = simulation.activeProductionLine
   const plan = simulation.activeSimulationPlan
@@ -55,22 +55,22 @@ export const SimulationLayoutTop = observer(() => {
               icon="mdiBellOutline"
               title={t('tooltip.notification')}
               placement="bottom"
-              isActive={ui.notifyModalOpen}
-              onClick={() => ui.openNotifyModal()}
+              isActive={app.notifyModalOpen}
+              onClick={() => app.openNotifyModal()}
             />
             <AxMenuIcon
               icon="mdiAccountCircleOutline"
               title={t('tooltip.userAccount')}
               placement="bottomRight"
-              isActive={ui.accountModalOpen}
-              onClick={() => ui.openAccountModal()}
+              isActive={app.accountModalOpen}
+              onClick={() => app.openAccountModal()}
             />
             <AxMenuIcon
               icon="mdiCogOutline"
               title={t('tooltip.systemSettings')}
               placement="bottomRight"
-              isActive={ui.settingModalOpen}
-              onClick={() => ui.openSettingModal()}
+              isActive={app.settingModalOpen}
+              onClick={() => app.openSettingModal()}
             />
           </Space>
         </Flex>

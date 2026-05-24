@@ -8,61 +8,61 @@ import type { AppType } from '../../../acore/database/schemas/app.schema'
 // Mirrors `SessionApp` (embedded subdocument) — the snapshot pinned at session initialize.
 export class SessionInfoAppDto {
   @ApiProperty({ description: 'Stable UUIDv7 of the app.' })
-  uuid!: string
+    uuid!: string
 
   @ApiProperty({ description: 'App key (matches `App.key`).' })
-  key!: string
+    key!: string
 
   @ApiProperty({ enum: APP_TYPES })
-  type!: AppType
+    type!: AppType
 
   @ApiProperty()
-  name!: string
+    name!: string
 
   @ApiProperty({ required: false })
-  description?: string
+    description?: string
 
   @ApiProperty({ required: false })
-  avatar?: string
+    avatar?: string
 }
 
 // Mirrors `SessionAccount` (embedded subdocument). Absent when the session is anonymous.
 export class SessionInfoAccountDto {
   @ApiProperty({ description: 'Stable UUIDv7 of the account.' })
-  uuid!: string
+    uuid!: string
 
   @ApiProperty()
-  username!: string
+    username!: string
 
   @ApiProperty()
-  display!: string
+    display!: string
 
   @ApiProperty()
-  email!: string
+    email!: string
 
   @ApiProperty({ required: false })
-  avatar?: string
+    avatar?: string
 
   @ApiProperty({ required: false })
-  phone?: string
+    phone?: string
 }
 
 export class SessionInfoResDto {
   @ApiProperty({ description: 'Stable UUIDv7 of the session.' })
-  uuid!: string
+    uuid!: string
 
   @ApiProperty({ type: SessionInfoAppDto, description: 'Snapshot of the target app captured at session creation.' })
-  app!: SessionInfoAppDto
+    app!: SessionInfoAppDto
 
   @ApiProperty({ type: SessionInfoAccountDto, required: false, description: 'Snapshot of the account attached to the session. Absent on anonymous sessions.' })
-  account?: SessionInfoAccountDto
+    account?: SessionInfoAccountDto
 
   @ApiProperty({ enum: ACCOUNT_STATUSES, required: false, description: 'Account status (mirrors `account.status`). Absent on anonymous sessions.' })
-  status?: AccountStatus
+    status?: AccountStatus
 
   @ApiProperty({ type: [String], description: 'Role keys granted to the account within the target app. Empty on anonymous sessions.' })
-  roles!: string[]
+    roles!: string[]
 
   @ApiProperty({ description: 'When this session expires.' })
-  expiresAt!: Date
+    expiresAt!: Date
 }

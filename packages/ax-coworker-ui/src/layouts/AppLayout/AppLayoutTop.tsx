@@ -11,7 +11,7 @@ import { AxDocItem } from '@/shared/doc-item/AxDocItem.tsx'
 export const AppLayoutTop = observer(() => {
   const { t } = useTranslation('app')
   const navigate = useNavigate()
-  const { ui } = useStore()
+  const { app } = useStore()
   return (
     <Layout.Header className="ax-layout-top">
       <Flex align="center" justify="space-between" gap="small" style={{ height: '100%' }}>
@@ -51,22 +51,22 @@ export const AppLayoutTop = observer(() => {
               icon="mdiBellOutline"
               title={t('tooltip.notification')}
               placement="bottom"
-              isActive={ui.notifyModalOpen}
-              onClick={() => ui.openNotifyModal()}
+              isActive={app.notifyModalOpen}
+              onClick={() => app.openNotifyModal()}
             />
             <AxMenuIcon
               icon="mdiAccountCircleOutline"
               title={t('tooltip.userAccount')}
               placement="bottomRight"
-              isActive={ui.accountModalOpen}
-              onClick={() => ui.openAccountModal()}
+              isActive={app.accountModalOpen}
+              onClick={() => app.openAccountModal()}
             />
             <AxMenuIcon
               icon="mdiCogOutline"
               title={t('tooltip.systemSettings')}
               placement="bottomRight"
-              isActive={ui.settingModalOpen}
-              onClick={() => ui.openSettingModal()}
+              isActive={app.settingModalOpen}
+              onClick={() => app.openSettingModal()}
             />
           </Space>
         </Flex>

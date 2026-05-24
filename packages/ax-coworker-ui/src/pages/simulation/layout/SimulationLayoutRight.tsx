@@ -21,7 +21,7 @@ const SUB_MENU_ITEMS: SubMenuItem[] = [
 
 export const SimulationLayoutRight = observer(() => {
   const { t } = useTranslation('app')
-  const { ui } = useStore()
+  const { app } = useStore()
   const simulation = useSimulationContext()
   const rightVisible = !simulation.isHidden('regionRight')
   const active = simulation.activeSubPanel
@@ -48,15 +48,15 @@ export const SimulationLayoutRight = observer(() => {
               icon="mdiFaceAgent"
               title={t('tooltip.support')}
               placement="left"
-              isActive={ui.supportModalOpen}
-              onClick={() => ui.openSupportModal()}
+              isActive={app.supportModalOpen}
+              onClick={() => app.openSupportModal()}
             />
             <AxMenuIcon
               icon="mdiInformationSlabCircleOutline"
               title={t('tooltip.guides')}
               placement="left"
-              isActive={ui.guidesModalOpen}
-              onClick={() => ui.openGuidesModal()}
+              isActive={app.guidesModalOpen}
+              onClick={() => app.openGuidesModal()}
             />
           </Space>
         </Flex>

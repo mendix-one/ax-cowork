@@ -4,16 +4,16 @@ import { useTranslation } from 'react-i18next'
 import { useStore } from '@/acore/store/store.context'
 
 export const SupportModal = observer(() => {
-  const { ui } = useStore()
+  const { app } = useStore()
   const { t } = useTranslation('app')
 
   return (
     <Modal
       title={t('support.title')}
-      open={ui.supportModalOpen}
-      onCancel={() => ui.closeSupportModal()}
+      open={app.supportModalOpen}
+      onCancel={() => app.closeSupportModal()}
       footer={[
-        <Button key="close" type="primary" onClick={() => ui.closeSupportModal()}>
+        <Button key="close" type="primary" onClick={() => app.closeSupportModal()}>
           {t('support.close')}
         </Button>,
       ]}

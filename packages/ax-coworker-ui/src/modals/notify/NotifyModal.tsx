@@ -4,19 +4,19 @@ import { useTranslation } from 'react-i18next'
 import { useStore } from '@/acore/store/store.context'
 
 export const NotifyModal = observer(() => {
-  const { ui } = useStore()
+  const { app } = useStore()
   const { t } = useTranslation('app')
 
   return (
     <Modal
       title={t('notify.title')}
-      open={ui.notifyModalOpen}
-      onCancel={() => ui.closeNotifyModal()}
+      open={app.notifyModalOpen}
+      onCancel={() => app.closeNotifyModal()}
       footer={[
         <Button key="mark" disabled>
           {t('notify.markAllRead')}
         </Button>,
-        <Button key="close" type="primary" onClick={() => ui.closeNotifyModal()}>
+        <Button key="close" type="primary" onClick={() => app.closeNotifyModal()}>
           {t('notify.close')}
         </Button>,
       ]}
