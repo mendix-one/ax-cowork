@@ -3,7 +3,8 @@ import { Test } from '@nestjs/testing'
 
 import { Session } from '../../../src/acore/database/schemas/session.schema'
 import { Token } from '../../../src/acore/database/schemas/token.schema'
-import { SignoutService } from '../../../src/services/signout/signout.service'
+import { BusinessException } from '../../../src/acore/exception'
+import { SIGNOUT_ERR_NOT_SIGNED_IN, SIGNOUT_ERR_SESSION_NOT_FOUND, SignoutService } from '../../../src/services/signout/signout.service'
 
 function chain<T>(resolved: T) {
   const exec = jest.fn().mockResolvedValue(resolved)
@@ -52,27 +53,27 @@ describe('SignoutService', () => {
     expect(result).toEqual({ statusCode: 200, message: 'Signed out successfully' })
   })
 
-  it('returns a 400 payload (and skips writes) when no session matches', async () => {
+  it('throws BusinessException(code=1) and skips writes when no session matches', async () => {
     const sessionModel = mockSessionModel(null)
     const tokenModel = mockTokenModel()
     const service = await buildService(sessionModel, tokenModel)
 
-    const result = await service.signout('unknown-uuid')
-
-    expect(result).toEqual({ statusCode: 400, message: 'Session not found' })
+    const promise = service.signout('unknown-uuid')
+    await expect(promise).rejects.toBeInstanceOf(BusinessException)
+    await expect(promise).rejects.toMatchObject({ code: SIGNOUT_ERR_SESSION_NOT_FOUND, error: 'Session not found' })
     expect(sessionModel.updateOne).not.toHaveBeenCalled()
     expect(tokenModel.deleteMany).not.toHaveBeenCalled()
   })
 
-  it('returns a 400 payload (and skips writes) when the session has no account attached', async () => {
+  it('throws BusinessException(code=2) and skips writes when the session has no account attached', async () => {
     // Session exists but never signed in — signout is a no-op against an anonymous session.
     const sessionModel = mockSessionModel({})
     const tokenModel = mockTokenModel()
     const service = await buildService(sessionModel, tokenModel)
 
-    const result = await service.signout('anon-session-uuid')
-
-    expect(result).toEqual({ statusCode: 400, message: 'Session is not signed in' })
+    const promise = service.signout('anon-session-uuid')
+    await expect(promise).rejects.toBeInstanceOf(BusinessException)
+    await expect(promise).rejects.toMatchObject({ code: SIGNOUT_ERR_NOT_SIGNED_IN, error: 'Session is not signed in' })
     expect(sessionModel.updateOne).not.toHaveBeenCalled()
     expect(tokenModel.deleteMany).not.toHaveBeenCalled()
   })

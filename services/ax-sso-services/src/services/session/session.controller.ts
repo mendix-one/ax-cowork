@@ -8,7 +8,7 @@ import { SessionService } from './session.service'
 
 @ApiTags('Auth')
 @ApiSecurity('ax-api-key')
-@Controller('session')
+@Controller()
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}
 
@@ -28,9 +28,8 @@ export class SessionController {
     return this.sessionService.initialize(appKey)
   }
 
-  @Get()
+  @Get('session')
   @ApiBearerAuth()
-  // sign:false — any valid session bearer is accepted (anonymous or signed-in).
   @SecurityCheck({ sign: false })
   @ApiOperation({
     summary: 'Read current session info',

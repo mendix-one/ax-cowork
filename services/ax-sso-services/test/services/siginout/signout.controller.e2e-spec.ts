@@ -65,7 +65,7 @@ describe('SignoutController (e2e)', () => {
   })
 
   async function initializeAndSignin(): Promise<{ signedInToken: string; sessionUuid: string }> {
-    const init = await request(app.getHttpServer()).post('/session/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
+    const init = await request(app.getHttpServer()).post('/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
     const initBody = init.body as { token: string; uuid: string }
     const signin = await request(app.getHttpServer())
       .post('/signin')
@@ -112,20 +112,22 @@ describe('SignoutController (e2e)', () => {
     expect(await tokenModel.find({ session: sessionUuid }).lean().exec()).toHaveLength(0)
   })
 
-  it('returns HTTP 200 with a 400 payload when the session was already removed out-of-band', async () => {
+  it('returns 200 with BusinessException envelope (code=1) when the session was already removed out-of-band', async () => {
     const { signedInToken, sessionUuid } = await initializeAndSignin()
     await sessionModel.deleteOne({ uuid: sessionUuid }).exec()
 
     const res = await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${signedInToken}`).expect(200)
-    expect(res.body).toEqual({ statusCode: 400, message: 'Session not found' })
+    expect(res.headers.code).toBe('1')
+    expect(res.body).toEqual({ code: 1, error: 'Session not found' })
   })
 
-  it('returns HTTP 200 with a 400 payload on a second signout (session is already anonymous)', async () => {
+  it('returns 200 with BusinessException envelope (code=2) on a second signout (session is already anonymous)', async () => {
     const { signedInToken } = await initializeAndSignin()
     await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${signedInToken}`).expect(200)
 
     // Second signout — same bearer, but the session no longer carries an account.
     const res = await request(app.getHttpServer()).post('/signout').set(API_KEY_HEADER, API_KEY).set('Authorization', `Bearer ${signedInToken}`).expect(200)
-    expect(res.body).toEqual({ statusCode: 400, message: 'Session is not signed in' })
+    expect(res.headers.code).toBe('2')
+    expect(res.body).toEqual({ code: 2, error: 'Session is not signed in' })
   })
 })

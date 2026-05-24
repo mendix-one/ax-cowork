@@ -72,7 +72,7 @@ describe('GraphQL — manage (e2e)', () => {
 
   async function signinAs(username: string): Promise<string> {
     // New flow: initialize anonymous session first, then attach an account via /signin.
-    const init = await request(app.getHttpServer()).post('/session/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
+    const init = await request(app.getHttpServer()).post('/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
     const initBody = init.body as { token: string }
     const res = await request(app.getHttpServer())
       .post('/signin')

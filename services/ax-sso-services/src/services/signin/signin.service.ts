@@ -9,7 +9,12 @@ import { AccountRole } from '../../acore/database/schemas/account-role.schema'
 import { App } from '../../acore/database/schemas/app.schema'
 import { Session } from '../../acore/database/schemas/session.schema'
 import { Token } from '../../acore/database/schemas/token.schema'
+import { BusinessException } from '../../acore/exception'
 import { SigninResDto } from './dto/signin.res-dto'
+
+// Business-error codes surfaced by signin. Stable contract for clients to branch on.
+export const SIGNIN_ERR_INVALID_CREDENTIALS = 1
+export const SIGNIN_ERR_ACCOUNT_NOT_ACTIVE = 2
 
 // Signin runs against an already-initialized anonymous session: it attaches an
 // account to that session rather than creating a new row. Expiry is extended to
@@ -46,20 +51,21 @@ export class SigninService {
     // 3. Resolve the account by username.
     const account = await this.accountModel.findOne({ username }).lean().exec()
     if (!account) {
-      // Same message as the wrong-password branch below so callers can't enumerate usernames.
-      throw new UnauthorizedException('Invalid credentials')
+      // Same code + message as the wrong-password branch below so callers can't enumerate usernames.
+      throw new BusinessException(SIGNIN_ERR_INVALID_CREDENTIALS, 'Invalid credentials')
     }
 
     // 4. Verify the supplied password matches the stored bcrypt hash.
     const passwordMatched = await compare(password, account.passwordHash)
     if (!passwordMatched) {
-      throw new UnauthorizedException('Invalid credentials')
+      throw new BusinessException(SIGNIN_ERR_INVALID_CREDENTIALS, 'Invalid credentials')
     }
 
-    // 5. Only `ACTIVE` accounts may sign in — `LOCKED` and `CLOSED` block here with a distinct message
-    //    (safe because the caller has already proven they know the password).
+    // 5. Only `ACTIVE` accounts may sign in — `LOCKED` and `CLOSED` block here with a distinct code
+    //    (safe because the caller has already proven they know the password). `status` is included
+    //    as detail so the client can render a tailored message ("locked"/"closed").
     if (account.status !== 'ACTIVE') {
-      throw new UnauthorizedException('Account is not active')
+      throw new BusinessException(SIGNIN_ERR_ACCOUNT_NOT_ACTIVE, 'Account is not active', { status: account.status })
     }
 
     // 6. Resolve granted roles for (account, app). Empty array is allowed — the account simply has no roles for this app.

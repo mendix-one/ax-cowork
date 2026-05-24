@@ -68,7 +68,7 @@ describe('TokenController (e2e)', () => {
   })
 
   async function initializeSession(): Promise<{ token: string; uuid: string }> {
-    const res = await request(app.getHttpServer()).post('/session/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
+    const res = await request(app.getHttpServer()).post('/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
     return res.body as { token: string; uuid: string }
   }
 
@@ -141,7 +141,7 @@ describe('TokenController (e2e)', () => {
     expect(persisted?.expiresAt?.getTime()).toBe(sessionRow!.expiresAt.getTime())
   })
 
-  it('anonymous bearer (from /session/initialize): issues a token with NO sub/sta and empty roles', async () => {
+  it('anonymous bearer (from /initialize): issues a token with NO sub/sta and empty roles', async () => {
     const { token, uuid } = await initializeSession()
 
     const res = await request(app.getHttpServer())

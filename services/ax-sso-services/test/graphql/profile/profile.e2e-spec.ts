@@ -60,7 +60,7 @@ describe('GraphQL — profile (e2e)', () => {
   })
 
   async function initializeAndSignin(): Promise<{ token: string; accountUuid: string; sessionUuid: string }> {
-    const init = await request(app.getHttpServer()).post('/session/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
+    const init = await request(app.getHttpServer()).post('/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
     const initBody = init.body as { token: string }
     const res = await request(app.getHttpServer())
       .post('/signin')

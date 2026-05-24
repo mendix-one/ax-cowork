@@ -52,24 +52,24 @@ describe('SessionController (e2e)', () => {
   })
 
   // ---------------------------------------------------------------------------
-  // POST /session/initialize
+  // POST /initialize
   // ---------------------------------------------------------------------------
 
-  describe('POST /session/initialize', () => {
+  describe('POST /initialize', () => {
     it('rejects requests without the API key', async () => {
-      await request(app.getHttpServer()).post('/session/initialize').set(APP_KEY_HEADER, APP_KEY).expect(401)
+      await request(app.getHttpServer()).post('/initialize').set(APP_KEY_HEADER, APP_KEY).expect(401)
     })
 
     it('rejects requests without the ax-app-key header with 400', async () => {
-      await request(app.getHttpServer()).post('/session/initialize').set(API_KEY_HEADER, API_KEY).expect(400)
+      await request(app.getHttpServer()).post('/initialize').set(API_KEY_HEADER, API_KEY).expect(400)
     })
 
     it('rejects unknown apps with 401', async () => {
-      await request(app.getHttpServer()).post('/session/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, 'NOPE').expect(401)
+      await request(app.getHttpServer()).post('/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, 'NOPE').expect(401)
     })
 
     it('returns { uuid, token, app, expiresAt } and persists an anonymous session', async () => {
-      const res = await request(app.getHttpServer()).post('/session/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
+      const res = await request(app.getHttpServer()).post('/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
 
       const body = res.body as { uuid: string; token: string; app: { uuid: string; key: string; type: string; name: string }; expiresAt: string }
       expect(body.uuid).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i)
@@ -103,7 +103,7 @@ describe('SessionController (e2e)', () => {
 
   describe('GET /session', () => {
     async function initialize(): Promise<{ token: string; uuid: string }> {
-      const res = await request(app.getHttpServer()).post('/session/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
+      const res = await request(app.getHttpServer()).post('/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, APP_KEY).expect(201)
       return res.body as { token: string; uuid: string }
     }
 

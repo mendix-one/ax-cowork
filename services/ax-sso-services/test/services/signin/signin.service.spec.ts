@@ -10,7 +10,8 @@ import { AccountRole } from '../../../src/acore/database/schemas/account-role.sc
 import { App } from '../../../src/acore/database/schemas/app.schema'
 import { Session } from '../../../src/acore/database/schemas/session.schema'
 import { Token } from '../../../src/acore/database/schemas/token.schema'
-import { SigninService } from '../../../src/services/signin/signin.service'
+import { BusinessException } from '../../../src/acore/exception'
+import { SIGNIN_ERR_ACCOUNT_NOT_ACTIVE, SIGNIN_ERR_INVALID_CREDENTIALS, SigninService } from '../../../src/services/signin/signin.service'
 
 const APP_KEY = 'SSO'
 const SESSION_UUID = '0190a1b2-c3d4-7e5f-8901-session00000'
@@ -151,17 +152,8 @@ describe('SigninService', () => {
     const accountModel = mockAccountModel(baseAccount({ passwordHash }))
     const { service } = await buildService(accountModel, sessionModel)
 
-    await expect(service.signin(APP_KEY, SESSION_UUID, username, password)).rejects.toBeInstanceOf(UnauthorizedException)
+    await expect(service.signin(SESSION_UUID, username, password)).rejects.toBeInstanceOf(UnauthorizedException)
     // Downstream lookups never run — bail before app/account resolution.
-    expect(accountModel.findOne).not.toHaveBeenCalled()
-  })
-
-  it('throws UnauthorizedException when the session belongs to a different app', async () => {
-    const sessionModel = mockSessionModel(anonymousSession({ app: { key: 'OTHER_APP' } }))
-    const accountModel = mockAccountModel(baseAccount({ passwordHash }))
-    const { service } = await buildService(accountModel, sessionModel)
-
-    await expect(service.signin(APP_KEY, SESSION_UUID, username, password)).rejects.toBeInstanceOf(UnauthorizedException)
     expect(accountModel.findOne).not.toHaveBeenCalled()
   })
 
@@ -171,38 +163,44 @@ describe('SigninService', () => {
     const appModel = mockAppModel(null)
     const { service } = await buildService(accountModel, sessionModel, mockTokenModel(), mockJwtService(), appModel)
 
-    await expect(service.signin(APP_KEY, SESSION_UUID, username, password)).rejects.toBeInstanceOf(UnauthorizedException)
+    await expect(service.signin(SESSION_UUID, username, password)).rejects.toBeInstanceOf(UnauthorizedException)
   })
 
-  it('throws UnauthorizedException when the account does not exist', async () => {
+  it('throws BusinessException(code=1) when the account does not exist', async () => {
     const sessionModel = mockSessionModel()
     const accountModel = mockAccountModel(null)
     const accountRoleModel = mockAccountRoleModel()
     const { service } = await buildService(accountModel, sessionModel, mockTokenModel(), mockJwtService(), mockAppModel(), accountRoleModel)
 
-    await expect(service.signin(APP_KEY, SESSION_UUID, username, password)).rejects.toBeInstanceOf(UnauthorizedException)
+    const promise = service.signin(SESSION_UUID, username, password)
+    await expect(promise).rejects.toBeInstanceOf(BusinessException)
+    await expect(promise).rejects.toMatchObject({ code: SIGNIN_ERR_INVALID_CREDENTIALS, error: 'Invalid credentials' })
     // Role lookup and session update must not run when the account is missing.
     expect(accountRoleModel.find).not.toHaveBeenCalled()
     expect(sessionModel.updateOne).not.toHaveBeenCalled()
   })
 
-  it('throws UnauthorizedException on password mismatch', async () => {
+  it('throws BusinessException(code=1) on password mismatch', async () => {
     const sessionModel = mockSessionModel()
     const accountModel = mockAccountModel(baseAccount({ passwordHash }))
     const accountRoleModel = mockAccountRoleModel()
     const { service } = await buildService(accountModel, sessionModel, mockTokenModel(), mockJwtService(), mockAppModel(), accountRoleModel)
 
-    await expect(service.signin(APP_KEY, SESSION_UUID, username, 'wrong password')).rejects.toBeInstanceOf(UnauthorizedException)
+    const promise = service.signin(SESSION_UUID, username, 'wrong password')
+    await expect(promise).rejects.toBeInstanceOf(BusinessException)
+    await expect(promise).rejects.toMatchObject({ code: SIGNIN_ERR_INVALID_CREDENTIALS, error: 'Invalid credentials' })
     expect(accountRoleModel.find).not.toHaveBeenCalled()
     expect(sessionModel.updateOne).not.toHaveBeenCalled()
   })
 
-  it.each(['LOCKED', 'CLOSED'] as const)('throws UnauthorizedException when the account status is %s', async (status) => {
+  it.each(['LOCKED', 'CLOSED'] as const)('throws BusinessException(code=2) when the account status is %s', async (status) => {
     const sessionModel = mockSessionModel()
     const accountModel = mockAccountModel(baseAccount({ passwordHash, status }))
     const { service } = await buildService(accountModel, sessionModel)
 
-    await expect(service.signin(APP_KEY, SESSION_UUID, username, password)).rejects.toBeInstanceOf(UnauthorizedException)
+    const promise = service.signin(SESSION_UUID, username, password)
+    await expect(promise).rejects.toBeInstanceOf(BusinessException)
+    await expect(promise).rejects.toMatchObject({ code: SIGNIN_ERR_ACCOUNT_NOT_ACTIVE, error: 'Account is not active', data: { status } })
     expect(sessionModel.updateOne).not.toHaveBeenCalled()
   })
 
@@ -213,7 +211,7 @@ describe('SigninService', () => {
     const { service, jwt, tokenModel } = await buildService(accountModel, sessionModel, mockTokenModel(), mockJwtService(), mockAppModel(), accountRoleModel)
 
     const before = Date.now()
-    const result = await service.signin(APP_KEY, SESSION_UUID, username, password)
+    const result = await service.signin(SESSION_UUID, username, password)
     const after = Date.now()
 
     // Role lookup keyed by (account.uuid, app.key).
@@ -257,7 +255,7 @@ describe('SigninService', () => {
     const accountRoleModel = mockAccountRoleModel(['VIEWER'])
     const { service, tokenModel } = await buildService(accountModel, sessionModel, mockTokenModel(), mockJwtService(), mockAppModel(), accountRoleModel)
 
-    await service.signin(APP_KEY, SESSION_UUID, username, password)
+    await service.signin(SESSION_UUID, username, password)
 
     // Two updateOne calls: first to $unset the old account, second to $set the new one.
     expect(sessionModel.updateOne).toHaveBeenCalledTimes(2)
@@ -276,7 +274,7 @@ describe('SigninService', () => {
     const accountRoleModel = mockAccountRoleModel(['ADMIN'])
     const { service, tokenModel } = await buildService(accountModel, sessionModel, mockTokenModel(), mockJwtService(), mockAppModel(), accountRoleModel)
 
-    await service.signin(APP_KEY, SESSION_UUID, username, password)
+    await service.signin(SESSION_UUID, username, password)
 
     // Only the single $set updateOne (no $unset for same-account re-signin).
     expect(sessionModel.updateOne).toHaveBeenCalledTimes(1)
@@ -289,7 +287,7 @@ describe('SigninService', () => {
     const accountRoleModel = mockAccountRoleModel([])
     const { service, jwt } = await buildService(accountModel, sessionModel, mockTokenModel(), mockJwtService(), mockAppModel(), accountRoleModel)
 
-    const result = await service.signin(APP_KEY, SESSION_UUID, username, password)
+    const result = await service.signin(SESSION_UUID, username, password)
     expect(result.roles).toEqual([])
     expect(jwt.signAsync).toHaveBeenCalledWith(expect.objectContaining({ roles: [] }), expect.any(Object))
   })

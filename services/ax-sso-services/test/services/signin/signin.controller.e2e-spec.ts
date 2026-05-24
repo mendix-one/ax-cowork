@@ -69,9 +69,9 @@ describe('SigninController (e2e)', () => {
     await accountRoleModel.create({ account: seeded.uuid, app: APP_KEY, role: 'ADMIN' })
   })
 
-  // Helper: bootstrap an anonymous session via /session/initialize and return its bearer.
+  // Helper: bootstrap an anonymous session via /initialize and return its bearer.
   async function initializeSession(appKey: string = APP_KEY): Promise<{ token: string; uuid: string }> {
-    const res = await request(app.getHttpServer()).post('/session/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, appKey).expect(201)
+    const res = await request(app.getHttpServer()).post('/initialize').set(API_KEY_HEADER, API_KEY).set(APP_KEY_HEADER, appKey).expect(201)
     const body = res.body as { token: string; uuid: string }
     return body
   }
@@ -104,24 +104,43 @@ describe('SigninController (e2e)', () => {
       .expect(400)
   })
 
-  it('rejects unknown accounts with 401', async () => {
+  it('returns 200 with BusinessException envelope (code=1) for unknown accounts', async () => {
     const { token } = await initializeSession()
-    await request(app.getHttpServer())
+    const res = await request(app.getHttpServer())
       .post('/signin')
       .set(API_KEY_HEADER, API_KEY)
       .set('Authorization', `Bearer ${token}`)
       .send({ username: 'nobody', password: PASSWORD })
-      .expect(401)
+      .expect(200)
+    expect(res.headers.code).toBe('1')
+    expect(res.body).toEqual({ code: 1, error: 'Invalid credentials' })
   })
 
-  it('rejects wrong passwords with 401', async () => {
+  it('returns 200 with BusinessException envelope (code=1) for wrong passwords', async () => {
     const { token } = await initializeSession()
-    await request(app.getHttpServer())
+    const res = await request(app.getHttpServer())
       .post('/signin')
       .set(API_KEY_HEADER, API_KEY)
       .set('Authorization', `Bearer ${token}`)
       .send({ username: USERNAME, password: 'wrong' })
-      .expect(401)
+      .expect(200)
+    expect(res.headers.code).toBe('1')
+    expect(res.body).toEqual({ code: 1, error: 'Invalid credentials' })
+  })
+
+  it('returns 200 with BusinessException envelope (code=2) when the account is not active', async () => {
+    // Lock the seeded account so signin hits the status gate.
+    await accountModel.updateOne({ username: USERNAME }, { $set: { status: 'LOCKED' } }).exec()
+    const { token } = await initializeSession()
+
+    const res = await request(app.getHttpServer())
+      .post('/signin')
+      .set(API_KEY_HEADER, API_KEY)
+      .set('Authorization', `Bearer ${token}`)
+      .send({ username: USERNAME, password: PASSWORD })
+      .expect(200)
+    expect(res.headers.code).toBe('2')
+    expect(res.body).toEqual({ code: 2, error: 'Account is not active', data: { status: 'LOCKED' } })
   })
 
   it('returns { uuid, token, account, app, roles } on valid credentials and attaches the account to the existing session', async () => {
