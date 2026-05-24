@@ -11,50 +11,50 @@ export type CronjobStatus = (typeof CRONJOB_STATUSES)[number]
 export class Cronjob {
   // UUIDv7 — time-ordered, sortable, stable external identifier for this job.
   @Prop({ required: true, unique: true, index: true, default: () => uuidv7() })
-  uuid!: string
+    uuid!: string
 
   // UUID of the parent cronjob, when this run was spawned by another. Null for root jobs.
   @Prop({ index: true })
-  parent?: string
+    parent?: string
 
   @Prop({ required: true, index: true })
-  name!: string
+    name!: string
 
   @Prop({ type: String, required: true, enum: CRONJOB_STATUSES, default: 'READY', index: true })
-  status!: CronjobStatus
+    status!: CronjobStatus
 
   @Prop({ required: true, default: 0 })
-  retries!: number
+    retries!: number
 
   // Free-form parameter bag — adapter-specific shape, not validated at the schema layer.
   @Prop({ type: Object, default: {} })
-  parameters?: Record<string, unknown>
+    parameters?: Record<string, unknown>
 
   @Prop()
-  message?: string
+    message?: string
 
   @Prop()
-  remark?: string
+    remark?: string
 
   // When the job was queued.
   @Prop({ required: true, index: true })
-  issuedAt!: Date
+    issuedAt!: Date
 
   // When the worker actually picked the job up.
   @Prop()
-  startedAt?: Date
+    startedAt?: Date
 
   // When the worker finished (regardless of terminal status).
   @Prop()
-  completedAt?: Date
+    completedAt?: Date
 
   // Populated automatically by `timestamps: true` on the @Schema decorator —
   // declared here so they show on the TypeScript surface.
   @Prop()
-  createdAt?: Date
+    createdAt?: Date
 
   @Prop()
-  updatedAt?: Date
+    updatedAt?: Date
 }
 
 export const CronjobSchema = SchemaFactory.createForClass(Cronjob)
