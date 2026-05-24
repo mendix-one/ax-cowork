@@ -7,8 +7,8 @@ WORKDIR /app
 COPY ./deploy/out/di/ ./
 
 ENV NODE_ENV=production
-ENV PORT=3012
+ENV PORT=15001
 
-EXPOSE 3012
+EXPOSE 15001
 
 CMD ["node", "dist/main.js"]
