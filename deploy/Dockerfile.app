@@ -6,6 +6,8 @@ WORKDIR /app
 
 # Copy the pnpm-deploy output: dist/, public/, package.json, node_modules/.
 COPY ./deploy/out/app/ ./
+RUN pwd
+RUN ls -a
 
 ENV NODE_ENV=production
 ENV PORT=15000
