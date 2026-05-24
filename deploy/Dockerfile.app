@@ -4,7 +4,7 @@
 FROM node:24-alpine
 WORKDIR /app
 
-# Copy the pnpm-deploy output: dist/, public/, package.json, node_modules/.
+# Copy the pnpm-deploy output: dist/, public/, pages/, package.json, node_modules/.
 COPY ./deploy/out/app/ ./
 RUN pwd
 RUN ls -a

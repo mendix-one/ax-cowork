@@ -13,34 +13,34 @@ export class UpdateAccountInput {
   @IsOptional()
   @IsString()
   @MaxLength(120)
-  display?: string
+    display?: string
 
   @Field({ nullable: true })
   @IsOptional()
   @IsEmail()
   @MaxLength(254)
-  email?: string
+    email?: string
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
   @MaxLength(32)
-  phone?: string
+    phone?: string
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
   @MaxLength(2048)
-  avatar?: string
+    avatar?: string
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
   @MaxLength(64)
-  cdnAvatarId?: string
+    cdnAvatarId?: string
 
   @Field(() => AccountStatusEnum, { nullable: true })
   @IsOptional()
   @IsEnum(ACCOUNT_STATUSES)
-  status?: AccountStatus
+    status?: AccountStatus
 }
