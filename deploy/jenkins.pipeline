@@ -38,7 +38,7 @@ pipeline {
     booleanParam(name: "DEPLOY_SSO", defaultValue: false, description: "down + up the `sso` service")
     booleanParam(name: "DEPLOY_DI", defaultValue: false, description: "down + up the `di` service")
 
-    string(name: "DOCKERHUB_REPOSITORY", defaultValue: "registry.amoza.xyz/ax-cowork", description: "Registry path; each image is pushed as <repo>/<app|sso|di>:<tag>")
+    string(name: "DOCKERHUB_REPOSITORY", defaultValue: "registry.amoza.xyz", description: "Registry path; each image is pushed as <repo>/<app|sso|di>:<tag>")
     string(name: "IMAGE_TAG", defaultValue: "latest", description: "Tag applied to every built image this run")
 
     booleanParam(name: "DOCKER_SYSTEM_PRUNE", defaultValue: false, description: "Run `docker system prune --force --volumes` at the end")
@@ -114,8 +114,8 @@ pipeline {
           sh "pnpm --filter ax-cowork-be run build"
           sh "rm -rf ./deploy/out/app"
           sh "pnpm --filter ax-cowork-be deploy --prod --legacy ./deploy/out/app"
-          sh "docker build -f ./deploy/Dockerfile.app -t ${params.DOCKERHUB_REPOSITORY}/app:${params.IMAGE_TAG} ."
-          sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/app:${params.IMAGE_TAG}"
+          sh "docker build -f ./deploy/Dockerfile.app -t ${params.DOCKERHUB_REPOSITORY}/ax-cowork:${params.IMAGE_TAG} ."
+          sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/ax-cowork:${params.IMAGE_TAG}"
         }
       }
     }
@@ -127,8 +127,8 @@ pipeline {
           sh "pnpm --filter ax-sso-services run build"
           sh "rm -rf ./deploy/out/sso"
           sh "pnpm --filter ax-sso-services deploy --prod --legacy ./deploy/out/sso"
-          sh "docker build -f ./deploy/Dockerfile.sso -t ${params.DOCKERHUB_REPOSITORY}/sso:${params.IMAGE_TAG} ."
-          sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/sso:${params.IMAGE_TAG}"
+          sh "docker build -f ./deploy/Dockerfile.sso -t ${params.DOCKERHUB_REPOSITORY}/ax-sso:${params.IMAGE_TAG} ."
+          sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/ax-sso:${params.IMAGE_TAG}"
         }
       }
     }
@@ -140,8 +140,8 @@ pipeline {
           sh "pnpm --filter ax-data-integration run build"
           sh "rm -rf ./deploy/out/di"
           sh "pnpm --filter ax-data-integration deploy --prod --legacy ./deploy/out/di"
-          sh "docker build -f ./deploy/Dockerfile.di -t ${params.DOCKERHUB_REPOSITORY}/di:${params.IMAGE_TAG} ."
-          sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/di:${params.IMAGE_TAG}"
+          sh "docker build -f ./deploy/Dockerfile.di -t ${params.DOCKERHUB_REPOSITORY}/ax-di:${params.IMAGE_TAG} ."
+          sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/ax-di:${params.IMAGE_TAG}"
         }
       }
     }

@@ -11,7 +11,7 @@ networks:
 # stateless and easy to swap between dev / staging / prod.
 services:
   amz-cowork-app:
-    image: ${DOCKERHUB_REPOSITORY:-registry.amoza.xyz/ax-cowork}/app:${IMAGE_TAG:-latest}
+    image: ${DOCKERHUB_REPOSITORY:-registry.amoza.xyz}/ax-app:${IMAGE_TAG:-latest}
     container_name: amz-cowork-app_15000
     restart: unless-stopped
     env_file:
@@ -24,7 +24,7 @@ services:
       - '15000:15000'
 
   amz-cowork-sso:
-    image: ${DOCKERHUB_REPOSITORY:-registry.amoza.xyz/ax-cowork}/sso:${IMAGE_TAG:-latest}
+    image: ${DOCKERHUB_REPOSITORY:-registry.amoza.xyz}/ax-sso:${IMAGE_TAG:-latest}
     container_name: amz-cowork-sso_15501
     restart: unless-stopped
     env_file:
@@ -37,7 +37,7 @@ services:
       - '15501:15501'
 
   amz-cowork-di:
-    image: ${DOCKERHUB_REPOSITORY:-registry.amoza.xyz/ax-cowork}/di:${IMAGE_TAG:-latest}
+    image: ${DOCKERHUB_REPOSITORY:-registry.amoza.xyz}/ax-di:${IMAGE_TAG:-latest}
     container_name: amz-cowork-di_15001
     restart: unless-stopped
     env_file:
