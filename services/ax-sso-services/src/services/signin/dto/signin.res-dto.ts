@@ -34,6 +34,9 @@ export class SigninResAppDto {
   @ApiProperty({ description: 'Stable UUIDv7 of the app.' })
   uuid!: string
 
+  @ApiProperty({ description: 'App key — the lookup field used by signin / session services.' })
+  key!: string
+
   @ApiProperty({ enum: APP_TYPES })
   type!: AppType
 
@@ -48,18 +51,18 @@ export class SigninResAppDto {
 }
 
 export class SigninResDto {
-  @ApiProperty({ description: 'Stable UUIDv7 of the newly-created session.' })
+  @ApiProperty({ description: 'Stable UUIDv7 of the session the account was attached to.' })
   uuid!: string
 
-  @ApiProperty({ description: 'Signed JWT. Send back as `Authorization: Bearer <token>` on subsequent requests.' })
+  @ApiProperty({ description: 'Freshly minted signed-in JWT. Replace the anonymous bearer with this one for all subsequent requests.' })
   token!: string
 
-  @ApiProperty({ type: SigninResAccountDto })
+  @ApiProperty({ type: SigninResAccountDto, description: 'Snapshot of the account attached to the session.' })
   account!: SigninResAccountDto
 
-  @ApiProperty({ type: SigninResAppDto })
+  @ApiProperty({ type: SigninResAppDto, description: 'Snapshot of the target app (pinned at session initialize).' })
   app!: SigninResAppDto
 
-  @ApiProperty({ type: [String], description: 'Role keys carried by this session (within the target app).' })
+  @ApiProperty({ type: [String], description: 'Role keys granted to the account within the target app.' })
   roles!: string[]
 }

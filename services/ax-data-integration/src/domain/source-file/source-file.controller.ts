@@ -21,11 +21,11 @@ import { SourceFilesService } from './source-file.service'
 import type { SourceFileSummary } from './source-file.schema'
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024 // 100 MiB
-const PHASE_1_PRINCIPAL = 'api-key'
+const PHASE_1_PRINCIPAL = 'axios-key'
 
 @ApiTags('Source files')
-@ApiSecurity('api-key')
-@ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
+@ApiSecurity('axios-key')
+@ApiUnauthorizedResponse({ description: 'Missing or invalid x-axios-key header.' })
 @Controller('source-files')
 export class SourceFilesController {
   constructor(private readonly files: SourceFilesService) {}

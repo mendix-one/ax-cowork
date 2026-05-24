@@ -134,7 +134,7 @@ describe('CronjobManager', () => {
       expect(mocks.model.findOneAndUpdate).toHaveBeenCalledWith(
         { uuid: 'u1', status: { $in: ['READY', 'INTERRUPTED'] } },
         { $set: { status: 'PROCESSING', startedAt: expect.any(Date) as Date }, $inc: { retries: 1 } },
-        { new: true },
+        { returnDocument: 'after' },
       )
       expect(result).toBe(updated)
     })
@@ -154,7 +154,7 @@ describe('CronjobManager', () => {
       expect(mocks.model.findOneAndUpdate).toHaveBeenCalledWith(
         { uuid: 'u1' },
         { $set: { status: 'COMPLETED', completedAt: expect.any(Date) as Date } },
-        { new: true },
+        { returnDocument: 'after' },
       )
     })
 
@@ -173,7 +173,7 @@ describe('CronjobManager', () => {
       expect(mocks.model.findOneAndUpdate).toHaveBeenCalledWith(
         { uuid: 'u1' },
         { $set: { status: 'ABORTED', remark: 'manual cancel', completedAt: expect.any(Date) as Date } },
-        { new: true },
+        { returnDocument: 'after' },
       )
     })
 
@@ -195,7 +195,7 @@ describe('CronjobManager', () => {
           $set: { status: 'INTERRUPTED', message: 'boom' },
           $inc: { retries: 1 },
         },
-        { new: true },
+        { returnDocument: 'after' },
       )
     })
 

@@ -1,0 +1,37 @@
+{
+  "brand": {
+    "name": "aPlanner",
+    "tagline": "AI-assisted planning and document workspace"
+  },
+  "actions": {
+    "send": "Send",
+    "reload": "Reload",
+    "save": "Save",
+    "cancel": "Cancel",
+    "close": "Close",
+    "share": "Share"
+  },
+  "nav": {
+    "home": "Home"
+  },
+  "status": {
+    "connected": "Connected",
+    "synced": "All changes synced",
+    "membersOnline": "{{count}} members online",
+    "lastSaved": "Saved {{time}}"
+  },
+  "error": {
+    "notFound": "Page not found",
+    "generic": "Something went wrong",
+    "systemErrorTitle": "System error",
+    "systemErrorSubtitle": "We couldn't reach the service. Please try again in a moment.",
+    "systemExceptionTitle": "Unexpected error",
+    "systemExceptionSubtitle": "Something went wrong while loading this page.",
+    "accessDeniedTitle": "Access denied",
+    "accessDeniedSubtitle": "You don't have permission to view this page."
+  },
+  "lang": {
+    "en": "EN",
+    "ko": "KO"
+  }
+}

@@ -148,10 +148,10 @@ describe('RestApiAdapter', () => {
       expect(headers.Authorization).toBe('Bearer secret-token')
     })
 
-    it('uses the api-key header name when scheme="api-key"', async () => {
+    it('uses the axios-key header name when scheme="axios-key"', async () => {
       const { adapter, http } = makeAdapter()
       http.request.mockResolvedValueOnce(ok([]))
-      await collect(adapter.stream({ ...baseConfig }, { scheme: 'api-key', value: 'KEY', headerName: 'X-Custom' }))
+      await collect(adapter.stream({ ...baseConfig }, { scheme: 'axios-key', value: 'KEY', headerName: 'X-Custom' }))
       const headers = http.request.mock.calls[0][0].headers as Record<string, string>
       expect(headers['X-Custom']).toBe('KEY')
     })

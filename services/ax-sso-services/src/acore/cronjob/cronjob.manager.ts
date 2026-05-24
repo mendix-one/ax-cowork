@@ -45,7 +45,7 @@ export class CronjobManager {
       .findOneAndUpdate(
         { uuid, status: { $in: ['READY', 'INTERRUPTED'] } },
         { $set: { status: 'PROCESSING', startedAt: new Date() }, $inc: { retries: 1 } },
-        { new: true },
+        { returnDocument: 'after' },
       )
       .lean<Cronjob>()
       .exec()
@@ -69,7 +69,7 @@ export class CronjobManager {
   }
 
   private async updateOrThrow(uuid: string, update: Record<string, unknown>): Promise<Cronjob> {
-    const updated = await this.cronjobModel.findOneAndUpdate({ uuid }, update, { new: true }).lean<Cronjob>().exec()
+    const updated = await this.cronjobModel.findOneAndUpdate({ uuid }, update, { returnDocument: 'after' }).lean<Cronjob>().exec()
     if (!updated) throw new NotFoundException(`Cronjob ${uuid} not found`)
     return updated
   }

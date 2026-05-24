@@ -10,27 +10,24 @@ export class Token {
   @Prop({ required: true, unique: true, index: true, default: () => uuidv7() })
   uuid!: string
 
-  // The opaque token string — what callers present in `Authorization: Bearer …`.
-  @Prop({ required: true, unique: true, index: true })
-  token!: string
-
   // TTL index — Mongo removes the document automatically once `expiresAt` is in the past.
   @Prop({ required: true, expires: 0 })
   expiresAt!: Date
-
-  // Owning account's `uuid`.
-  @Prop({ required: true, index: true })
-  account!: string
-
-  // Owning session's `uuid`.
-  @Prop({ required: true, index: true })
-  session!: string
 
   // Target app's `key` — which app this token grants access to.
   @Prop({ required: true, index: true })
   app!: string
 
-  // Role keys (within `app`) carried by this token.
+  // Owning session's `uuid`.
+  @Prop({ required: true, index: true })
+  session!: string
+
+  // Owning account's `uuid`. Optional — anonymous tokens (issued for sessions that
+  // haven't signed in yet) have no account attached.
+  @Prop({ required: false, index: true })
+  account?: string
+
+  // Role keys (within `app`) carried by this token. Empty for anonymous tokens.
   @Prop({ type: [String], required: true, default: [] })
   roles!: string[]
 

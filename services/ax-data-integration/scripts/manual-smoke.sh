@@ -185,7 +185,7 @@ check_contains "GET /job-configs with key → empty list" \
 section "S2 — Secret CRUD + crypto"
 
 SECRET_RESP=$(curl -sS -X POST "$SERVICE_URL/secrets" "${K[@]}" -H "content-type: application/json" \
-  -d '{"name":"smoke-secret","type":"api","plaintext":"hunter2"}')
+  -d '{"name":"smoke-secret","type":"axios","plaintext":"hunter2"}')
 SECRET_ID=$(json_field "$SECRET_RESP" id)
 
 check_contains "POST /secrets returns keyVersion:1"   "$SECRET_RESP" '"keyVersion":1'

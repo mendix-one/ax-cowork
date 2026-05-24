@@ -1,0 +1,14 @@
+# Runtime image for ax-sso-services.
+# Jenkins runs `pnpm --filter ax-sso-services deploy --prod ./deploy/out/sso` first,
+# so this image only copies the prebuilt artifact tree (dist/ + flat node_modules).
+FROM node:24-alpine
+WORKDIR /app
+
+COPY ./deploy/out/sso/ ./
+
+ENV NODE_ENV=production
+ENV PORT=3001
+
+EXPOSE 3001
+
+CMD ["node", "dist/main.js"]

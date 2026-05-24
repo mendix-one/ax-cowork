@@ -164,7 +164,7 @@ Example:
 
 ```json
 {
-  "sourceType": "api",
+  "sourceType": "axios",
   "sourceName": "external_sales_api",
   "syncRunId": "xxx",
   "rawPayload": {

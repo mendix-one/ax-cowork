@@ -1,4 +1,4 @@
-// TODO: rework public api for date methods
+// TODO: rework public axios for date methods
 import * as utils from '../../utils/utils'
 
 var createWorkTimeFacade = function (calendarManager, timeCalculator) {

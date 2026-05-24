@@ -64,14 +64,14 @@ describe('ProfileService', () => {
   }
 
   describe('getProfile', () => {
-    it('returns the caller account and active sessions, newest first, with mapped fields', async () => {
+    it('returns the caller account and active sessions, newest first', async () => {
       const { service, accountMocks, sessionMocks } = await buildService()
       accountMocks.findOneExec.mockResolvedValueOnce({ uuid: CALLER, username: 'alice' })
-      const t1 = new Date('2026-05-23T10:00:00Z')
-      const t2 = new Date('2026-05-23T09:00:00Z')
+      const exp1 = new Date('2026-05-24T10:00:00Z')
+      const exp2 = new Date('2026-05-24T09:00:00Z')
       sessionMocks.findExec.mockResolvedValueOnce([
-        { uuid: 's1', app: { uuid: 'app-uuid-1', name: 'AX SSO' }, expiresAt: new Date('2026-05-24T10:00:00Z'), createdAt: t1 },
-        { uuid: 's2', app: { uuid: 'app-uuid-2', name: 'Billing' }, expiresAt: new Date('2026-05-24T09:00:00Z'), createdAt: t2 },
+        { uuid: 's1', app: { uuid: 'app-uuid-1', key: 'SSO', name: 'AX SSO', avatar: 'a1', description: 'd1' }, expiresAt: exp1 },
+        { uuid: 's2', app: { uuid: 'app-uuid-2', key: 'BILLING', name: 'Billing', avatar: 'a2', description: 'd2' }, expiresAt: exp2 },
       ])
 
       const result = await service.getProfile(CALLER)
@@ -81,8 +81,8 @@ describe('ProfileService', () => {
       expect(sessionMocks.findSort).toHaveBeenCalledWith({ createdAt: -1 })
       expect(result.account.uuid).toBe(CALLER)
       expect(result.sessions).toEqual([
-        { uuid: 's1', app: 'app-uuid-1', appName: 'AX SSO', signedInAt: t1, expiresAt: new Date('2026-05-24T10:00:00Z') },
-        { uuid: 's2', app: 'app-uuid-2', appName: 'Billing', signedInAt: t2, expiresAt: new Date('2026-05-24T09:00:00Z') },
+        { uuid: 's1', app: { uuid: 'app-uuid-1', key: 'SSO', name: 'AX SSO', avatar: 'a1', description: 'd1' }, expiresAt: exp1 },
+        { uuid: 's2', app: { uuid: 'app-uuid-2', key: 'BILLING', name: 'Billing', avatar: 'a2', description: 'd2' }, expiresAt: exp2 },
       ])
     })
 
@@ -91,7 +91,6 @@ describe('ProfileService', () => {
       accountMocks.findOneExec.mockResolvedValueOnce(null)
 
       await expect(service.getProfile(CALLER)).rejects.toBeInstanceOf(NotFoundException)
-      // No session lookup runs once the account check fails.
       expect(sessionMocks.model.find).not.toHaveBeenCalled()
     })
   })
@@ -104,7 +103,11 @@ describe('ProfileService', () => {
 
       const result = await service.updateProfile(CALLER, { display: 'Alice', email: undefined, phone: '+1' })
 
-      expect(accountMocks.model.findOneAndUpdate).toHaveBeenCalledWith({ uuid: CALLER }, { $set: { display: 'Alice', phone: '+1' } }, { new: true })
+      expect(accountMocks.model.findOneAndUpdate).toHaveBeenCalledWith(
+        { uuid: CALLER },
+        { $set: { display: 'Alice', phone: '+1' } },
+        { returnDocument: 'after' },
+      )
       expect(result).toBe(updated)
     })
 
@@ -144,6 +147,15 @@ describe('ProfileService', () => {
       sessionMocks.findOneExec.mockResolvedValueOnce({ account: { uuid: 'someone-else' } })
 
       await expect(service.killSession(CALLER, 'sess-1')).rejects.toBeInstanceOf(ForbiddenException)
+      expect(sessionMocks.deleteOne).not.toHaveBeenCalled()
+      expect(tokenMocks.deleteMany).not.toHaveBeenCalled()
+    })
+
+    it('throws ForbiddenException on anonymous sessions (no account attached)', async () => {
+      const { service, sessionMocks, tokenMocks } = await buildService()
+      sessionMocks.findOneExec.mockResolvedValueOnce({})
+
+      await expect(service.killSession(CALLER, 'anon-sess')).rejects.toBeInstanceOf(ForbiddenException)
       expect(sessionMocks.deleteOne).not.toHaveBeenCalled()
       expect(tokenMocks.deleteMany).not.toHaveBeenCalled()
     })

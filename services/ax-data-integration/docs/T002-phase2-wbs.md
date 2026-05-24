@@ -446,7 +446,7 @@ Closes the documented adapter set ([P002 §6 mentions GraphQL/SOAP as phase-2](.
 
 - [ ] Dep `graphql-request@^7` (light client, no react/apollo bloat)
 - [ ] Optional dep `graphql@^16` for the type-only `IntrospectionQuery` import
-- [ ] Folder `src/adapters/graphql/`: `graphql.adapter.module.ts`, `graphql.adapter.ts`, `graphql-client.ts` (factory pattern matching phase-1 DB adapters), `index.ts`
+- [ ] Folder `src/adapters/graphql/`: `graphql.adapter.module.ts`, `graphql.adapter.ts`, `graphql-axios.ts` (factory pattern matching phase-1 DB adapters), `index.ts`
 
 **Outcome**: Adapter shell in place with the same factory-injection structure as Postgres/MySQL.
 

@@ -115,7 +115,7 @@ Verifies: `@Public()` decorator works on `/health*` + `/`; `ApiKeyGuard` blocks 
 ## S2 — Secret CRUD + AES-GCM round-trip + delete protection
 
 ```bash
-K='x-api-key: demo-key'
+K='x-axios-key: demo-key'
 
 # Create
 SECRET=$(curl -sS -X POST http://localhost:3012/secrets -H "$K" -H "content-type: application/json" \
@@ -167,7 +167,7 @@ docker cp ax-di-service:/tmp/v1.xlsx ./v1.xlsx
 ### Wire upload → job → trigger → inspect
 
 ```bash
-K='x-api-key: demo-key'
+K='x-axios-key: demo-key'
 
 # 1. Upload via multipart form
 FILE_ID=$(curl -sS -X POST http://localhost:3012/source-files -H "$K" -F file=@v1.xlsx | grep -oP '"id":"\K[^"]+')
@@ -220,7 +220,7 @@ wb.xlsx.writeBuffer().then(b => require('fs').writeFileSync('/tmp/v2.xlsx', b));
 "
 docker cp ax-di-service:/tmp/v2.xlsx ./v2.xlsx
 
-K='x-api-key: demo-key'
+K='x-axios-key: demo-key'
 FILE_V2=$(curl -sS -X POST http://localhost:3012/source-files -H "$K" -F file=@v2.xlsx | grep -oP '"id":"\K[^"]+')
 
 # Point the job at v2
@@ -251,7 +251,7 @@ Verifies: full I/U/D classification in one follow-up run; PATCH `/job-configs/:i
 ## S5 — Source-file delete blocked while a job references it
 
 ```bash
-K='x-api-key: demo-key'
+K='x-axios-key: demo-key'
 
 # Current job references $FILE_V2 → delete must be rejected
 curl -i -X DELETE -H "$K" "http://localhost:3012/source-files/$FILE_V2" | head -1
@@ -286,7 +286,7 @@ db.sync_runs.insertOne({
 })
 "
 
-K='x-api-key: demo-key'
+K='x-axios-key: demo-key'
 curl -i -X POST -H "$K" "http://localhost:3012/job-configs/$JOB_ID/trigger" | head -1
 # → HTTP/1.1 409 Conflict
 
@@ -303,7 +303,7 @@ Verifies: the partial-unique `(jobConfigId, status='running')` index throws E110
 ## S7 — Stale-worker recovery (simulate a crashed worker)
 
 ```bash
-K='x-api-key: demo-key'
+K='x-axios-key: demo-key'
 
 # 1. Inject a fake "dead worker" run with an old heartbeat (10 min ago)
 docker exec ax-di-mongo mongosh ax_data_integration --quiet --eval "
@@ -344,7 +344,7 @@ Verifies: stale-run sweeper detects orphaned `running` docs, flips them to `stal
 ## S8 — Retry a finished run
 
 ```bash
-K='x-api-key: demo-key'
+K='x-axios-key: demo-key'
 
 # Pick any finished sync_run for the job
 RUN_ID=$(curl -sS -H "$K" "http://localhost:3012/sync-runs?jobConfigId=$JOB_ID" | grep -oP '"id":"\K[^"]+' | head -1)
@@ -388,7 +388,7 @@ rm -f .env v1.xlsx v2.xlsx
 Use any public JSON API to exercise the full pipeline without building a file:
 
 ```bash
-K='x-api-key: demo-key'
+K='x-axios-key: demo-key'
 
 JOB_ID=$(curl -sS -X POST http://localhost:3012/job-configs -H "$K" -H "content-type: application/json" -d '{
   "name":"demo-rest",

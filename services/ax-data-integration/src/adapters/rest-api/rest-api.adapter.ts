@@ -35,9 +35,9 @@ export interface RestApiAdapterConfig {
 
 /** Decrypted shape stored in `secrets` for REST APIs. */
 export interface RestApiCredentials {
-  scheme: 'bearer' | 'basic' | 'api-key'
+  scheme: 'bearer' | 'basic' | 'axios-key'
   value: string
-  /** Header name for `api-key` scheme. Defaults to `X-API-Key`. */
+  /** Header name for `axios-key` scheme. Defaults to `X-API-Key`. */
   headerName?: string
 }
 
@@ -201,7 +201,7 @@ function buildAuthHeaders(credentials: unknown): Record<string, string> {
       return { Authorization: `Bearer ${c.value}` }
     case 'basic':
       return { Authorization: `Basic ${c.value}` }
-    case 'api-key':
+    case 'axios-key':
       return { [c.headerName ?? 'X-API-Key']: c.value }
     default:
       return {}

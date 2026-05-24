@@ -1,0 +1,192 @@
+// Jenkins pipeline for ax-cowork. Build + deploy is opt-in per deployable so a release
+// run can rebuild just the SSO service (for example) without re-shipping the app.
+//
+// Conventions:
+//   - `source/` (relative to the Jenkins workspace) holds the cloned monorepo.
+//   - `source/deploy/out/<name>/` is the per-deployable `pnpm deploy` output that the
+//     Dockerfiles copy from. Wiped + repopulated on each build.
+//   - Image tag defaults to the IMAGE_TAG param; per-image push targets are
+//     `${DOCKERHUB_REPOSITORY}/app|sso|di:${IMAGE_TAG}`.
+//
+// Build dependency note: BUILD_APP / BUILD_SSO / BUILD_DI consume shared libs from
+// `shared/**/dist`. If you enable any of those without BUILD_SHARED on a fresh workspace
+// (or after a clean), shared/dist won't exist and the consumer build will fail — so run
+// BUILD_SHARED at least once, or always include it in your first run.
+pipeline {
+  agent any
+
+  parameters {
+    booleanParam(name: "INITIALIZE", defaultValue: false, description: "Wipe and reclone source/")
+    string(name: "GITHUB_REPOSITORY", defaultValue: "git@github.com:amoza-one/ax-cowork.git", description: "The github repository")
+    string(name: "GITHUB_RELEASE_BRANCH", defaultValue: "release/1.0.0", description: "Release branch (the branch we deploy)")
+
+    booleanParam(name: "MERGE_TO_RELEASE_BRANCH", defaultValue: false, description: "git merge develop -> release before build")
+    string(name: "GITHUB_DEVELOP_BRANCH", defaultValue: "develop", description: "Develop branch to merge from")
+
+    booleanParam(name: "INSTALL_DEPENDENCIES", defaultValue: true, description: "Run pnpm install (always safe — re-uses lockfile)")
+
+    // Per-deployable build flags. Each one runs the corresponding pnpm build + pnpm deploy
+    // packaging + docker build + docker push for its image.
+    booleanParam(name: "BUILD_SHARED", defaultValue: true, description: "Build all shared/* libraries (must run before consumers on a fresh workspace)")
+    booleanParam(name: "BUILD_APP", defaultValue: true, description: "Build ax-coworker-ui + ax-coworker-be -> docker image `app`")
+    booleanParam(name: "BUILD_SSO", defaultValue: true, description: "Build ax-sso-services -> docker image `sso`")
+    booleanParam(name: "BUILD_DI", defaultValue: false, description: "Build ax-data-integration -> docker image `di`")
+
+    // Per-deployable deploy flags. Triggers `docker-compose up -d --force-recreate --no-deps`
+    // for that service only — others stay running untouched.
+    booleanParam(name: "DEPLOY_APP", defaultValue: true, description: "down + up the `app` service")
+    booleanParam(name: "DEPLOY_SSO", defaultValue: true, description: "down + up the `sso` service")
+    booleanParam(name: "DEPLOY_DI", defaultValue: false, description: "down + up the `di` service")
+
+    string(name: "DOCKERHUB_REPOSITORY", defaultValue: "registry.amoza.xyz/ax-cowork", description: "Registry path; each image is pushed as <repo>/<app|sso|di>:<tag>")
+    string(name: "IMAGE_TAG", defaultValue: "latest", description: "Tag applied to every built image this run")
+
+    booleanParam(name: "DOCKER_SYSTEM_PRUNE", defaultValue: false, description: "Run `docker system prune --force --volumes` at the end")
+  }
+
+  environment {
+    // Used by docker-compose to substitute ${...} in the compose file.
+    DOCKERHUB_REPOSITORY = "${params.DOCKERHUB_REPOSITORY}"
+    IMAGE_TAG = "${params.IMAGE_TAG}"
+  }
+
+  stages {
+    stage("Init workspace") {
+      steps {
+        script {
+          if (params.INITIALIZE) {
+            sh "pwd"
+            sh "rm -rf ./*"
+            sh "ls -la"
+            sshagent(credentials: ["github-operators-key"]) {
+              sh "git clone -b ${params.GITHUB_RELEASE_BRANCH} ${params.GITHUB_REPOSITORY} ./source/"
+            }
+          }
+        }
+      }
+    }
+
+    stage("Merge develop -> release") {
+      when { expression { return params.MERGE_TO_RELEASE_BRANCH } }
+      steps {
+        dir("source") {
+          sshagent(credentials: ["github-operators-key"]) {
+            sh "git fetch origin"
+            sh "git checkout ${params.GITHUB_RELEASE_BRANCH}"
+            sh "git pull --ff-only"
+            sh "git merge origin/${params.GITHUB_DEVELOP_BRANCH} --no-edit --allow-unrelated-histories"
+            sh "git push"
+          }
+        }
+      }
+    }
+
+    stage("Install dependencies") {
+      when { expression { return params.INSTALL_DEPENDENCIES } }
+      steps {
+        dir("source") {
+          sh "corepack enable"
+          sh "pnpm install --frozen-lockfile"
+        }
+      }
+    }
+
+    stage("Build shared libs") {
+      when { expression { return params.BUILD_SHARED } }
+      steps {
+        dir("source") {
+          // pnpm respects the workspace dep graph here — internal shared/* libs that depend
+          // on each other build in topological order.
+          sh "pnpm --filter './shared/**' run build"
+        }
+      }
+    }
+
+    stage("Build app (UI + BE) image") {
+      when { expression { return params.BUILD_APP } }
+      steps {
+        dir("source") {
+          // UI's `build` script has a postbuild that copies dist/assets into the BE's
+          // public/ — so building UI first means the BE deploy artifact already contains
+          // the bundled SPA.
+          sh "pnpm --filter ax-cowork-ui run build"
+          sh "pnpm --filter ax-cowork-be run build"
+          sh "rm -rf ./deploy/out/app"
+          sh "pnpm --filter ax-cowork-be deploy --prod --legacy ./deploy/out/app"
+          sh "docker build -f ./deploy/Dockerfile.app -t ${params.DOCKERHUB_REPOSITORY}/app:${params.IMAGE_TAG} ."
+          sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/app:${params.IMAGE_TAG}"
+        }
+      }
+    }
+
+    stage("Build sso image") {
+      when { expression { return params.BUILD_SSO } }
+      steps {
+        dir("source") {
+          sh "pnpm --filter ax-sso-services run build"
+          sh "rm -rf ./deploy/out/sso"
+          sh "pnpm --filter ax-sso-services deploy --prod --legacy ./deploy/out/sso"
+          sh "docker build -f ./deploy/Dockerfile.sso -t ${params.DOCKERHUB_REPOSITORY}/sso:${params.IMAGE_TAG} ."
+          sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/sso:${params.IMAGE_TAG}"
+        }
+      }
+    }
+
+    stage("Build di image") {
+      when { expression { return params.BUILD_DI } }
+      steps {
+        dir("source") {
+          sh "pnpm --filter ax-data-integration run build"
+          sh "rm -rf ./deploy/out/di"
+          sh "pnpm --filter ax-data-integration deploy --prod --legacy ./deploy/out/di"
+          sh "docker build -f ./deploy/Dockerfile.di -t ${params.DOCKERHUB_REPOSITORY}/di:${params.IMAGE_TAG} ."
+          sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/di:${params.IMAGE_TAG}"
+        }
+      }
+    }
+
+    stage("Deploy app") {
+      when { expression { return params.DEPLOY_APP } }
+      steps {
+        dir("source/deploy") {
+          // `--force-recreate --no-deps` restarts JUST this service — leaves sso / di alone.
+          sh "docker-compose -f ./docker-compose.yml pull amz-cowork-app || true"
+          sh "docker-compose -f ./docker-compose.yml up -d --force-recreate --no-deps amz-cowork-app"
+        }
+      }
+    }
+
+    stage("Deploy sso") {
+      when { expression { return params.DEPLOY_SSO } }
+      steps {
+        dir("source/deploy") {
+          sh "docker-compose -f ./docker-compose.yml pull amz-cowork-sso || true"
+          sh "docker-compose -f ./docker-compose.yml up -d --force-recreate --no-deps amz-cowork-sso"
+        }
+      }
+    }
+
+    stage("Deploy di") {
+      when { expression { return params.DEPLOY_DI } }
+      steps {
+        dir("source/deploy") {
+          sh "docker-compose -f ./docker-compose.yml pull amz-cowork-di || true"
+          sh "docker-compose -f ./docker-compose.yml up -d --force-recreate --no-deps amz-cowork-di"
+        }
+      }
+    }
+
+    stage("Verify running containers") {
+      steps {
+        sh "docker container ls -a --filter 'name=amz-cowork-'"
+      }
+    }
+
+    stage("Docker system prune") {
+      when { expression { return params.DOCKER_SYSTEM_PRUNE } }
+      steps {
+        sh "docker system prune --force --volumes"
+      }
+    }
+  }
+}

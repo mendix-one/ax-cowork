@@ -21,11 +21,11 @@ import { SecretsService } from './secret.service'
 // TODO: derive a real principal from the authenticated API key (hash / index)
 // once the guard attaches it to the request. For phase 1 the API key set is small
 // and shared across the internal team, so a single literal is acceptable.
-const PHASE_1_PRINCIPAL = 'api-key'
+const PHASE_1_PRINCIPAL = 'axios-key'
 
 @ApiTags('Secrets')
-@ApiSecurity('api-key')
-@ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
+@ApiSecurity('axios-key')
+@ApiUnauthorizedResponse({ description: 'Missing or invalid x-axios-key header.' })
 @Controller('secrets')
 export class SecretsController {
   constructor(private readonly secrets: SecretsService) {}

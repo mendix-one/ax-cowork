@@ -1,0 +1,93 @@
+{
+  "tooltip": {
+    "amai": "AMAI - Amoza AI Assistant",
+    "moreItems": "More Items",
+    "splitView": "Split View",
+    "globalSearch": "Global Search",
+    "notification": "Notification",
+    "userAccount": "User Account",
+    "systemSettings": "System Settings",
+    "project": "Project",
+    "inbox": "Inbox",
+    "task": "Task",
+    "commit": "Commit",
+    "pullRequest": "Pull Request",
+    "branch": "Branch",
+    "calendar": "Calendar",
+    "channel": "Channel",
+    "chat": "Chat",
+    "output": "Output",
+    "console": "Console",
+    "generativeAI": "Generative AI",
+    "tasksProgress": "Tasks Progress",
+    "support": "Support",
+    "guides": "Guides"
+  },
+  "setting": {
+    "title": "Settings",
+    "done": "Done",
+    "cancel": "Cancel",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "language": "Language",
+    "notifications": "Desktop notifications"
+  },
+  "account": {
+    "title": "Account",
+    "close": "Close",
+    "signOut": "Sign out",
+    "signedInAs": "Signed in as",
+    "guest": "Guest",
+    "username": "Username",
+    "display": "Display name",
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "todo": "Coming soon",
+    "menu": {
+      "profile": "Account profile",
+      "setting": "Account setting",
+      "roles": "Application roles",
+      "session": "Active session"
+    }
+  },
+  "notify": {
+    "title": "Notifications",
+    "close": "Close",
+    "markAllRead": "Mark all as read",
+    "empty": "You're all caught up."
+  },
+  "guides": {
+    "title": "Guides",
+    "close": "Close",
+    "intro": "Quick references for getting around the workspace.",
+    "gettingStarted": "Getting started",
+    "gettingStartedBody": "Sign in, pick a production line, and open a simulation plan from the top menu.",
+    "shortcuts": "Keyboard shortcuts",
+    "shortcutsBody": "Use the side panels on the right to toggle split view, AI assistant, and task progress.",
+    "docs": "Documentation",
+    "docsBody": "Full docs are coming soon — for now reach out to the team for deep dives."
+  },
+  "productionLine": {
+    "title": "Select production line",
+    "description": "Pick the production line this workspace will be scoped to.",
+    "close": "Close"
+  },
+  "simulationPlan": {
+    "title": "Select simulation plan",
+    "description": "Pick the simulation plan to run analyses against.",
+    "close": "Close"
+  },
+  "support": {
+    "title": "Support",
+    "close": "Close",
+    "intro": "Need a hand? Reach out through any of the channels below.",
+    "email": "Email",
+    "emailAddress": "support@amoza.ai",
+    "chat": "Live chat",
+    "chatHours": "Mon–Fri, 09:00–18:00 KST",
+    "status": "System status",
+    "statusBody": "All systems operational."
+  }
+}

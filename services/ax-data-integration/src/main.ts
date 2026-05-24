@@ -24,7 +24,7 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
     methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['content-type', 'x-api-key'],
+    allowedHeaders: ['content-type', 'x-axios-key'],
     optionsSuccessStatus: 200,
   })
 
@@ -36,13 +36,13 @@ async function bootstrap() {
       [
         'AX Cowork Data Integration Service — pull-based sync jobs, raw data store, audit changelog.',
         '',
-        'All non-health endpoints require the `x-api-key` header. Set `INTEGRATION_API_KEYS` (comma-separated) to provision keys.',
+        'All non-health endpoints require the `x-axios-key` header. Set `INTEGRATION_API_KEYS` (comma-separated) to provision keys.',
         'Authoritative design lives in `services/ax-data-integration/docs/` (O001/P001/P002/T001).',
       ].join('\n'),
     )
     .setVersion('1.0')
     .addServer(`http://localhost:${port}`, 'Local dev')
-    .addApiKey({ type: 'apiKey', in: 'header', name: 'x-api-key', description: 'Match one of the keys in INTEGRATION_API_KEYS.' }, 'api-key')
+    .addApiKey({ type: 'apiKey', in: 'header', name: 'x-api-key', description: 'Match one of the keys in INTEGRATION_API_KEYS.' }, 'axios-key')
     .addTag('Service', 'Liveness/readiness probes and the service identity endpoint. Public — no API key required.')
     .addTag('Job configs', 'CRUD + manual trigger for sync jobs. A job_config wires a source + identity strategy + schedule together.')
     .addTag('Secrets', 'AES-256-GCM-encrypted credentials referenced by job_configs.credentialsRef. Plaintext is never returned by any read endpoint.')
@@ -52,7 +52,7 @@ async function bootstrap() {
     .addTag('Source metadata', 'Schema snapshots detected at each sync. Deduped by (jobConfigId, schemaHash) — also serves as a schema-drift audit trail.')
     .build()
   const document = SwaggerModule.createDocument(app, swaggerConfig)
-  SwaggerModule.setup('api-docs', app, document)
+  SwaggerModule.setup('axios-docs', app, document)
 
   await app.listen(port)
 }

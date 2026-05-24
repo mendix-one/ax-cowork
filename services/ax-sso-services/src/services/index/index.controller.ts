@@ -4,7 +4,7 @@ import { ApiOkResponse, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagg
 import { IndexResDto } from './dto/index.res-dto'
 
 @ApiTags('Service')
-@ApiSecurity('ax-api-key')
+@ApiSecurity('ax-axios-key')
 @Controller()
 export class IndexController {
   @Get()

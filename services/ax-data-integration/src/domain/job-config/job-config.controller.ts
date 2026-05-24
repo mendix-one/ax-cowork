@@ -20,11 +20,11 @@ import { JobConfigsService } from './job-config.service'
 import type { JobConfigSummary, ListJobConfigsResult } from './job-config.schema'
 
 // TODO: replace with the API-key principal once the guard attaches one to the request.
-const PHASE_1_PRINCIPAL = 'api-key'
+const PHASE_1_PRINCIPAL = 'axios-key'
 
 @ApiTags('Job configs')
-@ApiSecurity('api-key')
-@ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
+@ApiSecurity('axios-key')
+@ApiUnauthorizedResponse({ description: 'Missing or invalid x-axios-key header.' })
 @ApiBadRequestResponse({ description: 'Validation error in DTO or query.' })
 @Controller('job-configs')
 export class JobConfigController {

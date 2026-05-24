@@ -1,0 +1,14 @@
+# Runtime image for ax-data-integration.
+# Jenkins runs `pnpm --filter ax-data-integration deploy --prod ./deploy/out/di` first,
+# so this image only copies the prebuilt artifact tree (dist/ + flat node_modules).
+FROM node:24-alpine
+WORKDIR /app
+
+COPY ./deploy/out/di/ ./
+
+ENV NODE_ENV=production
+ENV PORT=3012
+
+EXPOSE 3012
+
+CMD ["node", "dist/main.js"]

@@ -74,9 +74,70 @@ type Profile {
   account: Account!
 
   """
+  Apps the caller has at least one role in, with the list of granted roles per app.
+  """
+  appRoles: [ProfileAppRoles!]!
+
+  """
   Active (non-expired) sessions belonging to the caller, newest first.
   """
   sessions: [ProfileSession!]!
+}
+
+type ProfileAppInfo {
+  """
+  Public URL of the app avatar/icon.
+  """
+  avatar: String
+
+  """
+  Free-form description of the app.
+  """
+  description: String
+
+  """
+  App key (matches `App.key`).
+  """
+  key: String!
+
+  """
+  Human-friendly app name.
+  """
+  name: String!
+
+  """
+  Stable UUIDv7 of the app.
+  """
+  uuid: ID!
+}
+
+type ProfileAppRoles {
+  """
+  App snapshot the roles below belong to.
+  """
+  app: ProfileAppInfo!
+
+  """
+  Roles granted to the caller within this app.
+  """
+  roles: [ProfileRole!]!
+}
+
+type ProfileRole {
+  """
+  Free-form description of what this role grants.
+  """
+  description: String
+
+  """
+  AppRole key — stable identifier within the owning app.
+  """
+  key: String!
+
+  """
+  Human-friendly role name.
+  """
+  name: String!
 }
 
 type ProfileSession {
@@ -98,12 +159,12 @@ type ProfileSession {
 
 type ProfileSessionApp {
   """
-  When the session expires. After this instant the JWT no longer verifies.
+  Public URL of the app avatar/icon.
   """
   avatar: String
 
   """
-  When the session was created — effectively the signin time.
+  Free-form description of the app.
   """
   description: String
 

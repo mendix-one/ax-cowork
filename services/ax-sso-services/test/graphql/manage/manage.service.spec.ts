@@ -125,7 +125,7 @@ describe('ManageService', () => {
 
       const result = await service.update('u1', { display: 'Alice', email: undefined, status: 'LOCKED' })
 
-      expect(mocks.model.findOneAndUpdate).toHaveBeenCalledWith({ uuid: 'u1' }, { $set: { display: 'Alice', status: 'LOCKED' } }, { new: true })
+      expect(mocks.model.findOneAndUpdate).toHaveBeenCalledWith({ uuid: 'u1' }, { $set: { display: 'Alice', status: 'LOCKED' } }, { returnDocument: 'after' })
       expect(result).toBe(updated)
     })
 
