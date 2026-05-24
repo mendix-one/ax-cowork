@@ -6,6 +6,7 @@ import { v7 as uuidv7 } from 'uuid'
 
 import { App } from '../../acore/database/schemas/app.schema'
 import { Session } from '../../acore/database/schemas/session.schema'
+import { SessionInfoResDto } from './dto/session-info.res-dto'
 import { SessionResDto } from './dto/session.res-dto'
 
 // Sessions initialized by /session/initialize last a year. Subsequent signin will
@@ -61,6 +62,43 @@ export class SessionService {
       token,
       app: appSnapshot,
       expiresAt,
+    }
+  }
+
+  // Materializes the current state of a session for the caller — uuid, app snapshot, and
+  // (when signed in) account snapshot + status + roles. Used by GET /session as a "who am I /
+  // what's my context" lookup so the UI can rehydrate after a page reload from the cookie alone.
+  async getSession(sessionUuid: string): Promise<SessionInfoResDto> {
+    const session = await this.sessionModel.findOne({ uuid: sessionUuid }).lean().exec()
+    if (!session) {
+      throw new UnauthorizedException('Session no longer exists')
+    }
+
+    const account = session.account
+      ? {
+          uuid: session.account.uuid,
+          username: session.account.username,
+          display: session.account.display,
+          email: session.account.email,
+          avatar: session.account.avatar,
+          phone: session.account.phone,
+        }
+      : undefined
+
+    return {
+      uuid: session.uuid,
+      app: {
+        uuid: session.app.uuid,
+        key: session.app.key,
+        type: session.app.type,
+        name: session.app.name,
+        description: session.app.description,
+        avatar: session.app.avatar,
+      },
+      account,
+      status: session.account?.status,
+      roles: session.roles ?? [],
+      expiresAt: session.expiresAt,
     }
   }
 }

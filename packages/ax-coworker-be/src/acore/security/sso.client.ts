@@ -38,6 +38,17 @@ export interface SsoSessionResponse {
   expiresAt: string
 }
 
+export interface SsoTokenResponse {
+  uuid: string
+  token: string
+  account?: string
+  session: string
+  app: string
+  roles: string[]
+  // Serialized as ISO string over the wire.
+  expiresAt: string
+}
+
 const API_KEY_HEADER = 'ax-api-key'
 const APP_KEY_HEADER = 'ax-app-key'
 
@@ -72,6 +83,18 @@ export class SsoClient {
       return data
     } catch (err) {
       throw this.translateError(err, 'session/initialize')
+    }
+  }
+
+  // Exchanges the caller's session bearer for an app-scoped JWT. Used by the gateway middleware
+  // before forwarding each request to a downstream service. SSO accepts both anonymous and
+  // signed-in session bearers; the returned token mirrors that state (no sub/sta when anonymous).
+  async issueToken(sessionToken: string, scope: string): Promise<SsoTokenResponse> {
+    try {
+      const { data } = await this.http.post<SsoTokenResponse>('/token', { scope }, { headers: { authorization: `Bearer ${sessionToken}` } })
+      return data
+    } catch (err) {
+      throw this.translateError(err, 'token')
     }
   }
 
