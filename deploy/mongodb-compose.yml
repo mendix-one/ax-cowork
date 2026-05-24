@@ -1,0 +1,53 @@
+# Standalone MongoDB instance for the ax-cowork stack. Lives in its own compose file so it
+# can be brought up once (`docker-compose -f mongodb-compose.yml up -d`) and left running
+# while app services in docker-compose.yml are redeployed independently.
+#
+# The network is declared with an explicit `name:` so it can be shared with the app compose
+# project — reference `amz-mongodb-nwk` as `external: true` in docker-compose.yml (or attach
+# the app services to this same network) if you want them to reach this DB at `mongo:27017`.
+networks:
+  amz-mongodb-nwk:
+    name: amz-mongodb-nwk
+    driver: bridge
+
+# Data and config dirs are pinned to host paths via the `local` driver + bind opts so the
+# DB survives container recreation and is easy to back up. The host paths must exist before
+# `docker compose up` — create them once with:
+#   sudo mkdir -p /data/mongodb/data /data/mongodb/config
+volumes:
+  mongo-data:
+    name: amz-mongo-data
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/mongodb/data
+  mongo-config:
+    name: amz-mongo-config
+    driver: local
+    driver_opts:
+      type: none
+      o: bind
+      device: /data/mongodb/config
+
+services:
+  mongo:
+    image: mongo:latest
+    container_name: amz_mongodb_27017
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: amz_root
+      MONGO_INITDB_ROOT_PASSWORD: wg44K40ay65KFgk5BEzf
+    networks:
+      - amz-mongodb-nwk
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo-data:/data/db
+      - mongo-config:/data/configdb
+    healthcheck:
+      test: ['CMD', 'mongosh', '--quiet', '--eval', "db.adminCommand('ping').ok"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
