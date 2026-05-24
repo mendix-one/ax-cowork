@@ -17,25 +17,25 @@ pipeline {
 
   parameters {
     booleanParam(name: "INITIALIZE", defaultValue: false, description: "Wipe and reclone source/")
-    string(name: "GITHUB_REPOSITORY", defaultValue: "git@github.com:amoza-one/ax-cowork.git", description: "The github repository")
-    string(name: "GITHUB_RELEASE_BRANCH", defaultValue: "release/1.0.0", description: "Release branch (the branch we deploy)")
+    string(name: "GITHUB_REPOSITORY", defaultValue: "git@github.com:amoza-ai/ax-cowork.git", description: "The github repository")
+    string(name: "GITHUB_RELEASE_BRANCH", defaultValue: "main", description: "Release branch (the branch we deploy)")
 
     booleanParam(name: "MERGE_TO_RELEASE_BRANCH", defaultValue: false, description: "git merge develop -> release before build")
-    string(name: "GITHUB_DEVELOP_BRANCH", defaultValue: "develop", description: "Develop branch to merge from")
+    string(name: "GITHUB_DEVELOP_BRANCH", defaultValue: "feature/architecture-review", description: "Develop branch to merge from")
 
-    booleanParam(name: "INSTALL_DEPENDENCIES", defaultValue: true, description: "Run pnpm install (always safe — re-uses lockfile)")
+    booleanParam(name: "INSTALL_DEPENDENCIES", defaultValue: false, description: "Run pnpm install (always safe — re-uses lockfile)")
 
     // Per-deployable build flags. Each one runs the corresponding pnpm build + pnpm deploy
     // packaging + docker build + docker push for its image.
-    booleanParam(name: "BUILD_SHARED", defaultValue: true, description: "Build all shared/* libraries (must run before consumers on a fresh workspace)")
-    booleanParam(name: "BUILD_APP", defaultValue: true, description: "Build ax-coworker-ui + ax-coworker-be -> docker image `app`")
-    booleanParam(name: "BUILD_SSO", defaultValue: true, description: "Build ax-sso-services -> docker image `sso`")
+    booleanParam(name: "BUILD_SHARED", defaultValue: false, description: "Build all shared/* libraries (must run before consumers on a fresh workspace)")
+    booleanParam(name: "BUILD_APP", defaultValue: false, description: "Build ax-coworker-ui + ax-coworker-be -> docker image `app`")
+    booleanParam(name: "BUILD_SSO", defaultValue: false, description: "Build ax-sso-services -> docker image `sso`")
     booleanParam(name: "BUILD_DI", defaultValue: false, description: "Build ax-data-integration -> docker image `di`")
 
     // Per-deployable deploy flags. Triggers `docker-compose up -d --force-recreate --no-deps`
     // for that service only — others stay running untouched.
-    booleanParam(name: "DEPLOY_APP", defaultValue: true, description: "down + up the `app` service")
-    booleanParam(name: "DEPLOY_SSO", defaultValue: true, description: "down + up the `sso` service")
+    booleanParam(name: "DEPLOY_APP", defaultValue: false, description: "down + up the `app` service")
+    booleanParam(name: "DEPLOY_SSO", defaultValue: false, description: "down + up the `sso` service")
     booleanParam(name: "DEPLOY_DI", defaultValue: false, description: "down + up the `di` service")
 
     string(name: "DOCKERHUB_REPOSITORY", defaultValue: "registry.amoza.xyz/ax-cowork", description: "Registry path; each image is pushed as <repo>/<app|sso|di>:<tag>")
@@ -85,7 +85,8 @@ pipeline {
       when { expression { return params.INSTALL_DEPENDENCIES } }
       steps {
         dir("source") {
-          sh "corepack enable"
+          sh "corepack enable --install-directory ~/.local/bin"
+          sh "export PATH=\"$HOME/.local/bin:$PATH\""
           sh "pnpm install --frozen-lockfile"
         }
       }
