@@ -71,11 +71,27 @@ pipeline {
       steps {
         dir("source") {
           sshagent(credentials: ["github-operators-key"]) {
+            // Discard any local changes under packages/ax-cowork-be/public/ before pulling.
+            // The UI build's postbuild copies its bundled assets there, so the workspace
+            // accumulates uncommitted edits between runs that would otherwise block
+            // `git checkout`/`git pull`/`git merge` with "would overwrite local changes".
+            sh "git checkout -- packages/ax-cowork-be/public || true"
+            sh "git clean -fd packages/ax-cowork-be/public || true"
+
             sh "git fetch origin"
             sh "git checkout ${params.GITHUB_RELEASE_BRANCH}"
             sh "git pull --ff-only"
-            sh "git merge origin/${params.GITHUB_DEVELOP_BRANCH} --no-edit --allow-unrelated-histories"
-            sh "git push"
+
+            script {
+              // When release == develop, the "merge" would be a no-op (and `git merge` of a
+              // branch into itself is an error). Just the pull above is enough; skip the rest.
+              if (params.GITHUB_RELEASE_BRANCH != params.GITHUB_DEVELOP_BRANCH) {
+                sh "git merge origin/${params.GITHUB_DEVELOP_BRANCH} --no-edit --allow-unrelated-histories"
+                sh "git push"
+              } else {
+                echo "GITHUB_RELEASE_BRANCH == GITHUB_DEVELOP_BRANCH (${params.GITHUB_RELEASE_BRANCH}) — pull-only, no merge needed."
+              }
+            }
           }
         }
       }
