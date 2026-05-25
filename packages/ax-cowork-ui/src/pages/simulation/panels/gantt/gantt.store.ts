@@ -54,9 +54,16 @@ export class GanttStore {
   filterSidebarOpen = false
   quickAnalysisOpen = false
 
+  // Applied filter state — drives `filteredOrders` (and therefore the chart).
   customerFilters: string[] = [...ALL_CUSTOMERS]
   orderFilters: string[] = [...ALL_ORDERS]
   familyFilters: string[] = [...ALL_FAMILIES]
+
+  // Pending filter state — what the user is currently choosing in the sidebar.
+  // Stays separate from the applied state until the user clicks Apply.
+  pendingCustomerFilters: string[] = [...ALL_CUSTOMERS]
+  pendingOrderFilters: string[] = [...ALL_ORDERS]
+  pendingFamilyFilters: string[] = [...ALL_FAMILIES]
 
   allCustomers = ALL_CUSTOMERS
   allOrders = ALL_ORDERS
@@ -92,28 +99,57 @@ export class GanttStore {
 
   toggleFilterSidebar() {
     this.filterSidebarOpen = !this.filterSidebarOpen
+    if (this.filterSidebarOpen) {
+      // Sync the sidebar's pending state with what is currently applied, so the user always sees
+      // the live filter when they re-open the panel.
+      this.pendingCustomerFilters = [...this.customerFilters]
+      this.pendingOrderFilters = [...this.orderFilters]
+      this.pendingFamilyFilters = [...this.familyFilters]
+    }
   }
 
   toggleQuickAnalysis() {
     this.quickAnalysisOpen = !this.quickAnalysisOpen
   }
 
+  // Mutate the *pending* selection — checkboxes call these and the chart is not re-filtered yet.
   setCustomerFilters(values: string[]) {
-    this.customerFilters = values
+    this.pendingCustomerFilters = values
   }
 
   setOrderFilters(values: string[]) {
-    this.orderFilters = values
+    this.pendingOrderFilters = values
   }
 
   setFamilyFilters(values: string[]) {
-    this.familyFilters = values
+    this.pendingFamilyFilters = values
   }
 
+  // Apply — commit the pending selection to the applied state. Only after this does the chart re-filter.
+  applyFilters() {
+    this.customerFilters = [...this.pendingCustomerFilters]
+    this.orderFilters = [...this.pendingOrderFilters]
+    this.familyFilters = [...this.pendingFamilyFilters]
+  }
+
+  // Reset — restore the default filter condition (all values selected) in both pending and applied state.
   resetFilters() {
+    this.pendingCustomerFilters = [...this.allCustomers]
+    this.pendingOrderFilters = [...this.allOrders]
+    this.pendingFamilyFilters = [...this.allFamilies]
     this.customerFilters = [...this.allCustomers]
     this.orderFilters = [...this.allOrders]
     this.familyFilters = [...this.allFamilies]
+  }
+
+  // True when the pending selection differs from what is currently applied — used to enable the Apply button.
+  get hasPendingFilterChanges(): boolean {
+    const same = (a: string[], b: string[]) => a.length === b.length && a.every((v) => b.includes(v))
+    return (
+      !same(this.pendingCustomerFilters, this.customerFilters) ||
+      !same(this.pendingOrderFilters, this.orderFilters) ||
+      !same(this.pendingFamilyFilters, this.familyFilters)
+    )
   }
 
   get filteredOrders(): ProductionOrder[] {
@@ -219,12 +255,6 @@ export class GanttStore {
   expandAll() {
     this.expandedOrderIds = new Set(this.orders.map((o) => o.id))
     this.expandedFamilyIds = new Set(this.orders.flatMap((o) => o.schedule.map((f) => f.id)))
-  }
-
-  clearFilters() {
-    this.customerFilters = []
-    this.orderFilters = []
-    this.familyFilters = []
   }
 
   get canUndo() {

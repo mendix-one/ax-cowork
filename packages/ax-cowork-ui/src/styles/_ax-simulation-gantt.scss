@@ -6,6 +6,14 @@
 .ax-gantt {
   @apply w-full h-full flex flex-col bg-white;
 
+  // ---- toolbar (rendered inside AxDisplayPanel header tools slot) -------------------------------------------------
+  &_toolbar {
+    // Tailwind utility palette doesn't ship an "olive" tone, so apply the OKLCH value directly.
+    .ant-segmented {
+      @apply bg-stone-300;
+    }
+  }
+
   &_body {
     @apply flex-1 min-h-0 flex overflow-hidden;
 
@@ -38,7 +46,7 @@
 
     &_footer {
       @apply w-full h-9 px-2;
-      @apply flex-none flex items-center justify-between gap-2;
+      @apply flex-none flex items-center justify-end gap-2;
       @apply border-t border-gray-300;
     }
   }
@@ -197,5 +205,62 @@
     font-size: 10px;
     padding: 0 4px;
     border-radius: 2px;
+  }
+}
+
+// === PERSISTENT SCROLLBARS (macOS) ===================================================================================
+// macOS hides overlay scrollbars by default. We force the "classic" appearance so the hanger is always visible —
+// both in DHTMLX's internal scroll fakers (.gantt_hor_scroll / .gantt_ver_scroll) and in our own chrome bodies
+// (filter sidebar body, quick-analysis body).
+
+$ax-gantt-track: #f3f4f6; // gray-100
+$ax-gantt-thumb: #9ca3af; // gray-400
+$ax-gantt-thumb-hover: #6b7280; // gray-500
+$ax-gantt-bar-size: 12px;
+
+// 1) DHTMLX-internal scroll fakers — these are the bars at the bottom and right edge of the chart.
+//    They are intentionally 0px-thin containers; we re-size them so the classic scrollbar has room to render.
+.ax-gantt_chart {
+  .gantt_layout_cell.gantt_hor_scroll {
+    height: $ax-gantt-bar-size !important;
+  }
+  .gantt_layout_cell.gantt_ver_scroll {
+    width: $ax-gantt-bar-size !important;
+  }
+}
+
+// 2) Force classic scrollbar appearance + custom skin on every scrollable element inside the gantt panel.
+//    `-webkit-appearance: none` switches the bar from overlay to classic on macOS Safari/Chrome.
+//.ax-gantt,
+//.ax-gantt * {
+//  scrollbar-width: auto; // Firefox — auto = "normal" (always visible) width
+//  scrollbar-color: #{$ax-gantt-thumb} #{$ax-gantt-track};
+//}
+
+.ax-gantt {
+  .gantt_hor_scroll::-webkit-scrollbar,
+  .gantt_ver_scroll::-webkit-scrollbar {
+    width: $ax-gantt-bar-size !important;
+    height: $ax-gantt-bar-size !important;
+    -webkit-appearance: none !important;
+    background: $ax-gantt-track !important;
+  }
+  .gantt_hor_scroll::-webkit-scrollbar-track,
+  .gantt_ver_scroll::-webkit-scrollbar-track {
+    background: $ax-gantt-track !important;
+  }
+  .gantt_hor_scroll::-webkit-scrollbar-thumb,
+  .gantt_ver_scroll::-webkit-scrollbar-thumb {
+    background: $ax-gantt-thumb !important;
+    border-radius: 6px !important;
+    border: 2px solid $ax-gantt-track !important;
+  }
+  .gantt_hor_scroll::-webkit-scrollbar-thumb:hover,
+  .gantt_ver_scroll::-webkit-scrollbar-thumb:hover {
+    background: $ax-gantt-thumb-hover !important;
+  }
+  .gantt_hor_scroll::-webkit-scrollbar-corner,
+  .gantt_ver_scroll::-webkit-scrollbar-corner {
+    background: $ax-gantt-track !important;
   }
 }

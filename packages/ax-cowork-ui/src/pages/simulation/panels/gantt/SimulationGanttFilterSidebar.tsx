@@ -20,7 +20,7 @@ export const SimulationGanttFilterSidebar = observer(() => {
       <div className="ax-gantt_side_body">
         <div className="ax-gantt_filter_group">
           <span className="ax-gantt_filter_group_title">Customers</span>
-          <Checkbox.Group value={gantt.customerFilters} onChange={(vals) => gantt.setCustomerFilters(vals as string[])}>
+          <Checkbox.Group value={gantt.pendingCustomerFilters} onChange={(vals) => gantt.setCustomerFilters(vals as string[])}>
             <Space direction="vertical" size={4}>
               {gantt.allCustomers.map((c) => (
                 <Checkbox key={c} value={c}>
@@ -32,7 +32,7 @@ export const SimulationGanttFilterSidebar = observer(() => {
         </div>
         <div className="ax-gantt_filter_group">
           <span className="ax-gantt_filter_group_title">Production Orders</span>
-          <Checkbox.Group value={gantt.orderFilters} onChange={(vals) => gantt.setOrderFilters(vals as string[])}>
+          <Checkbox.Group value={gantt.pendingOrderFilters} onChange={(vals) => gantt.setOrderFilters(vals as string[])}>
             <Space direction="vertical" size={4}>
               {gantt.allOrders.map((o) => (
                 <Checkbox key={o} value={o}>
@@ -44,7 +44,7 @@ export const SimulationGanttFilterSidebar = observer(() => {
         </div>
         <div className="ax-gantt_filter_group">
           <span className="ax-gantt_filter_group_title">Product Families</span>
-          <Checkbox.Group value={gantt.familyFilters} onChange={(vals) => gantt.setFamilyFilters(vals as string[])}>
+          <Checkbox.Group value={gantt.pendingFamilyFilters} onChange={(vals) => gantt.setFamilyFilters(vals as string[])}>
             <Space direction="vertical" size={4}>
               {gantt.allFamilies.map((f) => (
                 <Checkbox key={f} value={f}>
@@ -56,12 +56,14 @@ export const SimulationGanttFilterSidebar = observer(() => {
         </div>
       </div>
       <div className="ax-gantt_side_footer">
-        <Button size="small" onClick={() => gantt.resetFilters()}>
-          Reset
-        </Button>
-        <Button size="small" type="text" onClick={() => gantt.clearFilters()}>
-          Clear
-        </Button>
+        <Space size="small">
+          <Button size="small" onClick={() => gantt.resetFilters()}>
+            Reset
+          </Button>
+          <Button size="small" type="primary" disabled={!gantt.hasPendingFilterChanges} onClick={() => gantt.applyFilters()}>
+            Apply
+          </Button>
+        </Space>
       </div>
     </div>
   )

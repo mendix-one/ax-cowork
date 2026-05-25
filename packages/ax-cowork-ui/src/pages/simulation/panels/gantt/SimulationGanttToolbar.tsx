@@ -7,9 +7,31 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 export const SimulationGanttToolbar = observer(() => {
   const gantt = useSimulationContext().gantt
   return (
-    <Flex align="center" justify="space-between" gap="small" style={{ width: '100%' }}>
-      <Space size={6}>
-        {/* Group 1 — view toggles */}
+    <Flex align="center" justify="space-between" gap="small" className="ax-gantt_toolbar" style={{ width: '100%' }}>
+      <Space size={10}>
+        <DatePicker.RangePicker
+          size="small"
+          allowClear={false}
+          value={[dayjs(gantt.startDate), dayjs(gantt.endDate)]}
+          onChange={(values: [Dayjs | null, Dayjs | null] | null) => {
+            if (!values || !values[0] || !values[1]) return
+            gantt.setStartDate(values[0].format('YYYY-MM-DD'))
+            gantt.setEndDate(values[1].format('YYYY-MM-DD'))
+          }}
+        />
+
+        <Divider vertical style={{ margin: 0 }} />
+        <Segmented
+          size="small"
+          value={gantt.horizon}
+          onChange={(v) => gantt.setHorizon(v as 'day' | 'week' | 'month')}
+          options={[
+            { label: 'Day', value: 'day' },
+            { label: 'Week', value: 'week' },
+            { label: 'Month', value: 'month' },
+          ]}
+        />
+        <Divider vertical style={{ margin: 0 }} />
         <Space size={2}>
           <Tooltip title={gantt.filterSidebarOpen ? 'Hide filter sidebar' : 'Show filter sidebar'}>
             <Button
@@ -28,32 +50,7 @@ export const SimulationGanttToolbar = observer(() => {
             />
           </Tooltip>
         </Space>
-        <Divider type="vertical" style={{ margin: 0 }} />
-        {/* Group 2 — view mode */}
-        <Segmented
-          size="small"
-          value={gantt.horizon}
-          onChange={(v) => gantt.setHorizon(v as 'day' | 'week' | 'month')}
-          options={[
-            { label: 'Day', value: 'day' },
-            { label: 'Week', value: 'week' },
-            { label: 'Month', value: 'month' },
-          ]}
-        />
-        <Divider type="vertical" style={{ margin: 0 }} />
-        {/* Group 3 — date range */}
-        <DatePicker.RangePicker
-          size="small"
-          allowClear={false}
-          value={[dayjs(gantt.startDate), dayjs(gantt.endDate)]}
-          onChange={(values: [Dayjs | null, Dayjs | null] | null) => {
-            if (!values || !values[0] || !values[1]) return
-            gantt.setStartDate(values[0].format('YYYY-MM-DD'))
-            gantt.setEndDate(values[1].format('YYYY-MM-DD'))
-          }}
-        />
-        <Divider type="vertical" style={{ margin: 0 }} />
-        {/* Group 4 — collapse / expand */}
+        <Divider vertical style={{ margin: 0 }} />
         <Space size={2}>
           <Tooltip title="Collapse all">
             <Button size="small" icon={<AxMuiIcon icon="mdiUnfoldLessHorizontal" size={14} />} onClick={() => gantt.collapseAll()} />
