@@ -16,15 +16,15 @@ import {
 } from '@nestjs/swagger'
 import type { ObjectId } from 'mongodb'
 
+import { CurrentPrincipal, type Principal } from '../../acore/auth'
 import { ObjectIdPipe } from '../../acore/mongo'
 import { SourceFilesService } from './source-file.service'
 import type { SourceFileSummary } from './source-file.schema'
 
 const MAX_FILE_BYTES = 100 * 1024 * 1024 // 100 MiB
-const PHASE_1_PRINCIPAL = 'axios-key'
 
 @ApiTags('Source files')
-@ApiSecurity('axios-key')
+@ApiSecurity('api-key')
 @ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
 @Controller('source-files')
 export class SourceFilesController {
@@ -41,14 +41,15 @@ export class SourceFilesController {
   @ApiCreatedResponse({ description: 'The uploaded file metadata. Same response shape for a deduped upload (existing record returned).' })
   upload(
     @UploadedFile(new ParseFilePipeBuilder().addMaxSizeValidator({ maxSize: MAX_FILE_BYTES }).build({ errorHttpStatusCode: HttpStatus.PAYLOAD_TOO_LARGE }))
-    file: Express.Multer.File,
+      file: Express.Multer.File,
+    @CurrentPrincipal() principal: Principal,
   ): Promise<SourceFileSummary> {
     return this.files.upload({
       fileName: file.originalname,
       contentType: file.mimetype,
       size: file.size,
       content: file.buffer,
-      uploadedBy: PHASE_1_PRINCIPAL,
+      uploadedBy: principal.label,
     })
   }
 
