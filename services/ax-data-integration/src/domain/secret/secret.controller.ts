@@ -12,19 +12,15 @@ import {
 } from '@nestjs/swagger'
 import type { ObjectId } from 'mongodb'
 
+import { CurrentPrincipal, type Principal } from '../../acore/auth'
 import { ObjectIdPipe } from '../../acore/mongo'
 import { CreateSecretDto } from './dto/create-secret.dto'
 import { UpdateSecretDto } from './dto/update-secret.dto'
 import type { SecretSummary } from './secret.schema'
 import { SecretsService } from './secret.service'
 
-// TODO: derive a real principal from the authenticated API key (hash / index)
-// once the guard attaches it to the request. For phase 1 the API key set is small
-// and shared across the internal team, so a single literal is acceptable.
-const PHASE_1_PRINCIPAL = 'axios-key'
-
 @ApiTags('Secrets')
-@ApiSecurity('axios-key')
+@ApiSecurity('api-key')
 @ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
 @Controller('secrets')
 export class SecretsController {
@@ -34,12 +30,12 @@ export class SecretsController {
   @ApiOperation({ summary: 'Create a secret', description: 'Encrypts the supplied plaintext at rest using the current master key.' })
   @ApiCreatedResponse({ description: 'The new secret (without plaintext or ciphertext).' })
   @ApiConflictResponse({ description: 'A secret with that name already exists.' })
-  create(@Body() dto: CreateSecretDto): Promise<SecretSummary> {
+  create(@Body() dto: CreateSecretDto, @CurrentPrincipal() principal: Principal): Promise<SecretSummary> {
     return this.secrets.create({
       name: dto.name,
       type: dto.type,
       plaintext: dto.plaintext,
-      createdBy: PHASE_1_PRINCIPAL,
+      createdBy: principal.label,
     })
   }
 
