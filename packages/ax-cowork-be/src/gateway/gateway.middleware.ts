@@ -53,7 +53,7 @@ export class GatewayMiddleware implements NestMiddleware {
         proxyReq: (proxyReq, req) => {
           const ctx = (req as GatewayRequest).gateway!
           proxyReq.setHeader('authorization', `Bearer ${ctx.token}`)
-          proxyReq.setHeader('ax-axios-key', this.apiKey)
+          proxyReq.setHeader('ax-api-key', this.apiKey)
           // Body was already parsed by Nest's built-in body-parser before this middleware
           // runs — re-serialize it onto the outgoing proxy stream.
           fixRequestBody(proxyReq, req)
