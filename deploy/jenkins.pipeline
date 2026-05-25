@@ -176,6 +176,11 @@ pipeline {
       steps {
         dir("source/deploy") {
           // `--force-recreate --no-deps` restarts JUST this service — leaves sso / di alone.
+          // The pre-emptive `docker rm -f` works around legacy docker-compose v1's
+          // 'ContainerConfig' bug, where its inspect of an existing container fails and
+          // --force-recreate never gets to run. `|| true` keeps first-time deploys green.
+          // TODO: migrate the Jenkins agent to docker compose v2 (Go plugin) and drop this.
+          sh "docker rm -f amz-cowork-app_15000 || true"
           sh "docker-compose -f ./docker-compose.yml pull amz-cowork-app || true"
           sh "docker-compose -f ./docker-compose.yml up -d --force-recreate --no-deps amz-cowork-app"
         }
@@ -186,6 +191,7 @@ pipeline {
       when { expression { return params.DEPLOY_SSO } }
       steps {
         dir("source/deploy") {
+          sh "docker rm -f amz-cowork-sso_15501 || true"
           sh "docker-compose -f ./docker-compose.yml pull amz-cowork-sso || true"
           sh "docker-compose -f ./docker-compose.yml up -d --force-recreate --no-deps amz-cowork-sso"
         }
@@ -196,6 +202,7 @@ pipeline {
       when { expression { return params.DEPLOY_DI } }
       steps {
         dir("source/deploy") {
+          sh "docker rm -f amz-cowork-di_15001 || true"
           sh "docker-compose -f ./docker-compose.yml pull amz-cowork-di || true"
           sh "docker-compose -f ./docker-compose.yml up -d --force-recreate --no-deps amz-cowork-di"
         }
