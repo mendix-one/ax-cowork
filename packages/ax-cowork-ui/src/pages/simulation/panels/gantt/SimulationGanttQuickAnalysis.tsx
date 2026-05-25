@@ -16,7 +16,13 @@ export const SimulationGanttQuickAnalysis = observer(() => {
     <div className="ax-gantt_analysis">
       <div className="ax-gantt_analysis_header">
         <span>Quick Analysis</span>
-        <Button size="small" type="text" icon={<AxMuiIcon icon="mdiClose" size={12} />} onClick={() => gantt.toggleQuickAnalysis()} />
+        <Button
+          size="small"
+          type="text"
+          className="ax-antd-button-icon-small"
+          icon={<AxMuiIcon icon="mdiClose" size="1.15rem" />}
+          onClick={() => gantt.toggleQuickAnalysis()}
+        />
       </div>
       <div className="ax-gantt_analysis_body">
         <div className="ax-gantt_analysis_grid">

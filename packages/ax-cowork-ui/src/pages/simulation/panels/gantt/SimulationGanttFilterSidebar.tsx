@@ -9,7 +9,13 @@ export const SimulationGanttFilterSidebar = observer(() => {
     <div className="ax-gantt_side">
       <div className="ax-gantt_side_header">
         <span>Filters</span>
-        <Button size="small" type="text" icon={<AxMuiIcon icon="mdiClose" size={12} />} onClick={() => gantt.toggleFilterSidebar()} />
+        <Button
+          size="small"
+          type="text"
+          className="ax-antd-button-icon-small"
+          icon={<AxMuiIcon icon="mdiClose" size="1.15rem" />}
+          onClick={() => gantt.toggleFilterSidebar()}
+        />
       </div>
       <div className="ax-gantt_side_body">
         <div className="ax-gantt_filter_group">
