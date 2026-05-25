@@ -1,5 +1,5 @@
 import { AppStore } from './app.store'
-import { AuthStore } from './auth.store'
+import { AuthStore } from './auth.mock'
 import { DocumentStore } from '@/acore/store/document.store.ts'
 
 export class RootStore {
