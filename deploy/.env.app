@@ -24,4 +24,4 @@ SESSION_COOKIE_SECRET=8ab4bae7d97451be8600a8cff62601a49e894d95fc6ee4f6c601a62bac
 
 # Gateway upstream map (JSON). Each entry routes `/app/<key>/...` to that baseURL,
 # with `appKey` used as the scope when minting upstream tokens via SSO /token.
-GATEWAY_SERVICES={"sso":{"baseURL":"http://amz-cowork-sso:3001","appKey":"APLANNER"}}
+GATEWAY_SERVICES={"sso":{"baseURL":"http://10.0.0.20:15501","appKey":"SSO"}}
