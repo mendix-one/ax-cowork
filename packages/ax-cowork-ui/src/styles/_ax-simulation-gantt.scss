@@ -95,20 +95,30 @@
 // === DHTMLX OVERRIDES ================================================================================================
 // Skin the DHTMLX terrace bars by status, give the grid the indigo-50 header, and style the today marker.
 
-.gantt_grid_scale,
-.gantt_task_scale {
-  @apply bg-indigo-50;
-  .gantt_grid_head_cell,
-  .gantt_scale_cell {
+// Headers — sidebar grid header + timeline scale. Scoped under .ax-gantt_chart so we don't leak globally.
+.ax-gantt_chart {
+  .gantt_grid_scale,
+  .gantt_task_scale {
+    @apply bg-indigo-50;
+    @apply border-b border-gray-300;
+  }
+  .gantt_grid_scale .gantt_grid_head_cell,
+  .gantt_task_scale .gantt_scale_cell,
+  .gantt_task_scale .gantt_scale_line {
+    @apply bg-indigo-50;
     @apply text-neutral-700 font-semibold;
   }
-}
 
-.gantt_task_row,
-.gantt_grid_data .gantt_row {
-  @apply bg-white;
-  &.odd {
+  .gantt_task_scale .gantt_scale_cell {
+    @apply border-r border-gray-300;
+  }
+
+  .gantt_task_row,
+  .gantt_grid_data .gantt_row {
     @apply bg-white;
+    &.odd {
+      @apply bg-white;
+    }
   }
 }
 
@@ -145,22 +155,22 @@
 
 // Grid-cell label chips
 .ax-gantt-po-text {
-  @apply font-bold text-xs;
+  @apply font-semibold text-neutral-700;
 }
 .ax-gantt-family-text {
-  @apply font-semibold text-xs;
+  @apply font-semibold text-neutral-700;
 }
 .ax-gantt-batch-text {
-  @apply font-normal text-xs;
+  @apply font-semibold text-neutral-700;
 }
 .ax-gantt-milestone-text {
-  @apply font-medium text-xs text-neutral-700;
+  @apply font-medium text-neutral-700;
 }
 .ax-gantt-muted {
-  @apply text-xs text-neutral-500 ml-1;
+  @apply text-neutral-600 ml-1;
 }
 .ax-gantt-chip {
-  @apply inline-block px-1.5 py-0 ml-1 rounded text-[10px] font-semibold;
+  @apply inline-block px-1 py-0 ml-1 rounded text-xs font-semibold;
   &__hot {
     @apply bg-purple-100 text-purple-700;
   }

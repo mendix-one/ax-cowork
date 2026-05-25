@@ -45,8 +45,8 @@ export const SimulationGanttChart = observer(() => {
       start_date: new Date(gantt.startDate),
       end_date: new Date(new Date(gantt.endDate).getTime() + 24 * 60 * 60 * 1000),
       scale_height: 50,
-      row_height: 30,
-      bar_height: 14,
+      row_height: 28,
+      bar_height: 20,
       columns: [
         {
           name: 'text',
@@ -61,7 +61,7 @@ export const SimulationGanttChart = observer(() => {
       ],
       scales: [
         { unit: 'month', step: 1, format: '%F %Y' },
-        { unit: 'day', step: 1, format: '%d %D' },
+        { unit: 'day', step: 1, format: '%d' },
       ],
       grid_resizer_column_attribute: 'gridResizer',
     }),
