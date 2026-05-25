@@ -110,11 +110,21 @@ pipeline {
           // UI's `build` script has a postbuild that copies dist/assets into the BE's
           // public/ — so building UI first means the BE deploy artifact already contains
           // the bundled SPA.
-          sh "pnpm --filter ax-cowork-ui run build"
-          sh "pnpm --filter ax-cowork-be run build"
-          sh "rm -rf ./deploy/out/app"
-          sh "pnpm --filter ax-cowork-be deploy --prod --legacy ./deploy/out/app"
-          sleep 180 // seconds
+          // Build + deploy + verify run in a SINGLE shell with `set -e` so the artifact
+          // is guaranteed to be complete (dist/ + node_modules/) before docker build reads
+          // from it. `sync` flushes any pending writes (matters on NFS/CI disks). Replaces
+          // the old `sleep 180` workaround, which was both unreliable and wasteful.
+          sh """#!/bin/bash
+            set -euo pipefail
+            pnpm --filter ax-cowork-ui run build
+            pnpm --filter ax-cowork-be run build
+            rm -rf ./deploy/out/app
+            pnpm --filter ax-cowork-be deploy --prod --legacy ./deploy/out/app
+            sync
+            test -d ./deploy/out/app/dist || { echo 'ERROR: ./deploy/out/app/dist missing after pnpm deploy' >&2; exit 1; }
+            test -d ./deploy/out/app/node_modules || { echo 'ERROR: ./deploy/out/app/node_modules missing after pnpm deploy' >&2; exit 1; }
+            ls -la ./deploy/out/app/
+          """
           sh "docker build -f ./deploy/Dockerfile.app -t ${params.DOCKERHUB_REPOSITORY}/ax-cowork:${params.IMAGE_TAG} ."
           sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/ax-cowork:${params.IMAGE_TAG}"
         }
@@ -125,10 +135,16 @@ pipeline {
       when { expression { return params.BUILD_SSO } }
       steps {
         dir("source") {
-          sh "pnpm --filter ax-sso-services run build"
-          sh "rm -rf ./deploy/out/sso"
-          sh "pnpm --filter ax-sso-services deploy --prod --legacy ./deploy/out/sso"
-          sleep 180 // seconds
+          sh """#!/bin/bash
+            set -euo pipefail
+            pnpm --filter ax-sso-services run build
+            rm -rf ./deploy/out/sso
+            pnpm --filter ax-sso-services deploy --prod --legacy ./deploy/out/sso
+            sync
+            test -d ./deploy/out/sso/dist || { echo 'ERROR: ./deploy/out/sso/dist missing after pnpm deploy' >&2; exit 1; }
+            test -d ./deploy/out/sso/node_modules || { echo 'ERROR: ./deploy/out/sso/node_modules missing after pnpm deploy' >&2; exit 1; }
+            ls -la ./deploy/out/sso/
+          """
           sh "docker build -f ./deploy/Dockerfile.sso -t ${params.DOCKERHUB_REPOSITORY}/ax-sso:${params.IMAGE_TAG} ."
           sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/ax-sso:${params.IMAGE_TAG}"
         }
@@ -139,10 +155,16 @@ pipeline {
       when { expression { return params.BUILD_DI } }
       steps {
         dir("source") {
-          sh "pnpm --filter ax-data-integration run build"
-          sh "rm -rf ./deploy/out/di"
-          sh "pnpm --filter ax-data-integration deploy --prod --legacy ./deploy/out/di"
-          sleep 180 // seconds
+          sh """#!/bin/bash
+            set -euo pipefail
+            pnpm --filter ax-data-integration run build
+            rm -rf ./deploy/out/di
+            pnpm --filter ax-data-integration deploy --prod --legacy ./deploy/out/di
+            sync
+            test -d ./deploy/out/di/dist || { echo 'ERROR: ./deploy/out/di/dist missing after pnpm deploy' >&2; exit 1; }
+            test -d ./deploy/out/di/node_modules || { echo 'ERROR: ./deploy/out/di/node_modules missing after pnpm deploy' >&2; exit 1; }
+            ls -la ./deploy/out/di/
+          """
           sh "docker build -f ./deploy/Dockerfile.di -t ${params.DOCKERHUB_REPOSITORY}/ax-di:${params.IMAGE_TAG} ."
           sh "docker --config ~/.nexus push ${params.DOCKERHUB_REPOSITORY}/ax-di:${params.IMAGE_TAG}"
         }
