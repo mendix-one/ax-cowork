@@ -1,0 +1,34 @@
+Dynamic Schedule Gantt View:
+==================== Update 1: Update layout ===========================================================================
+#1: Panel Header
+  - Title:
+    - Icon:
+    - Text: Schedule Name
+  - Toolbar:
+    - Left:
+      - Group 1:
+        - Toggle filter sidebar:
+        - Toggle quick analysis:
+      - Group 2: view mode
+        - Day
+        - Week
+        - Month
+      - Group 3: Date range picker:
+        - Start date:
+        - End date:
+    - Right:
+      - Undo
+      - Redo
+      - Reset
+      - Save
+  - Maximize toggler on the right
+# Panel Body:
+  - Filter Sidebar (on the left - hidden by default)
+    - Customers Filter
+    - Productions Order Filter
+    - Product Family Filter
+  - Gantt Chart (Show on the main body)
+  - Quick Analysis (Show on the bottom of main body - hidden by default)
+    - Shoop floor overall capacity analysis
+    - Tool group capacities analysis
+    - Viloation analysis or highload analysis

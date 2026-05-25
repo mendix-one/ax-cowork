@@ -1,5 +1,6 @@
 import { Fragment } from 'react'
-import { Button, Flex, Segmented, Select, Space, Tag, Tooltip, Typography } from 'antd'
+import { Button, Checkbox, DatePicker, Divider, Flex, Progress, Segmented, Space, Tag, Tooltip, Typography } from 'antd'
+import dayjs, { type Dayjs } from 'dayjs'
 import { createStyles } from 'antd-style'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
@@ -28,6 +29,12 @@ const useStyles = createStyles(({ token }) => ({
     flex: 1,
     minHeight: 0,
     display: 'flex',
+    overflow: 'hidden',
+  },
+  bodyContent: {
+    flex: 1,
+    minWidth: 0,
+    display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden',
   },
@@ -35,6 +42,81 @@ const useStyles = createStyles(({ token }) => ({
     flex: 1,
     minHeight: 0,
     overflow: 'auto',
+  },
+  sidebar: {
+    width: 220,
+    minWidth: 220,
+    borderRight: `1px solid ${token.colorBorderSecondary}`,
+    background: token.colorFillAlter,
+    overflow: 'auto',
+    display: 'flex',
+    flexDirection: 'column',
+  },
+  sidebarHeader: {
+    padding: `${token.paddingXS}px ${token.paddingSM}px`,
+    borderBottom: `1px solid ${token.colorBorderSecondary}`,
+    background: token.colorBgContainer,
+    fontWeight: 600,
+    fontSize: token.fontSizeSM,
+    color: token.colorTextSecondary,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  filterGroup: {
+    padding: `${token.paddingXS}px ${token.paddingSM}px`,
+    borderBottom: `1px solid ${token.colorBorderSecondary}`,
+  },
+  filterGroupTitle: {
+    fontSize: token.fontSizeSM,
+    color: token.colorTextSecondary,
+    fontWeight: 600,
+    textTransform: 'uppercase',
+    marginBottom: 6,
+    display: 'block',
+  },
+  analysis: {
+    flex: '0 0 auto',
+    borderTop: `1px solid ${token.colorBorderSecondary}`,
+    background: token.colorBgContainer,
+    maxHeight: 220,
+    overflow: 'auto',
+  },
+  analysisHeader: {
+    padding: `${token.paddingXS}px ${token.paddingSM}px`,
+    borderBottom: `1px solid ${token.colorBorderSecondary}`,
+    background: token.colorFillAlter,
+    fontWeight: 600,
+    fontSize: token.fontSizeSM,
+    color: token.colorTextSecondary,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  analysisGrid: {
+    padding: token.paddingSM,
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+    gap: token.padding,
+  },
+  analysisCard: {
+    border: `1px solid ${token.colorBorderSecondary}`,
+    borderRadius: token.borderRadiusSM,
+    padding: token.paddingSM,
+    background: token.colorFillAlter,
+  },
+  analysisTitle: {
+    fontSize: token.fontSizeSM,
+    color: token.colorTextSecondary,
+    fontWeight: 600,
+    marginBottom: 6,
+  },
+  analysisRow: {
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: token.paddingXS,
+    fontSize: token.fontSizeSM,
   },
   table: {
     width: 'max-content',
@@ -165,6 +247,8 @@ const dayOffset = (start: string, anchor: string): number => {
   return Math.max(0, diff)
 }
 
+const utilColor = (u: number) => (u > 85 ? '#f5222d' : u > 70 ? '#faad14' : '#52c41a')
+
 const Bar = observer(
   ({ start, duration, status, label, anchor, note }: { start: string; duration: number; status: LotStatus; label?: string; anchor: string; note?: string }) => {
     const { styles } = useStyles()
@@ -284,7 +368,27 @@ const GanttToolbar = observer(() => {
   return (
     <Flex align="center" justify="space-between" gap="small" style={{ width: '100%' }}>
       <Space size={8}>
-        <Select size="small" value="apr-2026" style={{ width: 140 }} options={[{ value: 'apr-2026', label: 'Apr 2026' }]} />
+        {/* Group 1 — view toggles */}
+        <Space size={2}>
+          <Tooltip title={gantt.filterSidebarOpen ? 'Hide filter sidebar' : 'Show filter sidebar'}>
+            <Button
+              size="small"
+              type={gantt.filterSidebarOpen ? 'primary' : 'default'}
+              icon={<AxMuiIcon icon="mdiFilterMenuOutline" size={14} />}
+              onClick={() => gantt.toggleFilterSidebar()}
+            />
+          </Tooltip>
+          <Tooltip title={gantt.quickAnalysisOpen ? 'Hide quick analysis' : 'Show quick analysis'}>
+            <Button
+              size="small"
+              type={gantt.quickAnalysisOpen ? 'primary' : 'default'}
+              icon={<AxMuiIcon icon="mdiChartTimelineVariant" size={14} />}
+              onClick={() => gantt.toggleQuickAnalysis()}
+            />
+          </Tooltip>
+        </Space>
+        <Divider type="vertical" style={{ margin: 0 }} />
+        {/* Group 2 — view mode */}
         <Segmented
           size="small"
           value={gantt.horizon}
@@ -295,31 +399,149 @@ const GanttToolbar = observer(() => {
             { label: 'Month', value: 'month' },
           ]}
         />
-        <Select
+        <Divider type="vertical" style={{ margin: 0 }} />
+        {/* Group 3 — date range */}
+        <DatePicker.RangePicker
           size="small"
-          value={gantt.filter}
-          onChange={(v) => gantt.setFilter(v)}
-          style={{ width: 120 }}
-          options={[
-            { value: 'all', label: 'All' },
-            { value: 'at-risk', label: 'At-risk' },
-            { value: 'hot-lot', label: 'Hot lots' },
-          ]}
+          allowClear={false}
+          value={[dayjs(gantt.startDate), dayjs(gantt.endDate)]}
+          onChange={(values: [Dayjs | null, Dayjs | null] | null) => {
+            if (!values || !values[0] || !values[1]) return
+            gantt.setStartDate(values[0].format('YYYY-MM-DD'))
+            gantt.setEndDate(values[1].format('YYYY-MM-DD'))
+          }}
         />
       </Space>
-      <Space size={6}>
-        <Button size="small" icon={<AxMuiIcon icon="mdiFilterOutline" size={14} />}>
-          Filter
-        </Button>
-        <Button size="small" type="primary" icon={<AxMuiIcon icon="mdiPlus" size={14} />}>
-          Add override
-        </Button>
+      <Space size={4}>
+        <Tooltip title="Undo">
+          <Button size="small" disabled={!gantt.canUndo} icon={<AxMuiIcon icon="mdiUndo" size={14} />} onClick={() => gantt.undo()} />
+        </Tooltip>
+        <Tooltip title="Redo">
+          <Button size="small" disabled={!gantt.canRedo} icon={<AxMuiIcon icon="mdiRedo" size={14} />} onClick={() => gantt.redo()} />
+        </Tooltip>
+        <Tooltip title="Reset">
+          <Button size="small" icon={<AxMuiIcon icon="mdiRestore" size={14} />} onClick={() => gantt.reset()} />
+        </Tooltip>
+        <Tooltip title="Save">
+          <Button size="small" type="primary" icon={<AxMuiIcon icon="mdiContentSaveOutline" size={14} />} onClick={() => gantt.save()}>
+            Save
+          </Button>
+        </Tooltip>
       </Space>
     </Flex>
   )
 })
 
-const utilColor = (u: number) => (u > 85 ? '#f5222d' : u > 70 ? '#faad14' : '#52c41a')
+const FilterSidebar = observer(() => {
+  const { styles } = useStyles()
+  const gantt = useSimulationContext().gantt
+  return (
+    <div className={styles.sidebar}>
+      <div className={styles.sidebarHeader}>
+        <span>Filters</span>
+        <Button size="small" type="link" onClick={() => gantt.resetFilters()} style={{ padding: 0, height: 'auto' }}>
+          Reset
+        </Button>
+      </div>
+      <div className={styles.filterGroup}>
+        <span className={styles.filterGroupTitle}>Customers</span>
+        <Checkbox.Group value={gantt.customerFilters} onChange={(vals) => gantt.setCustomerFilters(vals as string[])}>
+          <Space direction="vertical" size={4}>
+            {gantt.allCustomers.map((c) => (
+              <Checkbox key={c} value={c}>
+                {c}
+              </Checkbox>
+            ))}
+          </Space>
+        </Checkbox.Group>
+      </div>
+      <div className={styles.filterGroup}>
+        <span className={styles.filterGroupTitle}>Production Orders</span>
+        <Checkbox.Group value={gantt.orderFilters} onChange={(vals) => gantt.setOrderFilters(vals as string[])}>
+          <Space direction="vertical" size={4}>
+            {gantt.allOrders.map((o) => (
+              <Checkbox key={o} value={o}>
+                {o}
+              </Checkbox>
+            ))}
+          </Space>
+        </Checkbox.Group>
+      </div>
+      <div className={styles.filterGroup}>
+        <span className={styles.filterGroupTitle}>Product Families</span>
+        <Checkbox.Group value={gantt.familyFilters} onChange={(vals) => gantt.setFamilyFilters(vals as string[])}>
+          <Space direction="vertical" size={4}>
+            {gantt.allFamilies.map((f) => (
+              <Checkbox key={f} value={f}>
+                {f}
+              </Checkbox>
+            ))}
+          </Space>
+        </Checkbox.Group>
+      </div>
+    </div>
+  )
+})
+
+const QuickAnalysis = observer(() => {
+  const { styles } = useStyles()
+  const gantt = useSimulationContext().gantt
+  const violations: { id: string; msg: string }[] = [
+    { id: 'v1', msg: 'HARC Etch overload days 08–10' },
+    { id: 'v2', msg: 'Probe over-capacity days 01–03' },
+    { id: 'v3', msg: 'PO-119 M1 slip +2d (HARC overload)' },
+  ]
+  return (
+    <div className={styles.analysis}>
+      <div className={styles.analysisHeader}>
+        <span>Quick Analysis</span>
+        <Button size="small" type="text" icon={<AxMuiIcon icon="mdiClose" size={12} />} onClick={() => gantt.toggleQuickAnalysis()} />
+      </div>
+      <div className={styles.analysisGrid}>
+        <div className={styles.analysisCard}>
+          <div className={styles.analysisTitle}>Shop floor — overall capacity</div>
+          <Flex align="center" justify="space-between" gap="small">
+            <Typography.Text style={{ fontSize: 12 }}>Utilization</Typography.Text>
+            <Typography.Text strong style={{ fontSize: 12, color: utilColor(74) }}>
+              74%
+            </Typography.Text>
+          </Flex>
+          <Progress percent={74} size="small" showInfo={false} strokeColor={utilColor(74)} />
+          <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+            On-track range 60–80% · current horizon
+          </Typography.Text>
+        </div>
+        <div className={styles.analysisCard}>
+          <div className={styles.analysisTitle}>Tool-group capacities</div>
+          {gantt.workloadStrip.map((w) => (
+            <div key={w.toolGroup} className={styles.analysisRow}>
+              <Typography.Text style={{ fontSize: 12 }}>{w.toolGroup}</Typography.Text>
+              <Flex align="center" gap={6}>
+                <Progress percent={w.utilization} size="small" style={{ width: 80 }} showInfo={false} strokeColor={utilColor(w.utilization)} />
+                <Typography.Text style={{ fontSize: 12, color: utilColor(w.utilization) }} strong>
+                  {w.utilization}%
+                </Typography.Text>
+              </Flex>
+            </div>
+          ))}
+        </div>
+        <div className={styles.analysisCard}>
+          <div className={styles.analysisTitle}>Violations / high-load</div>
+          <Space direction="vertical" size={4} style={{ width: '100%' }}>
+            {violations.map((v) => (
+              <Flex key={v.id} align="center" gap={6}>
+                <Tag color="red" style={{ margin: 0 }}>
+                  ⚠
+                </Tag>
+                <Typography.Text style={{ fontSize: 12 }}>{v.msg}</Typography.Text>
+              </Flex>
+            ))}
+          </Space>
+        </div>
+      </div>
+    </div>
+  )
+})
 
 export const SimulationGanttPanel = observer((props: MainPanelControls) => {
   const { styles } = useStyles()
@@ -328,69 +550,73 @@ export const SimulationGanttPanel = observer((props: MainPanelControls) => {
   const anchor = '2026-04-29'
 
   return (
-    <AxDisplayPanel type="main" icon="mdiChartGantt" title={`Gantt — ${simulation.activeSimulationPlan.name}`} tools={<GanttToolbar />} {...props}>
+    <AxDisplayPanel type="main" icon="mdiChartGantt" title={simulation.activeSimulationPlan.name} tools={<GanttToolbar />} {...props}>
       <div className={styles.root}>
         <div className={styles.body}>
-          <div className={styles.scroll}>
-            <table className={styles.table}>
-              <thead>
-                <tr className={styles.headerRow}>
-                  <th className={styles.headerLeft} style={{ minWidth: 240 }}>
-                    Task / Lot
-                  </th>
-                  <th className={styles.headerCell} style={{ width: 96, minWidth: 96 }}>
-                    Start
-                  </th>
-                  <th className={styles.headerCell} style={{ width: 64, minWidth: 64 }}>
-                    Days
-                  </th>
-                  {gantt.horizonLabels.map((label) => (
-                    <th key={label} className={styles.headerCell} style={{ minWidth: DAY_WIDTH }}>
-                      {label}
+          {gantt.filterSidebarOpen && <FilterSidebar />}
+          <div className={styles.bodyContent}>
+            <div className={styles.scroll}>
+              <table className={styles.table}>
+                <thead>
+                  <tr className={styles.headerRow}>
+                    <th className={styles.headerLeft} style={{ minWidth: 240 }}>
+                      Task / Lot
                     </th>
+                    <th className={styles.headerCell} style={{ width: 96, minWidth: 96 }}>
+                      Start
+                    </th>
+                    <th className={styles.headerCell} style={{ width: 64, minWidth: 64 }}>
+                      Days
+                    </th>
+                    {gantt.horizonLabels.map((label) => (
+                      <th key={label} className={styles.headerCell} style={{ minWidth: DAY_WIDTH }}>
+                        {label}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {gantt.filteredOrders.map((order) => (
+                    <Fragment key={order.id}>
+                      <OrderRow order={order} />
+                      {gantt.isExpanded(order.id) && (
+                        <>
+                          {order.schedule.map((family) => (
+                            <Fragment key={family.id}>
+                              <FamilyRow family={family} anchor={anchor} />
+                              {family.steps.map((step) => (
+                                <StepRow key={step.id} step={step} anchor={anchor} />
+                              ))}
+                            </Fragment>
+                          ))}
+                          {order.milestones.map((m) => (
+                            <MilestoneRow key={m.id} m={m} anchor={anchor} />
+                          ))}
+                        </>
+                      )}
+                    </Fragment>
                   ))}
-                </tr>
-              </thead>
-              <tbody>
-                {gantt.orders.map((order) => (
-                  <Fragment key={order.id}>
-                    <OrderRow order={order} />
-                    {gantt.isExpanded(order.id) && (
-                      <>
-                        {order.schedule.map((family) => (
-                          <Fragment key={family.id}>
-                            <FamilyRow family={family} anchor={anchor} />
-                            {family.steps.map((step) => (
-                              <StepRow key={step.id} step={step} anchor={anchor} />
-                            ))}
-                          </Fragment>
-                        ))}
-                        {order.milestones.map((m) => (
-                          <MilestoneRow key={m.id} m={m} anchor={anchor} />
-                        ))}
-                      </>
-                    )}
-                  </Fragment>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className={styles.workloadStrip}>
-            <Typography.Text strong style={{ fontSize: 12 }}>
-              Workload (top 3)
-            </Typography.Text>
-            {gantt.workloadStrip.map((w) => (
-              <div key={w.toolGroup} className={styles.workloadItem}>
-                <Typography.Text style={{ fontSize: 12 }}>{w.toolGroup}</Typography.Text>
-                <div className={styles.workloadBar}>
-                  <div style={{ width: `${w.utilization}%`, height: '100%', background: utilColor(w.utilization) }} />
+                </tbody>
+              </table>
+            </div>
+            <div className={styles.workloadStrip}>
+              <Typography.Text strong style={{ fontSize: 12 }}>
+                Workload (top 3)
+              </Typography.Text>
+              {gantt.workloadStrip.map((w) => (
+                <div key={w.toolGroup} className={styles.workloadItem}>
+                  <Typography.Text style={{ fontSize: 12 }}>{w.toolGroup}</Typography.Text>
+                  <div className={styles.workloadBar}>
+                    <div style={{ width: `${w.utilization}%`, height: '100%', background: utilColor(w.utilization) }} />
+                  </div>
+                  <Typography.Text style={{ fontSize: 12, color: utilColor(w.utilization) }} strong>
+                    {w.utilization}%
+                  </Typography.Text>
+                  {w.utilization > 85 && <Tag color="red">⚠</Tag>}
                 </div>
-                <Typography.Text style={{ fontSize: 12, color: utilColor(w.utilization) }} strong>
-                  {w.utilization}%
-                </Typography.Text>
-                {w.utilization > 85 && <Tag color="red">⚠</Tag>}
-              </div>
-            ))}
+              ))}
+            </div>
+            {gantt.quickAnalysisOpen && <QuickAnalysis />}
           </div>
         </div>
       </div>
