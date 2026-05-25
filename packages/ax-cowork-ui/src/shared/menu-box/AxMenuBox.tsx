@@ -14,9 +14,9 @@ export const AxMenuBox = (props: AxMenuBoxProps) => {
   return (
     <Tooltip title={props.title} placement={props.placement}>
       <button className="ax-menu-box" onClick={props.onClick}>
-        <AxMuiIcon icon={props.icon} size="20px" className="ax-menu-box_icon" />
+        <AxMuiIcon icon={props.icon} size="1.715rem" className="ax-menu-box_icon" />
         <span className="ax-menu-box_text">{props.label}</span>
-        <AxMuiIcon icon="mdiMenuDown" size="16px" className="ax-menu-box_down" />
+        <AxMuiIcon icon="mdiMenuDown" size="1.15rem" className="ax-menu-box_down" />
       </button>
     </Tooltip>
   )

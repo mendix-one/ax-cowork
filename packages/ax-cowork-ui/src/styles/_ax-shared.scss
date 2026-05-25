@@ -178,7 +178,7 @@ p {
   @apply bg-white;
 
   &_header {
-    @apply w-full h-9 px-2 rounded-t;
+    @apply w-full h-10 px-2 rounded-t;
     @apply flex items-center justify-between gap-2;
     @apply border-b border-gray-300;
     @apply text-neutral-800 bg-neutral-100;
@@ -203,7 +203,7 @@ p {
       @apply flex items-center justify-end gap-1;
 
       &_button {
-        @apply w-6 h-6 flex items-center justify-center;
+        @apply w-7 h-7 flex items-center justify-center;
         @apply ax-button;
       }
     }

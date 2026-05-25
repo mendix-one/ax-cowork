@@ -38,7 +38,7 @@ export const AxDisplayPanel = (props: AxDisplayPanelProps) => {
         <div className="ax-display-panel_header_tools">{props.tools}</div>
         <div className="ax-display-panel_header_option">
           <button className="ax-display-panel_header_option_button" type="button" title={action.title} onClick={action.onClick}>
-            <AxMuiIcon icon={action.icon} size="16px" className="ax-display-panel_header_title_icon" />
+            <AxMuiIcon icon={action.icon} size="1.15rem" className="ax-display-panel_header_title_icon" />
           </button>
         </div>
       </div>

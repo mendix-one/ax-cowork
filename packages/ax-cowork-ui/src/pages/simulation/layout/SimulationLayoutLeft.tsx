@@ -39,8 +39,8 @@ export const SimulationLayoutLeft = observer(() => {
     />
   )
   return (
-    <Layout.Sider width={36}>
-      <Flex align="center" justify="space-between" gap="small" vertical style={{ width: '100%', height: '100%', padding: '2px 4px' }}>
+    <Layout.Sider width={'2.65rem'}>
+      <Flex align="center" justify="space-between" gap="small" vertical style={{ width: '100%', height: '100%', padding: '0.25rem' }}>
         <Flex align="center" justify="start" gap="small" vertical style={{ width: '100%' }}>
           <Space vertical size={8}>
             {GROUP_PRIMARY.map(renderItem)}

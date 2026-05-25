@@ -29,9 +29,9 @@ export const axTheme: ThemeConfig = {
   token: { ...myToken },
   components: {
     Layout: {
-      headerHeight: 36,
-      headerPadding: '0 6px',
-      footerPadding: '0 36px',
+      headerHeight: '2.65rem',
+      headerPadding: '0 0.45rem',
+      footerPadding: '0 2.65rem',
       bodyBg: myToken.colorBgLayout,
       headerBg: myToken.colorBgLayout,
       footerBg: myToken.colorBgLayout,
@@ -44,11 +44,6 @@ export const axTheme: ThemeConfig = {
       orientationMargin: 0,
       textPaddingInline: 0,
       verticalMarginInline: 0,
-    },
-    Collapse: {
-      headerPadding: '4px 8px',
-      contentPadding: '8px',
-      borderlessContentPadding: '8px',
     },
   },
 }

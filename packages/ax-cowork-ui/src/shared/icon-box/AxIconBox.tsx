@@ -9,7 +9,7 @@ export type AxIconBoxProps = {
 }
 
 export const AxIconBox = (props: AxIconBoxProps) => {
-  const size = props.size ? (typeof props.size === 'number' ? `${props.size}px` : props.size) : '24px'
+  const size = props.size ? (typeof props.size === 'number' ? `${props.size}px` : props.size) : '1.715rem'
   const className = props.className || 'ax-icon-box_icon'
   return (
     <Flex align="center" justify="center" style={{ width: size, height: size }} className="ax-icon-box">
