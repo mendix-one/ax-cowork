@@ -76,22 +76,46 @@
     }
 
     &_body {
-      @apply flex-1 min-h-0 overflow-auto p-2;
+      // Fill the panel body without scrolling — the inner grid sizes itself to 100% × 100%.
+      @apply flex-1 min-h-0 overflow-hidden p-2;
     }
 
     &_grid {
+      // 3-column Quick Analysis layout — Col1 40% / Col2 40% / Col3 20% (per spec). Fills the body box.
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
+      grid-template-columns: 40% 40% 20%;
+      gap: 8px;
+      width: 100%;
+      height: 100%;
+      min-width: 0;
+      min-height: 0;
+    }
+
+    &_col {
+      @apply min-w-0 min-h-0 h-full;
     }
 
     &_card {
-      @apply p-2 border border-gray-200 rounded;
+      // Each card is a flex column: title (flex-none) + chart/list (flex-1).
+      @apply p-2 border border-gray-200 rounded h-full w-full flex flex-col min-h-0;
+
+      &__chart {
+        // chart wrapper grows to fill remaining space
+      }
+
+      &__list {
+        @apply overflow-auto;
+      }
     }
 
     &_title {
-      @apply text-xs font-semibold text-neutral-500;
+      @apply flex-none text-xs font-semibold text-neutral-500;
       margin-bottom: 6px;
+    }
+
+    &_chart_box {
+      // Flex child wrapper for ReactECharts — give it explicit size so the chart resizes to fit.
+      @apply flex-1 min-h-0 w-full;
     }
 
     &_row {

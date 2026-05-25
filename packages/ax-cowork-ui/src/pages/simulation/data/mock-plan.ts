@@ -252,3 +252,42 @@ export const WORKLOAD_STRIP: { toolGroup: string; utilization: number }[] = [
   { toolGroup: 'WL Fill', utilization: 41 },
   { toolGroup: 'Probe', utilization: 89 },
 ]
+
+// --- Quick Analysis mock data ---------------------------------------------------------------------------------------
+// Tool groups listed in processing order (FEOL → BEOL → Probe → Asm).
+// `total` = daily movement capacity (wafer-passes/day equivalent). `used` = current consumed capacity.
+
+export type ToolGroupCapacity = {
+  name: string
+  total: number
+  used: number
+}
+
+export const TOOL_GROUP_CAPACITIES: ToolGroupCapacity[] = [
+  { name: 'FEOL Dep', total: 1000, used: 720 },
+  { name: 'ONON CVD', total: 950, used: 780 },
+  { name: 'HARC Etch', total: 800, used: 870 }, // ❗ overloaded
+  { name: 'WL Fill', total: 600, used: 410 },
+  { name: 'CMP', total: 700, used: 560 },
+  { name: 'BEOL', total: 900, used: 700 },
+  { name: 'Probe', total: 750, used: 670 }, // ⚠ highload (>80%)
+  { name: 'Asm', total: 500, used: 320 },
+]
+
+// Shop-floor aggregate ceilings — sum across tool groups.
+export const SHOP_FLOOR_CAPACITY_LIMIT = TOOL_GROUP_CAPACITIES.reduce((s, g) => s + g.total, 0) // ≈ 6200
+export const SHOP_FLOOR_CAPACITY_SAFE = Math.round(SHOP_FLOOR_CAPACITY_LIMIT * 0.8) // 80% threshold
+
+// Daily per-tool-group usage matrix for the stacked area chart.
+// Generated deterministically over HORIZON_DATES so the chart aligns with the gantt timeline.
+const wave = (i: number, base: number, amp: number, period: number) => Math.round(base + amp * Math.sin((i / period) * Math.PI * 2))
+
+export const DAILY_TOOL_GROUP_USAGE: { date: string; usage: Record<string, number> }[] = HORIZON_DATES.map((date, i) => {
+  const usage: Record<string, number> = {}
+  for (const tg of TOOL_GROUP_CAPACITIES) {
+    // Wave around `used` with ±15% amplitude, slight offset per group so curves are distinguishable.
+    const offset = TOOL_GROUP_CAPACITIES.indexOf(tg)
+    usage[tg.name] = Math.max(0, wave(i + offset, tg.used, tg.used * 0.15, 7))
+  }
+  return { date, usage }
+})

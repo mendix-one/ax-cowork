@@ -1,0 +1,49 @@
+import { Space, Tag, Typography } from 'antd'
+import { observer } from 'mobx-react-lite'
+import { TOOL_GROUP_CAPACITIES, type ToolGroupCapacity } from '../../data/mock-plan'
+
+type Row = { kind: 'violation' | 'highload'; group: ToolGroupCapacity; ratio: number }
+
+const SAFE_THRESHOLD = 0.8
+
+const classify = (g: ToolGroupCapacity): Row | null => {
+  const ratio = g.used / g.total
+  if (g.used > g.total) return { kind: 'violation', group: g, ratio }
+  if (ratio >= SAFE_THRESHOLD) return { kind: 'highload', group: g, ratio }
+  return null
+}
+
+// Col #3 — flag tool groups in two states:
+//   • Violation (danger / red): used > total
+//   • High-load (warning / orange): used ≥ 80% of total
+export const SimulationGanttQuickAnalysisViolations = observer(() => {
+  const rows: Row[] = TOOL_GROUP_CAPACITIES.map(classify).filter((r): r is Row => r !== null)
+  rows.sort((a, b) => b.ratio - a.ratio)
+
+  return (
+    <div className="ax-gantt_analysis_card ax-gantt_analysis_card__list">
+      <div className="ax-gantt_analysis_title">Violations / high-load</div>
+      {rows.length === 0 ? (
+        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+          All tool groups within safe range.
+        </Typography.Text>
+      ) : (
+        <Space direction="vertical" size={6} style={{ width: '100%' }}>
+          {rows.map(({ kind, group, ratio }) => (
+            <div key={group.name} className="ax-gantt_analysis_row">
+              <Space size={6}>
+                <Tag color={kind === 'violation' ? 'red' : 'orange'} style={{ margin: 0 }}>
+                  {kind === 'violation' ? '⚠ Violation' : '⚠ Highload'}
+                </Tag>
+                <Typography.Text style={{ fontSize: 12 }}>{group.name}</Typography.Text>
+              </Space>
+              <Typography.Text style={{ fontSize: 12, color: kind === 'violation' ? '#f5222d' : '#faad14' }} strong>
+                {Math.round(ratio * 100)}%
+              </Typography.Text>
+            </div>
+          ))}
+        </Space>
+      )}
+    </div>
+  )
+})

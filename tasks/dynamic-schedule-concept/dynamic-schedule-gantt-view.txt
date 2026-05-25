@@ -89,3 +89,33 @@ Dynamic Schedule Gantt View:
 
 Color:
 - Header background grey: oklch(96.2% 0.018 272.314) - Tailwind CSS: indigo 50
+
+==================== Update 2: Quick Analysis ==========================================================================
+
+- Layout:
+  - Col #1: Shop floor overall capacity analysis
+    - Width: 40%
+  - Col #2: Tool group capacities analysis
+    - Width: 40%
+  - Col #3: Violation analysis or highload analysis
+    - Width: 20%
+
+- Shop floor overall capacity analysis
+ - Use echart stack chart - https://echarts.apache.org/examples/en/editor.html?c=area-stack
+ - The yAxis is the capacity of shop floor (total movement can be done each day)
+ - The xAxis is the timeline (day, week, month,...)
+ - The each line is the use of each tool group base on the production schedule
+ - Set Stacked is true (stack: 'Total'), so the line will be stacked on top of each other
+ - Make a horizontal mark line as the limit of shop floor capacity
+ - Make a horizontal mark line as the save planning using of shop floor capacity
+
+- Tool group capacities analysis
+ - Use echart stacked bar chart - https://echarts.apache.org/examples/en/editor.html?c=bar-stack-normalization-and-variation
+ - The yAxis is the capacity of tool group (total movement can be done each day)
+ - The xAxis is tool group (one by one follow the processsing order)
+ - Each tool group is a bar with 2 area: total capacity (blue) and used capacity (orange)
+ - if the used capacity is more than the total capacity, change the color used capacity (red), total capacity (blue)
+
+- Shop floor overall capacity analysis
+ - Type 1: Violation analysis (Danger color) - When the used capacity is more than the total capacity
+ - Type 2: Highload analysis (Warning color) - When the used capacity is more than save number (80%) of the total capacity
