@@ -5,6 +5,8 @@ import { MongoServerError, ObjectId } from 'mongodb'
 import { resolvePagination } from '../../acore/config/pagination'
 import { validateJobConfigIdentity } from './identity.validator'
 import { JobConfigRepository, type RepoUpdate } from './job-config.repository'
+import { validateScheduleForSource } from './schedule.validator'
+import { validateWebhookSourceConfig } from './webhook-source.validator'
 
 /** Emitted whenever a job config is created, updated, enabled/disabled, or soft-deleted. */
 export const JOB_CONFIG_CHANGED_EVENT = 'jobConfig.changed'
@@ -77,6 +79,8 @@ export class JobConfigsService {
 
   async create(input: CreateJobConfigInput): Promise<JobConfigSummary> {
     validateJobConfigIdentity(input.source, input.identity, this.logger)
+    validateWebhookSourceConfig(input.source, this.logger)
+    validateScheduleForSource(input.source, input.schedule)
 
     const existing = await this.repo.findByName(input.name)
     if (existing) throw new ConflictException(`Job config with name "${input.name}" already exists`)
@@ -117,7 +121,7 @@ export class JobConfigsService {
     const set = repoUpdate.set as Record<string, unknown>
 
     // Fetch the current doc once if any field needs cross-checking against existing state.
-    const needsExisting = input.options !== undefined || input.source !== undefined || input.identity !== undefined
+    const needsExisting = input.options !== undefined || input.source !== undefined || input.identity !== undefined || input.schedule !== undefined
     let existing: JobConfigDoc | null = null
     if (needsExisting) {
       existing = await this.repo.findById(id)
@@ -128,6 +132,12 @@ export class JobConfigsService {
     // so PATCH cannot leave the doc in an invalid configuration.
     if (input.source !== undefined || input.identity !== undefined) {
       validateJobConfigIdentity(input.source ?? existing!.source, input.identity ?? existing!.identity, this.logger)
+    }
+    if (input.source !== undefined) {
+      validateWebhookSourceConfig(input.source, this.logger)
+    }
+    if (input.source !== undefined || input.schedule !== undefined) {
+      validateScheduleForSource(input.source ?? existing!.source, input.schedule ?? existing!.schedule)
     }
 
     if (input.name !== undefined) set.name = input.name

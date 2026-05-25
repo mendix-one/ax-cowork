@@ -52,6 +52,17 @@ docker compose up --build
 
 Compose brings up a Mongo 7 container + the service container (built from `Dockerfile`) on the same network. Mongo data persists in the named volume `ax-di-mongo-data`. Default host ports: service `3012`, Mongo `27017` — override with `SERVICE_HOST_PORT` / `MONGO_HOST_PORT`.
 
+**`prod` profile — master key as a Docker secret (T2-A11)**:
+
+```bash
+mkdir -p secrets
+openssl rand -base64 32 > secrets/master_key_v1.txt
+chmod 400 secrets/master_key_v1.txt
+docker compose --profile prod up --build
+```
+
+This brings up `ax-di-service-prod` (on port `3013` by default — override via `SERVICE_HOST_PORT_PROD`) which reads the master key from `/run/secrets/master_key_v1` (mounted from `./secrets/master_key_v1.txt`) instead of `INTEGRATION_MASTER_KEY_V1` in `.env`. The `secrets/` directory is gitignored. Vault Agent migration: point the agent at `./secrets/master_key_v1.txt` — no compose change needed. Pick ONE mode (default OR `--profile prod`) — running both simultaneously double-binds Mongo and confuses the lock semantics.
+
 ## Scripts
 
 | Script                                         | Purpose                                     |

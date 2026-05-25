@@ -6,6 +6,7 @@ import type { JobConfigIdentity, JobConfigSource } from './job-config.schema'
 const restSource: JobConfigSource = { type: 'rest', config: {} }
 const excelSource: JobConfigSource = { type: 'excel', config: {} }
 const postgresSource: JobConfigSource = { type: 'postgres', config: {} }
+const webhookSource: JobConfigSource = { type: 'webhook', config: {} }
 
 describe('validateJobConfigIdentity', () => {
   describe('primary-key', () => {
@@ -68,6 +69,22 @@ describe('validateJobConfigIdentity', () => {
     it('rejects REST API sources', () => {
       const identity: JobConfigIdentity = { strategy: 'row-number', fields: [] }
       expect(() => validateJobConfigIdentity(restSource, identity)).toThrow(/only valid for file sources/)
+    })
+    it('rejects webhook sources (T2-B01: no source-file context for row indexing)', () => {
+      const identity: JobConfigIdentity = { strategy: 'row-number', fields: [] }
+      expect(() => validateJobConfigIdentity(webhookSource, identity)).toThrow(/only valid for file sources/)
+    })
+  })
+
+  describe('webhook source — T2-B01 allowed strategies', () => {
+    it('accepts primary-key', () => {
+      expect(() => validateJobConfigIdentity(webhookSource, { strategy: 'primary-key', fields: ['id'] })).not.toThrow()
+    })
+    it('accepts composite', () => {
+      expect(() => validateJobConfigIdentity(webhookSource, { strategy: 'composite', fields: ['tenant', 'event_id'] })).not.toThrow()
+    })
+    it('accepts hash with acknowledgement', () => {
+      expect(() => validateJobConfigIdentity(webhookSource, { strategy: 'hash', fields: [], acknowledgeHashSemantics: true })).not.toThrow()
     })
   })
 })

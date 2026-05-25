@@ -10,6 +10,7 @@ import { JOB_CONFIGS_COLLECTION } from '../src/domain/job-config/job-config.sche
 import { SOURCE_FILES_COLLECTION } from '../src/domain/source-file/source-file.schema'
 
 const API_KEY = 'e2e-test-key'
+const EXPECTED_PRINCIPAL_LABEL = `key-${createHash('sha256').update(API_KEY).digest('hex').slice(0, 8)}`
 
 describe('SourceFilesController (e2e)', () => {
   let app: INestApplication<App>
@@ -55,11 +56,13 @@ describe('SourceFilesController (e2e)', () => {
       .attach('file', content, { filename: 'greeting.txt', contentType: 'text/plain' })
       .expect(201)
 
-    const body = res.body as { id: string; fileName: string; size: number; checksum: string }
+    const body = res.body as { id: string; fileName: string; size: number; checksum: string; uploadedBy: string }
     expect(body.fileName).toBe('greeting.txt')
     expect(body.size).toBe(content.length)
     expect(body.checksum).toBe(expectedChecksum)
     expect(typeof body.id).toBe('string')
+    // T2-A04: uploadedBy reflects the principal label, not the hardcoded 'api-key'.
+    expect(body.uploadedBy).toBe(EXPECTED_PRINCIPAL_LABEL)
   })
 
   it('uploading the same content twice returns the existing id (dedup by checksum)', async () => {

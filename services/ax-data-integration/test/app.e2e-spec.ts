@@ -28,7 +28,7 @@ describe('AppController (e2e)', () => {
     return request(app.getHttpServer()).get('/health').expect(200).expect({ status: 'ok' })
   })
 
-  it('GET /health/ready reports Mongo connected', () => {
-    return request(app.getHttpServer()).get('/health/ready').expect(200).expect({ status: 'ready', mongo: 'connected' })
+  it('GET /health/ready reports Mongo connected + critical indexes ok', () => {
+    return request(app.getHttpServer()).get('/health/ready').expect(200).expect({ status: 'ready', mongo: 'connected', indexes: 'ok' })
   })
 })

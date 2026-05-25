@@ -146,6 +146,17 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
     expect(rawList.total).toBe(3)
     expect(rawList.items.map((r) => r.recordKey).sort()).toEqual(['1', '2', '3'])
     expect(rawList.items.every((r) => r.status === 'active' && r.version === 1)).toBe(true)
+
+    // T2-A09: a successful run feeds the Prometheus metrics. Scrape `/metrics` and assert
+    // both the total counter and a per-op records counter materialized with non-zero values.
+    // Label order in prom-client output is alphabetical-ish but interleaves the registry's
+    // defaultLabels (service=…), so assertions use line-anchored regex rather than a
+    // brittle full-prefix match.
+    const metrics = (await request(app.getHttpServer()).get('/metrics').expect(200)).text
+    expect(metrics).toMatch(new RegExp(`^sync_run_total\\{[^}]*status="success"[^}]*jobConfigId="${jobId}"[^}]*\\} 1`, 'm'))
+    expect(metrics).toMatch(new RegExp(`^sync_run_records_total\\{[^}]*op="inserted"[^}]*jobConfigId="${jobId}"[^}]*\\} 3`, 'm'))
+    // Duration histogram observation recorded (sum > 0).
+    expect(metrics).toMatch(new RegExp(`^sync_run_duration_seconds_sum\\{[^}]*status="success"[^}]*jobConfigId="${jobId}"[^}]*\\} \\d`, 'm'))
   })
 
   it('second trigger on unchanged file: counts.unchanged = row count, version stays at 1', async () => {

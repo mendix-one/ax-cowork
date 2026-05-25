@@ -1,7 +1,8 @@
 import { createHash } from 'crypto'
 import { hostname } from 'os'
 
-import { Inject, Injectable, Logger } from '@nestjs/common'
+import { Inject, Injectable, Logger, Optional } from '@nestjs/common'
+import { EventEmitter2 } from '@nestjs/event-emitter'
 import { MongoServerError, ObjectId } from 'mongodb'
 
 import { GridfsService } from '../acore/mongo'
@@ -20,12 +21,34 @@ import { SecretsService } from '../domain/secret'
 import { SourceFileRepository } from '../domain/source-file'
 import { SourceMetadataRepository } from '../domain/source-metadata'
 import { SyncRunRepository, ZERO_COUNTS, type SyncRunCounts, type SyncRunDoc, type SyncRunErrorEntry, type TriggerSource } from '../domain/sync-run'
+import { MetricsService } from '../services/metrics'
 import { ConcurrencyService } from './concurrency.service'
 import { computeRecordKey, stableStringify } from './compute-record-key'
 
 export const HEARTBEAT_INTERVAL_MS = 'HEARTBEAT_INTERVAL_MS'
 export const DEFAULT_ERROR_THRESHOLD = 'DEFAULT_ERROR_THRESHOLD'
 export const CHANGELOG_BUFFER_SIZE = 'CHANGELOG_BUFFER_SIZE'
+
+/**
+ * Emitted once per sync run as the last step of {@link SyncExecutorService.execute} —
+ * after `runs.finalize` has persisted the run, after metrics have been observed, so
+ * downstream listeners (T2-B09 drift detector, T2-B11 alert dispatcher, future webhooks)
+ * see a consistent finalized state.
+ *
+ * Best-effort: fire-and-forget — a throwing listener does NOT propagate back to the
+ * executor (EventEmitter2's default behaviour is to log + swallow).
+ */
+export const SYNC_RUN_COMPLETED_EVENT = 'sync.run.completed'
+
+export interface SyncRunCompletedPayload {
+  jobConfigId: ObjectId
+  syncRunId: ObjectId
+  status: RunStatus
+  counts: SyncRunCounts
+  durationMs: number
+  triggeredBy: TriggerSource
+  finishedAt: Date
+}
 
 const DUPLICATE_KEY = 11000
 const COUNTS_FLUSH_INTERVAL = 1000
@@ -73,6 +96,15 @@ export class SyncExecutorService {
     @Inject(HEARTBEAT_INTERVAL_MS) private readonly heartbeatIntervalMs: number,
     @Inject(DEFAULT_ERROR_THRESHOLD) private readonly defaultErrorThreshold: number,
     @Inject(CHANGELOG_BUFFER_SIZE) private readonly changelogBufferSize: number,
+    // Explicit `@Inject(MetricsService)` because Nest's reflection-based DI can't recover the
+    // type token when the property is optional (`?:`) — the emitted metadata reads as
+    // `Object`. `@Optional()` makes the TestExecutor subclass + unit fixtures able to pass
+    // `null` for this slot. Production DI resolves the global MetricsService (T2-A08).
+    @Optional() @Inject(MetricsService) private readonly metrics?: MetricsService,
+    // T2-A12: same pattern as `metrics` above. EventEmitter2 is registered globally by
+    // `EventEmitterModule.forRoot()` in MainModule, so production DI always resolves it.
+    // Optional + explicit @Inject lets TestExecutor subclasses skip wiring.
+    @Optional() @Inject(EventEmitter2) private readonly events?: EventEmitter2,
   ) {
     if (!Number.isFinite(heartbeatIntervalMs) || heartbeatIntervalMs < 1) {
       throw new Error(`HEARTBEAT_INTERVAL_MS must be a positive number (got ${heartbeatIntervalMs})`)
@@ -132,12 +164,48 @@ export class SyncExecutorService {
         status = 'failed'
       }
 
+      const finishedAt = new Date()
       await this.runs.finalize(runId, {
         status,
         counts: work.counts,
-        finishedAt: new Date(),
+        finishedAt,
         ...(work.errors && work.errors.length > 0 ? { errors: work.errors } : {}),
       })
+
+      const durationMs = finishedAt.getTime() - run.startedAt.getTime()
+
+      // T2-A09: observe metrics right after finalize. Best-effort — a metric failure
+      // must NOT propagate and undo the run. Synchronous on prom-client's side, but
+      // wrapped in try/catch defensively in case a custom registry throws.
+      try {
+        this.metrics?.observeSyncRunCompleted({
+          jobConfigId: jobConfigId.toHexString(),
+          status,
+          durationMs,
+          counts: work.counts,
+        })
+      } catch (err) {
+        this.logger.warn(`metrics.observeSyncRunCompleted failed for run ${runId.toHexString()}: ${String(err)}`)
+      }
+
+      // T2-A12: emit `sync.run.completed` so downstream wiring (drift detector T2-B09,
+      // alert dispatcher T2-B11, future webhook fan-out) can react without coupling to
+      // the executor. Best-effort fire — listener errors are swallowed by EventEmitter2.
+      try {
+        const payload: SyncRunCompletedPayload = {
+          jobConfigId,
+          syncRunId: runId,
+          status,
+          counts: work.counts,
+          durationMs,
+          triggeredBy,
+          finishedAt,
+        }
+        this.events?.emit(SYNC_RUN_COMPLETED_EVENT, payload)
+      } catch (err) {
+        this.logger.warn(`sync.run.completed emit failed for run ${runId.toHexString()}: ${String(err)}`)
+      }
+
       return { kind: 'acquired', runId, status }
     } finally {
       if (heartbeat) clearInterval(heartbeat)

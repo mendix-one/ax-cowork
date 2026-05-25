@@ -72,9 +72,13 @@ export class SyncRunsController {
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Get a sync run detail (includes counts + errors)' })
+  @ApiOperation({
+    summary: 'Get a sync run detail (includes counts + errors)',
+    description:
+      'Note: sync_runs auto-prune after `INTEGRATION_TTL_SYNC_RUN_DAYS` (default 30 days). A run whose `parentRunId` points to an already-expired run will return its own detail fine, but fetching that parent id will return 404.',
+  })
   @ApiOkResponse({ description: 'The full sync_run document.' })
-  @ApiNotFoundResponse({ description: 'No sync_run with the given id.' })
+  @ApiNotFoundResponse({ description: 'No sync_run with the given id (or the run has TTL-expired).' })
   async detail(@Param('id', ObjectIdPipe) id: ObjectId): Promise<SyncRunDetail> {
     const doc = await this.runs.findById(id)
     if (!doc) throw new NotFoundException(`Sync run ${id.toHexString()} not found`)

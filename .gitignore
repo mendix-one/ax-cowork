@@ -20,6 +20,9 @@ yarn-debug.log*
 .env.local
 .env.*.local
 
+# Local secrets (Docker secret files, e.g. master-key files for T2-A11)
+services/*/secrets/
+
 # Editors / OS
 .idea/
 .vscode/

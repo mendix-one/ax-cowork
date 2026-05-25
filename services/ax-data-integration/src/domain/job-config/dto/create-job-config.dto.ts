@@ -4,8 +4,45 @@ import { IsArray, IsBoolean, IsIn, IsInt, IsMongoId, IsNotEmpty, IsObject, IsOpt
 
 import type { IdentityStrategy, SourceType } from '../job-config.schema'
 
-export const SOURCE_TYPES: readonly SourceType[] = ['excel', 'csv', 'mysql', 'postgres', 'mssql', 'oracle', 'rest', 'graphql', 'soap']
+export const SOURCE_TYPES: readonly SourceType[] = ['excel', 'csv', 'mysql', 'postgres', 'mssql', 'oracle', 'rest', 'graphql', 'soap', 'webhook']
 export const IDENTITY_STRATEGIES: readonly IdentityStrategy[] = ['primary-key', 'composite', 'hash', 'row-number']
+
+/**
+ * Shape accepted under `source.config` when `source.type='webhook'`. The DTO keeps `source.config` as a
+ * loose `Record` (phase-1 convention shared by all source types); per-field validation runs inside
+ * `validateWebhookSourceConfig` at service-layer create/update — same pattern as `validateJobConfigIdentity`.
+ *
+ * The Swagger schema below is documentation-only; class-validator does not introspect this class on
+ * incoming requests. It exists so consumers of `/api-docs` see the webhook config contract.
+ */
+export class WebhookSourceConfigDto {
+  @ApiPropertyOptional({
+    description:
+      'ObjectId of a `secrets` entry whose plaintext is the HMAC-SHA256 key used to verify `signatureHeader`. Omit for an open webhook (logs a boot-time warning).',
+    example: '507f1f77bcf86cd799439011',
+  })
+  @IsOptional()
+  @IsMongoId()
+  secretRef?: string
+
+  @ApiPropertyOptional({
+    description: 'HTTP header that carries the hex HMAC signature of the request body.',
+    default: 'x-webhook-signature',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  signatureHeader?: string
+
+  @ApiPropertyOptional({
+    description: 'Root JSON field whose value is the array of records (e.g. `data`). When omitted, the entire request body is treated as a single record.',
+    example: 'data',
+  })
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  eventField?: string
+}
 
 export class SourceDto {
   @ApiProperty({ enum: SOURCE_TYPES, example: 'rest' })
@@ -18,10 +55,14 @@ export class SourceDto {
 }
 
 export class ScheduleDto {
-  @ApiProperty({ example: '0 * * * *', description: 'Standard 5-field cron expression.' })
+  @ApiPropertyOptional({
+    example: '0 * * * *',
+    description: 'Standard 5-field cron expression. Required for pull-based sources; optional for push-based sources (webhook).',
+  })
+  @IsOptional()
   @IsString()
   @IsNotEmpty()
-  cronExpression!: string
+  cronExpression?: string
 
   @ApiPropertyOptional({ example: 'UTC', description: 'Overrides INTEGRATION_DEFAULT_TIMEZONE.' })
   @IsOptional()

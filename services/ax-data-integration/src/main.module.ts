@@ -22,7 +22,9 @@ import { RawRecordChangelogModule } from './domain/raw-record-changelog'
 import { SecretModule } from './domain/secret'
 import { SourceFileModule } from './domain/source-file'
 import { SourceMetadataModule } from './domain/source-metadata'
+import { MetricsModule } from './services/metrics'
 import { ServicesModule } from './services/services.module'
+import { WebhookModule } from './services/webhook'
 import { WorkersModule } from './workers/workers.module'
 
 @Module({
@@ -47,7 +49,9 @@ import { WorkersModule } from './workers/workers.module'
     SecretModule,
     SourceFileModule,
     SourceMetadataModule,
+    MetricsModule,
     ServicesModule,
+    WebhookModule,
     WorkersModule,
   ],
 })

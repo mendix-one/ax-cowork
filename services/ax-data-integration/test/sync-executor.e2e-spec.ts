@@ -50,6 +50,11 @@ class TestExecutor extends SyncExecutorService {
       heartbeatMs,
       100,
       100,
+      // metrics: null — TestExecutor isolates claim/heartbeat behaviour, metrics not under test here.
+      null,
+      // events: null — same reason; the SYNC_RUN_COMPLETED_EVENT path (T2-A12) is covered by
+      // its own e2e (test/sync-run-completed-event.e2e-spec.ts).
+      null,
     )
   }
 

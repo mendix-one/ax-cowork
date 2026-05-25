@@ -56,16 +56,21 @@ export class SchedulerService implements OnApplicationBootstrap, OnApplicationSh
     this.registered.clear()
   }
 
-  /** Registers (or re-registers) a cron for the given job config. Skips if `enabled=false`. */
+  /** Registers (or re-registers) a cron for the given job config. Skips if `enabled=false` or there is no `cronExpression`. */
   register(doc: JobConfigDoc): void {
     const name = this.cronName(doc._id)
     if (this.registered.has(name)) this.unregister(doc._id)
     if (!doc.enabled) return
+    const cronExpression = doc.schedule.cronExpression
+    if (typeof cronExpression !== 'string' || cronExpression.trim().length === 0) {
+      // Push-based sources (webhook, MQTT — see PUSH_SOURCE_TYPES) intentionally skip cron registration; ingestion is receiver-driven.
+      return
+    }
 
     const timezone = doc.schedule.timezone ?? this.defaultTimezone
     try {
       const cronJob = CronJob.from({
-        cronTime: doc.schedule.cronExpression,
+        cronTime: cronExpression,
         onTick: () => {
           this.executor.execute(doc._id, 'schedule').catch((err: unknown) => {
             this.logger.error(`scheduled execute failed for ${name}: ${err instanceof Error ? err.message : String(err)}`)
@@ -77,7 +82,7 @@ export class SchedulerService implements OnApplicationBootstrap, OnApplicationSh
       this.scheduler.addCronJob(name, cronJob)
       cronJob.start()
       this.registered.add(name)
-      this.logger.debug(`Registered ${name}: ${doc.schedule.cronExpression} [${timezone}]`)
+      this.logger.debug(`Registered ${name}: ${cronExpression} [${timezone}]`)
     } catch (err) {
       this.logger.error(`Failed to register ${name}: ${err instanceof Error ? err.message : String(err)}`)
     }

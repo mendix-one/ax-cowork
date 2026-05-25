@@ -159,10 +159,10 @@ done
 curl -fsS "$SERVICE_URL/health" >/dev/null || { echo "service never reported healthy"; exit 2; }
 echo -e "  ${GREEN}✓${NC} service healthy at $SERVICE_URL"
 
-# Indexes are NOT auto-created on service boot — operator runs `migrate-indexes`
-# explicitly (see src/migrate-indexes.ts). Without the partial-unique index on
-# (jobConfigId, status='running'), the concurrency lock in S6/S7 doesn't fire.
-info "running ensureIndexes (matches production deploy step)"
+# Since T2-A01 the service auto-runs ensureIndexes on bootstrap; this explicit call is
+# now an idempotent no-op (all indexes report `existed`). Kept to document the standalone
+# deploy/back-fill workflow operators may still need.
+info "running ensureIndexes (now redundant — auto-ran on boot; expected: all 'existed')"
 docker exec "$SERVICE_CONTAINER" node dist/migrate-indexes 2>&1 | tail -3 | sed 's/^/    /'
 
 K=(-H "x-api-key: $API_KEY")

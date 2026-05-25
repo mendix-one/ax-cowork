@@ -15,7 +15,8 @@ async function main(): Promise<void> {
     const results = await ensureIndexes(db, (msg) => console.log(msg))
     const created = results.filter((r) => r.action === 'created').length
     const existed = results.filter((r) => r.action === 'existed').length
-    console.log(`Done. created=${created} existed=${existed} total=${results.length}`)
+    const recreated = results.filter((r) => r.action === 'recreated').length
+    console.log(`Done. created=${created} existed=${existed} recreated=${recreated} total=${results.length}`)
   } finally {
     await client.close()
   }

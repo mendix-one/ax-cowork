@@ -73,14 +73,16 @@ docker compose up --build -d
 until curl -fsS http://localhost:3012/health >/dev/null; do sleep 1; done
 echo "✓ service up"
 
-# ⚠️ Required: indexes are NOT auto-created on service boot. Production deploy MUST
-# run this script after `docker compose up` (or as a one-shot job alongside it).
-# Without it the partial-unique `(jobConfigId, status='running')` lock does NOT exist,
-# so overlapping runs are silently allowed — scenarios S6 and S7 below will fail.
+# Since T2-A01, the service auto-runs ensureIndexes() on bootstrap (search "T2-A01" in
+# docs/T002-phase2-wbs.md). The line below is now an **idempotent no-op** and is only
+# kept as a sanity-check / for operators doing a manual back-fill after an emergency
+# rollback with INTEGRATION_AUTO_ENSURE_INDEXES=false.
 docker exec ax-di-service node dist/migrate-indexes
 ```
 
-Expected: two containers running (`ax-di-mongo`, `ax-di-service`), service healthy within ~10s of Mongo coming up, `migrate-indexes` reports `created=19 existed=0` on the first run (or all `existed` on re-runs).
+Expected: two containers running (`ax-di-mongo`, `ax-di-service`), service healthy within ~10s of Mongo coming up. The boot log shows `ensureIndexes done: created=19 existed=0 recreated=0 total=19` on the first run; subsequent boots show `created=0 existed=19 recreated=0`. The explicit `migrate-indexes` call always reports all `existed` after T2-A01.
+
+Two of those 19 are TTL indexes (T2-A06 / T2-A07): `raw_record_changelog.createdAt_ttl` (default 90 days) and `sync_runs.createdAt_ttl` (default 30 days). Tune via `INTEGRATION_TTL_CHANGELOG_DAYS` / `INTEGRATION_TTL_SYNC_RUN_DAYS` (min 1, max 3650). Changing the env value triggers a `recreated` line on next boot. `raw_records` is intentionally NOT TTL'd — it's the source of truth; GridFS source files are pruned only via `DELETE /source-files/:id`.
 
 ---
 
@@ -91,9 +93,14 @@ Expected: two containers running (`ax-di-mongo`, `ax-di-service`), service healt
 curl http://localhost:3012/health
 # → {"status":"ok"}
 
-# Readiness — pings Mongo
+# Readiness — pings Mongo + verifies critical indexes (T2-A02)
 curl http://localhost:3012/health/ready
-# → {"status":"ready","mongo":"connected"}
+# → {"status":"ready","mongo":"connected","indexes":"ok"}
+
+# Prometheus scrape — also public, also no key (T2-A08)
+curl -s http://localhost:3012/metrics | head -20
+# → process_cpu_user_seconds_total, nodejs_eventloop_lag_seconds, …
+# → sync_run_total / sync_run_duration_seconds / sync_run_records_total (zero samples until S3 runs)
 
 # Service identity
 curl http://localhost:3012/
@@ -108,7 +115,9 @@ curl -H "x-api-key: demo-key" http://localhost:3012/job-configs
 # → {"items":[],"total":0,"page":1,"pageSize":50}
 ```
 
-Verifies: `@Public()` decorator works on `/health*` + `/`; `ApiKeyGuard` blocks everything else; `INTEGRATION_API_KEYS` env was parsed correctly.
+Verifies: `@Public()` decorator works on `/health*` + `/` + `/metrics`; `ApiKeyGuard` blocks everything else; `INTEGRATION_API_KEYS` env was parsed correctly.
+
+**Bearer-token mode for `/metrics`** (T2-A08, optional): set `INTEGRATION_METRICS_TOKEN=<opaque-string>` in `.env` → scrapes must send `Authorization: Bearer <token>` or get 401. Suitable when `/metrics` is reachable beyond a trust boundary.
 
 ---
 

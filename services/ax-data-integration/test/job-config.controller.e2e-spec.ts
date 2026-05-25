@@ -1,3 +1,5 @@
+import { createHash } from 'crypto'
+
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { MongoClient } from 'mongodb'
@@ -8,6 +10,9 @@ import { MainModule } from '../src/main.module'
 import { JOB_CONFIGS_COLLECTION } from '../src/domain/job-config/job-config.schema'
 
 const API_KEY = 'e2e-test-key'
+// Mirrors ApiKeyGuard.sha256Prefix — label falls back to `key-<8hex>` when no
+// INTEGRATION_API_KEY_LABELS env is set (which is the case in global-setup).
+const EXPECTED_PRINCIPAL_LABEL = `key-${createHash('sha256').update(API_KEY).digest('hex').slice(0, 8)}`
 
 const validBody = {
   name: 'daily-sales-api',
@@ -46,10 +51,13 @@ describe('JobConfigController (e2e)', () => {
 
   it('POST creates a job config with defaults', async () => {
     const res = await request(app.getHttpServer()).post('/job-configs').set('x-api-key', API_KEY).send(validBody).expect(201)
-    const body = res.body as { id: string; enabled: boolean; options: { detectDeleted: boolean; auditChanges: boolean } }
+    const body = res.body as { id: string; enabled: boolean; options: { detectDeleted: boolean; auditChanges: boolean }; createdBy: string }
     expect(body.enabled).toBe(true)
     expect(body.options.detectDeleted).toBe(true)
     expect(body.options.auditChanges).toBe(true)
+    // T2-A04: createdBy reflects the principal label derived from the request's API key,
+    // not the phase-1 hardcoded 'api-key' literal.
+    expect(body.createdBy).toBe(EXPECTED_PRINCIPAL_LABEL)
   })
 
   it('POST rejects unknown source.type (400)', async () => {
@@ -235,6 +243,92 @@ describe('JobConfigController (e2e)', () => {
         .patch(`/job-configs/${id}`)
         .set('x-api-key', API_KEY)
         .send({ identity: { strategy: 'composite', fields: ['only'] } })
+        .expect(400)
+    })
+  })
+
+  describe('webhook source — T2-B01', () => {
+    it('accepts webhook source without cronExpression (push-only schedule)', async () => {
+      const res = await request(app.getHttpServer())
+        .post('/job-configs')
+        .set('x-api-key', API_KEY)
+        .send({
+          name: 'webhook-no-cron',
+          source: { type: 'webhook', config: {} },
+          schedule: {},
+          identity: { strategy: 'hash', fields: [], acknowledgeHashSemantics: true },
+        })
+        .expect(201)
+      const body = res.body as { source: { type: string }; schedule: { cronExpression?: string } }
+      expect(body.source.type).toBe('webhook')
+      expect(body.schedule.cronExpression).toBeUndefined()
+    })
+
+    it('accepts webhook source with full config (secretRef + signatureHeader + eventField)', async () => {
+      await request(app.getHttpServer())
+        .post('/job-configs')
+        .set('x-api-key', API_KEY)
+        .send({
+          name: 'webhook-full-cfg',
+          source: {
+            type: 'webhook',
+            config: { secretRef: '507f1f77bcf86cd799439011', signatureHeader: 'x-signature', eventField: 'data' },
+          },
+          schedule: {},
+          identity: { strategy: 'primary-key', fields: ['id'] },
+        })
+        .expect(201)
+    })
+
+    it('rejects webhook source.config with unknown keys (400)', async () => {
+      await request(app.getHttpServer())
+        .post('/job-configs')
+        .set('x-api-key', API_KEY)
+        .send({
+          name: 'webhook-bad-key',
+          source: { type: 'webhook', config: { secret_ref: 'typo' } },
+          schedule: {},
+          identity: { strategy: 'primary-key', fields: ['id'] },
+        })
+        .expect(400)
+    })
+
+    it('rejects webhook source.config with malformed secretRef (400)', async () => {
+      await request(app.getHttpServer())
+        .post('/job-configs')
+        .set('x-api-key', API_KEY)
+        .send({
+          name: 'webhook-bad-secret',
+          source: { type: 'webhook', config: { secretRef: 'not-a-mongo-id' } },
+          schedule: {},
+          identity: { strategy: 'primary-key', fields: ['id'] },
+        })
+        .expect(400)
+    })
+
+    it('rejects row-number identity for webhook source (400)', async () => {
+      await request(app.getHttpServer())
+        .post('/job-configs')
+        .set('x-api-key', API_KEY)
+        .send({
+          name: 'webhook-row-number',
+          source: { type: 'webhook', config: {} },
+          schedule: {},
+          identity: { strategy: 'row-number', fields: [] },
+        })
+        .expect(400)
+    })
+
+    it('still rejects missing cronExpression for non-webhook sources (400)', async () => {
+      await request(app.getHttpServer())
+        .post('/job-configs')
+        .set('x-api-key', API_KEY)
+        .send({
+          name: 'rest-no-cron',
+          source: { type: 'rest', config: {} },
+          schedule: {},
+          identity: { strategy: 'primary-key', fields: ['id'] },
+        })
         .expect(400)
     })
   })

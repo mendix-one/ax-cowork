@@ -1,3 +1,5 @@
+import { createHash } from 'crypto'
+
 import { INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { MongoClient, ObjectId } from 'mongodb'
@@ -9,6 +11,7 @@ import { JOB_CONFIGS_COLLECTION } from '../src/domain/job-config/job-config.sche
 import { SECRETS_COLLECTION } from '../src/domain/secret/secret.schema'
 
 const API_KEY = 'e2e-test-key' // matches global-setup.ts
+const EXPECTED_PRINCIPAL_LABEL = `key-${createHash('sha256').update(API_KEY).digest('hex').slice(0, 8)}`
 
 describe('SecretsController (e2e)', () => {
   let app: INestApplication<App>
@@ -53,11 +56,13 @@ describe('SecretsController (e2e)', () => {
       .send({ name: 'oracle-prod', type: 'db', plaintext: 'super-secret' })
       .expect(201)
 
-    const body = res.body as { id: string; name: string; type: string; keyVersion: number }
+    const body = res.body as { id: string; name: string; type: string; keyVersion: number; createdBy: string }
     expect(body).toMatchObject({ name: 'oracle-prod', type: 'db', keyVersion: 1 })
     expect(body).not.toHaveProperty('encrypted')
     expect(body).not.toHaveProperty('plaintext')
     expect(typeof body.id).toBe('string')
+    // T2-A04: principal label is derived from the API key, not hardcoded.
+    expect(body.createdBy).toBe(EXPECTED_PRINCIPAL_LABEL)
   })
 
   it('POST /secrets with a duplicate name returns 409', async () => {

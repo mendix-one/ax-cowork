@@ -1,6 +1,6 @@
 import { MongoClient } from 'mongodb'
 
-import { INDEX_SPECS, ensureIndexes } from '../src/acore/mongo/indexes'
+import { buildTtlIndexSpecs, ensureIndexes, getAllIndexSpecs, readTtlOptionsFromEnv } from '../src/acore/mongo/indexes'
 
 describe('ensureIndexes (e2e)', () => {
   let client: MongoClient
@@ -21,17 +21,19 @@ describe('ensureIndexes (e2e)', () => {
     }
   })
 
-  it('creates every expected index on the first run', async () => {
+  it('creates every expected index (static + TTL) on the first run', async () => {
     const db = client.db(dbName)
     const results = await ensureIndexes(db)
-    expect(results.length).toBe(INDEX_SPECS.length)
+    const allSpecs = getAllIndexSpecs()
+    expect(results.length).toBe(allSpecs.length)
     expect(results.every((r) => r.action === 'created')).toBe(true)
   })
 
   it('is idempotent — a second run creates nothing', async () => {
     const db = client.db(dbName)
     const results = await ensureIndexes(db)
-    expect(results.length).toBe(INDEX_SPECS.length)
+    const allSpecs = getAllIndexSpecs()
+    expect(results.length).toBe(allSpecs.length)
     expect(results.every((r) => r.action === 'existed')).toBe(true)
   })
 
@@ -44,12 +46,40 @@ describe('ensureIndexes (e2e)', () => {
     expect(running?.partialFilterExpression).toEqual({ status: 'running' })
   })
 
-  it('every spec in INDEX_SPECS is materialized in its collection', async () => {
+  it('every spec in getAllIndexSpecs() is materialized in its collection', async () => {
     const db = client.db(dbName)
-    for (const spec of INDEX_SPECS) {
+    for (const spec of getAllIndexSpecs()) {
       const indexes = await db.collection(spec.collection).indexes()
       const found = indexes.find((i) => i.name === spec.name)
       expect(found).toBeDefined()
     }
+  })
+
+  it('TTL indexes carry expireAfterSeconds matching the runtime config (T2-A06, T2-A07)', async () => {
+    const db = client.db(dbName)
+    const ttl = readTtlOptionsFromEnv()
+    const expectedTtlSpecs = buildTtlIndexSpecs(ttl)
+    for (const spec of expectedTtlSpecs) {
+      const indexes = (await db.collection(spec.collection).indexes()) as Array<{ name?: string; expireAfterSeconds?: number }>
+      const found = indexes.find((i) => i.name === spec.name)
+      expect(found).toBeDefined()
+      expect(found?.expireAfterSeconds).toBe(spec.options?.expireAfterSeconds)
+    }
+  })
+
+  it('recreates a TTL index when expireAfterSeconds changes (env bump path)', async () => {
+    const db = client.db(dbName)
+    // Bump the changelog TTL by passing an explicit value larger than the default.
+    const bumped = { changelogTtlSec: 99 * 86400, syncRunTtlSec: 30 * 86400 }
+    const results = await ensureIndexes(db, undefined, bumped)
+    const recreated = results.find((r) => r.collection === 'raw_record_changelog' && r.name === 'createdAt_ttl')
+    expect(recreated?.action).toBe('recreated')
+
+    const indexes = (await db.collection('raw_record_changelog').indexes()) as Array<{ name?: string; expireAfterSeconds?: number }>
+    const ttlIdx = indexes.find((i) => i.name === 'createdAt_ttl')
+    expect(ttlIdx?.expireAfterSeconds).toBe(99 * 86400)
+
+    // Restore default so subsequent suite ordering is deterministic.
+    await ensureIndexes(db, undefined, readTtlOptionsFromEnv())
   })
 })
