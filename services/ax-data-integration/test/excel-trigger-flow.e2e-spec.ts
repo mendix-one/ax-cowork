@@ -99,7 +99,7 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
     const buf = await buildExcelBuffer(headers, rows)
     const res = await request(app.getHttpServer())
       .post('/source-files')
-      .set('x-axios-key', API_KEY)
+      .set('x-api-key', API_KEY)
       .attach('file', buf, { filename: `${name}.xlsx`, contentType: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })
       .expect(201)
     return (res.body as UploadResp).id
@@ -108,7 +108,7 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
   async function createExcelJob(name: string, sourceFileId: string, pkField = 'id'): Promise<string> {
     const res = await request(app.getHttpServer())
       .post('/job-configs')
-      .set('x-axios-key', API_KEY)
+      .set('x-api-key', API_KEY)
       .send({
         name,
         source: { type: 'excel', config: { sourceFileId, sheetName: 'Data', headerRow: 1, startRow: 2 } },
@@ -131,18 +131,18 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
     )
     const jobId = await createExcelJob('initial-insert', fileId)
 
-    const trigger = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-axios-key', API_KEY).expect(200)).body as TriggerResp
+    const trigger = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-api-key', API_KEY).expect(200)).body as TriggerResp
     expect(trigger.status).toBe('success')
     expect(typeof trigger.runId).toBe('string')
 
     // Counts come back from the admin API, not directly from the repo — proves the controller
     // serializes them correctly + ApiKeyGuard isn't stripping anything.
-    const detail = (await request(app.getHttpServer()).get(`/sync-runs/${trigger.runId}`).set('x-axios-key', API_KEY).expect(200)).body as RunDetail
+    const detail = (await request(app.getHttpServer()).get(`/sync-runs/${trigger.runId}`).set('x-api-key', API_KEY).expect(200)).body as RunDetail
     expect(detail.counts).toEqual({ read: 3, inserted: 3, updated: 0, unchanged: 0, deleted: 0, errors: 0 })
     expect(detail.errors).toEqual([])
     expect(detail.workerId).toMatch(/^.+:\d+$/) // hostname:pid
 
-    const rawList = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}`).set('x-axios-key', API_KEY).expect(200)).body as RawList
+    const rawList = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}`).set('x-api-key', API_KEY).expect(200)).body as RawList
     expect(rawList.total).toBe(3)
     expect(rawList.items.map((r) => r.recordKey).sort()).toEqual(['1', '2', '3'])
     expect(rawList.items.every((r) => r.status === 'active' && r.version === 1)).toBe(true)
@@ -159,17 +159,17 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
     )
     const jobId = await createExcelJob('unchanged', fileId)
 
-    const first = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-axios-key', API_KEY).expect(200)).body as TriggerResp
+    const first = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-api-key', API_KEY).expect(200)).body as TriggerResp
     expect(first.status).toBe('success')
 
-    const second = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-axios-key', API_KEY).expect(200)).body as TriggerResp
+    const second = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-api-key', API_KEY).expect(200)).body as TriggerResp
     expect(second.status).toBe('success')
 
-    const detail = (await request(app.getHttpServer()).get(`/sync-runs/${second.runId}`).set('x-axios-key', API_KEY).expect(200)).body as RunDetail
+    const detail = (await request(app.getHttpServer()).get(`/sync-runs/${second.runId}`).set('x-api-key', API_KEY).expect(200)).body as RunDetail
     expect(detail.counts).toMatchObject({ read: 2, inserted: 0, updated: 0, unchanged: 2, deleted: 0 })
 
     // raw_records version still 1 because no payload changed.
-    const rawList = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}`).set('x-axios-key', API_KEY).expect(200)).body as RawList
+    const rawList = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}`).set('x-api-key', API_KEY).expect(200)).body as RawList
     expect(rawList.items.every((r) => r.version === 1)).toBe(true)
   })
 
@@ -184,9 +184,9 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
     )
     const jobId = await createExcelJob('schema-snapshot', fileId)
 
-    await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-axios-key', API_KEY).expect(200)
+    await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-api-key', API_KEY).expect(200)
 
-    const latest = (await request(app.getHttpServer()).get(`/source-metadata/latest?jobConfigId=${jobId}`).set('x-axios-key', API_KEY).expect(200))
+    const latest = (await request(app.getHttpServer()).get(`/source-metadata/latest?jobConfigId=${jobId}`).set('x-api-key', API_KEY).expect(200))
       .body as MetadataLatest
     expect(latest.schema.fields.map((f) => f.name).sort()).toEqual(['active', 'id', 'price'])
     expect(latest.schemaHash).toMatch(/^[a-f0-9]{64}$/)
@@ -196,14 +196,14 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
     const fileId = await uploadExcel('values', ['id', 'name', 'amount'], [[42, 'Alice', 100]])
     const jobId = await createExcelJob('values', fileId)
 
-    const trigger = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-axios-key', API_KEY).expect(200)).body as TriggerResp
+    const trigger = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-api-key', API_KEY).expect(200)).body as TriggerResp
     expect(trigger.status).toBe('success')
 
-    const list = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}`).set('x-axios-key', API_KEY).expect(200)).body as RawList
+    const list = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}`).set('x-api-key', API_KEY).expect(200)).body as RawList
     expect(list.total).toBe(1)
     const id = (list.items[0] as { id: string }).id
 
-    const detail = (await request(app.getHttpServer()).get(`/raw-records/${id}`).set('x-axios-key', API_KEY).expect(200)).body as RawDetail
+    const detail = (await request(app.getHttpServer()).get(`/raw-records/${id}`).set('x-api-key', API_KEY).expect(200)).body as RawDetail
     expect(detail.recordKey).toBe('42')
     expect(detail.payload.id).toBe(42)
     expect(detail.payload.name).toBe('Alice')
@@ -218,7 +218,7 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
     async function patchSource(jobId: string, newSourceFileId: string): Promise<void> {
       await request(app.getHttpServer())
         .patch(`/job-configs/${jobId}`)
-        .set('x-axios-key', API_KEY)
+        .set('x-api-key', API_KEY)
         .send({ source: { type: 'excel', config: { sourceFileId: newSourceFileId, sheetName: 'Data', headerRow: 1, startRow: 2 } } })
         .expect(200)
     }
@@ -235,9 +235,9 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
         ],
       )
       const jobId = await createExcelJob('iud', fileV1)
-      const first = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-axios-key', API_KEY).expect(200)).body as TriggerResp
+      const first = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-api-key', API_KEY).expect(200)).body as TriggerResp
       expect(first.status).toBe('success')
-      const firstDetail = (await request(app.getHttpServer()).get(`/sync-runs/${first.runId}`).set('x-axios-key', API_KEY).expect(200)).body as RunDetail
+      const firstDetail = (await request(app.getHttpServer()).get(`/sync-runs/${first.runId}`).set('x-api-key', API_KEY).expect(200)).body as RunDetail
       expect(firstDetail.counts).toMatchObject({ read: 3, inserted: 3, updated: 0, unchanged: 0, deleted: 0 })
 
       // Run 2: rec#1 updated (amount 100→150), rec#2 unchanged, rec#3 removed, rec#4 new.
@@ -251,29 +251,29 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
         ],
       )
       await patchSource(jobId, fileV2)
-      const second = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-axios-key', API_KEY).expect(200)).body as TriggerResp
+      const second = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-api-key', API_KEY).expect(200)).body as TriggerResp
       expect(second.status).toBe('success')
 
-      const secondDetail = (await request(app.getHttpServer()).get(`/sync-runs/${second.runId}`).set('x-axios-key', API_KEY).expect(200)).body as RunDetail
+      const secondDetail = (await request(app.getHttpServer()).get(`/sync-runs/${second.runId}`).set('x-api-key', API_KEY).expect(200)).body as RunDetail
       expect(secondDetail.counts).toEqual({ read: 3, inserted: 1, updated: 1, unchanged: 1, deleted: 1, errors: 0 })
 
       // raw_records state: 1/2/4 active, 3 deleted; rec#1 version bumped to 2.
-      const active = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}&status=active`).set('x-axios-key', API_KEY).expect(200))
+      const active = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}&status=active`).set('x-api-key', API_KEY).expect(200))
         .body as RawList
       expect(active.total).toBe(3)
       expect(active.items.map((r) => r.recordKey).sort()).toEqual(['1', '2', '4'])
-      const deleted = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}&status=deleted`).set('x-axios-key', API_KEY).expect(200))
+      const deleted = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}&status=deleted`).set('x-api-key', API_KEY).expect(200))
         .body as RawList
       expect(deleted.total).toBe(1)
       expect(deleted.items[0].recordKey).toBe('3')
 
       // Pull each affected record's detail to verify version + payload alignment.
       const lookup = async (rk: string): Promise<RawDetail> => {
-        const list = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}&recordKey=${rk}`).set('x-axios-key', API_KEY).expect(200))
+        const list = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}&recordKey=${rk}`).set('x-api-key', API_KEY).expect(200))
           .body as RawList
         expect(list.total).toBe(1)
         const id = (list.items[0] as { id: string }).id
-        return (await request(app.getHttpServer()).get(`/raw-records/${id}`).set('x-axios-key', API_KEY).expect(200)).body as RawDetail
+        return (await request(app.getHttpServer()).get(`/raw-records/${id}`).set('x-api-key', API_KEY).expect(200)).body as RawDetail
       }
       const rec1 = await lookup('1')
       expect(rec1.version).toBe(2) // updated → bumped
@@ -289,7 +289,7 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
       // (firstSeenRunId for #4, lastUpdatedRunId for #1, lastUpdatedRunId for #2 via lastSeenAt-only
       // touch — but that doesn't update lastUpdatedRunId, so #2 won't appear here; and deletedInRunId for #3).
       // Concretely: run 2 = firstSeen(4) ∪ lastUpdated(1) ∪ deletedIn(3) = 3 records.
-      const byRun2 = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}&runId=${second.runId}`).set('x-axios-key', API_KEY).expect(200))
+      const byRun2 = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}&runId=${second.runId}`).set('x-api-key', API_KEY).expect(200))
         .body as RawList
       expect(byRun2.total).toBe(3)
       expect(byRun2.items.map((r) => r.recordKey).sort()).toEqual(['1', '3', '4'])
@@ -308,7 +308,7 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
       // Custom job (cannot use createExcelJob helper because we need detectDeleted=false).
       const createRes = await request(app.getHttpServer())
         .post('/job-configs')
-        .set('x-axios-key', API_KEY)
+        .set('x-api-key', API_KEY)
         .send({
           name: 'no-delete-http',
           source: { type: 'excel', config: { sourceFileId: fileV1, sheetName: 'Data', headerRow: 1, startRow: 2 } },
@@ -319,7 +319,7 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
         .expect(201)
       const jobId = (createRes.body as CreateJobResp).id
 
-      await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-axios-key', API_KEY).expect(200)
+      await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-api-key', API_KEY).expect(200)
 
       const fileV2 = await uploadExcel(
         'no-delete-v2',
@@ -330,14 +330,14 @@ describe('Excel job → manual trigger (HTTP e2e)', () => {
         ],
       )
       await patchSource(jobId, fileV2)
-      const second = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-axios-key', API_KEY).expect(200)).body as TriggerResp
+      const second = (await request(app.getHttpServer()).post(`/job-configs/${jobId}/trigger`).set('x-api-key', API_KEY).expect(200)).body as TriggerResp
 
-      const detail = (await request(app.getHttpServer()).get(`/sync-runs/${second.runId}`).set('x-axios-key', API_KEY).expect(200)).body as RunDetail
+      const detail = (await request(app.getHttpServer()).get(`/sync-runs/${second.runId}`).set('x-api-key', API_KEY).expect(200)).body as RunDetail
       expect(detail.counts.deleted).toBe(0)
       expect(detail.counts.unchanged).toBe(2)
 
       // rec#3 should still be active even though it's missing from v2.
-      const active = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}&status=active`).set('x-axios-key', API_KEY).expect(200))
+      const active = (await request(app.getHttpServer()).get(`/raw-records?jobConfigId=${jobId}&status=active`).set('x-api-key', API_KEY).expect(200))
         .body as RawList
       expect(active.total).toBe(3)
     })

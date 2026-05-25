@@ -86,7 +86,7 @@ describe('Stale-worker recovery flow (T-J04)', () => {
 
     // 3. The fresh worker's trigger attempt fails with 409 — the partial-unique lock is still
     //    held by the stale doc. This is the "restart but sweeper hasn't run yet" window.
-    await request(app.getHttpServer()).post(`/job-configs/${job.id}/trigger`).set('x-axios-key', API_KEY).expect(409)
+    await request(app.getHttpServer()).post(`/job-configs/${job.id}/trigger`).set('x-api-key', API_KEY).expect(409)
 
     // 4. Sweeper tick: same service the scheduler invokes on the cron interval. Tagging the
     //    sweep label 'manual' surfaces nicely in logs for debug.
@@ -102,7 +102,7 @@ describe('Stale-worker recovery flow (T-J04)', () => {
 
     // 6. Lock released → a fresh trigger now succeeds (the no-REST-adapter path means the run
     //    finalizes as 'failed' for the same harmless reason as the other trigger e2e tests).
-    const trigger = (await request(app.getHttpServer()).post(`/job-configs/${job.id}/trigger`).set('x-axios-key', API_KEY).expect(200)).body as TriggerResp
+    const trigger = (await request(app.getHttpServer()).post(`/job-configs/${job.id}/trigger`).set('x-api-key', API_KEY).expect(200)).body as TriggerResp
     expect(trigger.runId).not.toBe(ghost._id.toHexString())
 
     // 7. Two sync_runs exist for the same job: the old stale one + the fresh one.
@@ -141,13 +141,13 @@ describe('Stale-worker recovery flow (T-J04)', () => {
     const ghost = await runs.insertRunning({ jobConfigId: jobId, triggeredBy: 'schedule', workerId: 'dead:2' })
     await backdateHeartbeat(ghost._id, 10 * 60_000)
     await sweeper.sweepOnce()
-    await request(app.getHttpServer()).post(`/job-configs/${job.id}/trigger`).set('x-axios-key', API_KEY).expect(200)
+    await request(app.getHttpServer()).post(`/job-configs/${job.id}/trigger`).set('x-api-key', API_KEY).expect(200)
 
     interface ListBody {
       items: { id: string; status: string; triggeredBy: string; workerId?: string }[]
       total: number
     }
-    const list = (await request(app.getHttpServer()).get(`/sync-runs?jobConfigId=${job.id}`).set('x-axios-key', API_KEY).expect(200)).body as ListBody
+    const list = (await request(app.getHttpServer()).get(`/sync-runs?jobConfigId=${job.id}`).set('x-api-key', API_KEY).expect(200)).body as ListBody
     expect(list.total).toBe(2)
     const statuses = list.items.map((i) => i.status).sort()
     expect(statuses).toEqual(['failed', 'stale'])

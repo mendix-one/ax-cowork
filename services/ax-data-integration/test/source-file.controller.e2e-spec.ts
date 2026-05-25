@@ -51,7 +51,7 @@ describe('SourceFilesController (e2e)', () => {
 
     const res = await request(app.getHttpServer())
       .post('/source-files')
-      .set('x-axios-key', API_KEY)
+      .set('x-api-key', API_KEY)
       .attach('file', content, { filename: 'greeting.txt', contentType: 'text/plain' })
       .expect(201)
 
@@ -64,8 +64,8 @@ describe('SourceFilesController (e2e)', () => {
 
   it('uploading the same content twice returns the existing id (dedup by checksum)', async () => {
     const content = Buffer.from('identical bytes')
-    const first = await request(app.getHttpServer()).post('/source-files').set('x-axios-key', API_KEY).attach('file', content, 'a.bin').expect(201)
-    const second = await request(app.getHttpServer()).post('/source-files').set('x-axios-key', API_KEY).attach('file', content, 'b.bin').expect(201)
+    const first = await request(app.getHttpServer()).post('/source-files').set('x-api-key', API_KEY).attach('file', content, 'a.bin').expect(201)
+    const second = await request(app.getHttpServer()).post('/source-files').set('x-api-key', API_KEY).attach('file', content, 'b.bin').expect(201)
     expect((second.body as { id: string }).id).toBe((first.body as { id: string }).id)
   })
 
@@ -73,14 +73,14 @@ describe('SourceFilesController (e2e)', () => {
     const content = Buffer.from('payload bytes here')
     const upload = await request(app.getHttpServer())
       .post('/source-files')
-      .set('x-axios-key', API_KEY)
+      .set('x-api-key', API_KEY)
       .attach('file', content, { filename: 'payload.bin', contentType: 'application/octet-stream' })
       .expect(201)
     const { id } = upload.body as { id: string }
 
     const downloaded = await request(app.getHttpServer())
       .get(`/source-files/${id}/download`)
-      .set('x-axios-key', API_KEY)
+      .set('x-api-key', API_KEY)
       .buffer(true)
       .parse((res, cb) => {
         const chunks: Buffer[] = []
@@ -93,11 +93,11 @@ describe('SourceFilesController (e2e)', () => {
   })
 
   it('GET list returns newest-first summaries; no GridFS internals exposed', async () => {
-    await request(app.getHttpServer()).post('/source-files').set('x-axios-key', API_KEY).attach('file', Buffer.from('one'), 'one.txt').expect(201)
+    await request(app.getHttpServer()).post('/source-files').set('x-api-key', API_KEY).attach('file', Buffer.from('one'), 'one.txt').expect(201)
     await new Promise((r) => setTimeout(r, 5))
-    await request(app.getHttpServer()).post('/source-files').set('x-axios-key', API_KEY).attach('file', Buffer.from('two'), 'two.txt').expect(201)
+    await request(app.getHttpServer()).post('/source-files').set('x-api-key', API_KEY).attach('file', Buffer.from('two'), 'two.txt').expect(201)
 
-    const res = await request(app.getHttpServer()).get('/source-files').set('x-axios-key', API_KEY).expect(200)
+    const res = await request(app.getHttpServer()).get('/source-files').set('x-api-key', API_KEY).expect(200)
     const items = res.body as { fileName: string }[]
     expect(items).toHaveLength(2)
     expect(items[0].fileName).toBe('two.txt')
@@ -105,27 +105,23 @@ describe('SourceFilesController (e2e)', () => {
   })
 
   it('GET malformed id → 400, missing id → 404', async () => {
-    await request(app.getHttpServer()).get('/source-files/not-an-id').set('x-axios-key', API_KEY).expect(400)
-    await request(app.getHttpServer()).get('/source-files/507f1f77bcf86cd799439011').set('x-axios-key', API_KEY).expect(404)
+    await request(app.getHttpServer()).get('/source-files/not-an-id').set('x-api-key', API_KEY).expect(400)
+    await request(app.getHttpServer()).get('/source-files/507f1f77bcf86cd799439011').set('x-api-key', API_KEY).expect(404)
   })
 
   it('DELETE 204; subsequent GET → 404; second DELETE → 404', async () => {
-    const upload = await request(app.getHttpServer())
-      .post('/source-files')
-      .set('x-axios-key', API_KEY)
-      .attach('file', Buffer.from('bye'), 'bye.txt')
-      .expect(201)
+    const upload = await request(app.getHttpServer()).post('/source-files').set('x-api-key', API_KEY).attach('file', Buffer.from('bye'), 'bye.txt').expect(201)
     const { id } = upload.body as { id: string }
 
-    await request(app.getHttpServer()).delete(`/source-files/${id}`).set('x-axios-key', API_KEY).expect(204)
-    await request(app.getHttpServer()).get(`/source-files/${id}`).set('x-axios-key', API_KEY).expect(404)
-    await request(app.getHttpServer()).delete(`/source-files/${id}`).set('x-axios-key', API_KEY).expect(404)
+    await request(app.getHttpServer()).delete(`/source-files/${id}`).set('x-api-key', API_KEY).expect(204)
+    await request(app.getHttpServer()).get(`/source-files/${id}`).set('x-api-key', API_KEY).expect(404)
+    await request(app.getHttpServer()).delete(`/source-files/${id}`).set('x-api-key', API_KEY).expect(404)
   })
 
   it('DELETE returns 409 when a job_config references the file', async () => {
     const upload = await request(app.getHttpServer())
       .post('/source-files')
-      .set('x-axios-key', API_KEY)
+      .set('x-api-key', API_KEY)
       .attach('file', Buffer.from('referenced'), 'r.xlsx')
       .expect(201)
     const { id } = upload.body as { id: string }
@@ -154,6 +150,6 @@ describe('SourceFilesController (e2e)', () => {
       await client.close()
     }
 
-    await request(app.getHttpServer()).delete(`/source-files/${id}`).set('x-axios-key', API_KEY).expect(409)
+    await request(app.getHttpServer()).delete(`/source-files/${id}`).set('x-api-key', API_KEY).expect(409)
   })
 })

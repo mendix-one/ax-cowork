@@ -24,7 +24,7 @@ const PHASE_1_PRINCIPAL = 'axios-key'
 
 @ApiTags('Job configs')
 @ApiSecurity('axios-key')
-@ApiUnauthorizedResponse({ description: 'Missing or invalid x-axios-key header.' })
+@ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
 @ApiBadRequestResponse({ description: 'Validation error in DTO or query.' })
 @Controller('job-configs')
 export class JobConfigController {
