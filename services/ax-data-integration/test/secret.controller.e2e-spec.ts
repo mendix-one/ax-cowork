@@ -66,8 +66,8 @@ describe('SecretsController (e2e)', () => {
   })
 
   it('POST /secrets with a duplicate name returns 409', async () => {
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'dup', type: 'axios', plaintext: 'a' }).expect(201)
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'dup', type: 'axios', plaintext: 'b' }).expect(409)
+    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'dup', type: 'api', plaintext: 'a' }).expect(201)
+    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'dup', type: 'api', plaintext: 'b' }).expect(409)
   })
 
   it('POST /secrets with an unknown type returns 400 (DTO validation)', async () => {
@@ -75,12 +75,12 @@ describe('SecretsController (e2e)', () => {
   })
 
   it('POST /secrets without plaintext returns 400 (DTO validation)', async () => {
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'x', type: 'axios' }).expect(400)
+    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'x', type: 'api' }).expect(400)
   })
 
   it('GET /secrets lists existing summaries; no ciphertext leakage', async () => {
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'a', type: 'axios', plaintext: '1' }).expect(201)
-    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'b', type: 'axios', plaintext: '2' }).expect(201)
+    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'a', type: 'api', plaintext: '1' }).expect(201)
+    await request(app.getHttpServer()).post('/secrets').set('x-api-key', API_KEY).send({ name: 'b', type: 'api', plaintext: '2' }).expect(201)
 
     const res = await request(app.getHttpServer()).get('/secrets').set('x-api-key', API_KEY).expect(200)
     expect(res.body).toHaveLength(2)

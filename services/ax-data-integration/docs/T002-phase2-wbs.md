@@ -211,7 +211,7 @@ Closes the manager's remaining form asks in [O001](./O001-data-integration.md): 
 | T2-B02 | `[x]`  | `WebhookController` — `POST /webhooks/:jobConfigId`                  | O001 form #2 | T2-B01                 |
 | T2-B03 | `[x]`  | HMAC signature verify (`x-webhook-signature` + per-job secret)       | -            | T2-B02                 |
 | T2-B04 | `[x]`  | Webhook → `WebhookIngestionService` → reuse `classifyAndWrite`       | -            | T2-B02, T-E04 (phase1) |
-| T2-B05 | `[ ]`  | "Push-only" schedule mode — accept enabled job without cron          | -            | T2-B01                 |
+| T2-B05 | `[x]`  | "Push-only" schedule mode — accept enabled job without cron          | -            | T2-B01                 |
 | T2-B06 | `[ ]`  | `mqtt` dep + `MqttConnectionFactory` abstraction                     | O001 form #3 | -                      |
 | T2-B07 | `[ ]`  | `MqttAdapter` — subscribe → emit AdapterRecord per message           | -            | T2-B06                 |
 | T2-B08 | `[ ]`  | MQTT job lifecycle service (start on enable, stop on disable/delete) | -            | T2-B07                 |
@@ -283,11 +283,14 @@ Closes the manager's remaining form asks in [O001](./O001-data-integration.md): 
 
 ### T2-B05 — Push-only schedule mode
 
-- [ ] Joi validation in `CreateJobConfigDto`: when `source.type ∈ {'webhook', 'mqtt'}`, `schedule.cronExpression` becomes optional. When omitted, scheduler does NOT register a cron for this job
-- [ ] Existing cron `SchedulerService` ignores jobs without `cronExpression`
-- [ ] `GET /sync-runs?jobConfigId=…` already works — `triggeredBy='webhook'` shows up in the existing list
+- [x] **Validator already landed in T2-B01** (`schedule.validator.ts → validateScheduleForSource`): when `source.type ∈ PUSH_SOURCE_TYPES`, `schedule.cronExpression` is optional; when the source is pull-based, missing/blank `cronExpression` raises `BadRequestException` (→ 400). Wired in both `JobConfigsService.create` and `JobConfigsService.update` so PATCH cannot drift the doc into an invalid state. T2-B05 adds no validator changes — the rule is centralized through `PUSH_SOURCE_TYPES`, so T2-B06 (`mqtt`) extends behaviour by adding `'mqtt'` to the set, not by touching the validator
+- [x] **Scheduler now skips push-source jobs symmetrically** in `scheduler.service.ts:register`. Previous behaviour (T2-B01 minimum): early-return only when `cronExpression` was missing/blank. New behaviour: early-return BEFORE looking at `cronExpression` whenever `isPushSourceType(doc.source.type)` is true — even if an operator left a stale cron string on the doc. Rationale documented in the doc-comment: if a webhook job's cron fired, `SyncExecutorService.execute` would reach `buildAdapterConfig` which throws `Adapter for source.type='webhook' is not yet implemented`, the run finalizes as `failed`, and `/sync-runs` fills with bogus failed runs. The push-skip path emits `this.logger.debug('skipping cron for ${name}: push-based source.type=...')` so operators can verify at startup which jobs are receiver-driven without scanning the registry by hand
+- [x] **Defensive double-guard** still rejects pull source + missing cron with a debug log — unreachable via the controller (validator catches it), kept as a fail-safe for historic data drift. Both skip branches log at `debug` (silent in default INFO-level production logs, visible on demand)
+- [x] **`/sync-runs?jobConfigId=…` already lists webhook runs** — verified end-to-end by the T2-B04 e2e `"sync_run lists the webhook run alongside cron-driven ones (triggeredBy=webhook visible via /sync-runs)"`. No controller / DTO changes needed; `TriggerSource` was extended in T2-B04 and the existing summary mapper passes it through verbatim
+- [x] **E2E +4** in `test/scheduler.e2e-spec.ts → describe('push-only schedule mode (T2-B05)')`: (a) webhook job WITHOUT cron → accepted, `isRegistered=false`; (b) webhook job WITH stale cron → accepted, `isRegistered=false` (the symmetric push-skip rule); (c) REST job WITHOUT cron → `BadRequestException` from the service-layer validator; (d) PATCH that switches a job from `webhook` → `rest` requires a cron in the same PATCH (validator rejects without it), then registers the cron after the second PATCH with cron supplied
+- [x] **No new env, no new modules, no DTO surface changes** — push-only is fully realized through the validator + scheduler guard composition. The cleanest possible diff: 1 file in src (`scheduler.service.ts`), 1 file in test
 
-**Outcome**: Webhook + MQTT jobs live in `job_configs` cleanly without polluting the cron registry.
+**Outcome**: Webhook + MQTT jobs live in `job_configs` cleanly without polluting the cron registry. The split is now consistent in both directions: push sources cannot accidentally register a cron (even with a stale `cronExpression` field), and pull sources cannot be saved without one. `/sync-runs` lists push-triggered runs alongside cron-driven runs (verified in T2-B04). Adding `'mqtt'` in T2-B06 inherits the entire behaviour by adding ONE entry to `PUSH_SOURCE_TYPES` — zero changes in validator, scheduler, controller, or DTO. Tests: +4 e2e, 0 unit (existing scheduler e2e already covers the registration plumbing); no regressions.
 
 ### T2-B06 — MQTT connection factory
 

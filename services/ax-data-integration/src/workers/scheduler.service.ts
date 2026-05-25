@@ -4,7 +4,7 @@ import { SchedulerRegistry } from '@nestjs/schedule'
 import { CronJob } from 'cron'
 import { ObjectId } from 'mongodb'
 
-import { JobConfigRepository, type JobConfigDoc } from '../domain/job-config'
+import { JobConfigRepository, isPushSourceType, type JobConfigDoc } from '../domain/job-config'
 import { SyncExecutorService } from './sync-executor.service'
 
 export const DEFAULT_TIMEZONE = 'DEFAULT_TIMEZONE'
@@ -56,14 +56,32 @@ export class SchedulerService implements OnApplicationBootstrap, OnApplicationSh
     this.registered.clear()
   }
 
-  /** Registers (or re-registers) a cron for the given job config. Skips if `enabled=false` or there is no `cronExpression`. */
+  /**
+   * Registers (or re-registers) a cron for the given job config. Skips if:
+   *   - `enabled=false`,
+   *   - `source.type` is a push-based receiver (`PUSH_SOURCE_TYPES`) — webhook / MQTT / … own
+   *     their own ingestion path (T2-B02 / T2-B07); a cron for them would invoke
+   *     `SyncExecutorService.execute(...)` which has no adapter to dispatch to → `executeRun` would
+   *     throw `Adapter for source.type='webhook' is not yet implemented`, finalize the run as
+   *     `failed`, and pollute `/sync-runs`. So we early-return BEFORE looking at `cronExpression`
+   *     to make the rule symmetric: push source = never cron, regardless of whether the operator
+   *     left a stale `cronExpression` on the doc,
+   *   - `cronExpression` missing/blank on a pull source — defensive double-check; the service-layer
+   *     `validateScheduleForSource` already rejects this combination on create/update (T2-B01).
+   */
   register(doc: JobConfigDoc): void {
     const name = this.cronName(doc._id)
     if (this.registered.has(name)) this.unregister(doc._id)
     if (!doc.enabled) return
+    if (isPushSourceType(doc.source.type)) {
+      this.logger.debug(`skipping cron for ${name}: push-based source.type='${doc.source.type}', ingestion is receiver-driven`)
+      return
+    }
     const cronExpression = doc.schedule.cronExpression
     if (typeof cronExpression !== 'string' || cronExpression.trim().length === 0) {
-      // Push-based sources (webhook, MQTT — see PUSH_SOURCE_TYPES) intentionally skip cron registration; ingestion is receiver-driven.
+      // Unreachable in normal operation — `validateScheduleForSource` rejects missing cron for pull
+      // sources on create/update. Kept as a fail-safe in case historic data predates that check.
+      this.logger.debug(`skipping cron for ${name}: pull source.type='${doc.source.type}' but cronExpression is missing`)
       return
     }
 

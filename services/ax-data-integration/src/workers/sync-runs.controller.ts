@@ -43,7 +43,7 @@ export interface RetrySyncRunResponse {
 }
 
 @ApiTags('Sync runs')
-@ApiSecurity('axios-key')
+@ApiSecurity('api-key')
 @Controller('sync-runs')
 export class SyncRunsController {
   constructor(

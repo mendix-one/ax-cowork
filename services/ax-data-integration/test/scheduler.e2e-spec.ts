@@ -1,4 +1,4 @@
-import { INestApplication, ValidationPipe } from '@nestjs/common'
+import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/common'
 import { Test } from '@nestjs/testing'
 import { MongoClient, ObjectId } from 'mongodb'
 import { App } from 'supertest/types'
@@ -110,6 +110,75 @@ describe('SchedulerService (e2e)', () => {
     await jobConfigs.softDelete(id)
     await waitForEvent()
     expect(scheduler.isRegistered(id)).toBe(false)
+  })
+
+  describe('push-only schedule mode (T2-B05)', () => {
+    it('creating a webhook job WITHOUT cronExpression is accepted and NOT registered as a cron', async () => {
+      const created = await jobConfigs.create({
+        name: 'wh-no-cron',
+        source: { type: 'webhook', config: {} },
+        schedule: {},
+        identity: { strategy: 'hash', fields: [], acknowledgeHashSemantics: true },
+        createdBy: 'test',
+      })
+      await waitForEvent()
+      expect(scheduler.isRegistered(new ObjectId(created.id))).toBe(false)
+    })
+
+    it('creating a webhook job WITH a cronExpression is accepted but the scheduler still skips registration', async () => {
+      // Push sources own their ingestion path — even an operator-supplied cron must not be wired up,
+      // otherwise the executor would try (and fail) to find a `webhook` adapter on every tick.
+      const created = await jobConfigs.create({
+        name: 'wh-with-stale-cron',
+        source: { type: 'webhook', config: {} },
+        schedule: { cronExpression: '0 0 1 1 *' },
+        identity: { strategy: 'hash', fields: [], acknowledgeHashSemantics: true },
+        createdBy: 'test',
+      })
+      await waitForEvent()
+      expect(scheduler.isRegistered(new ObjectId(created.id))).toBe(false)
+    })
+
+    it('REST job WITHOUT cronExpression is rejected with 400 at the service layer (validateScheduleForSource)', async () => {
+      await expect(
+        jobConfigs.create({
+          name: 'rest-needs-cron',
+          source: { type: 'rest', config: { baseUrl: 'https://x' } },
+          schedule: {},
+          identity: { strategy: 'primary-key', fields: ['id'] },
+          createdBy: 'test',
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException)
+    })
+
+    it('switching a job FROM webhook TO rest via PATCH requires a cronExpression and then registers the cron', async () => {
+      const created = await jobConfigs.create({
+        name: 'switch-push-to-pull',
+        source: { type: 'webhook', config: {} },
+        schedule: {},
+        identity: { strategy: 'hash', fields: [], acknowledgeHashSemantics: true },
+        createdBy: 'test',
+      })
+      const id = new ObjectId(created.id)
+      await waitForEvent()
+      expect(scheduler.isRegistered(id)).toBe(false)
+
+      // Cron must come along with the source switch; otherwise the validator throws 400.
+      await expect(
+        jobConfigs.update(id, {
+          source: { type: 'rest', config: { baseUrl: 'https://x' } },
+          identity: { strategy: 'primary-key', fields: ['id'] },
+        }),
+      ).rejects.toBeInstanceOf(BadRequestException)
+
+      await jobConfigs.update(id, {
+        source: { type: 'rest', config: { baseUrl: 'https://x' } },
+        schedule: { cronExpression: '0 0 1 1 *' },
+        identity: { strategy: 'primary-key', fields: ['id'] },
+      })
+      await waitForEvent()
+      expect(scheduler.isRegistered(id)).toBe(true)
+    })
   })
 })
 

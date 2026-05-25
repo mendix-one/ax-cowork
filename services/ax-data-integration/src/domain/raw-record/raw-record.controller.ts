@@ -38,7 +38,7 @@ export interface ListRawRecordsResponse {
 }
 
 @ApiTags('Raw records')
-@ApiSecurity('axios-key')
+@ApiSecurity('api-key')
 @ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
 @ApiBadRequestResponse({ description: 'Validation error in DTO or query.' })
 @Controller('raw-records')
