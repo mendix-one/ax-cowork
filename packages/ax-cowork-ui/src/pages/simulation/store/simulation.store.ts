@@ -36,7 +36,7 @@ const SUB_REGION_ID: PanelId = 'regionRight'
 
 const initialStates: PanelStates = {
   regionLeft: 'normal',
-  regionRight: 'normal',
+  regionRight: 'hidden',
 }
 
 const PRODUCTION_LINES: ProductionLine[] = [
@@ -78,7 +78,7 @@ export class SimulationStore {
   history = new HistoryStore()
   recommendations = new RecommendationsStore()
 
-  private rightVisibleBeforeMaximize = true
+  private rightVisibleBeforeMaximize = false
 
   constructor() {
     makeAutoObservable(this)

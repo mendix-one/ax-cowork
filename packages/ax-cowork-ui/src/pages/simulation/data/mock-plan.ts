@@ -3,37 +3,46 @@
 
 export type LotStatus = 'on-track' | 'at-risk' | 'slipped' | 'hot-lot'
 
-export type ScheduleStep = {
+export type ScheduleBatch = {
   id: string
-  label: string
+  name: string // e.g. "B-1"
+  waferCount: number
   start: string
+  end: string
   durationDays: number
   status: LotStatus
-  toolGroup: string
+  toolGroup?: string
   note?: string
 }
 
 export type ScheduleFamily = {
   id: string
-  label: string
+  label: string // family code / SKU, e.g. "V9-QLC-A"
+  tech: string // technology code, e.g. "T-V9-232L"
+  priority: 'P1' | 'P2' | 'P3' | 'P-NPI'
+  hotLot?: boolean
   start: string
+  end: string
   durationDays: number
   status: LotStatus
-  steps: ScheduleStep[]
+  batches: ScheduleBatch[]
 }
 
 export type ScheduleMilestone = {
   id: string
   label: string
   date: string
+  shipmentWafers: number // total wafers committed at this milestone
   status: LotStatus
   slipDays?: number
   cause?: string
+  familyId?: string
 }
 
 export type ProductionOrder = {
   id: string
   customer: string
+  customerShort: string
   family: string
   qty: number
   priority: 'P1' | 'P2' | 'P3' | 'P-NPI'
@@ -44,6 +53,7 @@ export type ProductionOrder = {
   m1Status: LotStatus
   spec: string
   waferStart: string
+  end: string
   lotSize: number
   status: LotStatus
   schedule: ScheduleFamily[]
@@ -52,143 +62,188 @@ export type ProductionOrder = {
 
 export const HORIZON_START = '2026-04-29'
 export const HORIZON_DAYS = 14
-export const HORIZON_LABELS = [
-  '29 Mon',
-  '30 Tue',
-  '01 Wed',
-  '02 Thu',
-  '03 Fri',
-  '04 Sat',
-  '05 Sun',
-  '06 Mon',
-  '07 Tue',
-  '08 Wed',
-  '09 Thu',
-  '10 Fri',
-  '11 Sat',
-  '12 Sun',
-]
+export const HORIZON_TODAY = '2026-05-04'
+
+const addDays = (start: string, days: number): string => {
+  const d = new Date(start)
+  d.setUTCDate(d.getUTCDate() + days)
+  return d.toISOString().slice(0, 10)
+}
+
+const WEEKDAY = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+const horizonDate = (offset: number): string => addDays(HORIZON_START, offset)
+const horizonLabel = (offset: number): string => {
+  const d = new Date(horizonDate(offset))
+  return `${String(d.getUTCDate()).padStart(2, '0')} ${WEEKDAY[d.getUTCDay()]}`
+}
+
+export const HORIZON_DATES: string[] = Array.from({ length: HORIZON_DAYS }, (_, i) => horizonDate(i))
+export const HORIZON_LABELS: string[] = Array.from({ length: HORIZON_DAYS }, (_, i) => horizonLabel(i))
+
+// Month groups for the 2-row timeline header
+export const HORIZON_MONTH_GROUPS: { month: string; days: number }[] = (() => {
+  const groups: { month: string; days: number }[] = []
+  const monthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+  for (const date of HORIZON_DATES) {
+    const d = new Date(date)
+    const label = `${monthName[d.getUTCMonth()]} ${d.getUTCFullYear()}`
+    const last = groups[groups.length - 1]
+    if (last && last.month === label) last.days += 1
+    else groups.push({ month: label, days: 1 })
+  }
+  return groups
+})()
 
 export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
   {
     id: 'PO-2025-118',
-    customer: 'Cust A',
+    customer: 'Customer A',
+    customerShort: 'Cust A',
     family: 'V9-QLC-A',
     qty: 12000,
     priority: 'P1',
     hotLot: true,
-    m1Date: '2026-05-25',
+    m1Date: '2026-05-12',
     m1Status: 'on-track',
     spec: 'SP-QLC-V9 v3.4',
     waferStart: '2026-04-29',
+    end: '2026-05-12',
     lotSize: 25,
     status: 'on-track',
     schedule: [
       {
         id: 'fam-118-v9-qlc-a',
-        label: 'Family V9-QLC-A',
+        label: 'V9-QLC-A',
+        tech: 'T-V9-232L',
+        priority: 'P1',
+        hotLot: true,
         start: '2026-04-29',
+        end: '2026-05-12',
         durationDays: 14,
         status: 'on-track',
-        steps: [
-          { id: 's1', label: 'FEOL Dep', start: '2026-04-29', durationDays: 3, status: 'on-track', toolGroup: 'ONON CVD' },
-          { id: 's2', label: 'HARC Etch', start: '2026-05-02', durationDays: 5, status: 'hot-lot', toolGroup: 'HARC Etch', note: '★ HOT' },
-          { id: 's3', label: 'WL Fill', start: '2026-05-07', durationDays: 3, status: 'on-track', toolGroup: 'WL Tungsten' },
-          { id: 's4', label: 'BEOL', start: '2026-05-10', durationDays: 3, status: 'on-track', toolGroup: 'Metal CVD' },
+        batches: [
+          { id: 'b1', name: 'B-1', waferCount: 200, start: '2026-04-29', end: '2026-05-03', durationDays: 5, status: 'on-track' },
+          { id: 'b2', name: 'B-2', waferCount: 200, start: '2026-05-02', end: '2026-05-07', durationDays: 6, status: 'hot-lot', note: '★ HOT' },
+          { id: 'b3', name: 'B-3', waferCount: 200, start: '2026-05-05', end: '2026-05-10', durationDays: 6, status: 'on-track' },
+          { id: 'b4', name: 'B-4', waferCount: 175, start: '2026-05-07', end: '2026-05-12', durationDays: 6, status: 'on-track' },
         ],
       },
     ],
-    milestones: [{ id: 'm1', label: 'M1: 1,000 wafers out', date: '2026-05-12', status: 'on-track' }],
+    milestones: [{ id: 'm1', label: 'M1', date: '2026-05-12', shipmentWafers: 1000, status: 'on-track', familyId: 'fam-118-v9-qlc-a' }],
   },
   {
     id: 'PO-2025-119',
-    customer: 'Cust B',
+    customer: 'Customer B',
+    customerShort: 'Cust B',
     family: 'V9-TLC-B',
     qty: 8000,
     priority: 'P2',
-    m1Date: '2026-05-24',
+    m1Date: '2026-05-12',
     m1Slip: 2,
     m1Status: 'at-risk',
     spec: 'SP-TLC-V9 v3.2',
     waferStart: '2026-05-02',
+    end: '2026-05-12',
     lotSize: 25,
     status: 'at-risk',
     schedule: [
       {
         id: 'fam-119-v9-tlc-b',
-        label: 'Family V9-TLC-B',
+        label: 'V9-TLC-B',
+        tech: 'T-V9-176L',
+        priority: 'P2',
         start: '2026-05-02',
+        end: '2026-05-12',
         durationDays: 10,
         status: 'at-risk',
-        steps: [
-          { id: 's1', label: 'FEOL Dep', start: '2026-05-02', durationDays: 3, status: 'on-track', toolGroup: 'ONON CVD' },
-          { id: 's2', label: 'HARC Etch', start: '2026-05-05', durationDays: 4, status: 'at-risk', toolGroup: 'HARC Etch', note: '⚠ Cap-overload' },
-          { id: 's3', label: 'WL Fill', start: '2026-05-09', durationDays: 2, status: 'on-track', toolGroup: 'WL Tungsten' },
-          { id: 's4', label: 'BEOL', start: '2026-05-11', durationDays: 2, status: 'on-track', toolGroup: 'Metal CVD' },
+        batches: [
+          { id: 'b1', name: 'B-1', waferCount: 175, start: '2026-05-02', end: '2026-05-06', durationDays: 5, status: 'on-track' },
+          { id: 'b2', name: 'B-2', waferCount: 175, start: '2026-05-04', end: '2026-05-09', durationDays: 6, status: 'at-risk', note: '⚠ Cap-overload' },
+          { id: 'b3', name: 'B-3', waferCount: 150, start: '2026-05-07', end: '2026-05-12', durationDays: 6, status: 'at-risk' },
         ],
       },
     ],
     milestones: [
-      { id: 'm1', label: 'M1: 500 wafers out', date: '2026-05-12', status: 'slipped', slipDays: 2, cause: 'HARC overload' },
-      { id: 'm2', label: 'M2: 3,000 wafers out', date: '2026-06-15', status: 'on-track' },
+      { id: 'm1', label: 'M1', date: '2026-05-12', shipmentWafers: 500, status: 'slipped', slipDays: 2, cause: 'HARC overload', familyId: 'fam-119-v9-tlc-b' },
     ],
   },
   {
     id: 'PO-2025-120',
-    customer: 'Cust C',
+    customer: 'Customer C',
+    customerShort: 'Cust C',
     family: 'V9-QLC-A',
     qty: 15000,
     priority: 'P3',
-    m1Date: '2026-06-01',
+    m1Date: '2026-05-11',
     m1Slip: 4,
     m1Status: 'slipped',
     spec: 'SP-QLC-V9 v3.4',
     waferStart: '2026-05-04',
+    end: '2026-05-12',
     lotSize: 25,
     status: 'slipped',
     schedule: [
       {
         id: 'fam-120-v9-qlc-a',
-        label: 'Family V9-QLC-A',
+        label: 'V9-QLC-A',
+        tech: 'T-V9-232L',
+        priority: 'P3',
         start: '2026-05-04',
+        end: '2026-05-12',
         durationDays: 9,
         status: 'slipped',
-        steps: [
-          { id: 's1', label: 'FEOL Dep', start: '2026-05-04', durationDays: 3, status: 'on-track', toolGroup: 'ONON CVD' },
-          { id: 's2', label: 'HARC Etch', start: '2026-05-07', durationDays: 4, status: 'slipped', toolGroup: 'HARC Etch', note: 'SLIP 1d' },
-          { id: 's3', label: 'WL Fill', start: '2026-05-11', durationDays: 2, status: 'at-risk', toolGroup: 'WL Tungsten' },
+        batches: [
+          { id: 'b1', name: 'B-1', waferCount: 250, start: '2026-05-04', end: '2026-05-08', durationDays: 5, status: 'on-track' },
+          { id: 'b2', name: 'B-2', waferCount: 250, start: '2026-05-06', end: '2026-05-11', durationDays: 6, status: 'slipped', note: 'SLIP 1d' },
+          { id: 'b3', name: 'B-3', waferCount: 200, start: '2026-05-08', end: '2026-05-12', durationDays: 5, status: 'at-risk' },
         ],
       },
     ],
-    milestones: [{ id: 'm1', label: 'M1: 1,200 wafers out', date: '2026-05-12', status: 'slipped', slipDays: 4, cause: 'Probe over-cap' }],
+    milestones: [
+      {
+        id: 'm1',
+        label: 'M1',
+        date: '2026-05-11',
+        shipmentWafers: 1200,
+        status: 'slipped',
+        slipDays: 4,
+        cause: 'Probe over-cap',
+        familyId: 'fam-120-v9-qlc-a',
+      },
+    ],
   },
   {
     id: 'PO-2025-121',
-    customer: 'Cust D',
+    customer: 'Customer D',
+    customerShort: 'Cust D',
     family: 'V9-TLC-C',
     qty: 5000,
     priority: 'P3',
-    m1Date: '2026-06-12',
+    m1Date: '2026-05-12',
     m1Status: 'on-track',
     spec: 'SP-TLC-V9 v2.8',
     waferStart: '2026-05-06',
+    end: '2026-05-12',
     lotSize: 25,
     status: 'on-track',
     schedule: [
       {
         id: 'fam-121-v9-tlc-c',
-        label: 'Family V9-TLC-C',
+        label: 'V9-TLC-C',
+        tech: 'T-V9-128L',
+        priority: 'P3',
         start: '2026-05-06',
-        durationDays: 6,
+        end: '2026-05-12',
+        durationDays: 7,
         status: 'on-track',
-        steps: [
-          { id: 's1', label: 'FEOL Dep', start: '2026-05-06', durationDays: 2, status: 'on-track', toolGroup: 'ONON CVD' },
-          { id: 's2', label: 'HARC Etch', start: '2026-05-08', durationDays: 2, status: 'on-track', toolGroup: 'HARC Etch' },
-          { id: 's3', label: 'WL Fill', start: '2026-05-10', durationDays: 2, status: 'on-track', toolGroup: 'WL Tungsten' },
+        batches: [
+          { id: 'b1', name: 'B-1', waferCount: 125, start: '2026-05-06', end: '2026-05-09', durationDays: 4, status: 'on-track' },
+          { id: 'b2', name: 'B-2', waferCount: 125, start: '2026-05-08', end: '2026-05-12', durationDays: 5, status: 'on-track' },
         ],
       },
     ],
-    milestones: [{ id: 'm1', label: 'M1: 800 wafers out', date: '2026-05-12', status: 'on-track' }],
+    milestones: [{ id: 'm1', label: 'M1', date: '2026-05-12', shipmentWafers: 800, status: 'on-track', familyId: 'fam-121-v9-tlc-c' }],
   },
 ]
 

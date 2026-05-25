@@ -16,6 +16,9 @@ Dynamic Schedule Gantt View:
       - Group 3: Date range picker:
         - Start date:
         - End date:
+      - Group 4: Collapse/Expand
+        - Collapse
+        - Expand
     - Right:
       - Undo
       - Redo
@@ -28,7 +31,61 @@ Dynamic Schedule Gantt View:
     - Productions Order Filter
     - Product Family Filter
   - Gantt Chart (Show on the main body)
+    - Header:
+      - Sidebar Header:
+        - Col 1: Prodctuion Order/Product Family/Batch
+        - Col 2: Start Date
+        - Col 3: End Date
+      - Timeline Header:
+        - Line 1: Month (Ex: Jan 2026)
+        - Line 2: Date (Ex: 01 -> 30)
+      - Style: Heaer has background grey
+    - Content:
+      - Sidebar:
+        - Col 1:
+          - Level 1: Production Order
+            - PO Code
+            - Cusomter short name
+            - Priority
+            - Suport Hot/Hot Mark (If have)
+          - Level 2: Product Family
+            - Code/SKU
+            - Technology Code (Manufacturing processes code)
+            - Priority
+            - Suport Hot/Hot Mark (If have)
+          - Level 3: Manufacting Batch
+            - Batch name
+            - Wafer count
+        - Col 2: Start date
+        - Col 3: End date
+      - Timeline:
+        - Production Order Bar
+        - Product Family Bar
+        - Manufacting Batch Bar
+        - Today marker
+        - Milestone markers with tooltip
+          - Production Order
+          - Product Family
+          - Milestone date
+          - Shipment commitment (total wafer out)
+      - Content style: no backgroundfor whole line, bold text for production order, semibold text for product family, normal text for manufacting batch
+    - Remove quick info at the bottom of the chart (because we have quick analysis)
   - Quick Analysis (Show on the bottom of main body - hidden by default)
     - Shoop floor overall capacity analysis
     - Tool group capacities analysis
     - Viloation analysis or highload analysis
+
+# Style node:
+- Filter style:
+  - Fix Header with title on the left and close button on the right
+  - Body is filtering box without background (scrollable)
+  - Fix bottom with reset button and clear button
+- Gantt chart style:
+  - Stickly header with background grey and index on the top (compare to content)
+  - Stickly sidebar on the left with background white index on the top (compare to content)
+- Quick analysis style:
+  - Fix Header with title on the left and close button on the right
+  - Body is analysis boxes without background (scrollable)
+
+Color:
+- Header background grey: oklch(96.2% 0.018 272.314) - Tailwind CSS: indigo 50

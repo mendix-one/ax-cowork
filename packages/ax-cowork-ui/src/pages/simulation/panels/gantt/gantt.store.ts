@@ -1,5 +1,13 @@
 import { makeAutoObservable } from 'mobx'
-import { HORIZON_LABELS, MOCK_PRODUCTION_ORDERS, WORKLOAD_STRIP, type ProductionOrder } from '../../data/mock-plan'
+import {
+  HORIZON_DATES,
+  HORIZON_LABELS,
+  HORIZON_MONTH_GROUPS,
+  HORIZON_TODAY,
+  MOCK_PRODUCTION_ORDERS,
+  WORKLOAD_STRIP,
+  type ProductionOrder,
+} from '../../data/mock-plan'
 
 export type GanttHorizon = 'day' | 'week' | 'month'
 
@@ -27,8 +35,12 @@ export class GanttStore {
 
   orders: ProductionOrder[] = MOCK_PRODUCTION_ORDERS
   horizonLabels: string[] = HORIZON_LABELS
+  horizonDates: string[] = HORIZON_DATES
+  horizonMonthGroups = HORIZON_MONTH_GROUPS
+  today: string = HORIZON_TODAY
   workloadStrip = WORKLOAD_STRIP
   expandedOrderIds = new Set<string>([MOCK_PRODUCTION_ORDERS[0].id, MOCK_PRODUCTION_ORDERS[1].id, MOCK_PRODUCTION_ORDERS[2].id])
+  expandedFamilyIds = new Set<string>(MOCK_PRODUCTION_ORDERS.flatMap((o) => o.schedule.map((f) => f.id)))
 
   private historyCount = 0
   private futureCount = 0
@@ -89,6 +101,31 @@ export class GanttStore {
   toggleExpanded(id: string) {
     if (this.expandedOrderIds.has(id)) this.expandedOrderIds.delete(id)
     else this.expandedOrderIds.add(id)
+  }
+
+  isFamilyExpanded(id: string) {
+    return this.expandedFamilyIds.has(id)
+  }
+
+  toggleFamilyExpanded(id: string) {
+    if (this.expandedFamilyIds.has(id)) this.expandedFamilyIds.delete(id)
+    else this.expandedFamilyIds.add(id)
+  }
+
+  collapseAll() {
+    this.expandedOrderIds = new Set()
+    this.expandedFamilyIds = new Set()
+  }
+
+  expandAll() {
+    this.expandedOrderIds = new Set(this.orders.map((o) => o.id))
+    this.expandedFamilyIds = new Set(this.orders.flatMap((o) => o.schedule.map((f) => f.id)))
+  }
+
+  clearFilters() {
+    this.customerFilters = []
+    this.orderFilters = []
+    this.familyFilters = []
   }
 
   get canUndo() {
