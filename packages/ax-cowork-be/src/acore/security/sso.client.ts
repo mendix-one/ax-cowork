@@ -79,10 +79,10 @@ export class SsoClient {
   // to seed first-time visitors with a session cookie before serving the SPA.
   async initialize(): Promise<SsoSessionResponse> {
     try {
-      const { data } = await this.http.post<SsoSessionResponse>('/session/initialize')
+      const { data } = await this.http.post<SsoSessionResponse>('/initialize')
       return data
     } catch (err) {
-      throw this.translateError(err, 'session/initialize')
+      throw this.translateError(err, 'initialize')
     }
   }
 
