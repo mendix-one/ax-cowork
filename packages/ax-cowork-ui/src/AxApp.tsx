@@ -20,7 +20,7 @@ const AppShell = observer(() => {
   })
 
   useEffect(() => {
-    if (auth.isInterrupted) {
+    if (auth.isInterrupted && window.location.pathname !== '/system-error') {
       window.location.href = '/system-error'
     }
   }, [auth.isInterrupted])
