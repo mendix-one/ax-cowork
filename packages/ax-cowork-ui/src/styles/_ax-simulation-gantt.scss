@@ -34,7 +34,7 @@
     @apply border-r border-gray-300;
 
     &_header {
-      @apply w-full h-9 px-2;
+      @apply w-full h-8 px-2;
       @apply flex-none flex items-center justify-between;
       @apply font-semibold text-neutral-700;
       @apply bg-indigo-50 border-b border-gray-300;
@@ -64,12 +64,12 @@
 
   // ---- quick analysis ---------------------------------------------------------------------------------------------
   &_analysis {
-    @apply min-h-48;
+    @apply h-80 min-h-80;
     @apply flex-none flex flex-col bg-white;
     @apply border-t border-gray-300;
 
     &_header {
-      @apply w-full h-9 px-2;
+      @apply w-full h-8 px-2;
       @apply flex-none flex items-center justify-between;
       @apply font-semibold text-neutral-700;
       @apply bg-indigo-50 border-b border-gray-300;
