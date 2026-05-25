@@ -31,7 +31,7 @@ describe('Swagger / OpenAPI document', () => {
     const config = new DocumentBuilder()
       .setTitle('AX Data Integration')
       .setVersion('1.0')
-      .addApiKey({ type: 'apiKey', in: 'header', name: 'x-api-key' }, 'axios-key')
+      .addApiKey({ type: 'apiKey', in: 'header', name: 'x-api-key' }, 'api-key')
       .addTag('Service')
       .addTag('Job configs')
       .addTag('Secrets')
@@ -50,7 +50,7 @@ describe('Swagger / OpenAPI document', () => {
     if (app) await app.close()
   })
 
-  it('exposes title + version + axios-key security scheme', () => {
+  it('exposes title + version + api-key security scheme', () => {
     expect(doc.info.title).toBe('AX Data Integration')
     expect(doc.info.version).toBe('1.0')
     expect(doc.components?.securitySchemes?.['api-key']).toMatchObject({ type: 'apiKey', in: 'header', name: 'x-api-key' })
@@ -101,12 +101,15 @@ describe('Swagger / OpenAPI document', () => {
     expect(op?.tags && op.tags.length).toBeGreaterThan(0)
   })
 
-  it('requires the axios-key on every non-Service operation', () => {
+  it('requires the api-key on every non-public-tagged operation', () => {
+    // `Service` covers liveness/readiness/index/metrics; `Webhooks` (T2-B02) is intentionally public —
+    // HMAC signature is the auth boundary for those routes (T2-B03).
+    const publicTags = new Set(['Service', 'Webhooks'])
     for (const methods of Object.values(doc.paths)) {
       for (const op of Object.values(methods)) {
         const tags = op.tags ?? []
-        if (tags.includes('Service')) continue
-        const secured = (op.security ?? []).some((s) => Object.prototype.hasOwnProperty.call(s, 'axios-key'))
+        if (tags.some((t) => publicTags.has(t))) continue
+        const secured = (op.security ?? []).some((s) => Object.prototype.hasOwnProperty.call(s, 'api-key'))
         expect(secured).toBe(true)
       }
     }
