@@ -22,7 +22,7 @@ import { SecurityCheckGuard } from './security-check.guard'
   ],
   providers: [
     // APP_GUARDs run in registration order — ApiKeyGuard validates the service-to-service
-    // `ax-axios-key` header first; SecurityCheckGuard then enforces the per-route `@SecurityCheck()`
+    // `ax-api-key` header first; SecurityCheckGuard then enforces the per-route `@SecurityCheck()`
     // decorator (bearer JWT + role match).
     { provide: APP_GUARD, useClass: ApiKeyGuard },
     { provide: APP_GUARD, useClass: SecurityCheckGuard },

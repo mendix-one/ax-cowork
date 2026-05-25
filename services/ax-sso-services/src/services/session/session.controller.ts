@@ -7,7 +7,7 @@ import { SessionResDto } from './dto/session.res-dto'
 import { SessionService } from './session.service'
 
 @ApiTags('Auth')
-@ApiSecurity('ax-axios-key')
+@ApiSecurity('ax-api-key')
 @Controller()
 export class SessionController {
   constructor(private readonly sessionService: SessionService) {}

@@ -7,7 +7,7 @@ import { TokenResDto } from './dto/token.res-dto'
 import { TokenService } from './token.service'
 
 @ApiTags('Auth')
-@ApiSecurity('ax-axios-key')
+@ApiSecurity('ax-api-key')
 @ApiBearerAuth()
 // sign:false — any valid session bearer is accepted (signed-in or anonymous). Anonymous callers
 // receive tokens with no `sub`/`sta`/roles claims.
