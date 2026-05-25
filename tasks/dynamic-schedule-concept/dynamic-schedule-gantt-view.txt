@@ -119,3 +119,41 @@ Color:
 - Shop floor overall capacity analysis
  - Type 1: Violation analysis (Danger color) - When the used capacity is more than the total capacity
  - Type 2: Highload analysis (Warning color) - When the used capacity is more than save number (80%) of the total capacity
+
+
+==================== Update 3: Color Set ===============================================================================
+
+- Update color set:
+
+$ax-violation: #f44336;
+$ax-highload: #ff9800;
+$ax-normal: #2196f3;
+$ax-capacity: #73d13d;
+
+$ax-fixed-schedule: #2f54eb;
+$ax-changes-schedule: #1677ff;
+$ax-new-schedule: #36cfc9;
+
+- Update dx react gantt chart:
+  - Classify item to 3 group:
+    - Fixed schedule: the old schedule that is applied and running now ($ax-fixed-schedule: #2f54eb)
+    - Changes schedule: the old schedule but has been changed ($ax-changes-schedule: #1677ff)
+    - New schedule: the new schedule that just added this time ($ax-new-schedule: #36cfc9;)
+  - Remove other classifications:
+    - Remove hot (Mark & classification color)
+    - Remove overload  (Mark & classification color)
+  - Keep chips:
+    - Keep the chip priority or product order (display on the text column of the sidebar of the gantt chart)
+  - Change the milestone from gantt chart line to mark line (Today's marker):
+    - Milestone new add (color - #36cfc9)
+    - Milestone normal state ($ax-normal: #2196f3;)
+    - Milesonte may he late: ($ax-highload: #ff9800;)
+    - Milesonte may he could not be done: $ax-violation: #f44336;
+    -> Add tooltip when mouse move to milstone: Milesonte name, Milesonte date, Commitment shipment list: PO - PF - Wafer count
+
+- Update color of the tool group capacities:
+  - Tool group capacity color: $ax-capacity: #73d13d;
+  - Tool group capacity used color:
+    - Normal: $ax-normal: #2196f3;
+    - Highload: $ax-highload: #ff9800;
+    - Violation: $ax-violation: #f44336;

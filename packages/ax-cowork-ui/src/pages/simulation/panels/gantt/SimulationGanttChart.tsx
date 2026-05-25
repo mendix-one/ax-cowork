@@ -5,27 +5,20 @@ import '@dhx/react-gantt/dist/react-gantt.css'
 import { useSimulationContext } from '../../store/simulation.context'
 import type { GanttTaskRow } from './gantt.store'
 
-// Bridge mock-plan `LotStatus` to a CSS class consumed by the DHTMLX bar template.
-const statusClass = (status?: string) => `ax-gantt-row ax-gantt-row__${status ?? 'on-track'}`
-
 // Build per-row prefix label rendered inside the `text` column.
+// Update 3: keep priority chip; HOT chip / overload chip removed.
 const renderTaskText = (task: GanttTaskRow): string => {
   if (task.rowKind === 'po') {
-    const hot = task.hot ? '<span class="ax-gantt-chip ax-gantt-chip__hot">★ HOT</span>' : ''
     const pri = `<span class="ax-gantt-chip ax-gantt-chip__pri-${task.priority?.toLowerCase()}">${task.priority}</span>`
-    return `<span class="ax-gantt-po-text">${task.id}</span> <span class="ax-gantt-muted">${task.customerShort ?? ''}</span> ${hot} ${pri}`
+    return `<span class="ax-gantt-po-text">${task.id}</span> <span class="ax-gantt-muted">${task.customerShort ?? ''}</span> ${pri}`
   }
   if (task.rowKind === 'family') {
-    const hot = task.hot ? '<span class="ax-gantt-chip ax-gantt-chip__hot">★ HOT</span>' : ''
     const pri = `<span class="ax-gantt-chip ax-gantt-chip__pri-${task.priority?.toLowerCase()}">${task.priority}</span>`
-    return `<span class="ax-gantt-family-text">${task.text}</span> <span class="ax-gantt-muted">${task.techCode ?? ''}</span> ${hot} ${pri}`
+    return `<span class="ax-gantt-family-text">${task.text}</span> <span class="ax-gantt-muted">${task.techCode ?? ''}</span> ${pri}`
   }
-  if (task.rowKind === 'batch') {
-    const note = task.note ? ` <span class="ax-gantt-muted">${task.note}</span>` : ''
-    return `<span class="ax-gantt-batch-text">${task.text}</span> <span class="ax-gantt-muted">${task.waferCount ?? '?'} wafers</span>${note}`
-  }
-  // milestone
-  return `<span class="ax-gantt-milestone-text">◆ ${task.text}</span>`
+  // batch
+  const note = task.note ? ` <span class="ax-gantt-muted">${task.note}</span>` : ''
+  return `<span class="ax-gantt-batch-text">${task.text}</span> <span class="ax-gantt-muted">${task.waferCount ?? '?'} wafers</span>${note}`
 }
 
 const fmtDate = (date?: Date) => {
@@ -69,35 +62,19 @@ export const SimulationGanttChart = observer(() => {
   )
 
   const tasks = gantt.dhxTasks
+  // Today + milestone markers come from the store now.
+  const markers = gantt.dhxMarkers
 
-  // Today vertical marker uses dhx's marker mechanism (start_date marker line).
-  const markers = useMemo(
-    () => [
-      {
-        id: 'today',
-        start_date: new Date(gantt.today),
-        css: 'ax-gantt-today-marker',
-        text: 'TODAY',
-        title: `Today · ${gantt.today}`,
-      },
-    ],
-    [gantt.today],
-  )
-
-  // Cell colour + custom class per task (status, kind).
+  // Bar class = schedule class + row kind (Update 3: replaces lot-status / hot-lot classes).
   const templates = useMemo(
     () => ({
-      task_class: (_start: Date, _end: Date, task: GanttTaskRow) => `${statusClass(task.status)} ax-gantt-row__${task.rowKind}`,
+      task_class: (_start: Date, _end: Date, task: GanttTaskRow) => `ax-gantt-row ax-gantt-row__${task.scheduleClass} ax-gantt-row__${task.rowKind}`,
       task_text: (_start: Date, _end: Date, task: GanttTaskRow) => {
         if (task.rowKind === 'batch' && task.note) return `${task.text} · ${task.note}`
         return task.text
       },
-      tooltip_text: (start: Date, end: Date, task: GanttTaskRow) => {
-        if (task.rowKind === 'milestone') {
-          return `<b>${task.text}</b><br/>${fmtDate(start)}<br/>Shipment: ${task.shipmentWafers?.toLocaleString() ?? ''} wafers${task.slipDays ? `<br/>Slip +${task.slipDays}d · ${task.cause ?? ''}` : ''}`
-        }
-        return `<b>${task.text}</b><br/>${fmtDate(start)} → ${fmtDate(end)}${task.note ? `<br/>${task.note}` : ''}`
-      },
+      tooltip_text: (start: Date, end: Date, task: GanttTaskRow) =>
+        `<b>${task.text}</b><br/>${fmtDate(start)} → ${fmtDate(end)}${task.note ? `<br/>${task.note}` : ''}`,
     }),
     [],
   )

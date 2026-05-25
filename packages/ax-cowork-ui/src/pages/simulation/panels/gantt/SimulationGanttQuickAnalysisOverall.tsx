@@ -19,14 +19,14 @@ const REFERENCE_MARK_LINE = {
     {
       yAxis: SHOP_FLOOR_CAPACITY_LIMIT,
       name: 'Limit',
-      lineStyle: { color: '#f5222d', type: 'solid' as const, width: 2 },
-      label: { formatter: `Limit · ${SHOP_FLOOR_CAPACITY_LIMIT}`, color: '#f5222d' },
+      lineStyle: { color: '#f44336', type: 'solid' as const, width: 2 }, // $ax-violation
+      label: { formatter: `Limit · ${SHOP_FLOOR_CAPACITY_LIMIT}`, color: '#f44336' },
     },
     {
       yAxis: SHOP_FLOOR_CAPACITY_SAFE,
       name: 'Safe',
-      lineStyle: { color: '#faad14', type: 'dashed' as const, width: 2 },
-      label: { formatter: `Safe · ${SHOP_FLOOR_CAPACITY_SAFE}`, color: '#faad14' },
+      lineStyle: { color: '#ff9800', type: 'dashed' as const, width: 2 }, // $ax-highload
+      label: { formatter: `Safe · ${SHOP_FLOOR_CAPACITY_SAFE}`, color: '#ff9800' },
     },
   ],
 }

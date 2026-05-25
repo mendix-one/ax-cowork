@@ -188,23 +188,20 @@
   }
 }
 
-// Row class follows the dhx-internal "gantt_row" + our custom class added via `task_class` template.
+// Row class follows the dhx-internal "gantt_row" + our schedule-class class added via `task_class` template.
+// Update 3: classification by schedule lineage (fixed / changes / new), not by lot status.
 .ax-gantt-row {
-  &__on-track .gantt_task_content,
-  &__on-track {
-    background: #1677ff !important;
+  &__fixed .gantt_task_content,
+  &__fixed {
+    background: #3f51b5 !important; // $ax-fixed-schedule
   }
-  &__at-risk .gantt_task_content,
-  &__at-risk {
-    background: #faad14 !important;
+  &__changes .gantt_task_content,
+  &__changes {
+    background: #1565c0 !important; // $ax-changes-schedule
   }
-  &__slipped .gantt_task_content,
-  &__slipped {
-    background: #f5222d !important;
-  }
-  &__hot-lot .gantt_task_content,
-  &__hot-lot {
-    background: #722ed1 !important;
+  &__new .gantt_task_content,
+  &__new {
+    background: #00897b !important; // $ax-new-schedule
   }
 
   // Visual differentiation by row kind (height / opacity).
@@ -229,17 +226,12 @@
 .ax-gantt-batch-text {
   @apply font-semibold text-neutral-900;
 }
-.ax-gantt-milestone-text {
-  @apply font-medium text-neutral-900;
-}
 .ax-gantt-muted {
   @apply text-neutral-700 ml-1;
 }
+// Update 3: HOT chip removed — keep only priority chips.
 .ax-gantt-chip {
   @apply inline-block px-1 py-0 ml-1 rounded text-xs font-semibold;
-  &__hot {
-    @apply bg-purple-100 text-purple-700;
-  }
   &__pri-p1 {
     @apply bg-red-100 text-red-700;
   }
@@ -256,13 +248,61 @@
 
 // Today marker (vertical line + label drop)
 .gantt_marker.ax-gantt-today-marker {
-  background: #f5222d;
+  background: #5e35b1;
+  opacity: 0.5;
+  cursor: pointer;
+  &:hover {
+    opacity: 1;
+  }
   .gantt_marker_content {
-    background: #f5222d;
+    background: #5e35b1;
     color: #fff;
     font-size: 10px;
     padding: 0 4px;
     border-radius: 2px;
+  }
+}
+
+// Milestone markers (Update 3) — vertical mark lines per PO milestone.
+// State decides the colour: new (cyan), normal (blue), late (orange), cannot (red).
+.gantt_marker.ax-gantt-milestone-marker {
+  width: 2px;
+  opacity: 0.5;
+  cursor: pointer;
+  &:hover {
+    opacity: 1;
+  }
+  .gantt_marker_content {
+    color: #fff;
+    font-size: 10px;
+    padding: 0 4px;
+    border-radius: 2px;
+    white-space: nowrap;
+  }
+
+  &__new {
+    background: #009688; // $ax-new-schedule
+    .gantt_marker_content {
+      background: #009688;
+    }
+  }
+  &__normal {
+    background: #2196f3; // $ax-normal
+    .gantt_marker_content {
+      background: #2196f3;
+    }
+  }
+  &__late {
+    background: #ff9800; // $ax-highload
+    .gantt_marker_content {
+      background: #ff9800;
+    }
+  }
+  &__cannot {
+    background: #f44336; // $ax-violation
+    .gantt_marker_content {
+      background: #f44336;
+    }
   }
 }
 

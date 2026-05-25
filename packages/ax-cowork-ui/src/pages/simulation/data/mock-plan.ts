@@ -3,6 +3,19 @@
 
 export type LotStatus = 'on-track' | 'at-risk' | 'slipped' | 'hot-lot'
 
+// Update 3 — schedule classification. Drives bar colour on the gantt.
+//   • fixed   — old schedule, applied and running now
+//   • changes — old schedule but modified in this session
+//   • new     — newly added in this session
+export type ScheduleClass = 'fixed' | 'changes' | 'new'
+
+// Milestone state — drives marker colour & tooltip framing.
+//   • new    — freshly added
+//   • normal — on track
+//   • late   — at risk of slipping
+//   • cannot — cannot be completed
+export type MilestoneState = 'new' | 'normal' | 'late' | 'cannot'
+
 export type ScheduleBatch = {
   id: string
   name: string // e.g. "B-1"
@@ -11,6 +24,7 @@ export type ScheduleBatch = {
   end: string
   durationDays: number
   status: LotStatus
+  scheduleClass: ScheduleClass
   toolGroup?: string
   note?: string
 }
@@ -25,6 +39,7 @@ export type ScheduleFamily = {
   end: string
   durationDays: number
   status: LotStatus
+  scheduleClass: ScheduleClass
   batches: ScheduleBatch[]
 }
 
@@ -34,9 +49,12 @@ export type ScheduleMilestone = {
   date: string
   shipmentWafers: number // total wafers committed at this milestone
   status: LotStatus
+  state: MilestoneState
   slipDays?: number
   cause?: string
   familyId?: string
+  // Per-PO/PF shipment commitment list shown in the marker tooltip.
+  commitments?: { po: string; pf: string; wafers: number }[]
 }
 
 export type ProductionOrder = {
@@ -56,6 +74,7 @@ export type ProductionOrder = {
   end: string
   lotSize: number
   status: LotStatus
+  scheduleClass: ScheduleClass
   schedule: ScheduleFamily[]
   milestones: ScheduleMilestone[]
 }
@@ -111,6 +130,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     end: '2026-05-12',
     lotSize: 25,
     status: 'on-track',
+    scheduleClass: 'fixed',
     schedule: [
       {
         id: 'fam-118-v9-qlc-a',
@@ -122,15 +142,27 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
         end: '2026-05-12',
         durationDays: 14,
         status: 'on-track',
+        scheduleClass: 'fixed',
         batches: [
-          { id: 'b1', name: 'B-1', waferCount: 200, start: '2026-04-29', end: '2026-05-03', durationDays: 5, status: 'on-track' },
-          { id: 'b2', name: 'B-2', waferCount: 200, start: '2026-05-02', end: '2026-05-07', durationDays: 6, status: 'hot-lot', note: '★ HOT' },
-          { id: 'b3', name: 'B-3', waferCount: 200, start: '2026-05-05', end: '2026-05-10', durationDays: 6, status: 'on-track' },
-          { id: 'b4', name: 'B-4', waferCount: 175, start: '2026-05-07', end: '2026-05-12', durationDays: 6, status: 'on-track' },
+          { id: 'b1', name: 'B-1', waferCount: 200, start: '2026-04-29', end: '2026-05-03', durationDays: 5, status: 'on-track', scheduleClass: 'fixed' },
+          { id: 'b2', name: 'B-2', waferCount: 200, start: '2026-05-02', end: '2026-05-07', durationDays: 6, status: 'on-track', scheduleClass: 'fixed' },
+          { id: 'b3', name: 'B-3', waferCount: 200, start: '2026-05-05', end: '2026-05-10', durationDays: 6, status: 'on-track', scheduleClass: 'fixed' },
+          { id: 'b4', name: 'B-4', waferCount: 175, start: '2026-05-07', end: '2026-05-12', durationDays: 6, status: 'on-track', scheduleClass: 'fixed' },
         ],
       },
     ],
-    milestones: [{ id: 'm1', label: 'M1', date: '2026-05-12', shipmentWafers: 1000, status: 'on-track', familyId: 'fam-118-v9-qlc-a' }],
+    milestones: [
+      {
+        id: 'm1',
+        label: 'M1',
+        date: '2026-05-12',
+        shipmentWafers: 1000,
+        status: 'on-track',
+        state: 'normal',
+        familyId: 'fam-118-v9-qlc-a',
+        commitments: [{ po: 'PO-2025-118', pf: 'V9-QLC-A', wafers: 1000 }],
+      },
+    ],
   },
   {
     id: 'PO-2025-119',
@@ -147,6 +179,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     end: '2026-05-12',
     lotSize: 25,
     status: 'at-risk',
+    scheduleClass: 'changes',
     schedule: [
       {
         id: 'fam-119-v9-tlc-b',
@@ -157,15 +190,27 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
         end: '2026-05-12',
         durationDays: 10,
         status: 'at-risk',
+        scheduleClass: 'changes',
         batches: [
-          { id: 'b1', name: 'B-1', waferCount: 175, start: '2026-05-02', end: '2026-05-06', durationDays: 5, status: 'on-track' },
-          { id: 'b2', name: 'B-2', waferCount: 175, start: '2026-05-04', end: '2026-05-09', durationDays: 6, status: 'at-risk', note: '⚠ Cap-overload' },
-          { id: 'b3', name: 'B-3', waferCount: 150, start: '2026-05-07', end: '2026-05-12', durationDays: 6, status: 'at-risk' },
+          { id: 'b1', name: 'B-1', waferCount: 175, start: '2026-05-02', end: '2026-05-06', durationDays: 5, status: 'on-track', scheduleClass: 'fixed' },
+          { id: 'b2', name: 'B-2', waferCount: 175, start: '2026-05-04', end: '2026-05-09', durationDays: 6, status: 'at-risk', scheduleClass: 'changes' },
+          { id: 'b3', name: 'B-3', waferCount: 150, start: '2026-05-07', end: '2026-05-12', durationDays: 6, status: 'at-risk', scheduleClass: 'changes' },
         ],
       },
     ],
     milestones: [
-      { id: 'm1', label: 'M1', date: '2026-05-12', shipmentWafers: 500, status: 'slipped', slipDays: 2, cause: 'HARC overload', familyId: 'fam-119-v9-tlc-b' },
+      {
+        id: 'm1',
+        label: 'M1',
+        date: '2026-05-12',
+        shipmentWafers: 500,
+        status: 'slipped',
+        state: 'late',
+        slipDays: 2,
+        cause: 'HARC overload',
+        familyId: 'fam-119-v9-tlc-b',
+        commitments: [{ po: 'PO-2025-119', pf: 'V9-TLC-B', wafers: 500 }],
+      },
     ],
   },
   {
@@ -183,6 +228,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     end: '2026-05-12',
     lotSize: 25,
     status: 'slipped',
+    scheduleClass: 'changes',
     schedule: [
       {
         id: 'fam-120-v9-qlc-a',
@@ -193,10 +239,11 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
         end: '2026-05-12',
         durationDays: 9,
         status: 'slipped',
+        scheduleClass: 'changes',
         batches: [
-          { id: 'b1', name: 'B-1', waferCount: 250, start: '2026-05-04', end: '2026-05-08', durationDays: 5, status: 'on-track' },
-          { id: 'b2', name: 'B-2', waferCount: 250, start: '2026-05-06', end: '2026-05-11', durationDays: 6, status: 'slipped', note: 'SLIP 1d' },
-          { id: 'b3', name: 'B-3', waferCount: 200, start: '2026-05-08', end: '2026-05-12', durationDays: 5, status: 'at-risk' },
+          { id: 'b1', name: 'B-1', waferCount: 250, start: '2026-05-04', end: '2026-05-08', durationDays: 5, status: 'on-track', scheduleClass: 'fixed' },
+          { id: 'b2', name: 'B-2', waferCount: 250, start: '2026-05-06', end: '2026-05-11', durationDays: 6, status: 'slipped', scheduleClass: 'changes' },
+          { id: 'b3', name: 'B-3', waferCount: 200, start: '2026-05-08', end: '2026-05-12', durationDays: 5, status: 'at-risk', scheduleClass: 'changes' },
         ],
       },
     ],
@@ -207,9 +254,11 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
         date: '2026-05-11',
         shipmentWafers: 1200,
         status: 'slipped',
+        state: 'cannot',
         slipDays: 4,
         cause: 'Probe over-cap',
         familyId: 'fam-120-v9-qlc-a',
+        commitments: [{ po: 'PO-2025-120', pf: 'V9-QLC-A', wafers: 1200 }],
       },
     ],
   },
@@ -227,6 +276,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     end: '2026-05-12',
     lotSize: 25,
     status: 'on-track',
+    scheduleClass: 'new',
     schedule: [
       {
         id: 'fam-121-v9-tlc-c',
@@ -237,13 +287,25 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
         end: '2026-05-12',
         durationDays: 7,
         status: 'on-track',
+        scheduleClass: 'new',
         batches: [
-          { id: 'b1', name: 'B-1', waferCount: 125, start: '2026-05-06', end: '2026-05-09', durationDays: 4, status: 'on-track' },
-          { id: 'b2', name: 'B-2', waferCount: 125, start: '2026-05-08', end: '2026-05-12', durationDays: 5, status: 'on-track' },
+          { id: 'b1', name: 'B-1', waferCount: 125, start: '2026-05-06', end: '2026-05-09', durationDays: 4, status: 'on-track', scheduleClass: 'new' },
+          { id: 'b2', name: 'B-2', waferCount: 125, start: '2026-05-08', end: '2026-05-12', durationDays: 5, status: 'on-track', scheduleClass: 'new' },
         ],
       },
     ],
-    milestones: [{ id: 'm1', label: 'M1', date: '2026-05-12', shipmentWafers: 800, status: 'on-track', familyId: 'fam-121-v9-tlc-c' }],
+    milestones: [
+      {
+        id: 'm1',
+        label: 'M1',
+        date: '2026-05-12',
+        shipmentWafers: 800,
+        status: 'on-track',
+        state: 'new',
+        familyId: 'fam-121-v9-tlc-c',
+        commitments: [{ po: 'PO-2025-121', pf: 'V9-TLC-C', wafers: 800 }],
+      },
+    ],
   },
 ]
 

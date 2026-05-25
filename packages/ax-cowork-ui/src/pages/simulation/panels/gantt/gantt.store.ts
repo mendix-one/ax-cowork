@@ -6,10 +6,12 @@ import {
   HORIZON_TODAY,
   MOCK_PRODUCTION_ORDERS,
   WORKLOAD_STRIP,
-  type LotStatus,
+  type MilestoneState,
   type ProductionOrder,
+  type ScheduleClass,
+  type ScheduleMilestone,
 } from '../../data/mock-plan'
-import { STATUS_COLOR } from './gantt-styles'
+import { SCHEDULE_COLOR } from './gantt-styles'
 
 export type GanttTaskRow = {
   id: string
@@ -18,25 +20,41 @@ export type GanttTaskRow = {
   end_date?: string
   duration?: number
   parent?: string
-  type?: 'project' | 'task' | 'milestone'
+  type?: 'project' | 'task'
   open?: boolean
   color?: string
   progress?: number
   // custom metadata for column / bar templates
-  rowKind: 'po' | 'family' | 'batch' | 'milestone'
+  rowKind: 'po' | 'family' | 'batch'
   customerShort?: string
   techCode?: string
   priority?: string
-  hot?: boolean
   waferCount?: number
   note?: string
-  shipmentWafers?: number
-  slipDays?: number
-  cause?: string
-  status?: LotStatus
+  scheduleClass: ScheduleClass
 }
 
-const statusColor = (status?: LotStatus) => (status ? STATUS_COLOR[status] : undefined)
+// Marker payload for the dhx-react-gantt `markers` prop — Today + per-PO milestones.
+export type GanttMarker = {
+  id: string
+  start_date: Date
+  css: string
+  text: string
+  title: string
+  // additional metadata if downstream needs it
+  state?: MilestoneState
+}
+
+const scheduleColor = (cls: ScheduleClass) => SCHEDULE_COLOR[cls]
+
+// Build a multi-line tooltip string for a milestone marker.
+// `title` on dhx Marker becomes the HTML title attribute — newlines render as line breaks in the browser tooltip.
+const buildMilestoneTooltip = (m: ScheduleMilestone): string => {
+  const header = `${m.label} · ${m.date}`
+  const commitments = (m.commitments ?? []).map((c) => `${c.po} — ${c.pf} — ${c.wafers.toLocaleString()} wafers`)
+  const slipNote = m.slipDays ? `Slip +${m.slipDays}d${m.cause ? ` · ${m.cause}` : ''}` : null
+  return [header, '', ...commitments, slipNote].filter(Boolean).join('\n')
+}
 
 export type GanttHorizon = 'day' | 'week' | 'month'
 
@@ -159,7 +177,8 @@ export class GanttStore {
     return this.orders.filter((o) => cs.has(o.customer) && os.has(o.id) && fs.has(o.family))
   }
 
-  // Flat dhx tasks array (PO → Family → Batch → Milestone) for the @dhx/react-gantt component.
+  // Flat dhx tasks array (PO → Family → Batch) for the @dhx/react-gantt component.
+  // Milestones are NOT tasks anymore — they render as vertical marker lines (see `dhxMarkers`).
   get dhxTasks(): GanttTaskRow[] {
     const out: GanttTaskRow[] = []
     for (const order of this.filteredOrders) {
@@ -173,9 +192,8 @@ export class GanttStore {
         rowKind: 'po',
         customerShort: order.customerShort,
         priority: order.priority,
-        hot: order.hotLot,
-        status: order.status,
-        color: statusColor(order.status),
+        scheduleClass: order.scheduleClass,
+        color: scheduleColor(order.scheduleClass),
       })
       for (const family of order.schedule) {
         out.push({
@@ -189,9 +207,8 @@ export class GanttStore {
           rowKind: 'family',
           techCode: family.tech,
           priority: family.priority,
-          hot: family.hotLot,
-          status: family.status,
-          color: statusColor(family.status),
+          scheduleClass: family.scheduleClass,
+          color: scheduleColor(family.scheduleClass),
         })
         for (const batch of family.batches) {
           out.push({
@@ -205,24 +222,36 @@ export class GanttStore {
             rowKind: 'batch',
             waferCount: batch.waferCount,
             note: batch.note,
-            status: batch.status,
-            color: statusColor(batch.status),
+            scheduleClass: batch.scheduleClass,
+            color: scheduleColor(batch.scheduleClass),
           })
         }
       }
+    }
+    return out
+  }
+
+  // Markers for dhx-react-gantt — the Today line plus one vertical line per milestone.
+  // Each marker carries a rich `title` tooltip (name + date + PO/PF/wafer commitment list).
+  get dhxMarkers(): GanttMarker[] {
+    const out: GanttMarker[] = [
+      {
+        id: 'today',
+        start_date: new Date(this.today),
+        css: 'ax-gantt-today-marker',
+        text: 'TODAY',
+        title: `Today · ${this.today}`,
+      },
+    ]
+    for (const order of this.filteredOrders) {
       for (const m of order.milestones) {
         out.push({
-          id: `${order.id}::${m.id}`,
-          text: `${m.label} · ${m.shipmentWafers.toLocaleString()} wafers out`,
-          start_date: m.date,
-          duration: 0,
-          type: 'milestone',
-          parent: m.familyId ?? order.id,
-          rowKind: 'milestone',
-          shipmentWafers: m.shipmentWafers,
-          slipDays: m.slipDays,
-          cause: m.cause,
-          status: m.status,
+          id: `milestone::${order.id}::${m.id}`,
+          start_date: new Date(m.date),
+          css: `ax-gantt-milestone-marker ax-gantt-milestone-marker__${m.state}`,
+          text: `${order.id} · ${m.label}`,
+          title: buildMilestoneTooltip(m),
+          state: m.state,
         })
       }
     }
