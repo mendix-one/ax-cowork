@@ -11,39 +11,39 @@ export class CreateAccountInput {
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-    username!: string
+  username!: string
 
   @Field({ description: 'Plaintext password. Hashed with bcrypt server-side; never stored or returned.' })
   @IsString()
   @MinLength(8)
   @MaxLength(256)
-    password!: string
+  password!: string
 
   @Field()
   @IsString()
   @MinLength(1)
   @MaxLength(120)
-    display!: string
+  display!: string
 
   @Field()
   @IsEmail()
   @MaxLength(254)
-    email!: string
+  email!: string
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
   @MaxLength(32)
-    phone?: string
+  phone?: string
 
   @Field({ nullable: true })
   @IsOptional()
   @IsString()
   @MaxLength(2048)
-    avatar?: string
+  avatar?: string
 
   @Field(() => AccountStatusEnum, { nullable: true, description: 'Defaults to ACTIVE.' })
   @IsOptional()
   @IsEnum(ACCOUNT_STATUSES)
-    status?: AccountStatus
+  status?: AccountStatus
 }

@@ -13656,7 +13656,7 @@ function hs(e, t = os) {
 }
 var gs = hs(Ko),
   _s = os,
-  vs = c(),
+  vs = e(c()),
   ys = `accept acceptCharset accessKey action allowFullScreen allowTransparency
     alt async autoComplete autoFocus autoPlay capture cellPadding cellSpacing challenge
     charSet checked classID className colSpan cols content contentEditable contextMenu

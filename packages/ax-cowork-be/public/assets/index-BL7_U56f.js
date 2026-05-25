@@ -3,28 +3,28 @@ const __vite__mapDeps = (
   m = __vite__mapDeps,
   d = m.f ||
     (m.f = [
-      'assets/SimulationPage-vDjgcFP5.js',
+      'assets/SimulationPage-C0jfi94-.js',
       'assets/jsx-runtime-B6doAwFl.js',
-      'assets/button-BU_eysIT.js',
-      'assets/AxMuiIcon-CelvnH-o.js',
-      'assets/typography-_G6plS4i.js',
-      'assets/input-CYA5sF8X.js',
-      'assets/functions-BJ-jArrF.js',
-      'assets/useBubbleLock-DdMqRyyU.js',
-      'assets/row-wPN_wMQk.js',
+      'assets/button-Di0uy-dC.js',
+      'assets/AxMuiIcon-COwaBZh4.js',
+      'assets/typography-BlYS2lqL.js',
+      'assets/input-BVKQSqCw.js',
+      'assets/functions-SS_cpX_s.js',
+      'assets/useBubbleLock-DtiFND2B.js',
+      'assets/row-DmBDewpw.js',
       'assets/SimulationPage-7l5aCyzq.css',
-      'assets/ControlTableDemoPage-BX1BySPd.js',
-      'assets/ax-control-table-BsZCh1O-.js',
-      'assets/menu-CmMxyigb.js',
-      'assets/MarkdownViewPage-B7-PobkH.js',
-      'assets/alert-m9ybsuOS.js',
-      'assets/ChartBlock-BtX1SxyL-0RbweeJd.js',
+      'assets/ControlTableDemoPage-DsANzQjd.js',
+      'assets/ax-control-table-BZo3-gSz.js',
+      'assets/menu-CRlnnZBo.js',
+      'assets/MarkdownViewPage-Bl90cgPn.js',
+      'assets/alert-Bixofab4.js',
+      'assets/ChartBlock-BtX1SxyL-BJIFwjSn.js',
       'assets/MarkdownViewPage-Lcq2UOUK.css',
-      'assets/SignInPage-YO7igSa3.js',
-      'assets/SystemErrorPage-BleEVC3m.js',
-      'assets/SystemExceptionPage-BVimPBV7.js',
-      'assets/AccessDeniedPage-COIzBNYZ.js',
-      'assets/NotFoundPage-CJR_m61h.js',
+      'assets/SignInPage-DUVBDytc.js',
+      'assets/SystemErrorPage-SafZ-MYp.js',
+      'assets/SystemExceptionPage-xEsRxkSL.js',
+      'assets/AccessDeniedPage-YmvXUhva.js',
+      'assets/NotFoundPage-CRVIiCra.js',
     ]),
 ) => i.map((i) => d[i])
 import { a as e, i as t, n, r, t as i } from './jsx-runtime-B6doAwFl.js'
@@ -116,7 +116,7 @@ import {
   y as Ye,
   yt as Xe,
   z as Ze,
-} from './button-BU_eysIT.js'
+} from './button-Di0uy-dC.js'
 import { t as Qe } from './shim-hUALB1_9.js'
 import {
   A as $e,
@@ -149,8 +149,8 @@ import {
   r as Et,
   t as Dt,
   z as Ot,
-} from './typography-_G6plS4i.js'
-import { a as kt, c as At, d as jt, i as Mt, l as Nt, n as Pt, o as Ft, s as It, t as Lt, u as Rt } from './row-wPN_wMQk.js'
+} from './typography-BlYS2lqL.js'
+import { a as kt, c as At, d as jt, i as Mt, l as Nt, n as Pt, o as Ft, s as It, t as Lt, u as Rt } from './row-DmBDewpw.js'
 import {
   A as zt,
   C as Bt,
@@ -181,8 +181,8 @@ import {
   w as fn,
   x as pn,
   y as mn,
-} from './AxMuiIcon-CelvnH-o.js'
-import { a as hn, i as gn, o as _n, r as vn, t as yn } from './menu-CmMxyigb.js'
+} from './AxMuiIcon-COwaBZh4.js'
+import { a as hn, i as gn, o as _n, r as vn, t as yn } from './menu-CRlnnZBo.js'
 ;(function () {
   let e = document.createElement(`link`).relList
   if (e && e.supports && e.supports(`modulepreload`)) return
@@ -211,7 +211,7 @@ import { a as hn, i as gn, o as _n, r as vn, t as yn } from './menu-CmMxyigb.js'
   }
 })()
 var B = e(n()),
-  bn = m(),
+  bn = e(m(), 1),
   V = (e) => typeof e == `string`,
   xn = () => {
     let e,
@@ -26335,10 +26335,16 @@ var LM = PC(() => {
     let { auth: e } = sk()
     return e.isAuthed ? (0, $.jsx)(qD, { to: `/`, replace: !0 }) : (0, $.jsx)(JD, {})
   }),
-  zM = `/assets/aplanner-light-JpXJqDJ4.png`,
-  BM = () => (0, $.jsx)(`div`, { className: `w-full h-full flex items-center justify-center`, children: (0, $.jsx)(s_, {}) }),
-  VM = `/assets/avatar-light-DHRu2doW.png`,
-  HM = (e) =>
+  zM = `/system-error`,
+  BM = PC(() => {
+    let { auth: e } = sk(),
+      t = oD()
+    return e.isInterrupted && t.pathname !== zM ? (0, $.jsx)(qD, { to: zM, replace: !0 }) : (0, $.jsx)(JD, {})
+  }),
+  VM = `/assets/aplanner-light-JpXJqDJ4.png`,
+  HM = () => (0, $.jsx)(`div`, { className: `w-full h-full flex items-center justify-center`, children: (0, $.jsx)(s_, {}) }),
+  UM = `/assets/avatar-light-DHRu2doW.png`,
+  WM = (e) =>
     (0, $.jsx)(bt, {
       title: e.title,
       placement: e.placement,
@@ -26348,7 +26354,7 @@ var LM = PC(() => {
         children: (0, $.jsx)(ln, { icon: e.icon, size: `20px`, className: `ax-menu-icon_icon` }),
       }),
     }),
-  UM = () => {
+  GM = () => {
     let { t: e } = Br(`app`)
     return (0, $.jsx)(Bg.Header, {
       className: `ax-layout-top`,
@@ -26370,7 +26376,7 @@ var LM = PC(() => {
                 children: (0, $.jsx)(bt, {
                   title: e(`tooltip.amai`),
                   placement: `bottomLeft`,
-                  children: (0, $.jsx)(Jp, { size: 22, src: (0, $.jsx)(`img`, { draggable: !1, src: VM, alt: `avatar` }) }),
+                  children: (0, $.jsx)(Jp, { size: 22, src: (0, $.jsx)(`img`, { draggable: !1, src: UM, alt: `avatar` }) }),
                 }),
               }),
             }),
@@ -26381,30 +26387,30 @@ var LM = PC(() => {
             gap: `small`,
             children: (0, $.jsx)(Et, {
               size: 8,
-              children: (0, $.jsx)(HM, { icon: `mdiCogOutline`, title: e(`tooltip.systemSettings`), placement: `bottomRight` }),
+              children: (0, $.jsx)(WM, { icon: `mdiCogOutline`, title: e(`tooltip.systemSettings`), placement: `bottomRight` }),
             }),
           }),
         ],
       }),
     })
   },
-  WM = () =>
+  KM = () =>
     (0, $.jsx)(Bg.Footer, {
       children: (0, $.jsx)(rn, { align: `center`, justify: `space-between`, gap: `small`, style: { height: `8px` }, children: `\xA0` }),
     }),
-  GM = () => (0, $.jsx)(Bg.Sider, { width: 8, children: `\xA0` }),
-  KM = () => (0, $.jsx)(Bg.Sider, { width: 8, children: `\xA0` }),
-  qM = () => {
+  qM = () => (0, $.jsx)(Bg.Sider, { width: 8, children: `\xA0` }),
+  JM = () => (0, $.jsx)(Bg.Sider, { width: 8, children: `\xA0` }),
+  YM = () => {
     let { token: e } = _v.useToken(),
       { t } = Br()
     return (0, $.jsxs)(Bg, {
       className: `ax-layout`,
       children: [
-        (0, $.jsx)(UM, {}),
+        (0, $.jsx)(GM, {}),
         (0, $.jsxs)(Bg, {
           className: `ax-layout_middle`,
           children: [
-            (0, $.jsx)(GM, {}),
+            (0, $.jsx)(qM, {}),
             (0, $.jsx)(Bg.Content, {
               className: `ax-layout_main`,
               children: (0, $.jsx)(`div`, {
@@ -26416,21 +26422,21 @@ var LM = PC(() => {
                   children: [
                     (0, $.jsx)(`header`, {
                       className: `flex flex-col items-center mb-6`,
-                      children: (0, $.jsx)(`img`, { src: zM, alt: t(`brand.name`), style: { width: 160, height: `auto` } }),
+                      children: (0, $.jsx)(`img`, { src: VM, alt: t(`brand.name`), style: { width: 160, height: `auto` } }),
                     }),
-                    (0, $.jsx)(B.Suspense, { fallback: (0, $.jsx)(BM, {}), children: (0, $.jsx)(JD, {}) }),
+                    (0, $.jsx)(B.Suspense, { fallback: (0, $.jsx)(HM, {}), children: (0, $.jsx)(JD, {}) }),
                   ],
                 }),
               }),
             }),
-            (0, $.jsx)(KM, {}),
+            (0, $.jsx)(JM, {}),
           ],
         }),
-        (0, $.jsx)(WM, {}),
+        (0, $.jsx)(KM, {}),
       ],
     })
   },
-  JM = jp`
+  XM = jp`
   query AccountProfile {
     getProfile {
       account {
@@ -26470,7 +26476,7 @@ var LM = PC(() => {
     }
   }
 `,
-  YM = class {
+  ZM = class {
     account = null
     sessions = []
     appRoles = []
@@ -26492,7 +26498,7 @@ var LM = PC(() => {
     async init() {
       ;((this.isLoading = !0), (this.errorMessage = null))
       try {
-        let { data: e, error: t } = await ak.query({ query: JM, fetchPolicy: `network-only` })
+        let { data: e, error: t } = await ak.query({ query: XM, fetchPolicy: `network-only` })
         if (t) {
           Nx(() => {
             this.errorMessage = t.message
@@ -26519,15 +26525,15 @@ var LM = PC(() => {
       }
     }
   },
-  XM = (0, B.createContext)(null)
-function ZM() {
-  let e = (0, B.useContext)(XM)
+  QM = (0, B.createContext)(null)
+function $M() {
+  let e = (0, B.useContext)(QM)
   if (!e) throw Error(`useAccountStore() must be called inside <AccountStoreContext.Provider>`)
   return e
 }
-var QM = PC(() => {
+var eN = PC(() => {
     let { t: e } = Br(`app`),
-      t = ZM().account,
+      t = $M().account,
       n = t?.display ?? e(`account.guest`),
       r = (t?.display ?? `G`).charAt(0).toUpperCase()
     return (0, $.jsxs)(rn, {
@@ -26559,7 +26565,7 @@ var QM = PC(() => {
       ],
     })
   }),
-  $M = () => {
+  tN = () => {
     let { t: e } = Br(`app`)
     return (0, $.jsx)(rn, {
       align: `center`,
@@ -26568,9 +26574,9 @@ var QM = PC(() => {
       children: (0, $.jsx)(on, { description: e(`account.todo`) }),
     })
   },
-  eN = PC(() => {
+  nN = PC(() => {
     let { t: e } = Br(`app`),
-      t = ZM()
+      t = $M()
     return t.isLoading && t.sessions.length === 0
       ? (0, $.jsx)(rn, { align: `center`, justify: `center`, style: { height: `100%`, padding: 0 }, children: (0, $.jsx)(s_, {}) })
       : t.sessions.length === 0
@@ -26622,9 +26628,9 @@ var QM = PC(() => {
             }),
           })
   }),
-  tN = PC(() => {
+  rN = PC(() => {
     let { t: e } = Br(`app`),
-      t = ZM()
+      t = $M()
     return t.isLoading && t.appRoles.length === 0
       ? (0, $.jsx)(rn, { align: `center`, justify: `center`, style: { height: `100%`, padding: 0 }, children: (0, $.jsx)(s_, {}) })
       : t.appRoles.length === 0
@@ -26681,10 +26687,10 @@ var QM = PC(() => {
             }),
           })
   }),
-  nN = `calc(80vh - 56px)`,
-  rN = PC(() => {
+  iN = `calc(80vh - 56px)`,
+  aN = PC(() => {
     let { app: e, auth: t } = sk(),
-      n = (0, B.useMemo)(() => new YM(), [])
+      n = (0, B.useMemo)(() => new ZM(), [])
     ;(0, B.useEffect)(() => {
       e.accountModalOpen ? (n.syncFromAuth(t.currentAccount), n.init()) : n.reset()
     }, [e.accountModalOpen, t.currentAccount, n])
@@ -26697,32 +26703,32 @@ var QM = PC(() => {
       destroyOnHidden: !0,
       centered: !0,
       width: 880,
-      styles: { body: { padding: 0, height: nN, overflow: `hidden` } },
-      children: (0, $.jsx)(XM.Provider, { value: n, children: (0, $.jsx)(iN, {}) }),
+      styles: { body: { padding: 0, height: iN, overflow: `hidden` } },
+      children: (0, $.jsx)(QM.Provider, { value: n, children: (0, $.jsx)(oN, {}) }),
     })
   }),
-  iN = PC(() => {
-    let e = ZM()
+  oN = PC(() => {
+    let e = $M()
     return (0, $.jsxs)(rn, {
       gap: 12,
       style: { height: `100%` },
       children: [
-        (0, $.jsx)(aN, {}),
+        (0, $.jsx)(sN, {}),
         (0, $.jsxs)(`div`, {
           style: { flex: 1, height: `100%`, overflowY: `auto` },
           children: [
-            e.activeMenu === `profile` && (0, $.jsx)(QM, {}),
-            e.activeMenu === `setting` && (0, $.jsx)($M, {}),
-            e.activeMenu === `roles` && (0, $.jsx)(tN, {}),
-            e.activeMenu === `session` && (0, $.jsx)(eN, {}),
+            e.activeMenu === `profile` && (0, $.jsx)(eN, {}),
+            e.activeMenu === `setting` && (0, $.jsx)(tN, {}),
+            e.activeMenu === `roles` && (0, $.jsx)(rN, {}),
+            e.activeMenu === `session` && (0, $.jsx)(nN, {}),
           ],
         }),
       ],
     })
   }),
-  aN = PC(() => {
+  sN = PC(() => {
     let { app: e, auth: t } = sk(),
-      n = ZM(),
+      n = $M(),
       { t: r } = Br(`app`),
       i = n.account,
       a = i?.display ?? r(`account.guest`),
@@ -26782,7 +26788,7 @@ var QM = PC(() => {
       ],
     })
   }),
-  oN = PC(() => {
+  cN = PC(() => {
     let { app: e } = sk(),
       { t } = Br(`app`)
     return (0, $.jsxs)(u_, {
@@ -26813,7 +26819,7 @@ var QM = PC(() => {
       ],
     })
   }),
-  sN = PC(() => {
+  lN = PC(() => {
     let { app: e } = sk(),
       { t } = Br(`app`)
     return (0, $.jsx)(u_, {
@@ -26829,7 +26835,7 @@ var QM = PC(() => {
       children: (0, $.jsx)(on, { description: t(`notify.empty`) }),
     })
   }),
-  cN = PC(() => {
+  uN = PC(() => {
     let { app: e } = sk(),
       { t, i18n: n } = Br(`app`)
     return (0, $.jsx)(u_, {
@@ -26876,7 +26882,7 @@ var QM = PC(() => {
       }),
     })
   }),
-  lN = PC(() => {
+  dN = PC(() => {
     let { app: e } = sk(),
       { t } = Br(`app`)
     return (0, $.jsxs)(u_, {
@@ -26904,12 +26910,12 @@ var QM = PC(() => {
       ],
     })
   }),
-  uN = PC(() =>
+  fN = PC(() =>
     (0, $.jsxs)($.Fragment, {
-      children: [(0, $.jsx)(JD, {}), (0, $.jsx)(cN, {}), (0, $.jsx)(rN, {}), (0, $.jsx)(sN, {}), (0, $.jsx)(oN, {}), (0, $.jsx)(lN, {})],
+      children: [(0, $.jsx)(JD, {}), (0, $.jsx)(uN, {}), (0, $.jsx)(aN, {}), (0, $.jsx)(lN, {}), (0, $.jsx)(cN, {}), (0, $.jsx)(dN, {})],
     }),
   ),
-  dN = (e) =>
+  pN = (e) =>
     (0, $.jsx)(bt, {
       title: e.title,
       placement: e.placement,
@@ -26923,7 +26929,7 @@ var QM = PC(() => {
         ],
       }),
     }),
-  fN = (e) =>
+  mN = (e) =>
     (0, $.jsxs)(`div`, {
       className: `ax-doc-item`,
       children: [
@@ -26945,7 +26951,7 @@ var QM = PC(() => {
         }),
       ],
     }),
-  pN = PC(() => {
+  hN = PC(() => {
     let { t: e } = Br(`app`),
       t = lD(),
       { app: n } = sk()
@@ -26970,22 +26976,22 @@ var QM = PC(() => {
                   children: (0, $.jsx)(bt, {
                     title: e(`tooltip.amai`),
                     placement: `bottomLeft`,
-                    children: (0, $.jsx)(Jp, { size: 22, src: (0, $.jsx)(`img`, { draggable: !1, src: VM, alt: `avatar` }) }),
+                    children: (0, $.jsx)(Jp, { size: 22, src: (0, $.jsx)(`img`, { draggable: !1, src: UM, alt: `avatar` }) }),
                   }),
                 }),
               }),
               (0, $.jsxs)(Et, {
                 size: 8,
                 children: [
-                  (0, $.jsx)(HM, { icon: `mdiApps`, title: `Home`, placement: `bottom` }),
-                  (0, $.jsx)(HM, { icon: `mdiEarth`, title: `World Map`, placement: `bottom` }),
+                  (0, $.jsx)(WM, { icon: `mdiApps`, title: `Home`, placement: `bottom` }),
+                  (0, $.jsx)(WM, { icon: `mdiEarth`, title: `World Map`, placement: `bottom` }),
                 ],
               }),
               (0, $.jsxs)(Et, {
                 size: 8,
                 children: [
-                  (0, $.jsx)(dN, { icon: `mdiDnsOutline`, label: `M-SOC`, title: `Production Line: M-SOC`, placement: `bottom` }),
-                  (0, $.jsx)(dN, { icon: `mdiCardBulletedOutline`, label: `Plan A (Simulation)`, title: `Simulation: Plan A`, placement: `bottom` }),
+                  (0, $.jsx)(pN, { icon: `mdiDnsOutline`, label: `M-SOC`, title: `Production Line: M-SOC`, placement: `bottom` }),
+                  (0, $.jsx)(pN, { icon: `mdiCardBulletedOutline`, label: `Plan A (Simulation)`, title: `Simulation: Plan A`, placement: `bottom` }),
                 ],
               }),
             ],
@@ -26998,40 +27004,40 @@ var QM = PC(() => {
               (0, $.jsxs)(Et, {
                 size: 8,
                 children: [
-                  (0, $.jsx)(fN, {
+                  (0, $.jsx)(mN, {
                     icon: `mdiFileDocumentOutline`,
                     name: `Q1 status report`,
                     title: `Markdown demo (chart + table)`,
                     onClick: () => t(`/docs/demo`),
                   }),
-                  (0, $.jsx)(fN, { icon: `mdiFileDocumentOutline`, name: `Document Name`, title: `Document Name` }),
-                  (0, $.jsx)(fN, { icon: `mdiFileDocumentOutline`, name: `Document Name`, title: `Document Name` }),
-                  (0, $.jsx)(fN, { icon: `mdiFileDocumentOutline`, name: `Document Name`, title: `Document Name` }),
-                  (0, $.jsx)(HM, { icon: `mdiArrowDownDropCircleOutline`, title: e(`tooltip.moreItems`), placement: `bottom` }),
+                  (0, $.jsx)(mN, { icon: `mdiFileDocumentOutline`, name: `Document Name`, title: `Document Name` }),
+                  (0, $.jsx)(mN, { icon: `mdiFileDocumentOutline`, name: `Document Name`, title: `Document Name` }),
+                  (0, $.jsx)(mN, { icon: `mdiFileDocumentOutline`, name: `Document Name`, title: `Document Name` }),
+                  (0, $.jsx)(WM, { icon: `mdiArrowDownDropCircleOutline`, title: e(`tooltip.moreItems`), placement: `bottom` }),
                 ],
               }),
               (0, $.jsx)(sn, { vertical: !0, style: { height: `24px`, margin: `0` }, className: `ax-menu-divider` }),
-              (0, $.jsx)(Et, { size: 8, children: (0, $.jsx)(HM, { icon: `mdiBookOpenOutline`, title: e(`tooltip.splitView`), placement: `bottom` }) }),
+              (0, $.jsx)(Et, { size: 8, children: (0, $.jsx)(WM, { icon: `mdiBookOpenOutline`, title: e(`tooltip.splitView`), placement: `bottom` }) }),
               (0, $.jsx)(sn, { vertical: !0, style: { height: `24px`, margin: `0` }, className: `ax-menu-divider` }),
               (0, $.jsxs)(Et, {
                 size: 8,
                 children: [
-                  (0, $.jsx)(HM, { icon: `mdiMagnify`, title: e(`tooltip.globalSearch`), placement: `bottom` }),
-                  (0, $.jsx)(HM, {
+                  (0, $.jsx)(WM, { icon: `mdiMagnify`, title: e(`tooltip.globalSearch`), placement: `bottom` }),
+                  (0, $.jsx)(WM, {
                     icon: `mdiBellOutline`,
                     title: e(`tooltip.notification`),
                     placement: `bottom`,
                     isActive: n.notifyModalOpen,
                     onClick: () => n.openNotifyModal(),
                   }),
-                  (0, $.jsx)(HM, {
+                  (0, $.jsx)(WM, {
                     icon: `mdiAccountCircleOutline`,
                     title: e(`tooltip.userAccount`),
                     placement: `bottomRight`,
                     isActive: n.accountModalOpen,
                     onClick: () => n.openAccountModal(),
                   }),
-                  (0, $.jsx)(HM, {
+                  (0, $.jsx)(WM, {
                     icon: `mdiCogOutline`,
                     title: e(`tooltip.systemSettings`),
                     placement: `bottomRight`,
@@ -27046,11 +27052,11 @@ var QM = PC(() => {
       }),
     })
   }),
-  mN = () =>
+  gN = () =>
     (0, $.jsx)(Bg.Footer, {
       children: (0, $.jsx)(rn, { align: `center`, justify: `space-between`, gap: `small`, style: { height: `4px` }, children: `\xA0` }),
     }),
-  hN = () =>
+  _N = () =>
     (0, $.jsx)(Bg.Sider, {
       width: 36,
       children: (0, $.jsxs)(rn, {
@@ -27071,10 +27077,10 @@ var QM = PC(() => {
                 vertical: !0,
                 size: 8,
                 children: [
-                  (0, $.jsx)(HM, { isActive: !0, icon: `mdiChartGantt`, title: `Simulation View`, placement: `right` }),
-                  (0, $.jsx)(HM, { icon: `mdiChartBar`, title: `Analysis View`, placement: `right` }),
-                  (0, $.jsx)(HM, { icon: `mdiFormatListBulletedType`, title: `Project List`, placement: `right` }),
-                  (0, $.jsx)(HM, { icon: `mdiTableLarge`, title: `PM Data`, placement: `right` }),
+                  (0, $.jsx)(WM, { isActive: !0, icon: `mdiChartGantt`, title: `Simulation View`, placement: `right` }),
+                  (0, $.jsx)(WM, { icon: `mdiChartBar`, title: `Analysis View`, placement: `right` }),
+                  (0, $.jsx)(WM, { icon: `mdiFormatListBulletedType`, title: `Project List`, placement: `right` }),
+                  (0, $.jsx)(WM, { icon: `mdiTableLarge`, title: `PM Data`, placement: `right` }),
                 ],
               }),
               (0, $.jsx)(sn, { style: { margin: `0` }, className: `ax-menu-divider` }),
@@ -27082,9 +27088,9 @@ var QM = PC(() => {
                 vertical: !0,
                 size: 8,
                 children: [
-                  (0, $.jsx)(HM, { icon: `mdiTicketPercentOutline`, title: `Tunning Logic`, placement: `right` }),
-                  (0, $.jsx)(HM, { icon: `mdiHubOutline`, title: `Factors Control`, placement: `right` }),
-                  (0, $.jsx)(HM, { icon: `mdiAlarmPanelOutline`, title: `PM Standard`, placement: `right` }),
+                  (0, $.jsx)(WM, { icon: `mdiTicketPercentOutline`, title: `Tunning Logic`, placement: `right` }),
+                  (0, $.jsx)(WM, { icon: `mdiHubOutline`, title: `Factors Control`, placement: `right` }),
+                  (0, $.jsx)(WM, { icon: `mdiAlarmPanelOutline`, title: `PM Standard`, placement: `right` }),
                 ],
               }),
               (0, $.jsx)(sn, { style: { margin: `0` }, className: `ax-menu-divider` }),
@@ -27092,9 +27098,9 @@ var QM = PC(() => {
                 vertical: !0,
                 size: 8,
                 children: [
-                  (0, $.jsx)(HM, { icon: `mdiCogs`, title: `Line Setting`, placement: `right` }),
-                  (0, $.jsx)(HM, { icon: `mdiTransitConnectionVariant`, title: `System Integration`, placement: `right` }),
-                  (0, $.jsx)(HM, { icon: `mdiDatabaseOutline`, title: `Data Monitor`, placement: `right` }),
+                  (0, $.jsx)(WM, { icon: `mdiCogs`, title: `Line Setting`, placement: `right` }),
+                  (0, $.jsx)(WM, { icon: `mdiTransitConnectionVariant`, title: `System Integration`, placement: `right` }),
+                  (0, $.jsx)(WM, { icon: `mdiDatabaseOutline`, title: `Data Monitor`, placement: `right` }),
                 ],
               }),
             ],
@@ -27110,7 +27116,7 @@ var QM = PC(() => {
         ],
       }),
     }),
-  gN = () => {
+  vN = () => {
     let { t: e } = Br(`app`)
     return (0, $.jsx)(Bg.Sider, {
       width: 36,
@@ -27131,8 +27137,8 @@ var QM = PC(() => {
               size: 8,
               vertical: !0,
               children: [
-                (0, $.jsx)(HM, { icon: `mdiBookOpenOutline`, title: e(`tooltip.splitView`), placement: `left` }),
-                (0, $.jsx)(HM, { isActive: !0, icon: `mdiCreationOutline`, title: e(`tooltip.generativeAI`), placement: `left` }),
+                (0, $.jsx)(WM, { icon: `mdiBookOpenOutline`, title: e(`tooltip.splitView`), placement: `left` }),
+                (0, $.jsx)(WM, { isActive: !0, icon: `mdiCreationOutline`, title: e(`tooltip.generativeAI`), placement: `left` }),
               ],
             }),
           }),
@@ -27146,9 +27152,9 @@ var QM = PC(() => {
               size: 8,
               vertical: !0,
               children: [
-                (0, $.jsx)(HM, { icon: `mdiProgressStarFourPoints`, title: e(`tooltip.progress`), placement: `left` }),
-                (0, $.jsx)(HM, { icon: `mdiFaceAgent`, title: e(`tooltip.support`), placement: `left` }),
-                (0, $.jsx)(HM, { icon: `mdiInformationSlabCircleOutline`, title: e(`tooltip.guides`), placement: `left` }),
+                (0, $.jsx)(WM, { icon: `mdiProgressStarFourPoints`, title: e(`tooltip.progress`), placement: `left` }),
+                (0, $.jsx)(WM, { icon: `mdiFaceAgent`, title: e(`tooltip.support`), placement: `left` }),
+                (0, $.jsx)(WM, { icon: `mdiInformationSlabCircleOutline`, title: e(`tooltip.guides`), placement: `left` }),
               ],
             }),
           }),
@@ -27156,190 +27162,195 @@ var QM = PC(() => {
       }),
     })
   },
-  _N = PC(() =>
+  yN = PC(() =>
     (0, $.jsxs)(Bg, {
       className: `ax-layout`,
       children: [
-        (0, $.jsx)(pN, {}),
+        (0, $.jsx)(hN, {}),
         (0, $.jsxs)(Bg, {
           className: `ax-layout_middle`,
           children: [
-            (0, $.jsx)(hN, {}),
+            (0, $.jsx)(_N, {}),
             (0, $.jsx)(Bg.Content, {
               className: `ax-layout_main`,
-              children: (0, $.jsx)(B.Suspense, { fallback: (0, $.jsx)(BM, {}), children: (0, $.jsx)(JD, {}) }),
+              children: (0, $.jsx)(B.Suspense, { fallback: (0, $.jsx)(HM, {}), children: (0, $.jsx)(JD, {}) }),
             }),
-            (0, $.jsx)(gN, {}),
+            (0, $.jsx)(vN, {}),
           ],
         }),
-        (0, $.jsx)(mN, {}),
+        (0, $.jsx)(gN, {}),
       ],
     }),
   ),
-  vN = FO([
+  bN = FO([
     {
-      path: `/`,
-      element: (0, $.jsx)(uN, {}),
-      errorElement: (0, $.jsx)(MM, {}),
+      element: (0, $.jsx)(BM, {}),
       children: [
         {
-          element: (0, $.jsx)(LM, {}),
+          path: `/`,
+          element: (0, $.jsx)(fN, {}),
+          errorElement: (0, $.jsx)(MM, {}),
           children: [
             {
-              index: !0,
-              lazy: async () => ({
-                Component: (
-                  await VC(
-                    async () => {
-                      let { SimulationPage: e } = await import(`./SimulationPage-vDjgcFP5.js`)
-                      return { SimulationPage: e }
-                    },
-                    __vite__mapDeps([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
-                  )
-                ).SimulationPage,
-              }),
+              element: (0, $.jsx)(LM, {}),
+              children: [
+                {
+                  index: !0,
+                  lazy: async () => ({
+                    Component: (
+                      await VC(
+                        async () => {
+                          let { SimulationPage: e } = await import(`./SimulationPage-C0jfi94-.js`)
+                          return { SimulationPage: e }
+                        },
+                        __vite__mapDeps([0, 1, 2, 3, 4, 5, 6, 7, 8, 9]),
+                      )
+                    ).SimulationPage,
+                  }),
+                },
+              ],
             },
           ],
         },
-      ],
-    },
-    {
-      path: `/sample`,
-      element: (0, $.jsx)(_N, {}),
-      errorElement: (0, $.jsx)(MM, {}),
-      children: [
         {
+          path: `/sample`,
+          element: (0, $.jsx)(yN, {}),
+          errorElement: (0, $.jsx)(MM, {}),
           children: [
             {
-              index: !0,
-              lazy: async () => ({
-                Component: (
-                  await VC(
-                    async () => {
-                      let { ControlTableDemoPage: e } = await import(`./ControlTableDemoPage-BX1BySPd.js`)
-                      return { ControlTableDemoPage: e }
-                    },
-                    __vite__mapDeps([10, 1, 2, 3, 4, 11, 12, 5, 7]),
-                  )
-                ).ControlTableDemoPage,
-              }),
-            },
-            {
-              path: `control-table`,
-              lazy: async () => ({
-                Component: (
-                  await VC(
-                    async () => {
-                      let { ControlTableDemoPage: e } = await import(`./ControlTableDemoPage-BX1BySPd.js`)
-                      return { ControlTableDemoPage: e }
-                    },
-                    __vite__mapDeps([10, 1, 2, 3, 4, 11, 12, 5, 7]),
-                  )
-                ).ControlTableDemoPage,
-              }),
-            },
-            {
-              path: `markdown-view`,
-              lazy: async () => ({
-                Component: (
-                  await VC(
-                    async () => {
-                      let { MarkdownViewPage: e } = await import(`./MarkdownViewPage-B7-PobkH.js`)
-                      return { MarkdownViewPage: e }
-                    },
-                    __vite__mapDeps([13, 1, 2, 3, 4, 11, 12, 5, 7, 6, 14, 15, 16]),
-                  )
-                ).MarkdownViewPage,
-              }),
+              children: [
+                {
+                  index: !0,
+                  lazy: async () => ({
+                    Component: (
+                      await VC(
+                        async () => {
+                          let { ControlTableDemoPage: e } = await import(`./ControlTableDemoPage-DsANzQjd.js`)
+                          return { ControlTableDemoPage: e }
+                        },
+                        __vite__mapDeps([10, 1, 2, 3, 4, 11, 12, 5, 7]),
+                      )
+                    ).ControlTableDemoPage,
+                  }),
+                },
+                {
+                  path: `control-table`,
+                  lazy: async () => ({
+                    Component: (
+                      await VC(
+                        async () => {
+                          let { ControlTableDemoPage: e } = await import(`./ControlTableDemoPage-DsANzQjd.js`)
+                          return { ControlTableDemoPage: e }
+                        },
+                        __vite__mapDeps([10, 1, 2, 3, 4, 11, 12, 5, 7]),
+                      )
+                    ).ControlTableDemoPage,
+                  }),
+                },
+                {
+                  path: `markdown-view`,
+                  lazy: async () => ({
+                    Component: (
+                      await VC(
+                        async () => {
+                          let { MarkdownViewPage: e } = await import(`./MarkdownViewPage-Bl90cgPn.js`)
+                          return { MarkdownViewPage: e }
+                        },
+                        __vite__mapDeps([13, 1, 2, 3, 4, 11, 12, 5, 7, 6, 14, 15, 16]),
+                      )
+                    ).MarkdownViewPage,
+                  }),
+                },
+              ],
             },
           ],
         },
-      ],
-    },
-    {
-      path: `/auth`,
-      element: (0, $.jsx)(qM, {}),
-      errorElement: (0, $.jsx)(MM, {}),
-      children: [
         {
-          element: (0, $.jsx)(RM, {}),
+          path: `/auth`,
+          element: (0, $.jsx)(YM, {}),
+          errorElement: (0, $.jsx)(MM, {}),
           children: [
             {
-              path: `signin`,
-              lazy: async () => ({
-                Component: (
-                  await VC(
-                    async () => {
-                      let { SignInPage: e } = await import(`./SignInPage-YO7igSa3.js`)
-                      return { SignInPage: e }
-                    },
-                    __vite__mapDeps([17, 1, 2, 4, 5, 14]),
-                  )
-                ).SignInPage,
-              }),
+              element: (0, $.jsx)(RM, {}),
+              children: [
+                {
+                  path: `signin`,
+                  lazy: async () => ({
+                    Component: (
+                      await VC(
+                        async () => {
+                          let { SignInPage: e } = await import(`./SignInPage-DUVBDytc.js`)
+                          return { SignInPage: e }
+                        },
+                        __vite__mapDeps([17, 1, 2, 4, 5, 14]),
+                      )
+                    ).SignInPage,
+                  }),
+                },
+              ],
             },
           ],
         },
+        {
+          path: `/system-error`,
+          lazy: async () => ({
+            Component: (
+              await VC(
+                async () => {
+                  let { SystemErrorPage: e } = await import(`./SystemErrorPage-SafZ-MYp.js`)
+                  return { SystemErrorPage: e }
+                },
+                __vite__mapDeps([18, 1, 2]),
+              )
+            ).SystemErrorPage,
+          }),
+        },
+        {
+          path: `/system-exception`,
+          lazy: async () => ({
+            Component: (
+              await VC(
+                async () => {
+                  let { SystemExceptionPage: e } = await import(`./SystemExceptionPage-xEsRxkSL.js`)
+                  return { SystemExceptionPage: e }
+                },
+                __vite__mapDeps([19, 1, 2]),
+              )
+            ).SystemExceptionPage,
+          }),
+        },
+        {
+          path: `/access-denied`,
+          lazy: async () => ({
+            Component: (
+              await VC(
+                async () => {
+                  let { AccessDeniedPage: e } = await import(`./AccessDeniedPage-YmvXUhva.js`)
+                  return { AccessDeniedPage: e }
+                },
+                __vite__mapDeps([20, 1, 2]),
+              )
+            ).AccessDeniedPage,
+          }),
+        },
+        {
+          path: `*`,
+          lazy: async () => ({
+            Component: (
+              await VC(
+                async () => {
+                  let { NotFoundPage: e } = await import(`./NotFoundPage-CRVIiCra.js`)
+                  return { NotFoundPage: e }
+                },
+                __vite__mapDeps([21, 1, 2]),
+              )
+            ).NotFoundPage,
+          }),
+        },
       ],
-    },
-    {
-      path: `/system-error`,
-      lazy: async () => ({
-        Component: (
-          await VC(
-            async () => {
-              let { SystemErrorPage: e } = await import(`./SystemErrorPage-BleEVC3m.js`)
-              return { SystemErrorPage: e }
-            },
-            __vite__mapDeps([18, 1, 2]),
-          )
-        ).SystemErrorPage,
-      }),
-    },
-    {
-      path: `/system-exception`,
-      lazy: async () => ({
-        Component: (
-          await VC(
-            async () => {
-              let { SystemExceptionPage: e } = await import(`./SystemExceptionPage-BVimPBV7.js`)
-              return { SystemExceptionPage: e }
-            },
-            __vite__mapDeps([19, 1, 2]),
-          )
-        ).SystemExceptionPage,
-      }),
-    },
-    {
-      path: `/access-denied`,
-      lazy: async () => ({
-        Component: (
-          await VC(
-            async () => {
-              let { AccessDeniedPage: e } = await import(`./AccessDeniedPage-COIzBNYZ.js`)
-              return { AccessDeniedPage: e }
-            },
-            __vite__mapDeps([20, 1, 2]),
-          )
-        ).AccessDeniedPage,
-      }),
-    },
-    {
-      path: `*`,
-      lazy: async () => ({
-        Component: (
-          await VC(
-            async () => {
-              let { NotFoundPage: e } = await import(`./NotFoundPage-CJR_m61h.js`)
-              return { NotFoundPage: e }
-            },
-            __vite__mapDeps([21, 1, 2]),
-          )
-        ).NotFoundPage,
-      }),
     },
   ]),
-  yN = {
+  xN = {
     blue: `#1677FF`,
     purple: `#722ED1`,
     cyan: `#13C2C2`,
@@ -27876,7 +27887,7 @@ var QM = PC(() => {
     boxShadowTabsOverflowBottom: `inset 0 -10px 8px -8px rgba(0,0,0,0.08)`,
     _tokenKey: `1wp1scf`,
   },
-  bN = {
+  SN = {
     primary: `#3F51B5`,
     secondary: `#009688`,
     tertiary: `#673AB7`,
@@ -27888,51 +27899,51 @@ var QM = PC(() => {
     panel: `#f5f5f5`,
     action: `#434343`,
   }
-;((yN.colorPrimary = bN.primary), (yN.fontFamily = `'Roboto', -apple-system, sans-serif`), (yN.colorText = `#262626`), (yN.colorBgLayout = `#bfbfbf`))
-var xN = {
-    token: { ...yN },
+;((xN.colorPrimary = SN.primary), (xN.fontFamily = `'Roboto', -apple-system, sans-serif`), (xN.colorText = `#262626`), (xN.colorBgLayout = `#bfbfbf`))
+var CN = {
+    token: { ...xN },
     components: {
       Layout: {
         headerHeight: 36,
         headerPadding: `0 6px`,
         footerPadding: `0 36px`,
-        bodyBg: yN.colorBgLayout,
-        headerBg: yN.colorBgLayout,
-        footerBg: yN.colorBgLayout,
-        siderBg: yN.colorBgLayout,
+        bodyBg: xN.colorBgLayout,
+        headerBg: xN.colorBgLayout,
+        footerBg: xN.colorBgLayout,
+        siderBg: xN.colorBgLayout,
       },
       Splitter: { splitBarSize: 2 },
       Divider: { orientationMargin: 0, textPaddingInline: 0, verticalMarginInline: 0 },
       Collapse: { headerPadding: `4px 8px`, contentPadding: `8px`, borderlessContentPadding: `8px` },
     },
   },
-  SN = PC(() => {
+  wN = PC(() => {
     let e = jM.auth
     return (
       (0, B.useEffect)(() => {
         e.init()
       }),
       (0, B.useEffect)(() => {
-        e.isInterrupted && (window.location.href = `/system-error`)
+        e.isInterrupted && window.location.pathname !== `/system-error` && (window.location.href = `/system-error`)
       }, [e.isInterrupted]),
       e.isInitialized
         ? (0, $.jsx)(k, {
-            theme: xN,
+            theme: CN,
             form: {
               requiredMark: (e, { required: t }) =>
                 (0, $.jsxs)($.Fragment, {
-                  children: [e, t && (0, $.jsx)(`span`, { 'aria-hidden': `true`, style: { color: bN.error, marginInlineStart: 4 }, children: `*` })],
+                  children: [e, t && (0, $.jsx)(`span`, { 'aria-hidden': `true`, style: { color: SN.error, marginInlineStart: 4 }, children: `*` })],
                 }),
             },
-            children: (0, $.jsx)(Bp, { children: (0, $.jsx)(ik, { router: vN }) }),
+            children: (0, $.jsx)(Bp, { children: (0, $.jsx)(ik, { router: bN }) }),
           })
         : (0, $.jsx)(`div`, { className: `ax-loading-container`, children: (0, $.jsx)(`div`, { className: `ax-app-loader`, children: `\xA0` }) })
     )
   })
-function CN() {
-  return (0, $.jsx)(ki, { client: ak, children: (0, $.jsx)(ok.Provider, { value: jM, children: (0, $.jsx)(SN, {}) }) })
+function TN() {
+  return (0, $.jsx)(ki, { client: ak, children: (0, $.jsx)(ok.Provider, { value: jM, children: (0, $.jsx)(wN, {}) }) })
 }
-;(0, bn.createRoot)(document.getElementById(`root`)).render((0, $.jsx)(B.StrictMode, { children: (0, $.jsx)(CN, {}) }))
+;(0, bn.createRoot)(document.getElementById(`root`)).render((0, $.jsx)(B.StrictMode, { children: (0, $.jsx)(TN, {}) }))
 export {
   po as A,
   Qm as C,
@@ -27954,12 +27965,12 @@ export {
   ho as k,
   lD as l,
   _v as m,
-  HM as n,
+  WM as n,
   sk as o,
   vS as p,
-  VM as r,
+  UM as r,
   BO as s,
-  dN as t,
+  pN as t,
   pD as u,
   u_ as v,
   Jp as w,

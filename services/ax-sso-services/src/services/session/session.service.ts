@@ -76,13 +76,13 @@ export class SessionService {
 
     const account = session.account
       ? {
-        uuid: session.account.uuid,
-        username: session.account.username,
-        display: session.account.display,
-        email: session.account.email,
-        avatar: session.account.avatar,
-        phone: session.account.phone,
-      }
+          uuid: session.account.uuid,
+          username: session.account.username,
+          display: session.account.display,
+          email: session.account.email,
+          avatar: session.account.avatar,
+          phone: session.account.phone,
+        }
       : undefined
 
     return {

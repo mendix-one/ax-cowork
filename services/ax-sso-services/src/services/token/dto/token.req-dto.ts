@@ -6,5 +6,5 @@ export class TokenReqDto {
   @IsString()
   @IsNotEmpty()
   @MaxLength(256)
-    scope!: string
+  scope!: string
 }
