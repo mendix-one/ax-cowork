@@ -13,6 +13,7 @@ import { ConcurrencyService, MAX_CONCURRENT_RUNS } from './concurrency.service'
 import { DEFAULT_TIMEZONE, SchedulerService } from './scheduler.service'
 import { STALE_HEARTBEAT_TIMEOUT_MS, STALE_SWEEP_INTERVAL_MS, StaleRunSweeperService } from './stale-run-sweeper.service'
 import { SyncRunsController } from './sync-runs.controller'
+import { RecordClassifierService } from './record-classifier.service'
 import { CHANGELOG_BUFFER_SIZE, DEFAULT_ERROR_THRESHOLD, HEARTBEAT_INTERVAL_MS, SyncExecutorService } from './sync-executor.service'
 import { TriggerController } from './trigger.controller'
 
@@ -65,10 +66,11 @@ import { TriggerController } from './trigger.controller'
       useFactory: (cfg: ConfigService) => cfg.get<string>('INTEGRATION_DEFAULT_TIMEZONE') ?? 'UTC',
     },
     ConcurrencyService,
+    RecordClassifierService,
     SyncExecutorService,
     StaleRunSweeperService,
     SchedulerService,
   ],
-  exports: [ConcurrencyService, SyncExecutorService, StaleRunSweeperService, SchedulerService],
+  exports: [ConcurrencyService, RecordClassifierService, SyncExecutorService, StaleRunSweeperService, SchedulerService],
 })
 export class WorkersModule {}

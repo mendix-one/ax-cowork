@@ -6,7 +6,7 @@ import { EventEmitter2 } from '@nestjs/event-emitter'
 import { MongoServerError, ObjectId } from 'mongodb'
 
 import { GridfsService } from '../acore/mongo'
-import { SourceAdapterRegistry, type AdapterRecord, type SourceSchema } from '../adapters'
+import { SourceAdapterRegistry, type SourceSchema } from '../adapters'
 import type { CsvAdapterConfig } from '../adapters/csv/csv.adapter'
 import type { ExcelAdapterConfig } from '../adapters/excel/excel.adapter'
 import type { MssqlAdapterConfig } from '../adapters/mssql/mssql.adapter'
@@ -15,15 +15,16 @@ import type { OracleAdapterConfig } from '../adapters/oracle/oracle.adapter'
 import type { PostgresAdapterConfig } from '../adapters/postgres/postgres.adapter'
 import type { RestApiAdapterConfig, RestPaginationConfig } from '../adapters/rest-api/rest-api.adapter'
 import { JobConfigRepository, type JobConfigDoc, type RunStatus } from '../domain/job-config'
-import { RawRecordChangelogRepository, type RawRecordChangelogInsert } from '../domain/raw-record-changelog'
-import { RawRecordRepository, type RawRecordDoc } from '../domain/raw-record'
+import type { RawRecordChangelogInsert } from '../domain/raw-record-changelog'
+import { RawRecordRepository } from '../domain/raw-record'
 import { SecretsService } from '../domain/secret'
 import { SourceFileRepository } from '../domain/source-file'
 import { SourceMetadataRepository } from '../domain/source-metadata'
 import { SyncRunRepository, ZERO_COUNTS, type SyncRunCounts, type SyncRunDoc, type SyncRunErrorEntry, type TriggerSource } from '../domain/sync-run'
 import { MetricsService } from '../services/metrics'
 import { ConcurrencyService } from './concurrency.service'
-import { computeRecordKey, stableStringify } from './compute-record-key'
+import { stableStringify } from './compute-record-key'
+import { RecordClassifierService } from './record-classifier.service'
 
 export const HEARTBEAT_INTERVAL_MS = 'HEARTBEAT_INTERVAL_MS'
 export const DEFAULT_ERROR_THRESHOLD = 'DEFAULT_ERROR_THRESHOLD'
@@ -92,7 +93,7 @@ export class SyncExecutorService {
     private readonly gridfs: GridfsService,
     private readonly secrets: SecretsService,
     private readonly adapters: SourceAdapterRegistry,
-    private readonly changelogs: RawRecordChangelogRepository,
+    private readonly classifier: RecordClassifierService,
     @Inject(HEARTBEAT_INTERVAL_MS) private readonly heartbeatIntervalMs: number,
     @Inject(DEFAULT_ERROR_THRESHOLD) private readonly defaultErrorThreshold: number,
     @Inject(CHANGELOG_BUFFER_SIZE) private readonly changelogBufferSize: number,
@@ -251,7 +252,7 @@ export class SyncExecutorService {
     for await (const record of adapter.stream(adapterConfig, credentials, {})) {
       counts.read++
       try {
-        await this.classifyAndWrite(record, jobConfig, runId, sourceFileIdForKey, counts, changelogBuffer, auditChanges)
+        await this.classifier.classifyAndWrite({ record, jobConfig, runId, sourceFileIdForKey, counts, changelogBuffer, auditChanges })
       } catch (err) {
         counts.errors++
         const message = err instanceof Error ? err.message : String(err)
@@ -259,13 +260,13 @@ export class SyncExecutorService {
         errors.push({ stage: 'write', message, stack, occurredAt: new Date() })
         if (counts.errors >= errorThreshold) {
           this.logger.warn(`Error threshold reached (${counts.errors}/${errorThreshold}) — aborting run ${runId.toHexString()}`)
-          await this.flushChangelog(changelogBuffer, errors)
+          await this.classifier.flushChangelog(changelogBuffer, errors)
           return { counts, errors, aborted: true }
         }
       }
 
       if (changelogBuffer.length >= this.changelogBufferSize) {
-        await this.flushChangelog(changelogBuffer, errors)
+        await this.classifier.flushChangelog(changelogBuffer, errors)
       }
       if (counts.read % COUNTS_FLUSH_INTERVAL === 0) {
         await this.runs.updateCounts(runId, counts).catch((err: unknown) => {
@@ -275,7 +276,7 @@ export class SyncExecutorService {
     }
 
     // End-of-main-loop mandatory flush (P002 §9.3).
-    await this.flushChangelog(changelogBuffer, errors)
+    await this.classifier.flushChangelog(changelogBuffer, errors)
 
     // Delete detection (P002 §9 step 3). With auditChanges=true we iterate so each delete
     // gets a changelog entry; without audit we use the single-shot `updateMany`.
@@ -286,7 +287,7 @@ export class SyncExecutorService {
         counts.deleted = await this.rawRecords.markStaleAsDeleted(jobConfig._id, runId, run.startedAt)
       }
       // Final flush in case audit-aware delete left entries in the buffer.
-      await this.flushChangelog(changelogBuffer, errors)
+      await this.classifier.flushChangelog(changelogBuffer, errors)
     }
 
     return { counts, errors }
@@ -319,121 +320,8 @@ export class SyncExecutorService {
       })
       counts.deleted++
       if (changelogBuffer.length >= this.changelogBufferSize) {
-        await this.flushChangelog(changelogBuffer, errors)
+        await this.classifier.flushChangelog(changelogBuffer, errors)
       }
-    }
-  }
-
-  /**
-   * Drains `changelogBuffer` into `raw_record_changelog`. Retries the batch once on failure
-   * before recording an `audit`-stage entry in `sync_runs.errors`. Audit problems never
-   * crash the surrounding run — the source-of-truth is `raw_records`, the audit trail is
-   * best-effort.
-   */
-  private async flushChangelog(buffer: RawRecordChangelogInsert[], errors: SyncRunErrorEntry[]): Promise<void> {
-    if (buffer.length === 0) return
-    const batch = buffer.splice(0, buffer.length)
-    try {
-      await this.changelogs.insertMany(batch)
-      return
-    } catch (firstErr) {
-      this.logger.warn(`changelog insertMany failed, retrying once: ${String(firstErr)}`)
-    }
-    try {
-      await this.changelogs.insertMany(batch)
-    } catch (retryErr) {
-      const message = `changelog flush failed after retry (${batch.length} entries lost): ${retryErr instanceof Error ? retryErr.message : String(retryErr)}`
-      const stack = retryErr instanceof Error ? retryErr.stack : undefined
-      errors.push({ stage: 'audit', message, stack, occurredAt: new Date() })
-      this.logger.error(message)
-    }
-  }
-
-  private async classifyAndWrite(
-    record: AdapterRecord,
-    jobConfig: JobConfigDoc,
-    runId: ObjectId,
-    sourceFileIdForKey: string | undefined,
-    counts: SyncRunCounts,
-    changelogBuffer: RawRecordChangelogInsert[],
-    auditChanges: boolean,
-  ): Promise<void> {
-    const recordKey = computeRecordKey({ identity: jobConfig.identity, record, sourceFileId: sourceFileIdForKey })
-    const payloadHash = createHash('sha256').update(stableStringify(record.payload)).digest('hex')
-
-    const existing = await this.rawRecords.findByKey(jobConfig._id, recordKey)
-    const now = new Date()
-
-    if (!existing) {
-      let inserted: RawRecordDoc
-      try {
-        inserted = await this.rawRecords.insertNew({
-          jobConfigId: jobConfig._id,
-          recordKey,
-          payloadHash,
-          payload: record.payload,
-          status: 'active',
-          version: 1,
-          firstSeenAt: now,
-          lastSeenAt: now,
-          firstSeenRunId: runId,
-          lastUpdatedRunId: runId,
-          createdAt: now,
-        })
-      } catch (err) {
-        if (isDuplicateKey(err)) {
-          // Adapter emitted the same recordKey twice within this run (P002 §9.4).
-          throw new Error(`Duplicate recordKey within run: "${recordKey}"`)
-        }
-        throw err
-      }
-      counts.inserted++
-      if (auditChanges) {
-        changelogBuffer.push({
-          jobConfigId: jobConfig._id,
-          rawRecordId: inserted._id,
-          recordKey,
-          syncRunId: runId,
-          operation: 'insert',
-          versionBefore: null,
-          versionAfter: 1,
-          payloadBefore: null,
-          payloadAfter: record.payload,
-          payloadHashBefore: null,
-          payloadHashAfter: payloadHash,
-          occurredAt: now,
-          createdAt: now,
-        })
-      }
-    } else if (existing.payloadHash !== payloadHash) {
-      await this.rawRecords.updateChanged(existing._id, {
-        payload: record.payload,
-        payloadHash,
-        lastSeenAt: now,
-        lastUpdatedRunId: runId,
-      })
-      counts.updated++
-      if (auditChanges) {
-        changelogBuffer.push({
-          jobConfigId: jobConfig._id,
-          rawRecordId: existing._id,
-          recordKey,
-          syncRunId: runId,
-          operation: 'update',
-          versionBefore: existing.version,
-          versionAfter: existing.version + 1,
-          payloadBefore: existing.payload,
-          payloadAfter: record.payload,
-          payloadHashBefore: existing.payloadHash,
-          payloadHashAfter: payloadHash,
-          occurredAt: now,
-          createdAt: now,
-        })
-      }
-    } else {
-      await this.rawRecords.touchLastSeen(existing._id, now)
-      counts.unchanged++
-      // No changelog entry for unchanged — only lastSeenAt is touched (P002 §5.7).
     }
   }
 

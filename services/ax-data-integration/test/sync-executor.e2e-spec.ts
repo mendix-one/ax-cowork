@@ -13,6 +13,7 @@ import { SourceMetadataRepository } from '../src/domain/source-metadata/source-m
 import { SyncRunRepository } from '../src/domain/sync-run/sync-run.repository'
 import { ZERO_COUNTS } from '../src/domain/sync-run/sync-run.schema'
 import { ConcurrencyService } from '../src/workers/concurrency.service'
+import { RecordClassifierService } from '../src/workers/record-classifier.service'
 import { SyncExecutorService, type SyncRunWorkResult } from '../src/workers/sync-executor.service'
 
 const DEFAULT_HEARTBEAT_MS = 30_000
@@ -46,7 +47,7 @@ class TestExecutor extends SyncExecutorService {
       null as unknown as GridfsService,
       null as unknown as SecretsService,
       null as unknown as SourceAdapterRegistry,
-      new RawRecordChangelogRepository(db),
+      new RecordClassifierService(new RawRecordRepository(db), new RawRecordChangelogRepository(db)),
       heartbeatMs,
       100,
       100,

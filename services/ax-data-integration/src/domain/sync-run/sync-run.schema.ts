@@ -4,7 +4,7 @@ import type { RunStatus } from '../job-config'
 
 export const SYNC_RUNS_COLLECTION = 'sync_runs'
 
-export type TriggerSource = 'schedule' | 'manual' | 'retry'
+export type TriggerSource = 'schedule' | 'manual' | 'retry' | 'webhook'
 
 export type SyncRunErrorStage = 'connect' | 'discover' | 'stream' | 'classify' | 'write' | 'detect-deleted' | 'audit' | 'heartbeat' | 'other'
 
