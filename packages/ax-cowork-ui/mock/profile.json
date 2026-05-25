@@ -1,0 +1,66 @@
+{
+  "data": {
+    "getProfile": {
+      "account": {
+        "uuid": "019e5c83-7716-733b-b516-7b31d0d80933",
+        "username": "axadmin",
+        "display": "Administrator",
+        "email": "admin@amoza.ai",
+        "phone": null,
+        "avatar": null,
+        "status": "ACTIVE",
+        "__typename": "Account"
+      },
+      "sessions": [
+        {
+          "uuid": "019e5cdb-d82a-7334-88d8-835d1e01489b",
+          "expiresAt": "2027-05-25T03:11:09.177Z",
+          "app": {
+            "uuid": "019e5c83-76b8-733b-b516-66bf564213aa",
+            "key": "APLANNER",
+            "name": "AX aPlanner",
+            "description": "aPlanner - WebApp",
+            "avatar": null,
+            "__typename": "ProfileSessionApp"
+          },
+          "__typename": "ProfileSession"
+        },
+        {
+          "uuid": "019e5cce-e78c-7334-88d8-2da6a0d79321",
+          "expiresAt": "2027-05-25T02:27:58.660Z",
+          "app": {
+            "uuid": "019e5c83-76b8-733b-b516-66bf564213aa",
+            "key": "APLANNER",
+            "name": "AX aPlanner",
+            "description": "aPlanner - WebApp",
+            "avatar": null,
+            "__typename": "ProfileSessionApp"
+          },
+          "__typename": "ProfileSession"
+        }
+      ],
+      "appRoles": [
+        {
+          "app": {
+            "uuid": "019e5c83-76b3-733b-b516-309d5a9b6774",
+            "key": "SSO",
+            "name": "AX SSO",
+            "avatar": null,
+            "description": "Single sign-on administration",
+            "__typename": "ProfileAppInfo"
+          },
+          "roles": [
+            {
+              "key": "ADMIN",
+              "name": "Administrator",
+              "description": "Full administrative access",
+              "__typename": "ProfileRole"
+            }
+          ],
+          "__typename": "ProfileAppRoles"
+        }
+      ],
+      "__typename": "Profile"
+    }
+  }
+}

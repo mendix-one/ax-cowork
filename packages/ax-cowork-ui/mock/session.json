@@ -1,0 +1,19 @@
+{
+  "uuid": "019e5cce-e78c-7334-88d8-2da6a0d79321",
+  "app": {
+    "uuid": "019e5c83-76b8-733b-b516-66bf564213aa",
+    "key": "APLANNER",
+    "type": "WEB_APP",
+    "name": "AX aPlanner",
+    "description": "aPlanner - WebApp"
+  },
+  "account": {
+    "uuid": "019e5c83-7716-733b-b516-7b31d0d80933",
+    "username": "axadmin",
+    "display": "Administrator",
+    "email": "admin@amoza.ai"
+  },
+  "status": "ACTIVE",
+  "roles": [],
+  "expiresAt": "2027-05-25T02:27:58.660Z"
+}
