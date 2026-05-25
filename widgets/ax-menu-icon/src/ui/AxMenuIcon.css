@@ -1,0 +1,24 @@
+.ax-menu-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: currentColor;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.ax-menu-icon:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.ax-menu-icon__svg {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+}

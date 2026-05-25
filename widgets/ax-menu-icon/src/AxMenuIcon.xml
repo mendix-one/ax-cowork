@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget
+  id="axcowork.axmenuicon.AxMenuIcon"
+  pluginWidget="true"
+  needsEntityContext="false"
+  offlineCapable="true"
+  supportedPlatform="Web"
+  xmlns="http://www.mendix.com/widget/1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/@mendix/pluggable-widgets-tools/configs/widget.xsd"
+>
+  <name>AX Menu Icon</name>
+  <description>Render an MDI icon from name and trigger an action on click.</description>
+  <icon />
+  <properties>
+    <property key="iconName" type="string" required="false">
+      <caption>Icon name</caption>
+      <description>MDI icon key from @mdi/js, for example mdiApps.</description>
+    </property>
+    <property key="onClick" type="action" required="false">
+      <caption>On click</caption>
+      <description>Action to execute when the icon is clicked.</description>
+    </property>
+  </properties>
+</widget>

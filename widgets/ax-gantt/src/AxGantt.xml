@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget
+  id="axcowork.axgantt.AxGantt"
+  pluginWidget="true"
+  needsEntityContext="false"
+  offlineCapable="true"
+  supportedPlatform="Web"
+  xmlns="http://www.mendix.com/widget/1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/@mendix/pluggable-widgets-tools/configs/widget.xsd"
+>
+  <name>AX Gantt</name>
+  <description>Render a gantt chart from JSON input data.</description>
+  <icon />
+  <properties>
+    <property key="tasksJson" type="string" required="false">
+      <caption>Tasks JSON</caption>
+      <description>JSON array of tasks: [{ id, text, start_date, duration, ... }].</description>
+    </property>
+    <property key="linksJson" type="string" required="false">
+      <caption>Links JSON</caption>
+      <description>JSON array of links: [{ id, source, target, type }].</description>
+    </property>
+    <property key="configJson" type="string" required="false">
+      <caption>Config JSON</caption>
+      <description>Optional JSON object merged into default gantt config.</description>
+    </property>
+    <property key="height" type="string" required="false">
+      <caption>Height</caption>
+      <description>CSS height for chart container (example: 100%, 600px).</description>
+    </property>
+  </properties>
+</widget>

@@ -20,5 +20,29 @@
     "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier": "^3.4.2"
+  },
+  "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "react": ">=19.0.0",
+        "react-dom": ">=19.0.0"
+      },
+      "ignoreMissing": [
+        "react-native"
+      ]
+    },
+    "overrides": {
+      "react": "^19.0.0",
+      "react-dom": "^19.0.0",
+      "@types/react": "^19.0.0",
+      "@types/react-dom": "^19.0.0",
+      "@mui/material": "^9.0.0",
+      "typescript": ">=6.0.2"
+    },
+    "ignoredBuiltDependencies": [
+      "@parcel/watcher",
+      "core-js",
+      "es5-ext"
+    ]
   }
 }

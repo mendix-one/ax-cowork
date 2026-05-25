@@ -1,0 +1,144 @@
+.sim-page {
+  box-sizing: border-box;
+  min-height: 100vh;
+  width: 100vw;
+  padding: 16px;
+  display: flex;
+  grid-template-columns: minmax(260px, 320px) 1fr;
+  gap: 16px;
+  font-family:
+    'Roboto',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
+  color: #262626;
+  background: #f5f5f5;
+}
+
+.sim-page * {
+  box-sizing: border-box;
+}
+
+.sim-control-panel {
+  background: #ffffff;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sim-control-panel h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.sim-control-panel p {
+  margin: 0;
+}
+
+.sim-control-panel input {
+  width: 100%;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.sim-quick-icons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.sim-quick-icons button {
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  background: #ffffff;
+  padding: 6px 8px;
+  cursor: pointer;
+}
+
+.sim-layout-wrap {
+  width: 100%;
+  min-height: 70vh;
+  border: 1px solid #d9d9d9;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+.slot-box {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: flex-start;
+  background: #fafafa;
+  border: 1px dashed #d9d9d9;
+  color: #595959;
+}
+
+.slot-rail {
+  padding: 4px;
+  gap: 8px;
+}
+
+.slot-title {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: #8c8c8c;
+  text-transform: uppercase;
+  padding: 4px 6px;
+}
+
+.slot-rail-icons {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.slot-note {
+  margin-top: auto;
+  width: 100%;
+  font-size: 11px;
+  color: #8c8c8c;
+  text-align: center;
+  padding: 4px;
+}
+
+.slot-main {
+  flex-direction: column;
+  gap: 8px;
+}
+
+.slot-gantt-wrap {
+  width: 100%;
+  flex: 1 1 auto;
+  min-height: 280px;
+  height: 100%;
+}
+
+.slot-main h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.slot-main p {
+  margin: 0;
+}
+
+@media (max-width: 980px) {
+  .sim-page {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-layout-wrap {
+    min-height: 60vh;
+  }
+}

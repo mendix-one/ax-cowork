@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<widget
+  id="axcowork.axapplayout.AxAppLayout"
+  pluginWidget="true"
+  needsEntityContext="false"
+  offlineCapable="true"
+  supportedPlatform="Web"
+  xmlns="http://www.mendix.com/widget/1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/@mendix/pluggable-widgets-tools/configs/widget.xsd"
+>
+  <name>App Layout</name>
+  <description>Slot-based application shell with header, left, content, right, and footer regions.</description>
+  <icon />
+  <properties>
+    <property key="header" type="widgets" required="false">
+      <caption>Header</caption>
+      <description>Widgets rendered in the header region.</description>
+    </property>
+    <property key="left" type="widgets" required="false">
+      <caption>Left</caption>
+      <description>Widgets rendered in the left sidebar region.</description>
+    </property>
+    <property key="content" type="widgets" required="false">
+      <caption>Content</caption>
+      <description>Widgets rendered in the main content region.</description>
+    </property>
+    <property key="right" type="widgets" required="false">
+      <caption>Right</caption>
+      <description>Widgets rendered in the right sidebar region.</description>
+    </property>
+    <property key="footer" type="widgets" required="false">
+      <caption>Footer</caption>
+      <description>Widgets rendered in the footer region.</description>
+    </property>
+  </properties>
+</widget>
