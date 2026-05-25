@@ -12,19 +12,19 @@ import { SimulationLayoutBottom } from './SimulationLayoutBottom.tsx'
 
 import type { MainPanelControls, SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
-import { AIAssistantPanel } from '@/agent/AIAssistantPanel.tsx'
-import { WorkerTasksPanel } from '@/worker/WorkerTasksPanel.tsx'
-import { SplitRightView } from '@/pages/simulation/views/SplitRightView.tsx'
-import { SimulationAnalysisPanel } from '@/pages/simulation/panels/analysis/SimulationAnalysisPanel.tsx'
-import { SimulationDatasetPanel } from '@/pages/simulation/panels/dataset/SimulationDatasetPanel.tsx'
-import { SimulationFactorPanel } from '@/pages/simulation/panels/factor/SimulationFactorPanel.tsx'
 import { SimulationGanttPanel } from '@/pages/simulation/panels/gantt/SimulationGanttPanel.tsx'
-import { SimulationIntegrationPanel } from '@/pages/simulation/panels/integration/SimulationIntegrationPanel.tsx'
-import { SimulationProjectPanel } from '@/pages/simulation/panels/project/SimulationProjectPanel.tsx'
-import { SimulationSchemaPanel } from '@/pages/simulation/panels/schema/SimulationSchemaPanel.tsx'
-import { SimulationSettingPanel } from '@/pages/simulation/panels/setting/SimulationSettingPanel.tsx'
-import { SimulationStandardPanel } from '@/pages/simulation/panels/standard/SimulationStandardPanel.tsx'
-import { SimulationTuningPanel } from '@/pages/simulation/panels/tuning/SimulationTuningPanel.tsx'
+import { SimulationAnalysisPanel } from '@/pages/simulation/panels/analysis/SimulationAnalysisPanel.tsx'
+import { SimulationProductionOrderPanel } from '@/pages/simulation/panels/production-order/SimulationProductionOrderPanel.tsx'
+import { SimulationShopFloorPanel } from '@/pages/simulation/panels/shop-floor/SimulationShopFloorPanel.tsx'
+import { SimulationProcessTuningPanel } from '@/pages/simulation/panels/process-tuning/SimulationProcessTuningPanel.tsx'
+import { SimulationCapacityTuningPanel } from '@/pages/simulation/panels/capacity-tuning/SimulationCapacityTuningPanel.tsx'
+import { SimulationDataIntegrationPanel } from '@/pages/simulation/panels/data-integration/SimulationDataIntegrationPanel.tsx'
+
+import { SimulationComparePanel } from '@/pages/simulation/panels/compare/SimulationComparePanel.tsx'
+import { SimulationAIChatPanel } from '@/pages/simulation/panels/ai-chat/SimulationAIChatPanel.tsx'
+import { SimulationBackgroundPanel } from '@/pages/simulation/panels/background/SimulationBackgroundPanel.tsx'
+import { SimulationHistoryPanel } from '@/pages/simulation/panels/history/SimulationHistoryPanel.tsx'
+import { SimulationRecommendationsPanel } from '@/pages/simulation/panels/recommendations/SimulationRecommendationsPanel.tsx'
 
 type PanelRegion =
   | { kind: 'panel'; id: PanelId; type: 'main'; render: (controls: MainPanelControls) => ReactNode }
@@ -49,20 +49,19 @@ type Region = PanelRegion | SplitterRegion
 const MAIN_PANELS: Record<MainPanelId, ComponentType<MainPanelControls>> = {
   gantt: SimulationGanttPanel,
   analysis: SimulationAnalysisPanel,
-  project: SimulationProjectPanel,
-  dataset: SimulationDatasetPanel,
-  tuning: SimulationTuningPanel,
-  factor: SimulationFactorPanel,
-  standard: SimulationStandardPanel,
-  setting: SimulationSettingPanel,
-  integration: SimulationIntegrationPanel,
-  schema: SimulationSchemaPanel,
+  productionOrder: SimulationProductionOrderPanel,
+  shopFloor: SimulationShopFloorPanel,
+  processTuning: SimulationProcessTuningPanel,
+  capacityTuning: SimulationCapacityTuningPanel,
+  dataIntegration: SimulationDataIntegrationPanel,
 }
 
 const SUB_PANELS: Record<SubPanelId, ComponentType<SubPanelControls>> = {
-  splitView: SplitRightView,
-  aiAssistant: AIAssistantPanel,
-  progress: WorkerTasksPanel,
+  compare: SimulationComparePanel,
+  aiChat: SimulationAIChatPanel,
+  background: SimulationBackgroundPanel,
+  history: SimulationHistoryPanel,
+  recommendations: SimulationRecommendationsPanel,
 }
 
 const useStyles = createStyles(({ token }) => ({
@@ -185,20 +184,20 @@ export const SimulationLayout = observer(() => {
   const renderMain = (controls: MainPanelControls) => <MainPanelStack controls={controls} slotClassName={styles.mainSlot} />
   const renderSub = (controls: SubPanelControls) => <SubPanelStack controls={controls} slotClassName={styles.subSlot} />
 
-  const isSplitMode = simulation.activeSubPanel === 'splitView'
+  const isSplitMode = simulation.activeSubPanel === 'compare' && !simulation.isHidden('regionRight')
   const layout: Region = {
     kind: 'splitter',
     splitterKey: isSplitMode ? 'split' : 'normal',
     children: [
       {
         region: { kind: 'panel', id: 'regionLeft', type: 'main', render: renderMain },
-        defaultSize: isSplitMode ? '50%' : '75%',
+        defaultSize: isSplitMode ? '50%' : '70%',
         min: '20%',
         max: '90%',
       },
       {
         region: { kind: 'panel', id: 'regionRight', type: 'sub', render: renderSub },
-        defaultSize: isSplitMode ? '50%' : '25%',
+        defaultSize: isSplitMode ? '50%' : '30%',
         min: '10%',
         max: '80%',
       },

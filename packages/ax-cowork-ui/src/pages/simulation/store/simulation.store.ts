@@ -1,21 +1,23 @@
 import { makeAutoObservable } from 'mobx'
-import { AnalysisStore } from '../panels/analysis/analysis.store'
-import { DatasetStore } from '../panels/dataset/dataset.store'
-import { FactorStore } from '../panels/factor/factor.store'
 import { GanttStore } from '../panels/gantt/gantt.store'
-import { IntegrationStore } from '../panels/integration/integration.store'
-import { ProjectStore } from '../panels/project/project.store'
-import { SchemaStore } from '../panels/schema/schema.store'
-import { SettingStore } from '../panels/setting/setting.store'
-import { StandardStore } from '../panels/standard/standard.store'
-import { TuningStore } from '../panels/tuning/tuning.store'
+import { AnalysisStore } from '../panels/analysis/analysis.store'
+import { ProductionOrderStore } from '../panels/production-order/production-order.store'
+import { ShopFloorStore } from '../panels/shop-floor/shop-floor.store'
+import { ProcessTuningStore } from '../panels/process-tuning/process-tuning.store'
+import { CapacityTuningStore } from '../panels/capacity-tuning/capacity-tuning.store'
+import { DataIntegrationStore } from '../panels/data-integration/data-integration.store'
+import { CompareStore } from '../panels/compare/compare.store'
+import { AIChatStore } from '../panels/ai-chat/ai-chat.store'
+import { BackgroundTasksStore } from '../panels/background/background.store'
+import { HistoryStore } from '../panels/history/history.store'
+import { RecommendationsStore } from '../panels/recommendations/recommendations.store'
 
 export type PanelId = 'regionLeft' | 'regionRight'
 export type PanelState = 'normal' | 'maximized' | 'hidden'
 export type PanelStates = Record<PanelId, PanelState>
 
-export type MainPanelId = 'gantt' | 'analysis' | 'project' | 'dataset' | 'tuning' | 'factor' | 'standard' | 'setting' | 'integration' | 'schema'
-export type SubPanelId = 'splitView' | 'aiAssistant' | 'progress'
+export type MainPanelId = 'gantt' | 'analysis' | 'productionOrder' | 'shopFloor' | 'processTuning' | 'capacityTuning' | 'dataIntegration'
+export type SubPanelId = 'compare' | 'aiChat' | 'background' | 'history' | 'recommendations'
 
 export type ProductionLine = {
   id: string
@@ -34,7 +36,7 @@ const SUB_REGION_ID: PanelId = 'regionRight'
 
 const initialStates: PanelStates = {
   regionLeft: 'normal',
-  regionRight: 'hidden',
+  regionRight: 'normal',
 }
 
 const PRODUCTION_LINES: ProductionLine[] = [
@@ -44,15 +46,16 @@ const PRODUCTION_LINES: ProductionLine[] = [
 ]
 
 const SIMULATION_PLANS: SimulationPlan[] = [
-  { id: 'plan-a', name: 'Plan A (Simulation)', description: 'Baseline scenario' },
-  { id: 'plan-b', name: 'Plan B (Simulation)', description: 'Throughput-optimized' },
-  { id: 'plan-c', name: 'Plan C (Simulation)', description: 'Cost-optimized' },
+  { id: 'plan-a', name: 'Plan A (Simulation)', description: 'Baseline scenario — Sarah’s default working plan' },
+  { id: 'plan-b', name: 'Plan B (Simulation)', description: 'AI-proposed reroute around HARC overload' },
+  { id: 'plan-c', name: 'Plan C (Simulation)', description: 'Cost-optimized scenario' },
+  { id: 'published', name: 'Published Plan', description: 'Currently published plan on the floor' },
 ]
 
 export class SimulationStore {
   panelStates: PanelStates = { ...initialStates }
   activeMainPanel: MainPanelId = 'gantt'
-  activeSubPanel: SubPanelId = 'aiAssistant'
+  activeSubPanel: SubPanelId = 'aiChat'
 
   productionLines: ProductionLine[] = PRODUCTION_LINES
   simulationPlans: SimulationPlan[] = SIMULATION_PLANS
@@ -63,16 +66,19 @@ export class SimulationStore {
 
   gantt = new GanttStore()
   analysis = new AnalysisStore()
-  project = new ProjectStore()
-  dataset = new DatasetStore()
-  tuning = new TuningStore()
-  factor = new FactorStore()
-  standard = new StandardStore()
-  setting = new SettingStore()
-  integration = new IntegrationStore()
-  schema = new SchemaStore()
+  productionOrder = new ProductionOrderStore()
+  shopFloor = new ShopFloorStore()
+  processTuning = new ProcessTuningStore()
+  capacityTuning = new CapacityTuningStore()
+  dataIntegration = new DataIntegrationStore()
 
-  private rightVisibleBeforeMaximize = false
+  compare = new CompareStore()
+  aiChat = new AIChatStore()
+  background = new BackgroundTasksStore()
+  history = new HistoryStore()
+  recommendations = new RecommendationsStore()
+
+  private rightVisibleBeforeMaximize = true
 
   constructor() {
     makeAutoObservable(this)
@@ -115,8 +121,6 @@ export class SimulationStore {
   }
 
   // Main panel is considered "maximized" whenever no sub panel is on screen — the right region being hidden.
-  // This way the menu icon and toggle stay in sync even when the right region is closed via a Close button
-  // or sidebar toggle (paths that never call maximize() directly).
   isMaximized(id: PanelId): boolean {
     if (id === MAIN_PANEL_ID) return this.panelStates[SUB_REGION_ID] === 'hidden'
     return this.panelStates[id] === 'maximized'
@@ -133,7 +137,7 @@ export class SimulationStore {
 
   restore(id: PanelId) {
     if (id === MAIN_PANEL_ID) {
-      if (!this.rightVisibleBeforeMaximize) this.activeSubPanel = 'splitView'
+      if (!this.rightVisibleBeforeMaximize) this.activeSubPanel = 'aiChat'
       this.panelStates[SUB_REGION_ID] = 'normal'
       return
     }

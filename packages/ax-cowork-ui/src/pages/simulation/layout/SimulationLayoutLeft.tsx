@@ -12,23 +12,18 @@ type MenuItem = {
 }
 
 const GROUP_PRIMARY: MenuItem[] = [
-  { id: 'gantt', icon: 'mdiChartGantt', title: 'Simulation View' },
+  { id: 'gantt', icon: 'mdiChartGantt', title: 'Gantt (Simulation)' },
   { id: 'analysis', icon: 'mdiChartBar', title: 'Analysis View' },
-  { id: 'project', icon: 'mdiFormatListBulletedType', title: 'Project List' },
-  { id: 'dataset', icon: 'mdiTableLarge', title: 'PM Data' },
+  { id: 'productionOrder', icon: 'mdiClipboardListOutline', title: 'Production Order' },
+  { id: 'shopFloor', icon: 'mdiFactory', title: 'Shop Floor Capacity' },
 ]
 
 const GROUP_TUNING: MenuItem[] = [
-  { id: 'tuning', icon: 'mdiTicketPercentOutline', title: 'Tunning Logic' },
-  { id: 'factor', icon: 'mdiHubOutline', title: 'Factors Control' },
-  { id: 'standard', icon: 'mdiAlarmPanelOutline', title: 'PM Standard' },
+  { id: 'processTuning', icon: 'mdiTuneVerticalVariant', title: 'Process Tuning Logic' },
+  { id: 'capacityTuning', icon: 'mdiCogTransferOutline', title: 'Capacity Tuning Logic' },
 ]
 
-const GROUP_SYSTEM: MenuItem[] = [
-  { id: 'setting', icon: 'mdiCogs', title: 'Line Setting' },
-  { id: 'integration', icon: 'mdiTransitConnectionVariant', title: 'System Integration' },
-  { id: 'schema', icon: 'mdiDatabaseOutline', title: 'Data Monitor' },
-]
+const GROUP_SYSTEM: MenuItem[] = [{ id: 'dataIntegration', icon: 'mdiTransitConnectionVariant', title: 'Data Integration' }]
 
 export const SimulationLayoutLeft = observer(() => {
   const simulation = useSimulationContext()

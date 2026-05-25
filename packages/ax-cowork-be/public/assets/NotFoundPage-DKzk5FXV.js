@@ -1,0 +1,1 @@
+import{t as e}from"./jsx-runtime-B6doAwFl.js";import{t}from"./button-D0imm9HR.js";import{N as n,f as r,g as i,s as a}from"./index-BLM-5KCN.js";var o=e(),s=r(function(){let{t:e}=n();return(0,o.jsx)(i,{status:`404`,title:`404`,subTitle:e(`error.notFound`),extra:(0,o.jsx)(a,{to:`/`,children:(0,o.jsx)(t,{type:`primary`,children:e(`nav.home`)})})})});export{s as NotFoundPage};

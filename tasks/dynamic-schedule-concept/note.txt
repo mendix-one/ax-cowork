@@ -1,0 +1,38 @@
+UI Concept:
+- Layout:
+    - Top:
+        - Top Left: app menu, selected shop floor, schedule version
+        - Top Right: compare schedule (right view), notify, user, settings
+    - Left: The sidebar to control the left view
+        - Gantt View (Simulation)
+        - Analysis View
+        - Production Order View
+        - Shop Floor Capacity View
+        - Process Tuning logic
+        - Capacity Tuning logic
+        - Data integration
+        -....
+    - Right: The sidebar to control the right view
+        - Slip view mode for compare schedule
+        - AI Chatbox
+        - Background tasks
+        - Schedule change history
+        - Recommendations
+    - Bottom: None
+- Main View:
+    - Gantt View (Simulation)
+    - Analysis View
+    - Production Order View
+    - Shop Floor Capacity View
+    - Process Tuning logic
+    - Capacity Tuning logic
+    - Data integration
+    -....
+- Right View:
+    - Slip view mode for compare schedule
+    - AI Chatbox
+    - Background tasks
+    - Schedule change history
+    - Recommendations
+
+=> Sample: dynamic-schedule-01.png
