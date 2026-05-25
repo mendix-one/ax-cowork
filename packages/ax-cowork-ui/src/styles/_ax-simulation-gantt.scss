@@ -175,6 +175,10 @@
     @apply text-neutral-900 font-semibold;
   }
 
+  .gantt_tree_content {
+    @apply flex items-center justify-start;
+  }
+
   .gantt_task_scale .gantt_scale_cell {
     @apply border-r border-gray-300;
   }
