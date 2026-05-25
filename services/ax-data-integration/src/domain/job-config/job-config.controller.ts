@@ -12,6 +12,7 @@ import {
 } from '@nestjs/swagger'
 import type { ObjectId } from 'mongodb'
 
+import { CurrentPrincipal, type Principal } from '../../acore/auth'
 import { ObjectIdPipe } from '../../acore/mongo'
 import { CreateJobConfigDto } from './dto/create-job-config.dto'
 import { ListJobConfigsQuery } from './dto/list-job-configs.query'
@@ -19,11 +20,8 @@ import { UpdateJobConfigDto } from './dto/update-job-config.dto'
 import { JobConfigsService } from './job-config.service'
 import type { JobConfigSummary, ListJobConfigsResult } from './job-config.schema'
 
-// TODO: replace with the API-key principal once the guard attaches one to the request.
-const PHASE_1_PRINCIPAL = 'axios-key'
-
 @ApiTags('Job configs')
-@ApiSecurity('axios-key')
+@ApiSecurity('api-key')
 @ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
 @ApiBadRequestResponse({ description: 'Validation error in DTO or query.' })
 @Controller('job-configs')
@@ -34,7 +32,7 @@ export class JobConfigController {
   @ApiOperation({ summary: 'Create a job config' })
   @ApiCreatedResponse()
   @ApiConflictResponse({ description: 'A job config with that name already exists.' })
-  create(@Body() dto: CreateJobConfigDto): Promise<JobConfigSummary> {
+  create(@Body() dto: CreateJobConfigDto, @CurrentPrincipal() principal: Principal): Promise<JobConfigSummary> {
     return this.jobConfigs.create({
       name: dto.name,
       description: dto.description,
@@ -44,7 +42,7 @@ export class JobConfigController {
       identity: dto.identity,
       options: dto.options,
       credentialsRef: dto.credentialsRef,
-      createdBy: PHASE_1_PRINCIPAL,
+      createdBy: principal.label,
     })
   }
 
