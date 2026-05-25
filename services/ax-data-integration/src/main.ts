@@ -24,7 +24,7 @@ async function bootstrap() {
   app.enableCors({
     origin: '*',
     methods: ['OPTIONS', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
-    allowedHeaders: ['content-type', 'x-axios-key'],
+    allowedHeaders: ['content-type', 'x-api-key'],
     optionsSuccessStatus: 200,
   })
 
@@ -36,7 +36,7 @@ async function bootstrap() {
       [
         'AX Cowork Data Integration Service — pull-based sync jobs, raw data store, audit changelog.',
         '',
-        'All non-health endpoints require the `x-axios-key` header. Set `INTEGRATION_API_KEYS` (comma-separated) to provision keys.',
+        'All non-health endpoints require the `x-api-key` header. Set `INTEGRATION_API_KEYS` (comma-separated) to provision keys.',
         'Authoritative design lives in `services/ax-data-integration/docs/` (O001/P001/P002/T001).',
       ].join('\n'),
     )
@@ -52,7 +52,7 @@ async function bootstrap() {
     .addTag('Source metadata', 'Schema snapshots detected at each sync. Deduped by (jobConfigId, schemaHash) — also serves as a schema-drift audit trail.')
     .build()
   const document = SwaggerModule.createDocument(app, swaggerConfig)
-  SwaggerModule.setup('axios-docs', app, document)
+  SwaggerModule.setup('api-docs', app, document)
 
   await app.listen(port)
 }

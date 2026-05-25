@@ -80,7 +80,7 @@ describe('SyncRunsController (e2e)', () => {
 
   describe('GET /sync-runs', () => {
     it('returns empty page when no runs exist', async () => {
-      const res = await request(app.getHttpServer()).get('/sync-runs').set('x-axios-key', API_KEY).expect(200)
+      const res = await request(app.getHttpServer()).get('/sync-runs').set('x-api-key', API_KEY).expect(200)
       expect(res.body).toEqual({ items: [], total: 0, page: 1, pageSize: 50 })
     })
 
@@ -99,12 +99,12 @@ describe('SyncRunsController (e2e)', () => {
 
       await runs.insertRunning({ jobConfigId: jobB, triggeredBy: 'manual', workerId: 'w2' })
 
-      const all = await request(app.getHttpServer()).get('/sync-runs').set('x-axios-key', API_KEY).expect(200)
+      const all = await request(app.getHttpServer()).get('/sync-runs').set('x-api-key', API_KEY).expect(200)
       expect((all.body as ListBody).total).toBe(3)
 
       const filtered = await request(app.getHttpServer())
         .get(`/sync-runs?jobConfigId=${jobA.toHexString()}&status=failed`)
-        .set('x-axios-key', API_KEY)
+        .set('x-api-key', API_KEY)
         .expect(200)
       const filteredBody = filtered.body as ListBody
       expect(filteredBody.total).toBe(1)
@@ -120,25 +120,25 @@ describe('SyncRunsController (e2e)', () => {
         await runs.finalize(r!._id, { status: 'success', counts: r!.counts, finishedAt: new Date() })
       }
 
-      const page1 = (await request(app.getHttpServer()).get('/sync-runs?page=1&pageSize=2').set('x-axios-key', API_KEY).expect(200)).body as ListBody
+      const page1 = (await request(app.getHttpServer()).get('/sync-runs?page=1&pageSize=2').set('x-api-key', API_KEY).expect(200)).body as ListBody
       expect(page1.items).toHaveLength(2)
       expect(page1.total).toBe(5)
       expect(page1.pageSize).toBe(2)
 
-      const page2 = (await request(app.getHttpServer()).get('/sync-runs?page=2&pageSize=2').set('x-axios-key', API_KEY).expect(200)).body as ListBody
+      const page2 = (await request(app.getHttpServer()).get('/sync-runs?page=2&pageSize=2').set('x-api-key', API_KEY).expect(200)).body as ListBody
       expect(page2.items).toHaveLength(2)
       expect(page2.items[0].id).not.toBe(page1.items[0].id)
 
-      const capped = (await request(app.getHttpServer()).get('/sync-runs?pageSize=999').set('x-axios-key', API_KEY).expect(200)).body as ListBody
+      const capped = (await request(app.getHttpServer()).get('/sync-runs?pageSize=999').set('x-api-key', API_KEY).expect(200)).body as ListBody
       expect(capped.pageSize).toBe(200)
     })
 
     it('rejects invalid status with 400', async () => {
-      await request(app.getHttpServer()).get('/sync-runs?status=bogus').set('x-axios-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get('/sync-runs?status=bogus').set('x-api-key', API_KEY).expect(400)
     })
 
     it('rejects malformed jobConfigId with 400', async () => {
-      await request(app.getHttpServer()).get('/sync-runs?jobConfigId=not-an-id').set('x-axios-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get('/sync-runs?jobConfigId=not-an-id').set('x-api-key', API_KEY).expect(400)
     })
 
     it('filters by startedAt range', async () => {
@@ -150,7 +150,7 @@ describe('SyncRunsController (e2e)', () => {
       const recent = await runs.insertRunning({ jobConfigId: job, triggeredBy: 'manual', workerId: 'w2' })
       await db.collection('sync_runs').updateOne({ _id: recent._id }, { $set: { startedAt: new Date('2026-06-01T00:00:00Z') } })
 
-      const res = await request(app.getHttpServer()).get('/sync-runs?from=2026-01-01T00:00:00Z').set('x-axios-key', API_KEY).expect(200)
+      const res = await request(app.getHttpServer()).get('/sync-runs?from=2026-01-01T00:00:00Z').set('x-api-key', API_KEY).expect(200)
       const body = res.body as ListBody
       expect(body.total).toBe(1)
       expect(body.items[0].id).toBe(recent._id.toHexString())
@@ -159,11 +159,11 @@ describe('SyncRunsController (e2e)', () => {
 
   describe('GET /sync-runs/:id', () => {
     it('returns 404 for a missing id', async () => {
-      await request(app.getHttpServer()).get(`/sync-runs/${new ObjectId().toHexString()}`).set('x-axios-key', API_KEY).expect(404)
+      await request(app.getHttpServer()).get(`/sync-runs/${new ObjectId().toHexString()}`).set('x-api-key', API_KEY).expect(404)
     })
 
     it('returns 400 for a malformed id', async () => {
-      await request(app.getHttpServer()).get('/sync-runs/not-an-id').set('x-axios-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get('/sync-runs/not-an-id').set('x-api-key', API_KEY).expect(400)
     })
 
     it('returns the full detail including errors + workerId', async () => {
@@ -176,7 +176,7 @@ describe('SyncRunsController (e2e)', () => {
         errors: [{ stage: 'write', message: 'duplicate key', occurredAt: new Date() }],
       })
 
-      const res = await request(app.getHttpServer()).get(`/sync-runs/${inserted._id.toHexString()}`).set('x-axios-key', API_KEY).expect(200)
+      const res = await request(app.getHttpServer()).get(`/sync-runs/${inserted._id.toHexString()}`).set('x-api-key', API_KEY).expect(200)
       const body = res.body as DetailBody
       expect(body.status).toBe('failed')
       expect(body.workerId).toBe('host-abc:1234')
@@ -187,14 +187,14 @@ describe('SyncRunsController (e2e)', () => {
 
   describe('POST /sync-runs/:id/retry', () => {
     it('returns 404 for a missing sync_run', async () => {
-      await request(app.getHttpServer()).post(`/sync-runs/${new ObjectId().toHexString()}/retry`).set('x-axios-key', API_KEY).expect(404)
+      await request(app.getHttpServer()).post(`/sync-runs/${new ObjectId().toHexString()}/retry`).set('x-api-key', API_KEY).expect(404)
     })
 
     it('returns 400 when the run is still in flight', async () => {
       const job = await jobConfigs.create({ ...baseJob, name: 'retry-running' })
       const run = await runs.insertRunning({ jobConfigId: new ObjectId(job.id), triggeredBy: 'manual', workerId: 'w' })
 
-      await request(app.getHttpServer()).post(`/sync-runs/${run._id.toHexString()}/retry`).set('x-axios-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).post(`/sync-runs/${run._id.toHexString()}/retry`).set('x-api-key', API_KEY).expect(400)
     })
 
     it('returns 404 when the underlying job_config was deleted', async () => {
@@ -202,7 +202,7 @@ describe('SyncRunsController (e2e)', () => {
       const orphan = await runs.insertRunning({ jobConfigId: ghostJob, triggeredBy: 'manual', workerId: 'w' })
       await runs.finalize(orphan._id, { status: 'failed', counts: orphan.counts, finishedAt: new Date() })
 
-      await request(app.getHttpServer()).post(`/sync-runs/${orphan._id.toHexString()}/retry`).set('x-axios-key', API_KEY).expect(404)
+      await request(app.getHttpServer()).post(`/sync-runs/${orphan._id.toHexString()}/retry`).set('x-api-key', API_KEY).expect(404)
     })
 
     it('creates a new run with parentRunId + triggeredBy=retry', async () => {
@@ -210,7 +210,7 @@ describe('SyncRunsController (e2e)', () => {
       const parent = await runs.insertRunning({ jobConfigId: new ObjectId(job.id), triggeredBy: 'manual', workerId: 'w' })
       await runs.finalize(parent._id, { status: 'failed', counts: parent.counts, finishedAt: new Date() })
 
-      const res = await request(app.getHttpServer()).post(`/sync-runs/${parent._id.toHexString()}/retry`).set('x-axios-key', API_KEY).expect(200)
+      const res = await request(app.getHttpServer()).post(`/sync-runs/${parent._id.toHexString()}/retry`).set('x-api-key', API_KEY).expect(200)
       const body = res.body as { runId: string; status: string; parentRunId: string }
       expect(typeof body.runId).toBe('string')
       expect(body.runId).not.toBe(parent._id.toHexString())
@@ -229,7 +229,7 @@ describe('SyncRunsController (e2e)', () => {
       // Another worker holds the partial-unique 'running' lock.
       await runs.insertRunning({ jobConfigId: jobId, triggeredBy: 'schedule', workerId: 'other:9' })
 
-      await request(app.getHttpServer()).post(`/sync-runs/${parent._id.toHexString()}/retry`).set('x-axios-key', API_KEY).expect(409)
+      await request(app.getHttpServer()).post(`/sync-runs/${parent._id.toHexString()}/retry`).set('x-api-key', API_KEY).expect(409)
     })
   })
 })

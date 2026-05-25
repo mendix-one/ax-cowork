@@ -33,7 +33,7 @@ export interface ListSourceMetadataResponse {
 
 @ApiTags('Source metadata')
 @ApiSecurity('axios-key')
-@ApiUnauthorizedResponse({ description: 'Missing or invalid x-axios-key header.' })
+@ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
 @ApiBadRequestResponse({ description: 'Validation error in DTO or query.' })
 @Controller('source-metadata')
 export class SourceMetadataController {

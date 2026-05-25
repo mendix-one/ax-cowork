@@ -25,7 +25,7 @@ const PHASE_1_PRINCIPAL = 'axios-key'
 
 @ApiTags('Source files')
 @ApiSecurity('axios-key')
-@ApiUnauthorizedResponse({ description: 'Missing or invalid x-axios-key header.' })
+@ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
 @Controller('source-files')
 export class SourceFilesController {
   constructor(private readonly files: SourceFilesService) {}

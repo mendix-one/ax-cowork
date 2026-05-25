@@ -25,7 +25,7 @@ const PHASE_1_PRINCIPAL = 'axios-key'
 
 @ApiTags('Secrets')
 @ApiSecurity('axios-key')
-@ApiUnauthorizedResponse({ description: 'Missing or invalid x-axios-key header.' })
+@ApiUnauthorizedResponse({ description: 'Missing or invalid x-api-key header.' })
 @Controller('secrets')
 export class SecretsController {
   constructor(private readonly secrets: SecretsService) {}

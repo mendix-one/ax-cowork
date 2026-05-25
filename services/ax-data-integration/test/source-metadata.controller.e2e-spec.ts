@@ -90,15 +90,15 @@ describe('SourceMetadataController (e2e)', () => {
 
   describe('GET /source-metadata', () => {
     it('returns 400 when jobConfigId is missing', async () => {
-      await request(app.getHttpServer()).get('/source-metadata').set('x-axios-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get('/source-metadata').set('x-api-key', API_KEY).expect(400)
     })
 
     it('returns 400 when jobConfigId is malformed', async () => {
-      await request(app.getHttpServer()).get('/source-metadata?jobConfigId=bogus').set('x-axios-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get('/source-metadata?jobConfigId=bogus').set('x-api-key', API_KEY).expect(400)
     })
 
     it('returns empty page when no snapshots exist', async () => {
-      const res = await request(app.getHttpServer()).get(`/source-metadata?jobConfigId=${new ObjectId().toHexString()}`).set('x-axios-key', API_KEY).expect(200)
+      const res = await request(app.getHttpServer()).get(`/source-metadata?jobConfigId=${new ObjectId().toHexString()}`).set('x-api-key', API_KEY).expect(200)
       expect(res.body).toEqual({ items: [], total: 0, page: 1, pageSize: 50 })
     })
 
@@ -108,7 +108,7 @@ describe('SourceMetadataController (e2e)', () => {
       await seed({ jobConfigId: jobA, schemaHash: 'aaa', fieldNames: ['id'] })
       await seed({ jobConfigId: jobB, schemaHash: 'bbb', fieldNames: ['name'] })
 
-      const res = (await request(app.getHttpServer()).get(`/source-metadata?jobConfigId=${jobA.toHexString()}`).set('x-axios-key', API_KEY).expect(200))
+      const res = (await request(app.getHttpServer()).get(`/source-metadata?jobConfigId=${jobA.toHexString()}`).set('x-api-key', API_KEY).expect(200))
         .body as ListBody
       expect(res.total).toBe(1)
       expect(res.items[0].schemaHash).toBe('aaa')
@@ -120,7 +120,7 @@ describe('SourceMetadataController (e2e)', () => {
       await seed({ jobConfigId: job, schemaHash: 'xyz-789', fieldNames: ['id', 'name'] })
 
       const res = (
-        await request(app.getHttpServer()).get(`/source-metadata?jobConfigId=${job.toHexString()}&schemaHash=xyz-789`).set('x-axios-key', API_KEY).expect(200)
+        await request(app.getHttpServer()).get(`/source-metadata?jobConfigId=${job.toHexString()}&schemaHash=xyz-789`).set('x-api-key', API_KEY).expect(200)
       ).body as ListBody
       expect(res.total).toBe(1)
       expect(res.items[0].fieldCount).toBe(2)
@@ -133,7 +133,7 @@ describe('SourceMetadataController (e2e)', () => {
       await seed({ jobConfigId: job, schemaHash: 'older', detectedAt: older, fieldNames: ['a'] })
       await seed({ jobConfigId: job, schemaHash: 'newer', detectedAt: newer, fieldNames: ['a', 'b', 'c'] })
 
-      const res = (await request(app.getHttpServer()).get(`/source-metadata?jobConfigId=${job.toHexString()}`).set('x-axios-key', API_KEY).expect(200))
+      const res = (await request(app.getHttpServer()).get(`/source-metadata?jobConfigId=${job.toHexString()}`).set('x-api-key', API_KEY).expect(200))
         .body as ListBody
       expect(res.items[0].schemaHash).toBe('newer')
       expect(res.items[0].fieldCount).toBe(3)
@@ -144,7 +144,7 @@ describe('SourceMetadataController (e2e)', () => {
       const res = (
         await request(app.getHttpServer())
           .get(`/source-metadata?jobConfigId=${new ObjectId().toHexString()}&pageSize=999`)
-          .set('x-axios-key', API_KEY)
+          .set('x-api-key', API_KEY)
           .expect(200)
       ).body as ListBody
       expect(res.pageSize).toBe(200)
@@ -153,11 +153,11 @@ describe('SourceMetadataController (e2e)', () => {
 
   describe('GET /source-metadata/latest', () => {
     it('returns 400 when jobConfigId is missing', async () => {
-      await request(app.getHttpServer()).get('/source-metadata/latest').set('x-axios-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get('/source-metadata/latest').set('x-api-key', API_KEY).expect(400)
     })
 
     it('returns 404 when no snapshot exists', async () => {
-      await request(app.getHttpServer()).get(`/source-metadata/latest?jobConfigId=${new ObjectId().toHexString()}`).set('x-axios-key', API_KEY).expect(404)
+      await request(app.getHttpServer()).get(`/source-metadata/latest?jobConfigId=${new ObjectId().toHexString()}`).set('x-api-key', API_KEY).expect(404)
     })
 
     it('returns the most-recent snapshot with full schema', async () => {
@@ -165,7 +165,7 @@ describe('SourceMetadataController (e2e)', () => {
       await seed({ jobConfigId: job, schemaHash: 'older', detectedAt: new Date('2026-01-01T00:00:00Z'), fieldNames: ['a'] })
       await seed({ jobConfigId: job, schemaHash: 'newer', detectedAt: new Date('2026-06-01T00:00:00Z'), fieldNames: ['a', 'b', 'c'] })
 
-      const res = await request(app.getHttpServer()).get(`/source-metadata/latest?jobConfigId=${job.toHexString()}`).set('x-axios-key', API_KEY).expect(200)
+      const res = await request(app.getHttpServer()).get(`/source-metadata/latest?jobConfigId=${job.toHexString()}`).set('x-api-key', API_KEY).expect(200)
       const body = res.body as DetailBody
       expect(body.schemaHash).toBe('newer')
       expect(body.fieldCount).toBe(3)
@@ -175,11 +175,11 @@ describe('SourceMetadataController (e2e)', () => {
 
   describe('GET /source-metadata/:id', () => {
     it('returns 404 for a missing id', async () => {
-      await request(app.getHttpServer()).get(`/source-metadata/${new ObjectId().toHexString()}`).set('x-axios-key', API_KEY).expect(404)
+      await request(app.getHttpServer()).get(`/source-metadata/${new ObjectId().toHexString()}`).set('x-api-key', API_KEY).expect(404)
     })
 
     it('returns 400 for a malformed id', async () => {
-      await request(app.getHttpServer()).get('/source-metadata/not-an-id').set('x-axios-key', API_KEY).expect(400)
+      await request(app.getHttpServer()).get('/source-metadata/not-an-id').set('x-api-key', API_KEY).expect(400)
     })
 
     it('returns the full detail including schema fields + raw', async () => {
@@ -187,7 +187,7 @@ describe('SourceMetadataController (e2e)', () => {
       const id = await seed({ jobConfigId: job, schemaHash: 'h1', fieldNames: ['id', 'name', 'created_at'] })
       expect(id).not.toBeNull()
 
-      const res = await request(app.getHttpServer()).get(`/source-metadata/${id!.toHexString()}`).set('x-axios-key', API_KEY).expect(200)
+      const res = await request(app.getHttpServer()).get(`/source-metadata/${id!.toHexString()}`).set('x-api-key', API_KEY).expect(200)
       const body = res.body as DetailBody
       expect(body.id).toBe(id!.toHexString())
       expect(body.schema.fields.map((f) => f.name)).toEqual(['id', 'name', 'created_at'])
