@@ -42,7 +42,7 @@ async function bootstrap() {
     .addApiKey({ type: 'apiKey', name: API_KEY_HEADER, in: 'header' }, 'ax-api-key')
     .build()
   const document = SwaggerModule.createDocument(app, swaggerConfig)
-  SwaggerModule.setup('axios-docs', app, document)
+  SwaggerModule.setup('api-docs', app, document)
 
   // Start listing
   await app.listen(configService.get<number>('PORT') ?? 3001)
