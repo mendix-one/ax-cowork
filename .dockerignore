@@ -9,6 +9,12 @@
 **/build
 **/.vite
 
+# Re-include pnpm deploy artifacts — Dockerfile.{app,sso,di} ship the prebuilt tree
+# from `pnpm deploy --prod --legacy ./deploy/out/<name>/`, so the dist/ and
+# node_modules/ inside deploy/out/** MUST NOT be filtered by the broad excludes above.
+# Order matters here: in .dockerignore, later patterns override earlier ones.
+!deploy/out/**
+
 # Tests + coverage — never shipped to runtime
 **/coverage
 **/*.spec.ts
