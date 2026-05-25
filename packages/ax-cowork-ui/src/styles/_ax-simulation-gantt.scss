@@ -36,7 +36,7 @@
     &_header {
       @apply w-full h-8 px-2;
       @apply flex-none flex items-center justify-between;
-      @apply font-semibold text-neutral-700;
+      @apply font-semibold text-neutral-900;
       @apply bg-indigo-50 border-b border-gray-300;
     }
 
@@ -56,7 +56,7 @@
       @apply px-2 py-1.5;
 
       &_title {
-        @apply block font-semibold capitalize text-neutral-700;
+        @apply block font-semibold capitalize text-neutral-900;
         margin-bottom: 6px;
       }
     }
@@ -71,55 +71,89 @@
     &_header {
       @apply w-full h-8 px-2;
       @apply flex-none flex items-center justify-between;
-      @apply font-semibold text-neutral-700;
+      @apply font-semibold text-neutral-900;
       @apply bg-indigo-50 border-b border-gray-300;
     }
 
     &_body {
-      // Fill the panel body without scrolling — the inner grid sizes itself to 100% × 100%.
-      @apply flex-1 min-h-0 overflow-hidden p-2;
+      @apply flex-1 min-h-0 p-2;
     }
 
     &_grid {
-      // 3-column Quick Analysis layout — Col1 40% / Col2 40% / Col3 20% (per spec). Fills the body box.
-      display: grid;
-      grid-template-columns: 40% 40% 20%;
-      gap: 8px;
-      width: 100%;
-      height: 100%;
-      min-width: 0;
-      min-height: 0;
+      @apply w-full h-full;
+      @apply flex items-start justify-between gap-2;
     }
 
     &_col {
-      @apply min-w-0 min-h-0 h-full;
+      @apply h-full w-1/3 min-h-full;
+      &__overall {
+        @apply w-2/5;
+      }
+      &__toolgroup {
+        @apply w-2/5;
+      }
+      &__violations {
+        @apply w-1/5;
+      }
     }
 
     &_card {
-      // Each card is a flex column: title (flex-none) + chart/list (flex-1).
-      @apply p-2 border border-gray-200 rounded h-full w-full flex flex-col min-h-0;
+      @apply h-full w-full min-h-0 p-2 border border-gray-200 rounded flex flex-col;
 
-      &__chart {
-        // chart wrapper grows to fill remaining space
+      &_header {
+        @apply w-full h-8;
+        @apply flex items-center justify-between;
+        @apply font-semibold text-neutral-700;
+        //@apply border-b border-gray-200;
+
+        &_title {
+          @apply w-auto h-full;
+          @apply flex items-center justify-start gap-1;
+          @apply font-semibold text-neutral-700;
+        }
+
+        &_option {
+          @apply w-auto h-full;
+          @apply flex items-center justify-end gap-1;
+
+          &_button {
+            @apply w-6 h-6 flex items-center justify-center;
+            @apply ax-button;
+          }
+        }
       }
 
-      &__list {
-        @apply overflow-auto;
+      &_chart_box {
+        @apply w-full;
+        height: calc(100% - 2rem);
       }
-    }
 
-    &_title {
-      @apply flex-none text-xs font-semibold text-neutral-500;
-      margin-bottom: 6px;
-    }
-
-    &_chart_box {
-      // Flex child wrapper for ReactECharts — give it explicit size so the chart resizes to fit.
-      @apply flex-1 min-h-0 w-full;
+      &_list_box {
+        @apply w-full py-1;
+        height: calc(100% - 2rem);
+        @apply overflow-y-auto;
+      }
     }
 
     &_row {
-      @apply flex items-center justify-between gap-2 text-xs;
+      @apply w-full h-auto py-1 px-1 rounded border border-gray-200;
+      @apply flex items-center justify-between gap-2;
+      @apply cursor-pointer;
+      &:hover {
+        @apply bg-fuchsia-50;
+      }
+      &.violation {
+        @apply bg-red-50;
+        &:hover {
+          @apply bg-red-100;
+        }
+      }
+      &.highload {
+        @apply bg-orange-50;
+        &:hover {
+          @apply bg-orange-100;
+        }
+      }
     }
   }
 }
@@ -138,7 +172,7 @@
   .gantt_task_scale .gantt_scale_cell,
   .gantt_task_scale .gantt_scale_line {
     @apply bg-indigo-50;
-    @apply text-neutral-700 font-semibold;
+    @apply text-neutral-900 font-semibold;
   }
 
   .gantt_task_scale .gantt_scale_cell {
@@ -187,19 +221,19 @@
 
 // Grid-cell label chips
 .ax-gantt-po-text {
-  @apply font-semibold text-neutral-700;
+  @apply font-semibold text-neutral-900;
 }
 .ax-gantt-family-text {
-  @apply font-semibold text-neutral-700;
+  @apply font-semibold text-neutral-900;
 }
 .ax-gantt-batch-text {
-  @apply font-semibold text-neutral-700;
+  @apply font-semibold text-neutral-900;
 }
 .ax-gantt-milestone-text {
-  @apply font-medium text-neutral-700;
+  @apply font-medium text-neutral-900;
 }
 .ax-gantt-muted {
-  @apply text-neutral-600 ml-1;
+  @apply text-neutral-700 ml-1;
 }
 .ax-gantt-chip {
   @apply inline-block px-1 py-0 ml-1 rounded text-xs font-semibold;

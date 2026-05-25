@@ -3,6 +3,7 @@ import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import { observer } from 'mobx-react-lite'
 import { TOOL_GROUP_CAPACITIES } from '../../data/mock-plan'
+import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // Threshold colors.
 const SAFE_THRESHOLD = 0.8
@@ -91,8 +92,15 @@ export const SimulationGanttQuickAnalysisToolGroup = observer(() => {
 
   return (
     <div className="ax-gantt_analysis_card ax-gantt_analysis_card__chart">
-      <div className="ax-gantt_analysis_title">Tool-group capacities</div>
-      <div className="ax-gantt_analysis_chart_box">
+      <div className="ax-gantt_analysis_card_header">
+        <div className="ax-gantt_analysis_card_header_title">Tool-group capacities</div>
+        <div className="ax-gantt_analysis_card_header_option">
+          <button className="ax-gantt_analysis_card_header_option_button" type="button" title={'Large view'}>
+            <AxMuiIcon icon={'mdiArrowExpandAll'} size="1.15rem" className="ax-gantt_analysis_header_option_button_icon" />
+          </button>
+        </div>
+      </div>
+      <div className="ax-gantt_analysis_card_chart_box">
         <ReactECharts option={option} style={{ height: '100%', width: '100%' }} notMerge lazyUpdate />
       </div>
     </div>

@@ -3,6 +3,7 @@ import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import { observer } from 'mobx-react-lite'
 import { DAILY_TOOL_GROUP_USAGE, SHOP_FLOOR_CAPACITY_LIMIT, SHOP_FLOOR_CAPACITY_SAFE, TOOL_GROUP_CAPACITIES } from '../../data/mock-plan'
+import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // Two horizontal reference lines drawn on the chart:
 //   • Limit — total shop-floor capacity (red / danger, solid).
@@ -74,8 +75,15 @@ export const SimulationGanttQuickAnalysisOverall = observer(() => {
 
   return (
     <div className="ax-gantt_analysis_card ax-gantt_analysis_card__chart">
-      <div className="ax-gantt_analysis_title">Shop floor — overall capacity</div>
-      <div className="ax-gantt_analysis_chart_box">
+      <div className="ax-gantt_analysis_card_header">
+        <div className="ax-gantt_analysis_card_header_title">Shop floor — overall capacity</div>
+        <div className="ax-gantt_analysis_card_header_option">
+          <button className="ax-gantt_analysis_card_header_option_button" type="button" title={'Large view'}>
+            <AxMuiIcon icon={'mdiArrowExpandAll'} size="1.15rem" className="ax-gantt_analysis_header_option_button_icon" />
+          </button>
+        </div>
+      </div>
+      <div className="ax-gantt_analysis_card_chart_box">
         <ReactECharts option={option} style={{ height: '100%', width: '100%' }} notMerge lazyUpdate />
       </div>
     </div>
