@@ -1,7 +1,7 @@
 // === SIMULATION GANTT ================================================================================================
 // Style module for the Gantt panel inside the Simulation page.
-// Layout sizing constants (DAY_WIDTH, SIDEBAR_TASK, SIDEBAR_DATE) live in TS and are applied as inline styles where they
-// drive dynamic positioning (bar offsets, sticky cell `left`, today marker, etc.).
+// The chart body is rendered by @dhx/react-gantt; only the surrounding chrome (filter sidebar, quick analysis) and
+// a few overrides for the DHTMLX skin live here.
 
 .ax-gantt {
   @apply w-full h-full flex flex-col bg-white;
@@ -14,136 +14,12 @@
     }
   }
 
-  &_scroll {
-    @apply flex-1 min-h-0 overflow-auto relative;
+  // ---- DHTMLX chart wrapper ---------------------------------------------------------------------------------------
+  &_chart {
+    @apply flex-1 min-h-0 relative;
   }
 
-  &_table {
-    min-width: 100%;
-    width: max-content;
-    border-collapse: separate;
-    border-spacing: 0;
-    @apply text-sm;
-  }
-
-  // ---- chart headers (sticky, indigo-50) ---------------------------------------------------------------------------
-  &_header {
-    &_cell {
-      @apply px-2 py-1 whitespace-nowrap text-center text-xs font-semibold;
-      @apply text-neutral-700 bg-indigo-50;
-      @apply border-b border-gray-200;
-      position: sticky;
-      z-index: 4;
-    }
-
-    &_sidebar {
-      @apply px-2 py-1 whitespace-nowrap text-left text-xs font-semibold;
-      @apply text-neutral-700 bg-indigo-50;
-      @apply border-b border-r border-gray-200;
-      position: sticky;
-      z-index: 6;
-    }
-  }
-
-  // ---- body cells --------------------------------------------------------------------------------------------------
-  &_task_cell {
-    @apply px-2 py-1 whitespace-nowrap bg-white;
-    @apply border-b border-r border-gray-200;
-    position: sticky;
-    left: 0;
-    z-index: 3;
-  }
-
-  &_num_cell {
-    @apply px-2 py-1 whitespace-nowrap text-center text-xs bg-white;
-    @apply border-b border-r border-gray-200;
-    position: sticky;
-    z-index: 3;
-  }
-
-  &_day_cell {
-    @apply relative p-0;
-    @apply border-b border-r border-dashed border-gray-200;
-    height: 30px;
-  }
-
-  // ---- bars --------------------------------------------------------------------------------------------------------
-  &_bar {
-    @apply absolute flex items-center px-1.5 text-white text-[11px] font-medium cursor-pointer overflow-hidden;
-    @apply shadow-sm;
-    height: 14px;
-    top: 8px;
-    border-radius: 4px;
-
-    &.is-po {
-      height: 8px;
-      top: 11px;
-      border-radius: 2px;
-      opacity: 0.9;
-    }
-
-    &.is-family {
-      height: 12px;
-      top: 9px;
-      border-radius: 3px;
-    }
-
-    &.is-batch {
-      height: 14px;
-      top: 8px;
-      border-radius: 4px;
-    }
-  }
-
-  &_milestone {
-    @apply absolute shadow-sm;
-    top: 8px;
-    width: 12px;
-    height: 12px;
-    transform: rotate(45deg);
-  }
-
-  // ---- today marker ------------------------------------------------------------------------------------------------
-  &_today {
-    &_line {
-      @apply absolute pointer-events-none;
-      top: 0;
-      bottom: 0;
-      width: 2px;
-      background: #f5222d;
-      z-index: 2;
-    }
-
-    &_badge {
-      @apply absolute text-white;
-      top: 4px;
-      background: #f5222d;
-      font-size: 10px;
-      padding: 0 4px;
-      border-radius: 2px;
-      transform: translateX(-50%);
-    }
-  }
-
-  // ---- task-cell typography ----------------------------------------------------------------------------------------
-  &_po_text {
-    @apply font-bold text-xs;
-  }
-
-  &_family_text {
-    @apply font-semibold text-xs;
-  }
-
-  &_batch_text {
-    @apply font-normal text-xs;
-  }
-
-  &_toggle_icon {
-    @apply inline-flex items-center cursor-pointer;
-    margin-inline-end: 4px;
-  }
-
-  // ---- filter side panel -------------------------------------------------------------------------------------------
+  // ---- filter side panel ------------------------------------------------------------------------------------------
   &_side {
     @apply flex flex-col bg-white;
     @apply border-r border-gray-200;
@@ -178,7 +54,7 @@
     }
   }
 
-  // ---- quick analysis ----------------------------------------------------------------------------------------------
+  // ---- quick analysis ---------------------------------------------------------------------------------------------
   &_analysis {
     @apply flex-none flex flex-col bg-white;
     @apply border-t border-gray-200;
@@ -212,5 +88,103 @@
     &_row {
       @apply flex items-center justify-between gap-2 text-xs;
     }
+  }
+}
+
+// === DHTMLX OVERRIDES ================================================================================================
+// Skin the DHTMLX terrace bars by status, give the grid the indigo-50 header, and style the today marker.
+
+.gantt_grid_scale,
+.gantt_task_scale {
+  @apply bg-indigo-50;
+  .gantt_grid_head_cell,
+  .gantt_scale_cell {
+    @apply text-neutral-700 font-semibold;
+  }
+}
+
+.gantt_task_row,
+.gantt_grid_data .gantt_row {
+  @apply bg-white;
+  &.odd {
+    @apply bg-white;
+  }
+}
+
+// Row class follows the dhx-internal "gantt_row" + our custom class added via `task_class` template.
+.ax-gantt-row {
+  &__on-track .gantt_task_content,
+  &__on-track {
+    background: #1677ff !important;
+  }
+  &__at-risk .gantt_task_content,
+  &__at-risk {
+    background: #faad14 !important;
+  }
+  &__slipped .gantt_task_content,
+  &__slipped {
+    background: #f5222d !important;
+  }
+  &__hot-lot .gantt_task_content,
+  &__hot-lot {
+    background: #722ed1 !important;
+  }
+
+  // Visual differentiation by row kind (height / opacity).
+  &__po .gantt_task_line {
+    opacity: 0.9;
+  }
+  &__family .gantt_task_line {
+    opacity: 1;
+  }
+  &__batch .gantt_task_line {
+    opacity: 1;
+  }
+}
+
+// Grid-cell label chips
+.ax-gantt-po-text {
+  @apply font-bold text-xs;
+}
+.ax-gantt-family-text {
+  @apply font-semibold text-xs;
+}
+.ax-gantt-batch-text {
+  @apply font-normal text-xs;
+}
+.ax-gantt-milestone-text {
+  @apply font-medium text-xs text-neutral-700;
+}
+.ax-gantt-muted {
+  @apply text-xs text-neutral-500 ml-1;
+}
+.ax-gantt-chip {
+  @apply inline-block px-1.5 py-0 ml-1 rounded text-[10px] font-semibold;
+  &__hot {
+    @apply bg-purple-100 text-purple-700;
+  }
+  &__pri-p1 {
+    @apply bg-red-100 text-red-700;
+  }
+  &__pri-p2 {
+    @apply bg-orange-100 text-orange-700;
+  }
+  &__pri-p3 {
+    @apply bg-blue-100 text-blue-700;
+  }
+  &__pri-p-npi {
+    @apply bg-cyan-100 text-cyan-700;
+  }
+}
+
+// Today marker (vertical line + label drop)
+.gantt_marker.ax-gantt-today-marker {
+  background: #f5222d;
+  .gantt_marker_content {
+    background: #f5222d;
+    color: #fff;
+    font-size: 10px;
+    padding: 0 4px;
+    border-radius: 2px;
   }
 }

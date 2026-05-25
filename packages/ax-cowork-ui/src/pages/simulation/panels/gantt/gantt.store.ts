@@ -6,8 +6,37 @@ import {
   HORIZON_TODAY,
   MOCK_PRODUCTION_ORDERS,
   WORKLOAD_STRIP,
+  type LotStatus,
   type ProductionOrder,
 } from '../../data/mock-plan'
+import { STATUS_COLOR } from './gantt-styles'
+
+export type GanttTaskRow = {
+  id: string
+  text: string
+  start_date: string
+  end_date?: string
+  duration?: number
+  parent?: string
+  type?: 'project' | 'task' | 'milestone'
+  open?: boolean
+  color?: string
+  progress?: number
+  // custom metadata for column / bar templates
+  rowKind: 'po' | 'family' | 'batch' | 'milestone'
+  customerShort?: string
+  techCode?: string
+  priority?: string
+  hot?: boolean
+  waferCount?: number
+  note?: string
+  shipmentWafers?: number
+  slipDays?: number
+  cause?: string
+  status?: LotStatus
+}
+
+const statusColor = (status?: LotStatus) => (status ? STATUS_COLOR[status] : undefined)
 
 export type GanttHorizon = 'day' | 'week' | 'month'
 
@@ -92,6 +121,76 @@ export class GanttStore {
     const os = new Set(this.orderFilters)
     const fs = new Set(this.familyFilters)
     return this.orders.filter((o) => cs.has(o.customer) && os.has(o.id) && fs.has(o.family))
+  }
+
+  // Flat dhx tasks array (PO → Family → Batch → Milestone) for the @dhx/react-gantt component.
+  get dhxTasks(): GanttTaskRow[] {
+    const out: GanttTaskRow[] = []
+    for (const order of this.filteredOrders) {
+      out.push({
+        id: order.id,
+        text: `${order.id} · ${order.customerShort}`,
+        start_date: order.waferStart,
+        end_date: order.end,
+        type: 'project',
+        open: this.expandedOrderIds.has(order.id),
+        rowKind: 'po',
+        customerShort: order.customerShort,
+        priority: order.priority,
+        hot: order.hotLot,
+        status: order.status,
+        color: statusColor(order.status),
+      })
+      for (const family of order.schedule) {
+        out.push({
+          id: family.id,
+          text: family.label,
+          start_date: family.start,
+          end_date: family.end,
+          type: 'project',
+          parent: order.id,
+          open: this.expandedFamilyIds.has(family.id),
+          rowKind: 'family',
+          techCode: family.tech,
+          priority: family.priority,
+          hot: family.hotLot,
+          status: family.status,
+          color: statusColor(family.status),
+        })
+        for (const batch of family.batches) {
+          out.push({
+            id: `${family.id}::${batch.id}`,
+            text: batch.name,
+            start_date: batch.start,
+            end_date: batch.end,
+            duration: batch.durationDays,
+            type: 'task',
+            parent: family.id,
+            rowKind: 'batch',
+            waferCount: batch.waferCount,
+            note: batch.note,
+            status: batch.status,
+            color: statusColor(batch.status),
+          })
+        }
+      }
+      for (const m of order.milestones) {
+        out.push({
+          id: `${order.id}::${m.id}`,
+          text: `${m.label} · ${m.shipmentWafers.toLocaleString()} wafers out`,
+          start_date: m.date,
+          duration: 0,
+          type: 'milestone',
+          parent: m.familyId ?? order.id,
+          rowKind: 'milestone',
+          shipmentWafers: m.shipmentWafers,
+          slipDays: m.slipDays,
+          cause: m.cause,
+          status: m.status,
+        })
+      }
+    }
+    return out
   }
 
   isExpanded(id: string) {
