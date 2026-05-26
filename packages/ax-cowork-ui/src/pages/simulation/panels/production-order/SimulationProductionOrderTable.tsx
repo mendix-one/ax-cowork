@@ -1,16 +1,12 @@
 import { useMemo } from 'react'
-import { Progress, Tooltip } from 'antd'
+import { Empty, Progress, Tooltip } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { AxControlTable, type ControlTableColumn } from '@ax-cowork/control-table'
 import { useSimulationContext } from '../../store/simulation.context'
 import type { ProductionOrder, ScheduleMilestone } from '../../data/mock-plan'
-import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 import type { FlatRow } from './production-order.store'
 import { MilestoneChips, PriorityChip, StatusChip } from './production-order-chips'
 
-const INDENT_PX = 18
-
-// Build a per-row lookup of related milestones (PO milestones; family rows inherit by familyId; batch rows have none).
 const milestonesFor = (orders: ProductionOrder[], row: FlatRow): ScheduleMilestone[] => {
   if (row.kind === 'batch') return []
   const po = orders.find((o) => o.id === row.poId)
@@ -24,32 +20,18 @@ export const SimulationProductionOrderTable = observer(() => {
 
   const data = po.flatRows
 
-  const columns = useMemo<ControlTableColumn<FlatRow>[]>(() => {
-    return [
+  const columns = useMemo<ControlTableColumn<FlatRow>[]>(
+    () => [
       {
         key: 'label',
         title: 'Production Order / Family / Batch',
         width: 320,
         sortable: false,
+        sticky: 'left',
         accessor: (r) => r.label,
         render: (_v, row) => (
-          <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6, paddingLeft: row.depth * INDENT_PX, width: '100%' }}>
-            {row.hasChildren ? (
-              <button
-                type="button"
-                className="ax-po_tree_chevron"
-                onClick={(e) => {
-                  e.stopPropagation()
-                  if (row.kind === 'po') po.toggleOrderExpanded(row.poId)
-                  else if (row.kind === 'family' && row.familyId) po.toggleFamilyExpanded(row.familyId)
-                }}
-              >
-                <AxMuiIcon icon={row.expanded ? 'mdiChevronDown' : 'mdiChevronRight'} size={14} />
-              </button>
-            ) : (
-              <span className="ax-po_tree_chevron ax-po_tree_chevron__spacer" />
-            )}
-            <span className={`ax-po_label ax-po_label__${row.kind}`}>{row.label}</span>
+          <span className={`ax-po_label ax-po_label__${row.kind}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            {row.label}
             {row.kind === 'po' && row.hotLot && (
               <Tooltip title="Hot lot">
                 <span className="ax-po_hotlot">★ HOT</span>
@@ -61,7 +43,7 @@ export const SimulationProductionOrderTable = observer(() => {
       {
         key: 'customer',
         title: 'Customer',
-        width: 120,
+        width: 110,
         accessor: (r) => r.customerShort ?? '',
         render: (_v, row) => {
           if (row.kind !== 'po') return null
@@ -77,7 +59,7 @@ export const SimulationProductionOrderTable = observer(() => {
       {
         key: 'priority',
         title: 'Priority',
-        width: 100,
+        width: 90,
         accessor: (r) => r.priority ?? '',
         render: (_v, row) => <PriorityChip priority={row.priority} />,
       },
@@ -85,14 +67,14 @@ export const SimulationProductionOrderTable = observer(() => {
         key: 'commitment',
         title: 'Commitment',
         kind: 'number',
-        width: 130,
+        width: 120,
         accessor: (r) => r.commitment,
         render: (v) => (typeof v === 'number' ? v.toLocaleString() : String(v)),
       },
       {
         key: 'status',
         title: 'Status',
-        width: 120,
+        width: 110,
         accessor: (r) => r.status ?? '',
         render: (_v, row) => (row.kind === 'po' ? <StatusChip status={row.status} /> : null),
       },
@@ -111,13 +93,13 @@ export const SimulationProductionOrderTable = observer(() => {
       {
         key: 'startDate',
         title: 'Start Date',
-        width: 120,
+        width: 110,
         accessor: (r) => r.startDate,
       },
       {
         key: 'endDate',
         title: 'End Date',
-        width: 120,
+        width: 110,
         accessor: (r) => r.endDate,
       },
       {
@@ -131,8 +113,9 @@ export const SimulationProductionOrderTable = observer(() => {
           return <MilestoneChips milestones={milestones} poId={row.poId} />
         },
       },
-    ]
-  }, [po])
+    ],
+    [po],
+  )
 
   const selectedKey = po.selectedRowKey
   const selectedKeys = selectedKey ? [selectedKey] : []
@@ -143,12 +126,24 @@ export const SimulationProductionOrderTable = observer(() => {
         data={data}
         columns={columns}
         rowKey={(r) => r.key}
+        size="small"
+        selectionMode="single"
         selectedKeys={selectedKeys}
         onSelectionChange={(keys) => {
-          // Only one row "selected" at a time for the info panel — use the last toggled key.
           const next = keys[keys.length - 1]
           if (next) po.selectRow(String(next))
         }}
+        onRowClick={(row) => po.selectRow(row.key)}
+        tree={{
+          depth: (r) => r.depth,
+          hasChildren: (r) => !!r.hasChildren,
+          isExpanded: (r) => !!r.expanded,
+          onToggle: (r) => {
+            if (r.kind === 'po') po.toggleOrderExpanded(r.poId)
+            else if (r.kind === 'family' && r.familyId) po.toggleFamilyExpanded(r.familyId)
+          },
+        }}
+        empty={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No production orders match the current filters" />}
         showColumnFilter={false}
         showColumnToggle={false}
         showRowNumber={false}

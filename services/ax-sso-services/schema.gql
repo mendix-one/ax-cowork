@@ -33,7 +33,9 @@ input CreateAccountInput {
   password: String!
   phone: String
 
-  """Defaults to ACTIVE."""
+  """
+  Defaults to ACTIVE.
+  """
   status: AccountStatus
   username: String!
 }
@@ -44,7 +46,9 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Mutation {
-  """Creates a new account. Bcrypt-hashes the password server-side."""
+  """
+  Creates a new account. Bcrypt-hashes the password server-side.
+  """
   createAccount(input: CreateAccountInput!): Account!
 
   """
@@ -52,15 +56,21 @@ type Mutation {
   """
   killSession(uuid: ID!): Boolean!
 
-  """Updates an existing account. Throws when the uuid does not exist."""
+  """
+  Updates an existing account. Throws when the uuid does not exist.
+  """
   updateAccount(input: UpdateAccountInput!, uuid: ID!): Account!
 
-  """Updates the caller's own account record."""
+  """
+  Updates the caller's own account record.
+  """
   updateProfile(input: UpdateProfileInput!): Account!
 }
 
 type Profile {
-  """The caller account record."""
+  """
+  The caller account record.
+  """
   account: Account!
 
   """
@@ -68,48 +78,72 @@ type Profile {
   """
   appRoles: [ProfileAppRoles!]!
 
-  """Active (non-expired) sessions belonging to the caller, newest first."""
+  """
+  Active (non-expired) sessions belonging to the caller, newest first.
+  """
   sessions: [ProfileSession!]!
 }
 
 type ProfileAppInfo {
-  """Public URL of the app avatar/icon."""
+  """
+  Public URL of the app avatar/icon.
+  """
   avatar: String
 
-  """Free-form description of the app."""
+  """
+  Free-form description of the app.
+  """
   description: String
 
-  """App key (matches `App.key`)."""
+  """
+  App key (matches `App.key`).
+  """
   key: String!
 
-  """Human-friendly app name."""
+  """
+  Human-friendly app name.
+  """
   name: String!
 
-  """Stable UUIDv7 of the app."""
+  """
+  Stable UUIDv7 of the app.
+  """
   uuid: ID!
 }
 
 type ProfileAppRoles {
-  """App snapshot the roles below belong to."""
+  """
+  App snapshot the roles below belong to.
+  """
   app: ProfileAppInfo!
 
-  """Roles granted to the caller within this app."""
+  """
+  Roles granted to the caller within this app.
+  """
   roles: [ProfileRole!]!
 }
 
 type ProfileRole {
-  """Free-form description of what this role grants."""
+  """
+  Free-form description of what this role grants.
+  """
   description: String
 
-  """AppRole key — stable identifier within the owning app."""
+  """
+  AppRole key — stable identifier within the owning app.
+  """
   key: String!
 
-  """Human-friendly role name."""
+  """
+  Human-friendly role name.
+  """
   name: String!
 }
 
 type ProfileSession {
-  """App key (matches `App.key`) the session was created against."""
+  """
+  App key (matches `App.key`) the session was created against.
+  """
   app: ProfileSessionApp!
 
   """
@@ -117,29 +151,43 @@ type ProfileSession {
   """
   expiresAt: DateTime!
 
-  """Stable UUIDv7 of the session."""
+  """
+  Stable UUIDv7 of the session.
+  """
   uuid: ID!
 }
 
 type ProfileSessionApp {
-  """Public URL of the app avatar/icon."""
+  """
+  Public URL of the app avatar/icon.
+  """
   avatar: String
 
-  """Free-form description of the app."""
+  """
+  Free-form description of the app.
+  """
   description: String
 
-  """App key (matches `App.key`) the session was created against."""
+  """
+  App key (matches `App.key`) the session was created against.
+  """
   key: String
 
-  """Human-friendly app name copied from the session snapshot."""
+  """
+  Human-friendly app name copied from the session snapshot.
+  """
   name: String
 
-  """Stable UUIDv7 of the session."""
+  """
+  Stable UUIDv7 of the session.
+  """
   uuid: ID!
 }
 
 type Query {
-  """Returns the account record by uuid, or null if missing."""
+  """
+  Returns the account record by uuid, or null if missing.
+  """
   getDetail(uuid: ID!): Account
 
   """
@@ -147,7 +195,9 @@ type Query {
   """
   getList(limit: Int = 50, skip: Int = 0, status: AccountStatus): [Account!]!
 
-  """Returns the caller's account record + active sessions."""
+  """
+  Returns the caller's account record + active sessions.
+  """
   getProfile: Profile!
 }
 

@@ -41,7 +41,7 @@ export class SourceFilesController {
   @ApiCreatedResponse({ description: 'The uploaded file metadata. Same response shape for a deduped upload (existing record returned).' })
   upload(
     @UploadedFile(new ParseFilePipeBuilder().addMaxSizeValidator({ maxSize: MAX_FILE_BYTES }).build({ errorHttpStatusCode: HttpStatus.PAYLOAD_TOO_LARGE }))
-      file: Express.Multer.File,
+    file: Express.Multer.File,
     @CurrentPrincipal() principal: Principal,
   ): Promise<SourceFileSummary> {
     return this.files.upload({

@@ -20,11 +20,27 @@
   // ---- table wrapper ------------------------------------------------------------------------------------------------
   &_table {
     @apply flex-1 min-h-0 relative;
-  }
 
-  // Header grey to match the design spec — indigo-50 tint.
-  &_table .ax-ct-header {
-    @apply bg-indigo-50 #{!important};
+    // Header grey to match the design spec — indigo-50 tint.
+    .ax-ct-header,
+    .ax-ct-header > div {
+      @apply bg-indigo-50 #{!important};
+    }
+
+    // Hoverable rows; selected rows already get a tint from the lib.
+    .ax-ct-row {
+      &:hover .ax-ct-cell {
+        background: #f5f3ff !important; // violet-50
+      }
+      &.ax-ct-row__selected .ax-ct-cell {
+        background: #e0e7ff !important; // indigo-100
+      }
+    }
+
+    // Theme the tree chevron.
+    .ax-ct-tree-chevron:hover {
+      color: #1677ff;
+    }
   }
 
   // ---- filter side panel --------------------------------------------------------------------------------------------
@@ -84,24 +100,7 @@
     }
   }
 
-  // ---- tree column rendering ----------------------------------------------------------------------------------------
-  &_tree_chevron {
-    @apply inline-flex items-center justify-center;
-    @apply w-4 h-4 p-0 m-0 border-0 bg-transparent cursor-pointer;
-    color: #595959;
-
-    &:hover {
-      color: #1677ff;
-    }
-
-    &__spacer {
-      cursor: default;
-      &:hover {
-        color: inherit;
-      }
-    }
-  }
-
+  // ---- label / row chips ---------------------------------------------------------------------------------------------
   &_label {
     @apply truncate;
 
