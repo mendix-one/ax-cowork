@@ -3,6 +3,9 @@
 
 export type LotStatus = 'on-track' | 'at-risk' | 'slipped' | 'hot-lot'
 
+// Production order lifecycle status — shown in the PO table chip column.
+export type PoStatus = 'READY' | 'RUNNING' | 'COMPLETED' | 'CANCELLED' | 'ON HOLD'
+
 // Update 3 — schedule classification. Drives bar colour on the gantt.
 //   • fixed   — old schedule, applied and running now
 //   • changes — old schedule but modified in this session
@@ -63,6 +66,8 @@ export type ProductionOrder = {
   customerShort: string
   family: string
   qty: number
+  // Wafers already produced against the commitment (qty). Drives the progress % column.
+  outWafers: number
   priority: 'P1' | 'P2' | 'P3' | 'P-NPI'
   hotLot?: boolean
   npi?: boolean
@@ -74,6 +79,7 @@ export type ProductionOrder = {
   end: string
   lotSize: number
   status: LotStatus
+  poStatus: PoStatus
   scheduleClass: ScheduleClass
   schedule: ScheduleFamily[]
   milestones: ScheduleMilestone[]
@@ -121,6 +127,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     customerShort: 'Cust A',
     family: 'V9-QLC-A',
     qty: 12000,
+    outWafers: 7800,
     priority: 'P1',
     hotLot: true,
     m1Date: '2026-05-12',
@@ -130,6 +137,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     end: '2026-05-12',
     lotSize: 25,
     status: 'on-track',
+    poStatus: 'RUNNING',
     scheduleClass: 'fixed',
     schedule: [
       {
@@ -170,6 +178,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     customerShort: 'Cust B',
     family: 'V9-TLC-B',
     qty: 8000,
+    outWafers: 3600,
     priority: 'P2',
     m1Date: '2026-05-12',
     m1Slip: 2,
@@ -179,6 +188,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     end: '2026-05-12',
     lotSize: 25,
     status: 'at-risk',
+    poStatus: 'RUNNING',
     scheduleClass: 'changes',
     schedule: [
       {
@@ -219,6 +229,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     customerShort: 'Cust C',
     family: 'V9-QLC-A',
     qty: 15000,
+    outWafers: 4200,
     priority: 'P3',
     m1Date: '2026-05-11',
     m1Slip: 4,
@@ -228,6 +239,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     end: '2026-05-12',
     lotSize: 25,
     status: 'slipped',
+    poStatus: 'ON HOLD',
     scheduleClass: 'changes',
     schedule: [
       {
@@ -268,6 +280,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     customerShort: 'Cust D',
     family: 'V9-TLC-C',
     qty: 5000,
+    outWafers: 0,
     priority: 'P3',
     m1Date: '2026-05-12',
     m1Status: 'on-track',
@@ -276,6 +289,7 @@ export const MOCK_PRODUCTION_ORDERS: ProductionOrder[] = [
     end: '2026-05-12',
     lotSize: 25,
     status: 'on-track',
+    poStatus: 'READY',
     scheduleClass: 'new',
     schedule: [
       {

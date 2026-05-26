@@ -1,0 +1,123 @@
+// === SIMULATION PRODUCTION ORDER ====================================================================================
+// Style module for the Production Orders panel inside the Simulation page.
+// Chrome (toolbar, filter sidebar, info panel) + a few overrides for the AxControlTable wrapper.
+
+.ax-po {
+  @apply w-full h-full flex flex-col bg-white;
+
+  &_toolbar {
+    // Toolbar lives inside AxDisplayPanel's tools slot — reserved hook for tweaks.
+  }
+
+  &_body {
+    @apply flex-1 min-h-0 flex overflow-hidden;
+
+    &_content {
+      @apply flex-1 min-w-0 flex flex-col overflow-hidden;
+    }
+  }
+
+  // ---- table wrapper ------------------------------------------------------------------------------------------------
+  &_table {
+    @apply flex-1 min-h-0 relative;
+  }
+
+  // Header grey to match the design spec — indigo-50 tint.
+  &_table .ax-ct-header {
+    @apply bg-indigo-50 #{!important};
+  }
+
+  // ---- filter side panel --------------------------------------------------------------------------------------------
+  &_side {
+    @apply w-1/4 max-w-64;
+    @apply flex flex-col bg-white;
+    @apply border-r border-gray-300;
+
+    &_header {
+      @apply w-full h-8 px-2;
+      @apply flex-none flex items-center justify-between;
+      @apply font-semibold text-neutral-900;
+      @apply bg-indigo-50 border-b border-gray-300;
+    }
+
+    &_body {
+      @apply flex-1 min-h-0 overflow-auto py-2;
+    }
+
+    &_footer {
+      @apply w-full h-9 px-2;
+      @apply flex-none flex items-center justify-end gap-2;
+      @apply border-t border-gray-300;
+    }
+  }
+
+  &_filter {
+    &_group {
+      @apply px-2 py-1.5;
+
+      &_title {
+        @apply block font-semibold capitalize text-neutral-900;
+        margin-bottom: 6px;
+      }
+    }
+  }
+
+  // ---- info panel ---------------------------------------------------------------------------------------------------
+  &_info {
+    @apply h-72 min-h-72;
+    @apply flex-none flex flex-col bg-white;
+    @apply border-t border-gray-300;
+
+    &_header {
+      @apply w-full h-8 px-2;
+      @apply flex-none flex items-center justify-between;
+      @apply font-semibold text-neutral-900;
+      @apply bg-indigo-50 border-b border-gray-300;
+    }
+
+    &_body {
+      @apply flex-1 min-h-0 overflow-auto p-2;
+    }
+
+    &_card {
+      @apply w-full;
+    }
+  }
+
+  // ---- tree column rendering ----------------------------------------------------------------------------------------
+  &_tree_chevron {
+    @apply inline-flex items-center justify-center;
+    @apply w-4 h-4 p-0 m-0 border-0 bg-transparent cursor-pointer;
+    color: #595959;
+
+    &:hover {
+      color: #1677ff;
+    }
+
+    &__spacer {
+      cursor: default;
+      &:hover {
+        color: inherit;
+      }
+    }
+  }
+
+  &_label {
+    @apply truncate;
+
+    &__po {
+      @apply font-semibold text-neutral-900;
+    }
+    &__family {
+      @apply font-medium text-neutral-800;
+    }
+    &__batch {
+      @apply text-neutral-700;
+    }
+  }
+
+  &_hotlot {
+    @apply inline-block px-1 py-0 ml-1 rounded text-xs font-semibold;
+    @apply bg-purple-100 text-purple-700;
+  }
+}

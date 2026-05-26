@@ -1,0 +1,78 @@
+Dynamic Schedule Production Order:
+packages/ax-cowork-ui/src/pages/simulation/panels/production-order
+==================== Update 1: Update layout ===========================================================================
+#1: Panel Header
+  - Title:
+    - Icon:
+    - Text: Production Orders
+  - Toolbar:
+    - Left:
+      - Group 1: Date range picker:
+        - Start date:
+        - End date:
+      - Group 2: Status select
+        - All
+        - New
+        - Running (Has changes)
+        - Running (No changes)
+      - Group 3: Collapse/Expand
+        - Collapse
+        - Expand
+      - Group 4:
+        - Toggle filter sidebar:
+        - Toggle Info Panel:
+    - Right:
+      - Undo
+      - Redo
+      - Reset
+      - Save
+  - Maximize toggler on the right
+# Panel Body:
+  - Filter Sidebar (on the left - hidden by default)
+    - Customers Filter
+    - Productions Order Filter
+    - Product Family Filter
+  - Product Order - Use Control Table (ax-control-table)  (Show on the main body)
+    - Header:
+      - Production Order/ Production Family / Manufacturing Batch (3 Levels)
+      - Customer
+      - Priority
+      - Commitment (total wafers)
+      - Status
+      - Progess
+      - Start Date
+      - End Date
+      - Milestones: related milestones
+    - Content:
+      - Production Order/ Production Family / Manufacturing Batch (3 Levels)
+        - Display as 3 level tree
+        - Closeable/Exapndable by level
+      - Customer
+        - Display customer code with tooltip is customer nam
+      - Priority
+        - P1/P2/P3/P4/P5 Display as chip with color
+      - Commitment (total wafers)
+        - Total wafers count (number)
+      - Status
+        - READY/RUNNING/COMPLETED/CANCELLED/ON HOLD
+      - Progess
+        - Percentage of completed (out vs commitment)
+      - Start Date
+        - Date foramt YYYY-MM-DD
+      - End Date
+        - Date foramt YYYY-MM-DD
+      - Milestones: related milestones
+        - Multiple milestones tag with tooltip is milestone information
+  - Info Panel (on the bottom - hidden by default)
+# Style node:
+- Filter style:
+  - Fix Header with title on the left and close button on the right
+  - Body is filtering box without background (scrollable)
+  - Fix bottom with reset button and clear button
+- Info Panel style:
+  - Fix Header with title on the left and close button on the right
+  - Body is info boxes without background (scrollable)
+  - Dispaly the info of selected row (Production Order/ Production Family / Manufacturing Batch)
+
+Color:
+- Header background grey: oklch(96.2% 0.018 272.314) - Tailwind CSS: indigo 50
