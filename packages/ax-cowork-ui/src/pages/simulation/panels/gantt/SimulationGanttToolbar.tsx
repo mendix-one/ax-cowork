@@ -33,6 +33,15 @@ export const SimulationGanttToolbar = observer(() => {
         />
         <Divider vertical style={{ margin: 0 }} />
         <Space size={2}>
+          <Tooltip title="Collapse all">
+            <Button size="small" icon={<AxMuiIcon icon="mdiUnfoldLessHorizontal" size={14} />} onClick={() => gantt.collapseAll()} />
+          </Tooltip>
+          <Tooltip title="Expand all">
+            <Button size="small" icon={<AxMuiIcon icon="mdiUnfoldMoreHorizontal" size={14} />} onClick={() => gantt.expandAll()} />
+          </Tooltip>
+        </Space>
+        <Divider vertical style={{ margin: 0 }} />
+        <Space size={2}>
           <Tooltip title={gantt.filterSidebarOpen ? 'Hide filter sidebar' : 'Show filter sidebar'}>
             <Button
               size="small"
@@ -48,15 +57,6 @@ export const SimulationGanttToolbar = observer(() => {
               icon={<AxMuiIcon icon="mdiChartTimelineVariant" size={14} />}
               onClick={() => gantt.toggleQuickAnalysis()}
             />
-          </Tooltip>
-        </Space>
-        <Divider vertical style={{ margin: 0 }} />
-        <Space size={2}>
-          <Tooltip title="Collapse all">
-            <Button size="small" icon={<AxMuiIcon icon="mdiUnfoldLessHorizontal" size={14} />} onClick={() => gantt.collapseAll()} />
-          </Tooltip>
-          <Tooltip title="Expand all">
-            <Button size="small" icon={<AxMuiIcon icon="mdiUnfoldMoreHorizontal" size={14} />} onClick={() => gantt.expandAll()} />
           </Tooltip>
         </Space>
       </Space>
