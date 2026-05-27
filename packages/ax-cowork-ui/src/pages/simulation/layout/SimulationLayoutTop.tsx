@@ -66,17 +66,6 @@ export const SimulationLayoutTop = observer(() => {
             <Tag color="purple" className="ax-top_chip">
               DRAFT
             </Tag>
-            {/* Horizon chip — the working time window in human form. Same instant feedback as the date pickers
-                inside the Gantt toolbar, but visible from every panel so the planner never forgets the scope. */}
-            <Tooltip title={`Planning horizon: ${horizonStart} → ${horizonEnd}`}>
-              <Tag bordered className="ax-top_chip ax-top_chip__horizon">
-                <AxMuiIcon icon="mdiCalendarRange" size={12} />
-                <span>
-                  {formatShortDate(horizonStart)} → {formatShortDate(horizonEnd)}
-                </span>
-                <span className="ax-top_chip_muted">· {formatHorizon(horizonStart, horizonEnd)}</span>
-              </Tag>
-            </Tooltip>
             {edits > 0 && (
               <Tooltip title={`${edits} unsaved edit${edits === 1 ? '' : 's'} — open Save menu on the Gantt to commit`}>
                 <Tag bordered color="warning" icon={<AxMuiIcon icon="mdiCircleMedium" size={11} />} className="ax-top_chip ax-top_chip__unsaved">

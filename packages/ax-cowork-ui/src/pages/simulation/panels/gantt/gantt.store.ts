@@ -101,11 +101,11 @@ const ALL_TREE_KEYS = collectAllKeys(MOCK_PRODUCTION_ORDERS)
 
 export class GanttStore {
   horizon: GanttHorizon = 'week'
-  startDate = '2026-04-29'
-  endDate = '2026-05-12'
+  startDate = '2026-04-01'
+  endDate = '2027-12-31'
 
-  filterSidebarOpen = false
-  quickAnalysisOpen = false
+  filterSidebarOpen = true
+  quickAnalysisOpen = true
   // Risks strip — collapsed by default so the chart owns the most vertical space; the planner expands to see
   // the prioritized list of constraints + overloaded tool groups that affect the current horizon.
   risksStripOpen = true
@@ -432,10 +432,7 @@ export class GanttStore {
     // Cascade — recompute family span from its batches and PO span from its families.
     family.start = family.batches.reduce((a, b) => (b.start < a ? b.start : a), family.batches[0].start)
     family.end = family.batches.reduce((a, b) => (b.end > a ? b.end : a), family.batches[0].end)
-    family.durationDays = Math.max(
-      1,
-      Math.round((new Date(family.end).getTime() - new Date(family.start).getTime()) / (24 * 60 * 60 * 1000)),
-    )
+    family.durationDays = Math.max(1, Math.round((new Date(family.end).getTime() - new Date(family.start).getTime()) / (24 * 60 * 60 * 1000)))
     if (family.scheduleClass !== 'new') family.scheduleClass = 'changes'
 
     order.waferStart = order.schedule.reduce((a, f) => (f.start < a ? f.start : a), order.schedule[0].start)

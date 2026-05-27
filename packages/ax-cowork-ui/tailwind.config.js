@@ -31,19 +31,19 @@ export default {
         'ax-pri-npi-solid': '#13c2c2',
 
         // Schedule lineage (mirrors axSchedule).
-        'ax-sched-fixed': '#3f3d56',
-        'ax-sched-fixed-edge': '#1f1d36',
-        'ax-sched-changes': '#3f51b5',
-        'ax-sched-changes-edge': '#283593',
-        'ax-sched-new': '#26a69a',
-        'ax-sched-new-edge': '#00796b',
+        'ax-sched-fixed': '#4527A0',
+        'ax-sched-fixed-edge': '#311B92',
+        'ax-sched-changes': '#1565C0',
+        'ax-sched-changes-edge': '#0D47A1',
+        'ax-sched-new': '#00695C',
+        'ax-sched-new-edge': '#004D40',
         'ax-sched-ghost': '#cfd8dc',
 
         // Risk severity (mirrors axRisk).
-        'ax-risk-ok': '#52c41a',
-        'ax-risk-info': '#1677ff',
-        'ax-risk-warning': '#fa8c16',
-        'ax-risk-critical': '#f5222d',
+        'ax-risk-ok': '#4caf50',
+        'ax-risk-info': '#2196f3',
+        'ax-risk-warning': '#ff9800',
+        'ax-risk-critical': '#f44336',
         'ax-risk-warning-bg': '#fff7e6',
         'ax-risk-critical-bg': '#fff1f0',
 

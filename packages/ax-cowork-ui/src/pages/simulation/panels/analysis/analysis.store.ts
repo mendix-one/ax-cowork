@@ -8,7 +8,7 @@ export type HeatGranularity = 'day' | 'month' | 'quarter' | 'year'
 // adjustment tree in the sidebar instantly propagates into every chart.
 export class AnalysisStore {
   // Sidebar visibility — independent per view; the underlying adjustment state lives on GanttStore.
-  filterSidebarOpen = false
+  filterSidebarOpen = true
 
   // Toolbar date range — defaults are aligned with the master production planning horizon.
   // When the user brushes the shop-floor area chart we narrow only the *bar-chart* range

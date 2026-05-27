@@ -24,21 +24,34 @@
 
   // Filter sidebar wrapper — animates width + opacity so the chart shifts smoothly when toggled.
   // Uses the shell-wide motion tokens (see :root in _ax-shared.scss) for consistent feel.
+  // The wrap owns the definite width (animated via `width`, not `max-width`) so that the inner
+  // .ax-gantt_side's percentage width has a stable container to resolve against — otherwise
+  // `flex-none` + only `max-width` would let the wrap size to its content, collapsing the inner
+  // `w-1/4` down to ~25% of an indeterminate box (≈ 53px in practice).
   &_side_wrap {
     @apply flex-none flex flex-col overflow-hidden;
     transition:
-      max-width var(--ax-dur-deliberate) var(--ax-ease-standard),
+      width var(--ax-dur-deliberate) var(--ax-ease-standard),
       opacity var(--ax-dur-base) var(--ax-ease-standard) 40ms;
-    will-change: max-width, opacity;
+    will-change: width, opacity;
 
     &.is-collapsed {
-      max-width: 0;
+      width: 0;
       opacity: 0;
       pointer-events: none;
     }
     &.is-open {
-      max-width: 18rem; // matches the side panel's own w-1/4 max-w-64 envelope
+      width: 16rem; // matches the standalone .ax-gantt_side max-w-64 cap
       opacity: 1;
+    }
+
+    // Inside the wrap, the side panel fills both axes — overrides its standalone `w-1/4 max-w-64`
+    // sizing (which is still used by the analysis panel where the sidebar renders without a wrap).
+    // Vertical fill matters because the wrap is `flex-col`, so the inner side panel is on the main
+    // axis and `align-items: stretch` doesn't extend it — without `h-full` it sizes to content,
+    // leaving the footer floating above the bottom of the wrap.
+    > .ax-gantt_side {
+      @apply w-full max-w-full h-full;
     }
   }
 
@@ -217,6 +230,9 @@
   .gantt_tree_content {
     @apply flex items-center justify-start;
   }
+  .gantt_task_content {
+    @apply flex items-center justify-center;
+  }
 
   .gantt_task_scale .gantt_scale_cell {
     @apply border-r border-gray-300;
@@ -239,19 +255,19 @@
   &__fixed {
     @apply bg-ax-sched-fixed #{!important};
     border: 1px solid theme('colors.ax-sched-fixed-edge') !important;
-    color: #fff !important;
+    color: #ffffff !important;
   }
   &__changes .gantt_task_content,
   &__changes {
     @apply bg-ax-sched-changes #{!important};
     border: 1px solid theme('colors.ax-sched-changes-edge') !important;
-    color: #fff !important;
+    color: #ffffff !important;
   }
   &__new .gantt_task_content,
   &__new {
     @apply bg-ax-sched-new #{!important};
     border: 1px solid theme('colors.ax-sched-new-edge') !important;
-    color: #fff !important;
+    color: #ffffff !important;
   }
 
   // Visual differentiation by row kind. PO and family rows are thinner ribbons sitting above their batches;
@@ -528,9 +544,9 @@
 // Today marker — full-height accent line. Increased width + saturation so it's visible even when overlapping bars.
 // The label rides on top of the timeline scale so it never gets clipped by a bar.
 .gantt_marker.ax-gantt-today-marker {
-  background: theme('colors.ax-primary');
-  width: 3px;
-  opacity: 0.85;
+  background: theme('colors.ax-tertiary');
+  width: 2px;
+  opacity: 0.75;
   z-index: 2;
   cursor: pointer;
   box-shadow: 0 0 0 1px rgba(63, 81, 181, 0.18);
@@ -538,7 +554,7 @@
     opacity: 1;
   }
   .gantt_marker_content {
-    background: theme('colors.ax-primary');
+    background: theme('colors.ax-tertiary');
     color: #ffffff;
     font-size: 10px;
     font-weight: 700;
@@ -567,27 +583,27 @@
   }
 
   &__new {
-    background: #009688; // $ax-new-schedule
+    background: #00897b; // $ax-new-schedule
     .gantt_marker_content {
-      background: #009688;
+      background: #00897b;
     }
   }
   &__normal {
-    background: #2196f3; // $ax-normal
+    background: #0277bd; // $ax-normal
     .gantt_marker_content {
-      background: #2196f3;
+      background: #0277bd;
     }
   }
   &__late {
-    background: #ff9800; // $ax-highload
+    background: #ef6c00; // $ax-highload
     .gantt_marker_content {
-      background: #ff9800;
+      background: #ef6c00;
     }
   }
   &__cannot {
-    background: #f44336; // $ax-violation
+    background: #c62828; // $ax-violation
     .gantt_marker_content {
-      background: #f44336;
+      background: #c62828;
     }
   }
 }

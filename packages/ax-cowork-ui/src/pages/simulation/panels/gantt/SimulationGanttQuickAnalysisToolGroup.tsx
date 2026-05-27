@@ -7,8 +7,8 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // Threshold colors (Update 3 — aligned with $ax-* tokens).
 const SAFE_THRESHOLD = 0.8
-const COLOR_TOTAL = '#673AB7' // $ax-capacity — total tool-group capacity
-const COLOR_USED_SAFE = '#00838F' // $ax-normal    — usage under 80% of total
+const COLOR_TOTAL = '#37474F' // $ax-capacity — total tool-group capacity
+const COLOR_USED_SAFE = '#0277BD' // $ax-normal    — usage under 80% of total
 const COLOR_USED_WARN = '#EF6C00' // $ax-highload  — 80% ≤ usage ≤ total
 const COLOR_USED_DANGER = '#C62828' // $ax-violation — usage > total
 

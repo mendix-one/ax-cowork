@@ -4,7 +4,7 @@ import { SimulationGanttToolbar } from './SimulationGanttToolbar'
 import { SimulationGanttFilterSidebar } from './SimulationGanttFilterSidebar'
 import { SimulationGanttQuickAnalysis } from './SimulationGanttQuickAnalysis'
 import { SimulationGanttChart } from './SimulationGanttChart'
-import { SimulationGanttRisksStrip } from './SimulationGanttRisksStrip'
+// import { SimulationGanttRisksStrip } from './SimulationGanttRisksStrip'
 import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
 export const SimulationGanttPanel = observer((props: MainPanelControls) => {
@@ -26,7 +26,7 @@ export const SimulationGanttPanel = observer((props: MainPanelControls) => {
             <div className={`ax-gantt_analysis_wrap ${gantt.quickAnalysisOpen ? 'is-open' : 'is-collapsed'}`} aria-hidden={!gantt.quickAnalysisOpen}>
               <SimulationGanttQuickAnalysis />
             </div>
-            <SimulationGanttRisksStrip />
+            {/*<SimulationGanttRisksStrip />*/}
           </div>
         </div>
       </div>
