@@ -49,7 +49,16 @@ const initialStates: PanelStates = {
 // The key is versioned so adding/removing a panel ID later invalidates stale entries via the guard.
 const SHELL_STORAGE_KEY = 'ax.simulation.shell.v1'
 
-const MAIN_PANEL_IDS: readonly MainPanelId[] = ['gantt', 'analysis', 'productionOrder', 'productionProcess', 'shopFloor', 'processTuning', 'capacityTuning', 'dataIntegration']
+const MAIN_PANEL_IDS: readonly MainPanelId[] = [
+  'gantt',
+  'analysis',
+  'productionOrder',
+  'productionProcess',
+  'shopFloor',
+  'processTuning',
+  'capacityTuning',
+  'dataIntegration',
+]
 const SUB_PANEL_IDS: readonly SubPanelId[] = ['compare', 'aiChat', 'background', 'history', 'recommendations']
 const PANEL_REGION_IDS: readonly PanelId[] = ['regionLeft', 'regionRight']
 const PANEL_STATE_VALUES: readonly PanelState[] = ['normal', 'maximized', 'hidden']
@@ -58,9 +67,6 @@ type PersistedShellState = {
   activeMainPanel: MainPanelId
   activeSubPanel: SubPanelId
   panelStates: PanelStates
-  // Rail expansion is persisted alongside panel state — a senior planner who collapses for the Gantt
-  // doesn't want it to revert on every reload. Optional so older persisted blobs still hydrate cleanly.
-  leftRailExpanded?: boolean
 }
 
 const isPersistedShellState = (v: unknown): v is PersistedShellState => {
@@ -93,8 +99,6 @@ export class SimulationStore {
   panelStates: PanelStates = { ...initialStates }
   activeMainPanel: MainPanelId = 'gantt'
   activeSubPanel: SubPanelId = 'aiChat'
-  // Default to collapsed on first load — FHD planner sessions are pixel-tight; the user opts in to labels.
-  leftRailExpanded = false
 
   productionLines: ProductionLine[] = PRODUCTION_LINES
   simulationPlans: SimulationPlan[] = SIMULATION_PLANS
@@ -133,7 +137,6 @@ export class SimulationStore {
       this.activeMainPanel = persisted.activeMainPanel
       this.activeSubPanel = persisted.activeSubPanel
       this.panelStates = { ...persisted.panelStates }
-      if (typeof persisted.leftRailExpanded === 'boolean') this.leftRailExpanded = persisted.leftRailExpanded
     }
     makeAutoObservable(this)
   }
@@ -144,13 +147,7 @@ export class SimulationStore {
       activeMainPanel: this.activeMainPanel,
       activeSubPanel: this.activeSubPanel,
       panelStates: this.panelStates,
-      leftRailExpanded: this.leftRailExpanded,
     })
-  }
-
-  toggleLeftRail() {
-    this.leftRailExpanded = !this.leftRailExpanded
-    this.persistShell()
   }
 
   get activeProductionLine(): ProductionLine {

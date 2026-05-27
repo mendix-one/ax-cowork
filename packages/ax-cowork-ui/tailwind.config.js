@@ -30,13 +30,14 @@ export default {
         'ax-pri-npi-text': '#08979c',
         'ax-pri-npi-solid': '#13c2c2',
 
-        // Schedule lineage (mirrors axSchedule).
-        'ax-sched-fixed': '#4527A0',
-        'ax-sched-fixed-edge': '#311B92',
+        // Schedule lineage (mirrors axSchedule). Bars match $ax-{fixed,changes,new}-schedule in
+        // src/styles/_ax-variables.scss; edges are one Material step darker for outline contrast.
+        'ax-sched-fixed': '#3f51b5',
+        'ax-sched-fixed-edge': '#283593',
         'ax-sched-changes': '#1565C0',
         'ax-sched-changes-edge': '#0D47A1',
-        'ax-sched-new': '#00695C',
-        'ax-sched-new-edge': '#004D40',
+        'ax-sched-new': '#00897b',
+        'ax-sched-new-edge': '#00695c',
         'ax-sched-ghost': '#cfd8dc',
 
         // Risk severity (mirrors axRisk).

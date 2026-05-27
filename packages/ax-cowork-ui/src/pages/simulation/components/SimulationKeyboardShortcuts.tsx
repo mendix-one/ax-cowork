@@ -37,7 +37,6 @@ const BINDINGS: Binding[] = [
   { keys: 'g i', label: 'Go to Data Integration', section: 'Navigate' },
   { keys: 'g r', label: 'Toggle Recommendations', section: 'Navigate' },
   { keys: 'g h', label: 'Toggle History', section: 'Navigate' },
-  { keys: '[', label: 'Toggle navigation rail', section: 'Navigate' },
 ]
 
 const PANEL_KEYS: Record<string, MainPanelId> = {
@@ -103,13 +102,6 @@ export const SimulationKeyboardShortcuts = observer(() => {
         setCheatsheetOpen(false)
         return
       }
-      // "[" — toggle the navigation rail.
-      if (!mod && e.key === '[') {
-        e.preventDefault()
-        sim.toggleLeftRail()
-        return
-      }
-
       // g-leader navigation.
       if (!mod && !leader && e.key === 'g') {
         e.preventDefault()
@@ -144,7 +136,10 @@ export const SimulationKeyboardShortcuts = observer(() => {
     <Modal title="Keyboard shortcuts" open={cheatsheetOpen} onCancel={() => setCheatsheetOpen(false)} footer={null} width={520}>
       {(['Global', 'Navigate', 'Edit'] as const).map((section) => (
         <div key={section} style={{ marginBottom: 12 }}>
-          <Typography.Text type="secondary" style={{ display: 'block', textTransform: 'uppercase', fontSize: 11, fontWeight: 700, letterSpacing: 0.5, marginBottom: 4 }}>
+          <Typography.Text
+            type="secondary"
+            style={{ display: 'block', textTransform: 'uppercase', fontSize: 11, fontWeight: 700, letterSpacing: 0.5, marginBottom: 4 }}
+          >
             {section}
           </Typography.Text>
           <table className="ax-cheatsheet">
@@ -166,7 +161,11 @@ export const SimulationKeyboardShortcuts = observer(() => {
         </div>
       ))}
       <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-        Tip: Press the leader <Tag bordered style={{ marginInlineEnd: 0, fontFamily: 'monospace' }}>g</Tag> then one of the letters above within 1.5s — same pattern as Linear / GitHub.
+        Tip: Press the leader{' '}
+        <Tag bordered style={{ marginInlineEnd: 0, fontFamily: 'monospace' }}>
+          g
+        </Tag>{' '}
+        then one of the letters above within 1.5s — same pattern as Linear / GitHub.
       </Typography.Text>
     </Modal>
   )

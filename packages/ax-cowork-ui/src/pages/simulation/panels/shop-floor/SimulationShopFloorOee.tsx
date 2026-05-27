@@ -11,7 +11,7 @@ export const SimulationShopFloorOee = observer(() => {
   const group = store.selectedGroup
   if (!group) return null
   const oee = calcOee(group.name)
-  const oeeColor = oee.oee >= 0.85 ? '#52c41a' : oee.oee >= 0.7 ? '#ff9800' : '#f44336'
+  const oeeColor = oee.oee >= 0.85 ? '#4caf50' : oee.oee >= 0.7 ? '#ff9800' : '#f44336'
 
   return (
     <div className="ax-analysis_section">
@@ -29,17 +29,25 @@ export const SimulationShopFloorOee = observer(() => {
           <div className="ax-sf_oee_block">
             <div className="ax-sf_oee_label">Effective ceiling</div>
             <div className="ax-sf_oee_value">{oee.effective.toLocaleString()}</div>
-            <Typography.Text type="secondary" className="text-sm">wafer-moves/day</Typography.Text>
+            <Typography.Text type="secondary" className="text-sm">
+              wafer-moves/day
+            </Typography.Text>
           </div>
           <div className="ax-sf_oee_block">
             <div className="ax-sf_oee_label">Theoretical max</div>
             <div className="ax-sf_oee_value">{oee.theoretical.toLocaleString()}</div>
-            <Typography.Text type="secondary" className="text-sm">wafer-moves/day · 24/7 baseline</Typography.Text>
+            <Typography.Text type="secondary" className="text-sm">
+              wafer-moves/day · 24/7 baseline
+            </Typography.Text>
           </div>
           <div className="ax-sf_oee_block">
             <div className="ax-sf_oee_label">Headroom lost</div>
-            <div className="ax-sf_oee_value" style={{ color: oeeColor }}>{(oee.theoretical - oee.effective).toLocaleString()}</div>
-            <Typography.Text type="secondary" className="text-sm">to availability + drift</Typography.Text>
+            <div className="ax-sf_oee_value" style={{ color: oeeColor }}>
+              {(oee.theoretical - oee.effective).toLocaleString()}
+            </div>
+            <Typography.Text type="secondary" className="text-sm">
+              to availability + drift
+            </Typography.Text>
           </div>
         </div>
         <div className="ax-sf_oee_factors">

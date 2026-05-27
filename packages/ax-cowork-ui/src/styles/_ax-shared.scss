@@ -135,10 +135,12 @@ p {
     opacity: 1;
   }
 
-  // Divider — a thin draggable strip. Subtle by default, accents on hover; hides while collapsed.
+  // Divider — a thin draggable strip. Default colour matches the layout body/header/sider background
+  // (axColors.body / colorBgLayout = #bfbfbf = neutral.500) so the divider melts into the chrome when
+  // idle and only stands out on hover / drag.
   &_divider {
     position: relative;
-    background: theme('colors.neutral.300');
+    background: theme('colors.neutral.500');
     transition:
       background var(--ax-dur-quick) var(--ax-ease-standard),
       opacity var(--ax-dur-base) var(--ax-ease-standard);
@@ -154,7 +156,7 @@ p {
     }
 
     &:hover {
-      background: theme('colors.ax-primary');
+      background: theme('colors.neutral.500');
     }
   }
 
@@ -169,33 +171,18 @@ p {
       pointer-events: none; // prevent text-selection / accidental interactions in the panes during drag
     }
     .ax-split_divider {
-      background: theme('colors.ax-primary');
+      background: theme('colors.neutral.500');
     }
   }
 }
 
 // === SIMULATION NAVIGATION RAIL ======================================================================================
-// Two-mode left rail used by the Simulation page. Compact = icon-only (2.65rem); expanded = icon + label
-// with group captions (~10rem). Width animates smoothly so the planner perceives the toggle as connecting
-// the two states. State is persisted in simulation.store.
+// Fixed-width (2.65rem) icon-only left rail. Tooltip-on-hover labels each panel; dividers separate
+// Plan / Tuning / System groups.
 .ax-rail {
-  transition:
-    flex var(--ax-dur-base) var(--ax-ease-standard),
-    max-width var(--ax-dur-base) var(--ax-ease-standard),
-    min-width var(--ax-dur-base) var(--ax-ease-standard),
-    width var(--ax-dur-base) var(--ax-ease-standard) !important;
-
   &_inner {
-    @apply w-full h-full flex flex-col justify-between;
+    @apply w-full h-full flex flex-col;
     @apply py-1;
-  }
-
-  // Compact-mode tweak: tighter padding + center alignment to match the previous icon-only layout exactly.
-  &.is-compact .ax-rail_group_items {
-    @apply px-1 items-center gap-2;
-  }
-  &.is-expanded .ax-rail_group_items {
-    @apply px-1 gap-0.5;
   }
 
   &_groups {
@@ -205,76 +192,12 @@ p {
   &_group {
     @apply flex flex-col;
 
-    &_caption {
-      @apply px-2 pt-2 pb-1;
-      @apply text-xs font-semibold uppercase tracking-wider text-neutral-600;
-    }
-
     &_divider {
       @apply h-px bg-gray-400 my-2 mx-1;
     }
 
     &_items {
-      @apply flex flex-col;
-    }
-  }
-
-  // Expanded-mode row — icon left, label right, accent bar on the far left when active.
-  &_row {
-    @apply relative w-full;
-    @apply flex items-center gap-2 px-2 py-1.5 rounded-md;
-    @apply bg-transparent border-none cursor-pointer text-neutral-800;
-    @apply transition-colors duration-150 ease-in-out;
-    text-align: left;
-
-    &:hover {
-      @apply bg-neutral-300;
-    }
-    &.is-active {
-      @apply bg-ax-primary text-white;
-    }
-
-    &_accent {
-      position: absolute;
-      left: 0;
-      top: 4px;
-      bottom: 4px;
-      width: 3px;
-      border-radius: 0 2px 2px 0;
-      background: transparent;
-      transition: background 120ms ease;
-    }
-    &.is-active &_accent {
-      background: #fff;
-    }
-
-    &_icon {
-      flex: none;
-    }
-
-    &_label {
-      @apply text-sm font-medium leading-5 truncate;
-      flex: 1;
-      min-width: 0;
-    }
-  }
-
-  // Bottom toggle — minimal pill that flips chevron direction.
-  &_toggle {
-    @apply px-1 pb-1;
-
-    &_btn {
-      @apply w-full flex items-center justify-center gap-1 rounded-md;
-      @apply bg-transparent border-none cursor-pointer text-neutral-700;
-      @apply transition-colors duration-150 ease-in-out;
-      height: 28px;
-      &:hover {
-        @apply bg-neutral-300 text-neutral-900;
-      }
-    }
-
-    &_label {
-      @apply text-xs font-medium;
+      @apply flex flex-col px-1 items-center gap-2;
     }
   }
 }
@@ -324,10 +247,10 @@ p {
     pointer-events: none;
 
     &__warning {
-      background: #ff9800; // $ax-highload
+      background: #ff9800; // $ax-warning
     }
     &__critical {
-      background: #f44336; // $ax-violation
+      background: #f44336; // $ax-error
     }
   }
 }
