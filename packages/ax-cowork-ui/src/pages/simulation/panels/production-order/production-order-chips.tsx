@@ -25,13 +25,27 @@ const STATUS_COLOR: Record<PoStatus, string> = {
   COMPLETED: 'success',
   CANCELLED: 'error',
   'ON HOLD': 'warning',
+  'at-risk': 'warning',
+  slipped: 'error',
+}
+
+// Display label per status. Lowercase risk-bearing values from the mock data are uppercased so the chips read
+// consistently across the table (RUNNING / AT-RISK / SLIPPED) — matches the summary KPI wording.
+const STATUS_LABEL: Record<PoStatus, string> = {
+  READY: 'READY',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  CANCELLED: 'CANCELLED',
+  'ON HOLD': 'ON HOLD',
+  'at-risk': 'AT-RISK',
+  slipped: 'SLIPPED',
 }
 
 export const StatusChip = ({ status }: { status: PoStatus | undefined }) => {
   if (!status) return null
   return (
-    <Tag color={STATUS_COLOR[status]} style={{ marginInlineEnd: 0 }}>
-      {status}
+    <Tag color={STATUS_COLOR[status]} style={{ marginInlineEnd: 0, fontWeight: 600 }}>
+      {STATUS_LABEL[status]}
     </Tag>
   )
 }

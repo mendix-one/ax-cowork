@@ -1,16 +1,58 @@
-import { Statistic, Tag, Typography } from 'antd'
+import { Statistic, Tag, Tooltip, Typography } from 'antd'
+import type { ReactNode } from 'react'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
+import type { SimulationStore } from '../../store/simulation.store'
 import { calcCapacityStats, calcShipmentSummary, calcTotals, calcViolations } from './analysis.helpers'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
+
+// Card title row with an explicit "open detail" chevron — every KPI summary card is a deep-link to the panel
+// that owns its underlying data, so the planner can chase a summary number straight to its details.
+// Kept as a plain render-function (not a component) so this file stays single-component for fast-refresh.
+const renderCardTitle = (args: {
+  icon: 'mdiViewListOutline' | 'mdiSpeedometer' | 'mdiTruckDeliveryOutline' | 'mdiAlertOctagonOutline'
+  label: ReactNode
+  onOpen?: () => void
+  openLabel: string
+}) => (
+  <div className="ax-analysis_summary_card_title">
+    <AxMuiIcon icon={args.icon} size={16} />
+    <span style={{ flex: 1 }}>{args.label}</span>
+    {args.onOpen && (
+      <Tooltip title={args.openLabel}>
+        <button
+          type="button"
+          onClick={args.onOpen}
+          aria-label={args.openLabel}
+          className="ax-analysis_summary_card_open"
+          style={{
+            background: 'transparent',
+            border: 'none',
+            cursor: 'pointer',
+            padding: 2,
+            display: 'inline-flex',
+            alignItems: 'center',
+            color: 'inherit',
+          }}
+        >
+          <AxMuiIcon icon="mdiArrowTopRight" size={14} />
+        </button>
+      </Tooltip>
+    )}
+  </div>
+)
 
 // Top summary strip — 4 cards mirroring the spec:
 //   • Totals: PO / PF / MB counts (reflects the current Adjustment selection)
 //   • Avg shop-floor capacity: avg daily usage with vs-safe / vs-limit + bottleneck tool group
 //   • Shipment & milestones: total wafers out, monthly average, next upcoming milestone
 //   • Violations / High-load: compact list of tool groups outside the safe envelope
+//
+// Every card is a deep-link surface: clicking the "↗" chevron in the title jumps to the panel that owns the
+// underlying data, pre-selecting the most relevant slice. This eliminates the round-trip "see the number →
+// guess where it lives → navigate manually" that the original concept forced on the planner.
 export const SimulationAnalysisSummary = observer(() => {
-  const sim = useSimulationContext()
+  const sim: SimulationStore = useSimulationContext()
   const orders = sim.gantt.filteredOrders
   const today = sim.gantt.today
   const totals = calcTotals(orders)
@@ -18,14 +60,15 @@ export const SimulationAnalysisSummary = observer(() => {
   const ship = calcShipmentSummary(orders, today)
   const violations = calcViolations()
 
+  // Pick the first PO with an upcoming milestone or the first slipped/at-risk PO as the shipment drill target.
+  const shipmentTarget = ship.nextMilestone?.po ?? orders.find((o) => o.status === 'at-risk' || o.status === 'slipped')?.id ?? orders[0]?.id
+  const violationTarget = violations[0]?.group.name ?? cap.bottleneckGroup ?? cap.highloadGroup
+
   return (
     <div className="ax-analysis_summary">
       {/* Totals — three tiles showing the PO → PF → MB hierarchy, plus a one-line ratio caption. */}
       <div className="ax-analysis_summary_card">
-        <div className="ax-analysis_summary_card_title">
-          <AxMuiIcon icon="mdiViewListOutline" size={16} />
-          <span>Totals</span>
-        </div>
+        {renderCardTitle({ icon: 'mdiViewListOutline', label: 'Totals', openLabel: 'Open Production Order panel', onOpen: () => sim.setActiveMainPanel('productionOrder') })}
         <div className="ax-analysis_summary_card_body">
           <div className="ax-analysis_totals">
             <div className="ax-analysis_totals_tile ax-analysis_totals_tile__po">
@@ -60,10 +103,12 @@ export const SimulationAnalysisSummary = observer(() => {
 
       {/* Avg shop-floor capacity */}
       <div className="ax-analysis_summary_card">
-        <div className="ax-analysis_summary_card_title">
-          <AxMuiIcon icon="mdiSpeedometer" size={16} />
-          <span>Avg shop-floor capacity</span>
-        </div>
+        {renderCardTitle({
+          icon: 'mdiSpeedometer',
+          label: 'Avg shop-floor capacity',
+          openLabel: cap.bottleneckGroup ? `Open Shop Floor — ${cap.bottleneckGroup}` : 'Open Shop Floor Capacity',
+          onOpen: () => (cap.bottleneckGroup ? sim.navigateToToolGroup(cap.bottleneckGroup) : sim.setActiveMainPanel('shopFloor')),
+        })}
         <div className="ax-analysis_summary_card_body">
           <Statistic
             value={cap.avgDaily}
@@ -90,10 +135,12 @@ export const SimulationAnalysisSummary = observer(() => {
 
       {/* Shipment & milestone */}
       <div className="ax-analysis_summary_card">
-        <div className="ax-analysis_summary_card_title">
-          <AxMuiIcon icon="mdiTruckDeliveryOutline" size={16} />
-          <span>Shipment &amp; milestone</span>
-        </div>
+        {renderCardTitle({
+          icon: 'mdiTruckDeliveryOutline',
+          label: <>Shipment &amp; milestone</>,
+          openLabel: shipmentTarget ? `Open Production Order — ${shipmentTarget}` : 'Open Production Order panel',
+          onOpen: () => (shipmentTarget ? sim.navigateToProductionOrder(shipmentTarget) : sim.setActiveMainPanel('productionOrder')),
+        })}
         <div className="ax-analysis_summary_card_body">
           <Statistic
             value={ship.totalWafersOut}
@@ -116,10 +163,12 @@ export const SimulationAnalysisSummary = observer(() => {
 
       {/* Violations / Highload list */}
       <div className="ax-analysis_summary_card">
-        <div className="ax-analysis_summary_card_title">
-          <AxMuiIcon icon="mdiAlertOctagonOutline" size={16} />
-          <span>Violations &amp; High-load</span>
-        </div>
+        {renderCardTitle({
+          icon: 'mdiAlertOctagonOutline',
+          label: <>Violations &amp; High-load</>,
+          openLabel: violationTarget ? `Open Shop Floor — ${violationTarget}` : 'Open Shop Floor Capacity',
+          onOpen: () => (violationTarget ? sim.navigateToToolGroup(violationTarget) : sim.setActiveMainPanel('shopFloor')),
+        })}
         <div className="ax-analysis_summary_card_body ax-analysis_summary_card_body__list">
           {violations.length === 0 ? (
             <Typography.Text type="secondary">All tool groups within safe range.</Typography.Text>

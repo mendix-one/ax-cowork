@@ -1,0 +1,28 @@
+- generic [ref=e4]:
+  - banner [ref=e5]:
+    - generic [ref=e6]:
+      - generic [ref=e7]:
+        - img "avatar" [ref=e12]
+        - generic [ref=e13]
+        - generic [ref=e22]
+      - generic [ref=e37]:
+        - button [ref=e40] [cursor=pointer]
+        - separator [ref=e43]
+        - generic [ref=e44]
+  - generic [ref=e57]:
+    - complementary [ref=e58]:
+      - generic [ref=e61]:
+        - generic [ref=e62]
+        - separator [ref=e83]
+        - generic [ref=e84]
+        - separator [ref=e93]
+        - button [ref=e96] [cursor=pointer]
+    - main [ref=e99]:
+      - generic [ref=e102]:
+        - generic [ref=e103]
+        - generic [ref=e187]
+    - complementary [ref=e769]:
+      - generic [ref=e771]:
+        - generic [ref=e773]
+        - generic [ref=e795]
+  - contentinfo [ref=e804]

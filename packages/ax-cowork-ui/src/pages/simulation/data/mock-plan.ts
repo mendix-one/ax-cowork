@@ -4,7 +4,9 @@
 export type LotStatus = 'on-track' | 'at-risk' | 'slipped' | 'hot-lot'
 
 // Production order lifecycle status — shown in the PO table chip column.
-export type PoStatus = 'READY' | 'RUNNING' | 'COMPLETED' | 'CANCELLED' | 'ON HOLD'
+// Risk-bearing states ('at-risk', 'slipped') are surfaced via dedicated chip styles so the table matches the
+// "2 at-risk PO · review priorities" claim in the Production Order summary KPI.
+export type PoStatus = 'READY' | 'RUNNING' | 'COMPLETED' | 'CANCELLED' | 'ON HOLD' | 'at-risk' | 'slipped'
 
 // Update 3 — schedule classification. Drives bar colour on the gantt.
 //   • fixed   — old schedule, applied and running now

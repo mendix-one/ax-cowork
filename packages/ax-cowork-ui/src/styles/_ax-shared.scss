@@ -1,3 +1,15 @@
+// === MOTION TOKENS ===================================================================================================
+// Single source of truth for the planner shell's motion. Use these via the @ax-motion-* CSS variables on the
+// :root so every panel/transition feels the same. The default easing is the "Material standard" curve —
+// quick out-of-rest, slow into-rest — which reads as polished without feeling sluggish.
+:root {
+  --ax-ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ax-ease-emphasized: cubic-bezier(0.16, 1, 0.3, 1);
+  --ax-dur-quick: 140ms;
+  --ax-dur-base: 220ms;
+  --ax-dur-deliberate: 280ms;
+}
+
 // === COMMON ELEMENTS =================================================================================================
 h1,
 h2,
@@ -11,10 +23,19 @@ p {
 
 .ax-button {
   @apply rounded-md cursor-pointer flex items-center justify-center;
-  @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
+  @apply bg-transparent text-inherit;
+  transition:
+    background-color var(--ax-dur-quick) var(--ax-ease-standard),
+    color var(--ax-dur-quick) var(--ax-ease-standard),
+    transform var(--ax-dur-quick) var(--ax-ease-standard);
 
   &:hover {
     @apply bg-neutral-300;
+  }
+
+  // Tactile feedback on press — keeps the planner's mental model of "I just clicked something".
+  &:active {
+    transform: scale(0.94);
   }
 
   &:active,
@@ -31,11 +52,242 @@ p {
   @apply bg-gray-400;
 }
 
+// === TOP-BAR CHIPS ===================================================================================================
+// All chip pills in the simulation top bar share the same height/padding so they line up cleanly with the
+// 32px AxMenuBox controls (M-SOC, Plan A). The chip itself uses 22px content height inside the 32px row.
+.ax-top_chip {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 4px;
+  height: 22px;
+  margin-inline-end: 0;
+  padding: 0 6px;
+  font-size: 11px;
+  line-height: 1;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+
+  &__horizon {
+    background: #f5f7fb;
+    border-color: #d6dbe6;
+    color: theme('colors.neutral.800');
+    font-weight: 500;
+  }
+
+  &__unsaved {
+    font-weight: 600;
+  }
+
+  &_muted {
+    color: theme('colors.neutral.600');
+    font-weight: 400;
+  }
+}
+
+// === STACKED PANEL SLOTS =============================================================================================
+// MainPanelStack / SubPanelStack mount every panel concurrently so dhx-gantt + ECharts can measure containers
+// without flickering on activation. Only the active slot is interactive + opaque; inactive ones fade behind it.
+// Stacking is done by absolute positioning so the active panel occupies the entire grid cell.
+.ax-panel-slot {
+  position: absolute;
+  inset: 0;
+  transition: opacity var(--ax-dur-base) var(--ax-ease-standard);
+
+  &.is-inactive {
+    opacity: 0;
+    pointer-events: none;
+    // Inactive panels also lose tab-focus targets — we don't want the planner tabbing into hidden panels.
+    visibility: hidden;
+  }
+  &.is-active {
+    opacity: 1;
+    pointer-events: auto;
+    visibility: visible;
+  }
+}
+
+// Panel slots live inside their AxSplitPane cell, which is the positioning context.
+.ax-split_first,
+.ax-split_second {
+  position: relative;
+}
+
+// === SMOOTH SPLIT PANE ===============================================================================================
+// CSS-grid driven smooth open/close + drag-to-resize. The grid-template-columns transition does the heavy
+// lifting — when the second column collapses to 0, the divider hides and content fades out in lockstep.
+.ax-split {
+  &_first,
+  &_second {
+    @apply min-w-0 min-h-0 overflow-hidden;
+    height: 100%;
+    width: 100%;
+  }
+
+  &_second {
+    transition: opacity var(--ax-dur-base) var(--ax-ease-standard);
+  }
+
+  &.is-collapsed &_second {
+    opacity: 0;
+    pointer-events: none;
+  }
+  &.is-open &_second {
+    opacity: 1;
+  }
+
+  // Divider — a thin draggable strip. Subtle by default, accents on hover; hides while collapsed.
+  &_divider {
+    position: relative;
+    background: theme('colors.neutral.300');
+    transition:
+      background var(--ax-dur-quick) var(--ax-ease-standard),
+      opacity var(--ax-dur-base) var(--ax-ease-standard);
+
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: -3px;
+      right: -3px;
+      // Wider hit area than the visual to make grabbing easier on FHD.
+    }
+
+    &:hover {
+      background: theme('colors.ax-primary');
+    }
+  }
+
+  &.is-collapsed &_divider {
+    opacity: 0;
+  }
+
+  // While dragging, kill the transition so the cursor → grid mapping is 1:1.
+  &.is-dragging {
+    .ax-split_first,
+    .ax-split_second {
+      pointer-events: none; // prevent text-selection / accidental interactions in the panes during drag
+    }
+    .ax-split_divider {
+      background: theme('colors.ax-primary');
+    }
+  }
+}
+
+// === SIMULATION NAVIGATION RAIL ======================================================================================
+// Two-mode left rail used by the Simulation page. Compact = icon-only (2.65rem); expanded = icon + label
+// with group captions (~10rem). Width animates smoothly so the planner perceives the toggle as connecting
+// the two states. State is persisted in simulation.store.
+.ax-rail {
+  transition:
+    flex var(--ax-dur-base) var(--ax-ease-standard),
+    max-width var(--ax-dur-base) var(--ax-ease-standard),
+    min-width var(--ax-dur-base) var(--ax-ease-standard),
+    width var(--ax-dur-base) var(--ax-ease-standard) !important;
+
+  &_inner {
+    @apply w-full h-full flex flex-col justify-between;
+    @apply py-1;
+  }
+
+  // Compact-mode tweak: tighter padding + center alignment to match the previous icon-only layout exactly.
+  &.is-compact .ax-rail_group_items {
+    @apply px-1 items-center gap-2;
+  }
+  &.is-expanded .ax-rail_group_items {
+    @apply px-1 gap-0.5;
+  }
+
+  &_groups {
+    @apply flex flex-col gap-2;
+  }
+
+  &_group {
+    @apply flex flex-col;
+
+    &_caption {
+      @apply px-2 pt-2 pb-1;
+      @apply text-xs font-semibold uppercase tracking-wider text-neutral-600;
+    }
+
+    &_divider {
+      @apply h-px bg-gray-400 my-2 mx-1;
+    }
+
+    &_items {
+      @apply flex flex-col;
+    }
+  }
+
+  // Expanded-mode row — icon left, label right, accent bar on the far left when active.
+  &_row {
+    @apply relative w-full;
+    @apply flex items-center gap-2 px-2 py-1.5 rounded-md;
+    @apply bg-transparent border-none cursor-pointer text-neutral-800;
+    @apply transition-colors duration-150 ease-in-out;
+    text-align: left;
+
+    &:hover {
+      @apply bg-neutral-300;
+    }
+    &.is-active {
+      @apply bg-ax-primary text-white;
+    }
+
+    &_accent {
+      position: absolute;
+      left: 0;
+      top: 4px;
+      bottom: 4px;
+      width: 3px;
+      border-radius: 0 2px 2px 0;
+      background: transparent;
+      transition: background 120ms ease;
+    }
+    &.is-active &_accent {
+      background: #fff;
+    }
+
+    &_icon {
+      flex: none;
+    }
+
+    &_label {
+      @apply text-sm font-medium leading-5 truncate;
+      flex: 1;
+      min-width: 0;
+    }
+  }
+
+  // Bottom toggle — minimal pill that flips chevron direction.
+  &_toggle {
+    @apply px-1 pb-1;
+
+    &_btn {
+      @apply w-full flex items-center justify-center gap-1 rounded-md;
+      @apply bg-transparent border-none cursor-pointer text-neutral-700;
+      @apply transition-colors duration-150 ease-in-out;
+      height: 28px;
+      &:hover {
+        @apply bg-neutral-300 text-neutral-900;
+      }
+    }
+
+    &_label {
+      @apply text-xs font-medium;
+    }
+  }
+}
+
 // === LAYOUT ELEMENTS =================================================================================================
 
 .ax-menu-icon {
   @apply w-8 h-8 rounded-md cursor-pointer flex items-center justify-center;
-  @apply bg-transparent text-inherit transition-colors duration-150 ease-in-out;
+  @apply bg-transparent text-inherit;
+  transition:
+    background-color var(--ax-dur-quick) var(--ax-ease-standard),
+    color var(--ax-dur-quick) var(--ax-ease-standard),
+    transform var(--ax-dur-quick) var(--ax-ease-standard);
   // Relative for the badge in the top-right corner of the icon.
   position: relative;
 
@@ -45,6 +297,7 @@ p {
 
   &:active {
     @apply bg-neutral-600 text-white;
+    transform: scale(0.92);
   }
 
   &.is-active {

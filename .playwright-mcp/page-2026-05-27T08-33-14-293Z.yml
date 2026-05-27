@@ -1,0 +1,466 @@
+- generic [active] [ref=e1]:
+    - generic [ref=e4]:
+        - banner [ref=e5]:
+            - generic [ref=e6]:
+                - generic [ref=e7]:
+                    - img "avatar" [ref=e12]
+                    - generic [ref=e13]:
+                        - button [ref=e15] [cursor=pointer]:
+                            - img [ref=e16]
+                        - button [ref=e19] [cursor=pointer]:
+                            - img [ref=e20]
+                    - generic [ref=e22]:
+                        - button "M-SOC" [ref=e24] [cursor=pointer]:
+                            - img [ref=e25]
+                            - generic [ref=e27]: M-SOC
+                            - img [ref=e28]
+                        - button "Plan A (Simulation)" [ref=e31] [cursor=pointer]:
+                            - img [ref=e32]
+                            - generic [ref=e34]: Plan A (Simulation)
+                            - img [ref=e35]
+                        - generic [ref=e38]: DRAFT
+                        - generic [ref=e1517]:
+                            - img [ref=e1518]
+                            - generic [ref=e1520]: 3 unsaved
+                - generic [ref=e39]:
+                    - button [ref=e42] [cursor=pointer]:
+                        - img [ref=e43]
+                    - separator [ref=e45]
+                    - generic [ref=e46]:
+                        - button [ref=e48] [cursor=pointer]:
+                            - img [ref=e49]
+                        - button [ref=e52] [cursor=pointer]:
+                            - img [ref=e53]
+                        - button [ref=e56] [cursor=pointer]:
+                            - img [ref=e57]
+        - generic [ref=e59]:
+            - complementary [ref=e60]:
+                - generic [ref=e63]:
+                    - generic [ref=e64]:
+                        - button [ref=e66] [cursor=pointer]:
+                            - img [ref=e67]
+                        - button [ref=e70] [cursor=pointer]:
+                            - img [ref=e71]
+                        - button [ref=e74] [cursor=pointer]:
+                            - img [ref=e75]
+                        - button [ref=e78] [cursor=pointer]:
+                            - img [ref=e79]
+                        - button [ref=e82] [cursor=pointer]:
+                            - img [ref=e83]
+                    - separator [ref=e85]
+                    - generic [ref=e86]:
+                        - button [ref=e88] [cursor=pointer]:
+                            - img [ref=e89]
+                        - button [ref=e92] [cursor=pointer]:
+                            - img [ref=e93]
+                    - separator [ref=e95]
+                    - button [ref=e98] [cursor=pointer]:
+                        - img [ref=e99]
+            - main [ref=e101]:
+                - generic [ref=e102]:
+                    - text:       
+                    - generic [ref=e1529]:
+                        - generic [ref=e1530]:
+                            - generic [ref=e1531]:
+                                - img [ref=e1532]
+                                - paragraph [ref=e1534]: Analysis · Plan A (Simulation)
+                            - generic [ref=e1537]:
+                                - generic [ref=e1539]:
+                                    - textbox "Start date" [ref=e1541]: 2026-04-29
+                                    - generic "to" [ref=e1543]:
+                                        - img "swap-right" [ref=e1544]:
+                                            - img [ref=e1545]
+                                    - textbox "End date" [ref=e1548]: 2026-05-12
+                                    - generic:
+                                        - img "calendar":
+                                            - img
+                                - separator [ref=e1550]
+                                - button [ref=e1552] [cursor=pointer]:
+                                    - img [ref=e1554]
+                            - button "Restore" [ref=e1557] [cursor=pointer]:
+                                - img [ref=e1558]
+                        - generic [ref=e1563]:
+                            - generic [ref=e1564]:
+                                - generic [ref=e1565]:
+                                    - generic [ref=e1566]:
+                                        - img [ref=e1567]
+                                        - generic [ref=e1569]: Totals
+                                    - generic [ref=e1570]:
+                                        - generic [ref=e1571]:
+                                            - generic [ref=e1572]:
+                                                - img [ref=e1574]
+                                                - generic [ref=e1576]: '4'
+                                                - generic [ref=e1577]: Production Orders
+                                            - img [ref=e1578]
+                                            - generic [ref=e1580]:
+                                                - img [ref=e1582]
+                                                - generic [ref=e1584]: '4'
+                                                - generic [ref=e1585]: Product Families
+                                            - img [ref=e1586]
+                                            - generic [ref=e1588]:
+                                                - img [ref=e1590]
+                                                - generic [ref=e1592]: '12'
+                                                - generic [ref=e1593]: Mfg Batches
+                                        - generic [ref=e1594]: Avg 1.0 PF/PO · 3.0 MB/PF
+                                - generic [ref=e1595]:
+                                    - generic [ref=e1596]:
+                                        - img [ref=e1597]
+                                        - generic [ref=e1599]: Avg shop-floor capacity
+                                    - generic [ref=e1600]:
+                                        - generic [ref=e1602]:
+                                            - generic [ref=e1603]: 5,030
+                                            - generic [ref=e1604]: wafer-moves/day
+                                        - generic [ref=e1605]: vs Safe 4960 · 101% · vs Limit 6200 · 81%
+                                        - generic "Open in Shop Floor Capacity" [ref=e1607] [cursor=pointer]: Bottleneck · HARC Etch
+                                - generic [ref=e1608]:
+                                    - generic [ref=e1609]:
+                                        - img [ref=e1610]
+                                        - generic [ref=e1612]: Shipment & milestone
+                                    - generic [ref=e1613]:
+                                        - generic [ref=e1615]:
+                                            - generic [ref=e1616]: 3,500
+                                            - generic [ref=e1617]: wafers planned
+                                        - generic [ref=e1618]: Avg 3,500 wafers / month
+                                        - generic [ref=e1619]:
+                                            - text: 'Next: PO-2025-120 M1 ·'
+                                            - generic [ref=e1620]: 2026-05-11 · 1,200 w
+                                - generic [ref=e1621]:
+                                    - generic [ref=e1622]:
+                                        - img [ref=e1623]
+                                        - generic [ref=e1625]: Violations & High-load
+                                    - generic [ref=e1626]:
+                                        - button "Violation HARC Etch 109%" [ref=e1627] [cursor=pointer]:
+                                            - generic [ref=e1628]: Violation
+                                            - generic [ref=e1629]: HARC Etch
+                                            - strong [ref=e1631]: 109%
+                                        - button "Highload Probe 89%" [ref=e1632] [cursor=pointer]:
+                                            - generic [ref=e1633]: Highload
+                                            - generic [ref=e1634]: Probe
+                                            - strong [ref=e1636]: 89%
+                                        - button "Highload ONON CVD 82%" [ref=e1637] [cursor=pointer]:
+                                            - generic [ref=e1638]: Highload
+                                            - generic [ref=e1639]: ONON CVD
+                                            - strong [ref=e1641]: 82%
+                                        - button "Highload CMP 80%" [ref=e1642] [cursor=pointer]:
+                                            - generic [ref=e1643]: Highload
+                                            - generic [ref=e1644]: CMP
+                                            - strong [ref=e1646]: 80%
+                            - generic [ref=e1648]:
+                                - generic [ref=e1649]:
+                                    - img [ref=e1650]
+                                    - generic [ref=e1652]: Shop floor capacity
+                                - generic [ref=e1653]: Drag the slider below the chart to pick a detail range for the tool-group view.
+                            - generic [ref=e1659]:
+                                - generic [ref=e1660]:
+                                    - img [ref=e1661]
+                                    - generic [ref=e1663]: Tool-group capacity
+                                - generic [ref=e1666]:
+                                    - textbox "Start date" [ref=e1668]: 2026-04-29
+                                    - generic "to" [ref=e1670]:
+                                        - img "swap-right" [ref=e1671]:
+                                            - img [ref=e1672]
+                                    - textbox "End date" [ref=e1675]: 2026-05-12
+                                    - generic:
+                                        - img "calendar":
+                                            - img
+                            - generic [ref=e1680]:
+                                - generic [ref=e1681]:
+                                    - generic [ref=e1682]:
+                                        - img [ref=e1683]
+                                        - generic [ref=e1685]: Workload heatmap · Tool group × day
+                                    - radiogroup "segmented control" [ref=e1686]:
+                                        - generic [ref=e1687]:
+                                            - generic [ref=e1688] [cursor=pointer]:
+                                                - radio "Day" [checked]
+                                                - generic "Day" [ref=e1689]
+                                            - generic [ref=e1690] [cursor=pointer]:
+                                                - radio "Month"
+                                                - generic "Month" [ref=e1691]
+                                            - generic [ref=e1692] [cursor=pointer]:
+                                                - radio "Quarter"
+                                                - generic "Quarter" [ref=e1693]
+                                            - generic [ref=e1694] [cursor=pointer]:
+                                                - radio "Year"
+                                                - generic "Year" [ref=e1695]
+                                - generic [ref=e1696]:
+                                    - table [ref=e1697]:
+                                        - rowgroup [ref=e1698]:
+                                            - row "Tool Group 04-29 04-30 05-01 05-02 05-03 05-04 05-05 05-06 05-07 05-08 05-09 05-10 05-11 05-12" [ref=e1699]:
+                                                - columnheader "Tool Group" [ref=e1700]
+                                                - columnheader "04-29" [ref=e1701]
+                                                - columnheader "04-30" [ref=e1702]
+                                                - columnheader "05-01" [ref=e1703]
+                                                - columnheader "05-02" [ref=e1704]
+                                                - columnheader "05-03" [ref=e1705]
+                                                - columnheader "05-04" [ref=e1706]
+                                                - columnheader "05-05" [ref=e1707]
+                                                - columnheader "05-06" [ref=e1708]
+                                                - columnheader "05-07" [ref=e1709]
+                                                - columnheader "05-08" [ref=e1710]
+                                                - columnheader "05-09" [ref=e1711]
+                                                - columnheader "05-10" [ref=e1712]
+                                                - columnheader "05-11" [ref=e1713]
+                                                - columnheader "05-12" [ref=e1714]
+                                        - rowgroup [ref=e1715]:
+                                            - row "FEOL Dep" [ref=e1716]:
+                                                - cell "FEOL Dep" [ref=e1717]
+                                                - cell [ref=e1718]
+                                                - cell [ref=e1720]
+                                                - cell [ref=e1722]
+                                                - cell [ref=e1724]
+                                                - cell [ref=e1726]
+                                                - cell [ref=e1728]
+                                                - cell [ref=e1730]
+                                                - cell [ref=e1732]
+                                                - cell [ref=e1734]
+                                                - cell [ref=e1736]
+                                                - cell [ref=e1738]
+                                                - cell [ref=e1740]
+                                                - cell [ref=e1742]
+                                                - cell [ref=e1744]
+                                            - row "ONON CVD" [ref=e1746]:
+                                                - cell "ONON CVD" [ref=e1747]
+                                                - cell [ref=e1748]
+                                                - cell [ref=e1750]
+                                                - cell [ref=e1752]
+                                                - cell [ref=e1754]
+                                                - cell [ref=e1756]
+                                                - cell [ref=e1758]
+                                                - cell [ref=e1760]
+                                                - cell [ref=e1762]
+                                                - cell [ref=e1764]
+                                                - cell [ref=e1766]
+                                                - cell [ref=e1768]
+                                                - cell [ref=e1770]
+                                                - cell [ref=e1772]
+                                                - cell [ref=e1774]
+                                            - row "HARC Etch" [ref=e1776]:
+                                                - cell "HARC Etch" [ref=e1777]
+                                                - cell [ref=e1778]
+                                                - cell [ref=e1780]
+                                                - cell [ref=e1782]
+                                                - cell [ref=e1784]
+                                                - cell [ref=e1786]
+                                                - cell [ref=e1788]
+                                                - cell [ref=e1790]
+                                                - cell [ref=e1792]
+                                                - cell [ref=e1794]
+                                                - cell [ref=e1796]
+                                                - cell [ref=e1798]
+                                                - cell [ref=e1800]
+                                                - cell [ref=e1802]
+                                                - cell [ref=e1804]
+                                            - row "WL Fill" [ref=e1806]:
+                                                - cell "WL Fill" [ref=e1807]
+                                                - cell [ref=e1808]
+                                                - cell [ref=e1810]
+                                                - cell [ref=e1812]
+                                                - cell [ref=e1814]
+                                                - cell [ref=e1816]
+                                                - cell [ref=e1818]
+                                                - cell [ref=e1820]
+                                                - cell [ref=e1822]
+                                                - cell [ref=e1824]
+                                                - cell [ref=e1826]
+                                                - cell [ref=e1828]
+                                                - cell [ref=e1830]
+                                                - cell [ref=e1832]
+                                                - cell [ref=e1834]
+                                            - row "CMP" [ref=e1836]:
+                                                - cell "CMP" [ref=e1837]
+                                                - cell [ref=e1838]
+                                                - cell [ref=e1840]
+                                                - cell [ref=e1842]
+                                                - cell [ref=e1844]
+                                                - cell [ref=e1846]
+                                                - cell [ref=e1848]
+                                                - cell [ref=e1850]
+                                                - cell [ref=e1852]
+                                                - cell [ref=e1854]
+                                                - cell [ref=e1856]
+                                                - cell [ref=e1858]
+                                                - cell [ref=e1860]
+                                                - cell [ref=e1862]
+                                                - cell [ref=e1864]
+                                            - row "BEOL" [ref=e1866]:
+                                                - cell "BEOL" [ref=e1867]
+                                                - cell [ref=e1868]
+                                                - cell [ref=e1870]
+                                                - cell [ref=e1872]
+                                                - cell [ref=e1874]
+                                                - cell [ref=e1876]
+                                                - cell [ref=e1878]
+                                                - cell [ref=e1880]
+                                                - cell [ref=e1882]
+                                                - cell [ref=e1884]
+                                                - cell [ref=e1886]
+                                                - cell [ref=e1888]
+                                                - cell [ref=e1890]
+                                                - cell [ref=e1892]
+                                                - cell [ref=e1894]
+                                            - row "Probe" [ref=e1896]:
+                                                - cell "Probe" [ref=e1897]
+                                                - cell [ref=e1898]
+                                                - cell [ref=e1900]
+                                                - cell [ref=e1902]
+                                                - cell [ref=e1904]
+                                                - cell [ref=e1906]
+                                                - cell [ref=e1908]
+                                                - cell [ref=e1910]
+                                                - cell [ref=e1912]
+                                                - cell [ref=e1914]
+                                                - cell [ref=e1916]
+                                                - cell [ref=e1918]
+                                                - cell [ref=e1920]
+                                                - cell [ref=e1922]
+                                                - cell [ref=e1924]
+                                            - row "Asm" [ref=e1926]:
+                                                - cell "Asm" [ref=e1927]
+                                                - cell [ref=e1928]
+                                                - cell [ref=e1930]
+                                                - cell [ref=e1932]
+                                                - cell [ref=e1934]
+                                                - cell [ref=e1936]
+                                                - cell [ref=e1938]
+                                                - cell [ref=e1940]
+                                                - cell [ref=e1942]
+                                                - cell [ref=e1944]
+                                                - cell [ref=e1946]
+                                                - cell [ref=e1948]
+                                                - cell [ref=e1950]
+                                                - cell [ref=e1952]
+                                                - cell [ref=e1954]
+                                    - generic [ref=e1956]:
+                                        - generic [ref=e1957]: idle <40%
+                                        - generic [ref=e1959]: safe 40–85%
+                                        - generic [ref=e1961]: warning 85–100%
+                                        - generic [ref=e1963]: overload >100%
+                            - generic [ref=e1965]:
+                                - generic [ref=e1967]:
+                                    - img [ref=e1968]
+                                    - generic [ref=e1970]: Shipment milestone analysis (4)
+                                - table [ref=e1972]:
+                                    - rowgroup [ref=e1973]:
+                                        - row "Date PO Cust Milestone PF Wafers State Slip" [ref=e1974]:
+                                            - columnheader "Date" [ref=e1975]
+                                            - columnheader "PO" [ref=e1976]
+                                            - columnheader "Cust" [ref=e1977]
+                                            - columnheader "Milestone" [ref=e1978]
+                                            - columnheader "PF" [ref=e1979]
+                                            - columnheader "Wafers" [ref=e1980]
+                                            - columnheader "State" [ref=e1981]
+                                            - columnheader "Slip" [ref=e1982]
+                                    - rowgroup [ref=e1983]:
+                                        - row "2026-05-11 PO-2025-120 Cust C M1 V9-QLC-A 1,200 Cannot +4d · Probe over-cap" [ref=e1984]:
+                                            - cell "2026-05-11" [ref=e1985]
+                                            - cell "PO-2025-120" [ref=e1986]
+                                            - cell "Cust C" [ref=e1987]
+                                            - cell "M1" [ref=e1988]
+                                            - cell "V9-QLC-A" [ref=e1989]
+                                            - cell "1,200" [ref=e1990]
+                                            - cell "Cannot" [ref=e1991]:
+                                                - generic [ref=e1992]: Cannot
+                                            - cell "+4d · Probe over-cap" [ref=e1993]:
+                                                - generic [ref=e1994]: +4d · Probe over-cap
+                                        - row "2026-05-12 PO-2025-118 Cust A M1 V9-QLC-A 1,000 On track ok" [ref=e1995]:
+                                            - cell "2026-05-12" [ref=e1996]
+                                            - cell "PO-2025-118" [ref=e1997]
+                                            - cell "Cust A" [ref=e1998]
+                                            - cell "M1" [ref=e1999]
+                                            - cell "V9-QLC-A" [ref=e2000]
+                                            - cell "1,000" [ref=e2001]
+                                            - cell "On track" [ref=e2002]:
+                                                - generic [ref=e2003]: On track
+                                            - cell "ok" [ref=e2004]:
+                                                - generic [ref=e2005]: ok
+                                        - row "2026-05-12 PO-2025-119 Cust B M1 V9-TLC-B 500 Late +2d · HARC overload" [ref=e2006]:
+                                            - cell "2026-05-12" [ref=e2007]
+                                            - cell "PO-2025-119" [ref=e2008]
+                                            - cell "Cust B" [ref=e2009]
+                                            - cell "M1" [ref=e2010]
+                                            - cell "V9-TLC-B" [ref=e2011]
+                                            - cell "500" [ref=e2012]
+                                            - cell "Late" [ref=e2013]:
+                                                - generic [ref=e2014]: Late
+                                            - cell "+2d · HARC overload" [ref=e2015]:
+                                                - generic [ref=e2016]: +2d · HARC overload
+                                        - row "2026-05-12 PO-2025-121 Cust D M1 V9-TLC-C 800 New ok" [ref=e2017]:
+                                            - cell "2026-05-12" [ref=e2018]
+                                            - cell "PO-2025-121" [ref=e2019]
+                                            - cell "Cust D" [ref=e2020]
+                                            - cell "M1" [ref=e2021]
+                                            - cell "V9-TLC-C" [ref=e2022]
+                                            - cell "800" [ref=e2023]
+                                            - cell "New" [ref=e2024]:
+                                                - generic [ref=e2025]: New
+                                            - cell "ok" [ref=e2026]:
+                                                - generic [ref=e2027]: ok
+                            - generic [ref=e2028]:
+                                - generic [ref=e2030]:
+                                    - img [ref=e2031]
+                                    - generic [ref=e2033]: Production Family · Spec / Tech analysis
+                                - table [ref=e2035]:
+                                    - rowgroup [ref=e2036]:
+                                        - row "Tech Family POs Batches Wafers From To" [ref=e2037]:
+                                            - columnheader "Tech" [ref=e2038]
+                                            - columnheader "Family" [ref=e2039]
+                                            - columnheader "POs" [ref=e2040]
+                                            - columnheader "Batches" [ref=e2041]
+                                            - columnheader "Wafers" [ref=e2042]
+                                            - columnheader "From" [ref=e2043]
+                                            - columnheader "To" [ref=e2044]
+                                    - rowgroup [ref=e2045]:
+                                        - row "T-V9-232L V9-QLC-A 2 7 1,475 2026-04-29 2026-05-12" [ref=e2046]:
+                                            - cell "T-V9-232L" [ref=e2047]
+                                            - cell "V9-QLC-A" [ref=e2048]
+                                            - cell "2" [ref=e2049]
+                                            - cell "7" [ref=e2050]
+                                            - cell "1,475" [ref=e2051]
+                                            - cell "2026-04-29" [ref=e2052]
+                                            - cell "2026-05-12" [ref=e2053]
+                                        - row "T-V9-176L V9-TLC-B 1 3 500 2026-05-02 2026-05-12" [ref=e2054]:
+                                            - cell "T-V9-176L" [ref=e2055]
+                                            - cell "V9-TLC-B" [ref=e2056]
+                                            - cell "1" [ref=e2057]
+                                            - cell "3" [ref=e2058]
+                                            - cell "500" [ref=e2059]
+                                            - cell "2026-05-02" [ref=e2060]
+                                            - cell "2026-05-12" [ref=e2061]
+                                        - row "T-V9-128L V9-TLC-C 1 2 250 2026-05-06 2026-05-12" [ref=e2062]:
+                                            - cell "T-V9-128L" [ref=e2063]
+                                            - cell "V9-TLC-C" [ref=e2064]
+                                            - cell "1" [ref=e2065]
+                                            - cell "2" [ref=e2066]
+                                            - cell "250" [ref=e2067]
+                                            - cell "2026-05-06" [ref=e2068]
+                                            - cell "2026-05-12" [ref=e2069]
+            - complementary [ref=e785]:
+                - generic [ref=e787]:
+                    - generic [ref=e789]:
+                        - button [ref=e791] [cursor=pointer]:
+                            - img [ref=e792]
+                        - button [ref=e795] [cursor=pointer]:
+                            - img [ref=e796]
+                        - button [ref=e799] [cursor=pointer]:
+                            - img [ref=e800]
+                        - button [ref=e803] [cursor=pointer]:
+                            - img [ref=e804]
+                        - button [ref=e807] [cursor=pointer]:
+                            - img [ref=e808]
+                    - generic [ref=e811]:
+                        - button [ref=e813] [cursor=pointer]:
+                            - img [ref=e814]
+                        - button [ref=e817] [cursor=pointer]:
+                            - img [ref=e818]
+        - contentinfo [ref=e820]
+    - menu [ref=e1502]:
+        - menuitem "Save draft" [ref=e1503] [cursor=pointer]:
+            - img [ref=e1504]
+            - generic [ref=e1506]: Save draft
+        - menuitem "Save as new scenario…" [ref=e1507] [cursor=pointer]:
+            - img [ref=e1508]
+            - generic [ref=e1510]: Save as new scenario…
+        - separator [ref=e1511]
+        - menuitem "Submit to baseline" [ref=e1512] [cursor=pointer]:
+            - img [ref=e1513]
+            - generic [ref=e1515]: Submit to baseline

@@ -1,15 +1,16 @@
-import { type CSSProperties, type ComponentType, type ReactNode } from 'react'
-import { ConfigProvider, Layout, Splitter } from 'antd'
+import { type ComponentType, type ReactNode } from 'react'
+import { Layout } from 'antd'
 import { createStyles } from 'antd-style'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../store/simulation.context'
-import type { MainPanelId, PanelId, SubPanelId } from '../store/simulation.store'
+import type { MainPanelId, SubPanelId } from '../store/simulation.store'
 
 import { SimulationLayoutTop } from './SimulationLayoutTop.tsx'
 import { SimulationLayoutLeft } from './SimulationLayoutLeft.tsx'
 import { SimulationLayoutRight } from './SimulationLayoutRight.tsx'
 import { SimulationLayoutBottom } from './SimulationLayoutBottom.tsx'
 
+import { AxSplitPane } from '@/shared/split-pane/AxSplitPane.tsx'
 import type { MainPanelControls, SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
 import { SimulationGanttPanel } from '@/pages/simulation/panels/gantt/SimulationGanttPanel.tsx'
@@ -26,26 +27,6 @@ import { SimulationAIChatPanel } from '@/pages/simulation/panels/ai-chat/Simulat
 import { SimulationBackgroundPanel } from '@/pages/simulation/panels/background/SimulationBackgroundPanel.tsx'
 import { SimulationHistoryPanel } from '@/pages/simulation/panels/history/SimulationHistoryPanel.tsx'
 import { SimulationRecommendationsPanel } from '@/pages/simulation/panels/recommendations/SimulationRecommendationsPanel.tsx'
-
-type PanelRegion =
-  | { kind: 'panel'; id: PanelId; type: 'main'; render: (controls: MainPanelControls) => ReactNode }
-  | { kind: 'panel'; id: PanelId; type: 'sub'; render: (controls: SubPanelControls) => ReactNode }
-
-type SplitterChild = {
-  region: Region
-  defaultSize: string
-  min: string
-  max: string
-}
-
-type SplitterRegion = {
-  kind: 'splitter'
-  vertical?: boolean
-  splitterKey?: string
-  children: [SplitterChild, SplitterChild]
-}
-
-type Region = PanelRegion | SplitterRegion
 
 const MAIN_PANELS: Record<MainPanelId, ComponentType<MainPanelControls>> = {
   gantt: SimulationGanttPanel,
@@ -66,34 +47,20 @@ const SUB_PANELS: Record<SubPanelId, ComponentType<SubPanelControls>> = {
   recommendations: SimulationRecommendationsPanel,
 }
 
-const useStyles = createStyles(({ token }) => ({
-  dragger: {
-    '&::before': {
-      background: `${token.colorBgLayout} !important`,
-    },
-    '&:hover::before': {
-      background: `${token.colorBgLayout} !important`,
-    },
-  },
-  draggerActive: {
-    '&::before': {
-      background: `${token.colorBgLayout} !important`,
-    },
-  },
+const useStyles = createStyles(() => ({
   root: {
     height: '100%',
     width: '100%',
   },
-  mainSlot: {
-    height: '100%',
-    width: '100%',
-  },
-  subSlot: {
+  slot: {
     height: '100%',
     width: '100%',
   },
 }))
 
+// Both main panels and sub-panels are mounted simultaneously, only the active one is visible. This means
+// switching panels is a CSS-driven fade (no remount, no scroll loss) and the AxSplitPane animates open/close
+// without remounting the right-region child either.
 const MainPanelStack = observer(({ controls, slotClassName }: { controls: MainPanelControls; slotClassName: string }) => {
   const simulation = useSimulationContext()
   const active = simulation.activeMainPanel
@@ -103,7 +70,12 @@ const MainPanelStack = observer(({ controls, slotClassName }: { controls: MainPa
         const Panel = MAIN_PANELS[id]
         const isActive = id === active
         return (
-          <div key={id} className={slotClassName} style={{ display: isActive ? 'block' : 'none' }}>
+          <div
+            key={id}
+            className={`${slotClassName} ax-panel-slot ${isActive ? 'is-active' : 'is-inactive'}`}
+            // visibility:hidden (vs display:none) keeps inactive panels measurable, which the Gantt's dhx
+            // chart needs for correct sizing on first activation. The CSS handles fade + pointer-events.
+          >
             <Panel {...controls} />
           </div>
         )
@@ -121,7 +93,7 @@ const SubPanelStack = observer(({ controls, slotClassName }: { controls: SubPane
         const Panel = SUB_PANELS[id]
         const isActive = id === active
         return (
-          <div key={id} className={slotClassName} style={{ display: isActive ? 'block' : 'none' }}>
+          <div key={id} className={`${slotClassName} ax-panel-slot ${isActive ? 'is-active' : 'is-inactive'}`}>
             <Panel {...controls} />
           </div>
         )
@@ -134,97 +106,37 @@ export const SimulationLayout = observer(() => {
   const { styles } = useStyles()
   const simulation = useSimulationContext()
 
-  const mainControlsFor = (id: PanelId): MainPanelControls => ({
-    maximized: simulation.isMaximized(id),
-    onMaximize: () => simulation.maximize(id),
-    onRestore: () => simulation.restore(id),
-  })
-
-  const subControlsFor = (id: PanelId): SubPanelControls => ({
-    onClose: () => simulation.hide(id),
-  })
-
-  const renderPanelRegion = (region: PanelRegion): ReactNode =>
-    region.type === 'main' ? region.render(mainControlsFor(region.id)) : region.render(subControlsFor(region.id))
-
-  const renderRegion = (region: Region): ReactNode | null => {
-    if (region.kind === 'panel') {
-      if (simulation.isHidden(region.id)) return null
-      return renderPanelRegion(region)
-    }
-
-    const [first, second] = region.children
-    const firstNode = renderRegion(first.region)
-    const secondNode = renderRegion(second.region)
-
-    if (!firstNode && !secondNode) return null
-    if (!firstNode) return secondNode
-    if (!secondNode) return firstNode
-
-    const vertical = region.vertical === true
-    const firstPad: CSSProperties = vertical ? { paddingBottom: 2 } : { paddingRight: 2 }
-    const secondPad: CSSProperties = vertical ? { paddingTop: 2 } : { paddingLeft: 2 }
-
-    return (
-      <Splitter
-        key={region.splitterKey}
-        vertical={vertical}
-        draggerIcon={null}
-        style={{ height: '100%', width: '100%' }}
-        classNames={{ dragger: { default: styles.dragger, active: styles.draggerActive } }}
-      >
-        <Splitter.Panel style={{ padding: 0, ...firstPad }} defaultSize={first.defaultSize} min={first.min} max={first.max}>
-          {firstNode}
-        </Splitter.Panel>
-        <Splitter.Panel style={{ padding: 0, ...secondPad }} defaultSize={second.defaultSize} min={second.min} max={second.max}>
-          {secondNode}
-        </Splitter.Panel>
-      </Splitter>
-    )
+  const mainControls: MainPanelControls = {
+    maximized: simulation.isMaximized('regionLeft'),
+    onMaximize: () => simulation.maximize('regionLeft'),
+    onRestore: () => simulation.restore('regionLeft'),
   }
 
-  const renderMain = (controls: MainPanelControls) => <MainPanelStack controls={controls} slotClassName={styles.mainSlot} />
-  const renderSub = (controls: SubPanelControls) => <SubPanelStack controls={controls} slotClassName={styles.subSlot} />
+  const subControls: SubPanelControls = {
+    onClose: () => simulation.hide('regionRight'),
+  }
 
   const isSplitMode = simulation.activeSubPanel === 'compare' && !simulation.isHidden('regionRight')
-  const layout: Region = {
-    kind: 'splitter',
-    splitterKey: isSplitMode ? 'split' : 'normal',
-    children: [
-      {
-        region: { kind: 'panel', id: 'regionLeft', type: 'main', render: renderMain },
-        defaultSize: isSplitMode ? '50%' : '70%',
-        min: '20%',
-        max: '90%',
-      },
-      {
-        region: { kind: 'panel', id: 'regionRight', type: 'sub', render: renderSub },
-        defaultSize: isSplitMode ? '50%' : '30%',
-        min: '10%',
-        max: '80%',
-      },
-    ],
-  }
+  const subVisible = !simulation.isHidden('regionRight')
+  // Default right-pane width — 50% in compare mode (the user wants a side-by-side), 30% otherwise.
+  const rightDefault = isSplitMode ? 50 : 30
+
+  const mainNode: ReactNode = <MainPanelStack controls={mainControls} slotClassName={styles.slot} />
+  const subNode: ReactNode = <SubPanelStack controls={subControls} slotClassName={styles.slot} />
 
   return (
-    <ConfigProvider
-      theme={{
-        components: {
-          Splitter: { splitBarSize: 4, splitTriggerSize: 16 },
-        },
-      }}
-    >
-      <Layout className="ax-layout">
-        <SimulationLayoutTop />
-        <Layout className="ax-layout_middle">
-          <SimulationLayoutLeft />
-          <Layout.Content className="ax-layout_main">
-            <div className={styles.root}>{renderRegion(layout)}</div>
-          </Layout.Content>
-          <SimulationLayoutRight />
-        </Layout>
-        <SimulationLayoutBottom />
+    <Layout className="ax-layout">
+      <SimulationLayoutTop />
+      <Layout className="ax-layout_middle">
+        <SimulationLayoutLeft />
+        <Layout.Content className="ax-layout_main">
+          <div className={styles.root}>
+            <AxSplitPane first={mainNode} second={subNode} secondVisible={subVisible} defaultRightPercent={rightDefault} minRightPercent={12} maxRightPercent={80} />
+          </div>
+        </Layout.Content>
+        <SimulationLayoutRight />
       </Layout>
-    </ConfigProvider>
+      <SimulationLayoutBottom />
+    </Layout>
   )
 })

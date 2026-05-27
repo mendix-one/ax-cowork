@@ -4,6 +4,7 @@ import { ProductionLineModal, SimulationPlanModal } from '@/pages/simulation/mod
 import { SimulationContext } from '@/pages/simulation/store/simulation.context'
 import { simulationStore } from '@/pages/simulation/store/simulation.store'
 import { SimulationPreflightModal } from '@/pages/simulation/components/SimulationPreflightModal'
+import { SimulationKeyboardShortcuts } from '@/pages/simulation/components/SimulationKeyboardShortcuts'
 
 export const SimulationPage = observer(() => {
   const preflightLabel = simulationStore.preflightTarget === 'gantt' ? 'Save Gantt plan' : simulationStore.preflightTarget === 'productionOrder' ? 'Save Production Order edits' : undefined
@@ -18,6 +19,7 @@ export const SimulationPage = observer(() => {
         onCancel={() => simulationStore.closePreflight()}
         onConfirm={() => simulationStore.confirmPreflight()}
       />
+      <SimulationKeyboardShortcuts />
     </SimulationContext.Provider>
   )
 })

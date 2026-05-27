@@ -46,6 +46,12 @@ export const SimulationLayoutRight = observer(() => {
           <Space size={8} vertical>
             <AxMenuIcon icon="mdiFaceAgent" title="Support" placement="left" isActive={app.supportModalOpen} onClick={() => app.openSupportModal()} />
             <AxMenuIcon
+              icon="mdiKeyboardOutline"
+              title="Keyboard shortcuts (press ?)"
+              placement="left"
+              onClick={() => window.dispatchEvent(new KeyboardEvent('keydown', { key: '?' }))}
+            />
+            <AxMenuIcon
               icon="mdiInformationSlabCircleOutline"
               title="Guides"
               placement="left"

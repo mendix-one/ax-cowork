@@ -1,29 +1,31 @@
+import { axRisk, axSchedule } from '@/acore/theme/theme'
 import type { MilestoneState, ScheduleClass } from '../../data/mock-plan'
 
-// Update 3 — canonical colour set for the Gantt panel.
+// Single source of truth for Gantt colors — re-exports the planner theme so SCSS, JS, and Tailwind agree.
+// If the palette changes, edit src/acore/theme/theme.ts (axSchedule / axRisk) and tailwind.config.js together.
 export const AX_COLORS = {
-  violation: '#f44336',
-  highload: '#ff9800',
-  normal: '#2196f3',
-  capacity: '#73d13d',
-  fixedSchedule: '#2f54eb',
-  changesSchedule: '#1677ff',
-  newSchedule: '#36cfc9',
+  violation: axRisk.critical.solid,
+  highload: axRisk.warning.solid,
+  normal: axRisk.info.solid,
+  capacity: axRisk.ok.solid,
+  fixedSchedule: axSchedule.fixed.bar,
+  changesSchedule: axSchedule.changes.bar,
+  newSchedule: axSchedule.new.bar,
 } as const
 
-// Bar fill colour by schedule class — applied via inline `task_class` (CSS) and tooltip styling.
+// Bar fill colour by schedule class — kept in sync with the SCSS overrides under .ax-gantt-row__<cls>.
 export const SCHEDULE_COLOR: Record<ScheduleClass, string> = {
-  fixed: AX_COLORS.fixedSchedule,
-  changes: AX_COLORS.changesSchedule,
-  new: AX_COLORS.newSchedule,
+  fixed: axSchedule.fixed.bar,
+  changes: axSchedule.changes.bar,
+  new: axSchedule.new.bar,
 }
 
 // Milestone marker colour by state.
 export const MILESTONE_COLOR: Record<MilestoneState, string> = {
-  new: AX_COLORS.newSchedule,
-  normal: AX_COLORS.normal,
-  late: AX_COLORS.highload,
-  cannot: AX_COLORS.violation,
+  new: axSchedule.new.bar,
+  normal: axRisk.info.solid,
+  late: axRisk.warning.solid,
+  cannot: axRisk.critical.solid,
 }
 
 export const utilColor = (u: number) => (u > 85 ? AX_COLORS.violation : u > 80 ? AX_COLORS.highload : AX_COLORS.capacity)

@@ -35,6 +35,9 @@ export type GanttTaskRow = {
   // Drag-to-reschedule: dhx respects `readonly: true` to lock a task from drag/resize.
   // PO and family rows roll up children, batches that are already running are locked.
   readonly?: boolean
+  // Index of the PO this row belongs to within the filtered list (0, 1, 2 …) — used by the bar template to
+  // attach an alternating `ax-gantt-poband__{a|b}` class so the SCSS can zebra-band by PO group.
+  poIndex: number
 }
 
 // Marker payload for the dhx-react-gantt `markers` prop — Today + per-PO milestones.
@@ -103,6 +106,9 @@ export class GanttStore {
 
   filterSidebarOpen = false
   quickAnalysisOpen = false
+  // Risks strip — collapsed by default so the chart owns the most vertical space; the planner expands to see
+  // the prioritized list of constraints + overloaded tool groups that affect the current horizon.
+  risksStripOpen = true
 
   // Applied adjustment — list of checked tree keys (PO + PF + MB). Drives `filteredOrders` and the chart.
   checkedKeys: string[] = [...ALL_TREE_KEYS]
@@ -150,6 +156,10 @@ export class GanttStore {
 
   toggleQuickAnalysis() {
     this.quickAnalysisOpen = !this.quickAnalysisOpen
+  }
+
+  toggleRisksStrip() {
+    this.risksStripOpen = !this.risksStripOpen
   }
 
   // Tree onCheck handler — replaces the pending selection wholesale.
@@ -237,6 +247,7 @@ export class GanttStore {
   // Milestones are NOT tasks anymore — they render as vertical marker lines (see `dhxMarkers`).
   get dhxTasks(): GanttTaskRow[] {
     const out: GanttTaskRow[] = []
+    let poIndex = 0
     for (const order of this.filteredOrders) {
       out.push({
         id: order.id,
@@ -252,6 +263,7 @@ export class GanttStore {
         color: scheduleColor(order.scheduleClass),
         // Project rows are always readonly — their span is computed from children, not draggable.
         readonly: true,
+        poIndex,
       })
       for (const family of order.schedule) {
         out.push({
@@ -268,6 +280,7 @@ export class GanttStore {
           scheduleClass: family.scheduleClass,
           color: scheduleColor(family.scheduleClass),
           readonly: true,
+          poIndex,
         })
         for (const batch of family.batches) {
           out.push({
@@ -285,9 +298,11 @@ export class GanttStore {
             color: scheduleColor(batch.scheduleClass),
             // Running (fixed) batches are locked — already executing on the floor.
             readonly: batch.scheduleClass === 'fixed',
+            poIndex,
           })
         }
       }
+      poIndex += 1
     }
     return out
   }
@@ -353,6 +368,11 @@ export class GanttStore {
 
   get canRedo() {
     return this.futureCount > 0
+  }
+
+  // Number of unsaved edits since the last save — drives the header chip + the toolbar dirty indicator.
+  get unsavedEditsCount() {
+    return this.historyCount
   }
 
   undo() {

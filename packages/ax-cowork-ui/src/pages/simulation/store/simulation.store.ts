@@ -58,6 +58,9 @@ type PersistedShellState = {
   activeMainPanel: MainPanelId
   activeSubPanel: SubPanelId
   panelStates: PanelStates
+  // Rail expansion is persisted alongside panel state — a senior planner who collapses for the Gantt
+  // doesn't want it to revert on every reload. Optional so older persisted blobs still hydrate cleanly.
+  leftRailExpanded?: boolean
 }
 
 const isPersistedShellState = (v: unknown): v is PersistedShellState => {
@@ -90,6 +93,8 @@ export class SimulationStore {
   panelStates: PanelStates = { ...initialStates }
   activeMainPanel: MainPanelId = 'gantt'
   activeSubPanel: SubPanelId = 'aiChat'
+  // Default to collapsed on first load — FHD planner sessions are pixel-tight; the user opts in to labels.
+  leftRailExpanded = false
 
   productionLines: ProductionLine[] = PRODUCTION_LINES
   simulationPlans: SimulationPlan[] = SIMULATION_PLANS
@@ -128,6 +133,7 @@ export class SimulationStore {
       this.activeMainPanel = persisted.activeMainPanel
       this.activeSubPanel = persisted.activeSubPanel
       this.panelStates = { ...persisted.panelStates }
+      if (typeof persisted.leftRailExpanded === 'boolean') this.leftRailExpanded = persisted.leftRailExpanded
     }
     makeAutoObservable(this)
   }
@@ -138,7 +144,13 @@ export class SimulationStore {
       activeMainPanel: this.activeMainPanel,
       activeSubPanel: this.activeSubPanel,
       panelStates: this.panelStates,
+      leftRailExpanded: this.leftRailExpanded,
     })
+  }
+
+  toggleLeftRail() {
+    this.leftRailExpanded = !this.leftRailExpanded
+    this.persistShell()
   }
 
   get activeProductionLine(): ProductionLine {
@@ -147,6 +159,12 @@ export class SimulationStore {
 
   get activeSimulationPlan(): SimulationPlan {
     return this.simulationPlans.find((plan) => plan.id === this.activeSimulationPlanId) ?? this.simulationPlans[0]
+  }
+
+  // Aggregate dirty count across editable panels — drives the header "unsaved edits" chip so the planner has
+  // the same signal whether they're on the Gantt, the Production Order table, or any other panel.
+  get totalUnsavedEdits(): number {
+    return this.gantt.unsavedEditsCount
   }
 
   setActiveProductionLine(id: string) {

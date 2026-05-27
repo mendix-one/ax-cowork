@@ -28,10 +28,13 @@ const COL_OVERSCAN = 10
 const DEFAULT_TREE_INDENT = 16
 
 const DEFAULT_BUCKETS: NumberBucketThresholds = { high: 10, low: 5 }
+// Default is no background. Numeric columns get tabular-nums + right-align, but the heatmap tint only kicks in
+// when the consumer opts in by passing explicit `numberBuckets` + `numberColors`. The previous default painted
+// every >10 value red, which is meaningless for raw counts (wafer counts, etc.) and was actively misleading.
 const DEFAULT_COLORS: NumberBucketColors = {
-  high: 'rgba(244, 67, 54, 0.16)', // error
-  mid: 'rgba(76, 175, 80, 0.16)', // success
-  low: 'rgba(0, 150, 136, 0.16)', // secondary / teal
+  high: 'transparent',
+  mid: 'transparent',
+  low: 'transparent',
 }
 
 interface SizeMetrics {

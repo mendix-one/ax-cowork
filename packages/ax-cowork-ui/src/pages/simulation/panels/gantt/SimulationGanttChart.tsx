@@ -65,10 +65,21 @@ export const SimulationGanttChart = observer(() => {
   // Today + milestone markers come from the store now.
   const markers = gantt.dhxMarkers
 
-  // Bar class = schedule class + row kind (Update 3: replaces lot-status / hot-lot classes).
+  // Bar class = schedule class + row kind + PO-band (Update 3: replaces lot-status / hot-lot classes).
+  // The `ax-gantt-poband__{a|b}` class alternates per PO so SCSS can zebra-band the timeline rows by group —
+  // makes it obvious where one Production Order ends and the next begins, without printing a separator row.
+  const rowBandClass = (task: GanttTaskRow) => {
+    const band = task.poIndex % 2 === 0 ? 'a' : 'b'
+    return `ax-gantt-poband__${band} ax-gantt-poband-row__${task.rowKind}`
+  }
   const templates = useMemo(
     () => ({
-      task_class: (_start: Date, _end: Date, task: GanttTaskRow) => `ax-gantt-row ax-gantt-row__${task.scheduleClass} ax-gantt-row__${task.rowKind}`,
+      task_class: (_start: Date, _end: Date, task: GanttTaskRow) =>
+        `ax-gantt-row ax-gantt-row__${task.scheduleClass} ax-gantt-row__${task.rowKind} ${rowBandClass(task)}`,
+      // Full-row zebra (timeline side) + accent rule for PO rows that mark a new group.
+      task_row_class: (_start: Date, _end: Date, task: GanttTaskRow) => rowBandClass(task),
+      // Same alternation in the left grid so banding lines up perfectly across the splitter.
+      grid_row_class: (_start: Date, _end: Date, task: GanttTaskRow) => rowBandClass(task),
       task_text: (_start: Date, _end: Date, task: GanttTaskRow) => {
         if (task.rowKind === 'batch' && task.note) return `${task.text} · ${task.note}`
         return task.text
