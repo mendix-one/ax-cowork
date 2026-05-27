@@ -45,6 +45,15 @@ export type GanttMarker = {
   state?: MilestoneState
 }
 
+// AntD Tree node shape — kept narrow so we don't have to depend on antd type exports here.
+export type AdjustmentTreeNode = {
+  key: string
+  title: string
+  disableCheckbox?: boolean
+  children?: AdjustmentTreeNode[]
+  isLeaf?: boolean
+}
+
 const scheduleColor = (cls: ScheduleClass) => SCHEDULE_COLOR[cls]
 
 // Build a multi-line tooltip string for a milestone marker.
@@ -58,11 +67,31 @@ const buildMilestoneTooltip = (m: ScheduleMilestone): string => {
 
 export type GanttHorizon = 'day' | 'week' | 'month'
 
-const uniq = <T>(arr: T[]) => Array.from(new Set(arr))
+// Tree key conventions — `::` separators keep parsing trivial if we ever need it.
+const poKey = (orderId: string) => `po::${orderId}`
+const pfKey = (orderId: string, familyId: string) => `pf::${orderId}::${familyId}`
+const mbKey = (orderId: string, familyId: string, batchId: string) => `mb::${orderId}::${familyId}::${batchId}`
 
-const ALL_CUSTOMERS = uniq(MOCK_PRODUCTION_ORDERS.map((o) => o.customer))
-const ALL_ORDERS = MOCK_PRODUCTION_ORDERS.map((o) => o.id)
-const ALL_FAMILIES = uniq(MOCK_PRODUCTION_ORDERS.map((o) => o.family))
+// A batch is "running" once it is part of the locked-in / executing schedule (scheduleClass === 'fixed').
+// A family/PO is "running" if any of its descendants is running. The Adjustment tree uses these flags to
+// decide which checkboxes are disabled (running nodes cannot be unchecked).
+const isBatchRunning = (cls: ScheduleClass) => cls === 'fixed'
+
+const collectAllKeys = (orders: ProductionOrder[]): string[] => {
+  const keys: string[] = []
+  for (const order of orders) {
+    keys.push(poKey(order.id))
+    for (const family of order.schedule) {
+      keys.push(pfKey(order.id, family.id))
+      for (const batch of family.batches) {
+        keys.push(mbKey(order.id, family.id, batch.id))
+      }
+    }
+  }
+  return keys
+}
+
+const ALL_TREE_KEYS = collectAllKeys(MOCK_PRODUCTION_ORDERS)
 
 export class GanttStore {
   horizon: GanttHorizon = 'week'
@@ -72,20 +101,12 @@ export class GanttStore {
   filterSidebarOpen = false
   quickAnalysisOpen = false
 
-  // Applied filter state — drives `filteredOrders` (and therefore the chart).
-  customerFilters: string[] = [...ALL_CUSTOMERS]
-  orderFilters: string[] = [...ALL_ORDERS]
-  familyFilters: string[] = [...ALL_FAMILIES]
+  // Applied adjustment — list of checked tree keys (PO + PF + MB). Drives `filteredOrders` and the chart.
+  checkedKeys: string[] = [...ALL_TREE_KEYS]
 
-  // Pending filter state — what the user is currently choosing in the sidebar.
+  // Pending adjustment — what the user is currently selecting in the sidebar.
   // Stays separate from the applied state until the user clicks Apply.
-  pendingCustomerFilters: string[] = [...ALL_CUSTOMERS]
-  pendingOrderFilters: string[] = [...ALL_ORDERS]
-  pendingFamilyFilters: string[] = [...ALL_FAMILIES]
-
-  allCustomers = ALL_CUSTOMERS
-  allOrders = ALL_ORDERS
-  allFamilies = ALL_FAMILIES
+  pendingCheckedKeys: string[] = [...ALL_TREE_KEYS]
 
   orders: ProductionOrder[] = MOCK_PRODUCTION_ORDERS
   horizonLabels: string[] = HORIZON_LABELS
@@ -119,10 +140,8 @@ export class GanttStore {
     this.filterSidebarOpen = !this.filterSidebarOpen
     if (this.filterSidebarOpen) {
       // Sync the sidebar's pending state with what is currently applied, so the user always sees
-      // the live filter when they re-open the panel.
-      this.pendingCustomerFilters = [...this.customerFilters]
-      this.pendingOrderFilters = [...this.orderFilters]
-      this.pendingFamilyFilters = [...this.familyFilters]
+      // the live adjustment when they re-open the panel.
+      this.pendingCheckedKeys = [...this.checkedKeys]
     }
   }
 
@@ -130,51 +149,85 @@ export class GanttStore {
     this.quickAnalysisOpen = !this.quickAnalysisOpen
   }
 
-  // Mutate the *pending* selection — checkboxes call these and the chart is not re-filtered yet.
-  setCustomerFilters(values: string[]) {
-    this.pendingCustomerFilters = values
-  }
-
-  setOrderFilters(values: string[]) {
-    this.pendingOrderFilters = values
-  }
-
-  setFamilyFilters(values: string[]) {
-    this.pendingFamilyFilters = values
+  // Tree onCheck handler — replaces the pending selection wholesale.
+  setPendingCheckedKeys(keys: string[]) {
+    this.pendingCheckedKeys = keys
   }
 
   // Apply — commit the pending selection to the applied state. Only after this does the chart re-filter.
-  applyFilters() {
-    this.customerFilters = [...this.pendingCustomerFilters]
-    this.orderFilters = [...this.pendingOrderFilters]
-    this.familyFilters = [...this.pendingFamilyFilters]
+  applyAdjustment() {
+    this.checkedKeys = [...this.pendingCheckedKeys]
   }
 
-  // Reset — restore the default filter condition (all values selected) in both pending and applied state.
-  resetFilters() {
-    this.pendingCustomerFilters = [...this.allCustomers]
-    this.pendingOrderFilters = [...this.allOrders]
-    this.pendingFamilyFilters = [...this.allFamilies]
-    this.customerFilters = [...this.allCustomers]
-    this.orderFilters = [...this.allOrders]
-    this.familyFilters = [...this.allFamilies]
+  // Reset — restore the default adjustment (everything selected) in both pending and applied state.
+  resetAdjustment() {
+    this.pendingCheckedKeys = [...ALL_TREE_KEYS]
+    this.checkedKeys = [...ALL_TREE_KEYS]
   }
 
   // True when the pending selection differs from what is currently applied — used to enable the Apply button.
-  get hasPendingFilterChanges(): boolean {
-    const same = (a: string[], b: string[]) => a.length === b.length && a.every((v) => b.includes(v))
-    return (
-      !same(this.pendingCustomerFilters, this.customerFilters) ||
-      !same(this.pendingOrderFilters, this.orderFilters) ||
-      !same(this.pendingFamilyFilters, this.familyFilters)
-    )
+  get hasPendingAdjustmentChanges(): boolean {
+    if (this.pendingCheckedKeys.length !== this.checkedKeys.length) return true
+    const applied = new Set(this.checkedKeys)
+    return this.pendingCheckedKeys.some((k) => !applied.has(k))
   }
 
+  // Running-state helpers — exposed so the sidebar can show distinct labels if needed.
+  isOrderRunning(orderId: string): boolean {
+    const order = this.orders.find((o) => o.id === orderId)
+    return order?.schedule.some((f) => f.batches.some((b) => isBatchRunning(b.scheduleClass))) ?? false
+  }
+
+  isFamilyRunning(orderId: string, familyId: string): boolean {
+    const family = this.orders.find((o) => o.id === orderId)?.schedule.find((f) => f.id === familyId)
+    return family?.batches.some((b) => isBatchRunning(b.scheduleClass)) ?? false
+  }
+
+  // Tree data fed to AntD <Tree treeData={...} />. Disabled checkboxes encode the business rule:
+  //   • running MB     → cannot be unchecked (already in flight)
+  //   • running PF/PO  → cannot be unchecked directly; children that aren't running can still toggle
+  get adjustmentTreeData(): AdjustmentTreeNode[] {
+    return this.orders.map((order) => {
+      const orderRunning = this.isOrderRunning(order.id)
+      return {
+        key: poKey(order.id),
+        title: `${order.id} · ${order.customerShort}`,
+        disableCheckbox: orderRunning,
+        children: order.schedule.map((family) => {
+          const familyRunning = this.isFamilyRunning(order.id, family.id)
+          return {
+            key: pfKey(order.id, family.id),
+            title: family.label,
+            disableCheckbox: familyRunning,
+            children: family.batches.map((batch) => ({
+              key: mbKey(order.id, family.id, batch.id),
+              title: `${batch.name} · ${batch.waferCount.toLocaleString()} w`,
+              disableCheckbox: isBatchRunning(batch.scheduleClass),
+              isLeaf: true,
+            })),
+          }
+        }),
+      }
+    })
+  }
+
+  // Visibility is derived purely from checked batch keys: a family appears if any of its batches is checked,
+  // a PO appears if any of its families is visible. This works regardless of the PF/PO key's checked state,
+  // which is how a running-but-partially-unchecked PF stays visible with only its remaining batches.
   get filteredOrders(): ProductionOrder[] {
-    const cs = new Set(this.customerFilters)
-    const os = new Set(this.orderFilters)
-    const fs = new Set(this.familyFilters)
-    return this.orders.filter((o) => cs.has(o.customer) && os.has(o.id) && fs.has(o.family))
+    const checked = new Set(this.checkedKeys)
+    const out: ProductionOrder[] = []
+    for (const order of this.orders) {
+      const visibleFamilies = []
+      for (const family of order.schedule) {
+        const visibleBatches = family.batches.filter((b) => checked.has(mbKey(order.id, family.id, b.id)))
+        if (visibleBatches.length === 0) continue
+        visibleFamilies.push({ ...family, batches: visibleBatches })
+      }
+      if (visibleFamilies.length === 0) continue
+      out.push({ ...order, schedule: visibleFamilies })
+    }
+    return out
   }
 
   // Flat dhx tasks array (PO → Family → Batch) for the @dhx/react-gantt component.
@@ -317,7 +370,7 @@ export class GanttStore {
   reset() {
     this.historyCount = 0
     this.futureCount = 0
-    this.resetFilters()
+    this.resetAdjustment()
     this.horizon = 'week'
   }
 

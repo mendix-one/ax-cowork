@@ -1,4 +1,5 @@
 import { makeAutoObservable } from 'mobx'
+import { readJson, writeJson } from '@/acore/storage'
 import { GanttStore } from '../panels/gantt/gantt.store'
 import { AnalysisStore } from '../panels/analysis/analysis.store'
 import { ProductionOrderStore } from '../panels/production-order/production-order.store'
@@ -37,6 +38,37 @@ const SUB_REGION_ID: PanelId = 'regionRight'
 const initialStates: PanelStates = {
   regionLeft: 'normal',
   regionRight: 'hidden',
+}
+
+// --- Shell-state persistence ----------------------------------------------------------------------------------------
+// Only the UI shell (which panel is active + region layout) is persisted to localStorage so a reload
+// doesn't bounce the user back to defaults. Business state (adjustment tree, date ranges, brush, etc.)
+// stays in memory — it will live on the backend once the BE is wired in.
+// The key is versioned so adding/removing a panel ID later invalidates stale entries via the guard.
+const SHELL_STORAGE_KEY = 'ax.simulation.shell.v1'
+
+const MAIN_PANEL_IDS: readonly MainPanelId[] = ['gantt', 'analysis', 'productionOrder', 'shopFloor', 'processTuning', 'capacityTuning', 'dataIntegration']
+const SUB_PANEL_IDS: readonly SubPanelId[] = ['compare', 'aiChat', 'background', 'history', 'recommendations']
+const PANEL_REGION_IDS: readonly PanelId[] = ['regionLeft', 'regionRight']
+const PANEL_STATE_VALUES: readonly PanelState[] = ['normal', 'maximized', 'hidden']
+
+type PersistedShellState = {
+  activeMainPanel: MainPanelId
+  activeSubPanel: SubPanelId
+  panelStates: PanelStates
+}
+
+const isPersistedShellState = (v: unknown): v is PersistedShellState => {
+  if (!v || typeof v !== 'object') return false
+  const o = v as Record<string, unknown>
+  if (!MAIN_PANEL_IDS.includes(o.activeMainPanel as MainPanelId)) return false
+  if (!SUB_PANEL_IDS.includes(o.activeSubPanel as SubPanelId)) return false
+  if (!o.panelStates || typeof o.panelStates !== 'object') return false
+  const ps = o.panelStates as Record<string, unknown>
+  for (const region of PANEL_REGION_IDS) {
+    if (!PANEL_STATE_VALUES.includes(ps[region] as PanelState)) return false
+  }
+  return true
 }
 
 const PRODUCTION_LINES: ProductionLine[] = [
@@ -81,7 +113,24 @@ export class SimulationStore {
   private rightVisibleBeforeMaximize = false
 
   constructor() {
+    // Hydrate shell-only state from localStorage. A failed guard (missing key, schema bump, tampered JSON)
+    // falls through to the field initializers above.
+    const persisted = readJson(SHELL_STORAGE_KEY, isPersistedShellState)
+    if (persisted) {
+      this.activeMainPanel = persisted.activeMainPanel
+      this.activeSubPanel = persisted.activeSubPanel
+      this.panelStates = { ...persisted.panelStates }
+    }
     makeAutoObservable(this)
+  }
+
+  // Sync the persisted slice — called at the end of every mutator that touches shell state.
+  private persistShell() {
+    writeJson(SHELL_STORAGE_KEY, {
+      activeMainPanel: this.activeMainPanel,
+      activeSubPanel: this.activeSubPanel,
+      panelStates: this.panelStates,
+    })
   }
 
   get activeProductionLine(): ProductionLine {
@@ -130,27 +179,33 @@ export class SimulationStore {
     if (id === MAIN_PANEL_ID) {
       this.rightVisibleBeforeMaximize = this.panelStates[SUB_REGION_ID] !== 'hidden'
       this.panelStates[SUB_REGION_ID] = 'hidden'
+      this.persistShell()
       return
     }
     this.panelStates[id] = 'maximized'
+    this.persistShell()
   }
 
   restore(id: PanelId) {
     if (id === MAIN_PANEL_ID) {
       if (!this.rightVisibleBeforeMaximize) this.activeSubPanel = 'aiChat'
       this.panelStates[SUB_REGION_ID] = 'normal'
+      this.persistShell()
       return
     }
     this.panelStates[id] = 'normal'
+    this.persistShell()
   }
 
   hide(id: PanelId) {
     if (id === SUB_REGION_ID) this.rightVisibleBeforeMaximize = false
     this.panelStates[id] = 'hidden'
+    this.persistShell()
   }
 
   setActiveMainPanel(id: MainPanelId) {
     this.activeMainPanel = id
+    this.persistShell()
   }
 
   toggleSubPanel(id: SubPanelId) {
@@ -161,6 +216,7 @@ export class SimulationStore {
       this.activeSubPanel = id
       this.panelStates[SUB_REGION_ID] = 'normal'
     }
+    this.persistShell()
   }
 }
 
