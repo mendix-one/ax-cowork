@@ -5,6 +5,11 @@ import type { MdiIconName } from '@/shared/mui-icon/AxMuiIcon.tsx'
 import { useSimulationContext } from '../store/simulation.context'
 import type { MainPanelId } from '../store/simulation.store'
 
+// Note: badge support on AxMenuIcon is intentionally not used here — surfacing risk badges on every panel
+// made the sidebar feel alarming and pulled the planner's focus off her current task. The AxMenuIcon
+// `badge` prop is preserved for future use by the notification system (per-panel inbox counts).
+// Risk-derivation helpers in store/simulation.risks.ts are likewise preserved for later.
+
 type MenuItem = {
   id: MainPanelId
   icon: MdiIconName
@@ -15,6 +20,7 @@ const GROUP_PRIMARY: MenuItem[] = [
   { id: 'gantt', icon: 'mdiChartGantt', title: 'Gantt (Simulation)' },
   { id: 'analysis', icon: 'mdiChartBar', title: 'Analysis View' },
   { id: 'productionOrder', icon: 'mdiClipboardListOutline', title: 'Production Order' },
+  { id: 'productionProcess', icon: 'mdiSitemapOutline', title: 'Production Processes' },
   { id: 'shopFloor', icon: 'mdiFactory', title: 'Shop Floor Capacity' },
 ]
 

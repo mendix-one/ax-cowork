@@ -1,8 +1,10 @@
 import { makeAutoObservable } from 'mobx'
 import { readJson, writeJson } from '@/acore/storage'
+import { NotesStore } from './notes.store'
 import { GanttStore } from '../panels/gantt/gantt.store'
 import { AnalysisStore } from '../panels/analysis/analysis.store'
 import { ProductionOrderStore } from '../panels/production-order/production-order.store'
+import { ProductionProcessStore } from '../panels/production-process/production-process.store'
 import { ShopFloorStore } from '../panels/shop-floor/shop-floor.store'
 import { ProcessTuningStore } from '../panels/process-tuning/process-tuning.store'
 import { CapacityTuningStore } from '../panels/capacity-tuning/capacity-tuning.store'
@@ -17,7 +19,7 @@ export type PanelId = 'regionLeft' | 'regionRight'
 export type PanelState = 'normal' | 'maximized' | 'hidden'
 export type PanelStates = Record<PanelId, PanelState>
 
-export type MainPanelId = 'gantt' | 'analysis' | 'productionOrder' | 'shopFloor' | 'processTuning' | 'capacityTuning' | 'dataIntegration'
+export type MainPanelId = 'gantt' | 'analysis' | 'productionOrder' | 'productionProcess' | 'shopFloor' | 'processTuning' | 'capacityTuning' | 'dataIntegration'
 export type SubPanelId = 'compare' | 'aiChat' | 'background' | 'history' | 'recommendations'
 
 export type ProductionLine = {
@@ -47,7 +49,7 @@ const initialStates: PanelStates = {
 // The key is versioned so adding/removing a panel ID later invalidates stale entries via the guard.
 const SHELL_STORAGE_KEY = 'ax.simulation.shell.v1'
 
-const MAIN_PANEL_IDS: readonly MainPanelId[] = ['gantt', 'analysis', 'productionOrder', 'shopFloor', 'processTuning', 'capacityTuning', 'dataIntegration']
+const MAIN_PANEL_IDS: readonly MainPanelId[] = ['gantt', 'analysis', 'productionOrder', 'productionProcess', 'shopFloor', 'processTuning', 'capacityTuning', 'dataIntegration']
 const SUB_PANEL_IDS: readonly SubPanelId[] = ['compare', 'aiChat', 'background', 'history', 'recommendations']
 const PANEL_REGION_IDS: readonly PanelId[] = ['regionLeft', 'regionRight']
 const PANEL_STATE_VALUES: readonly PanelState[] = ['normal', 'maximized', 'hidden']
@@ -95,14 +97,20 @@ export class SimulationStore {
   activeSimulationPlanId: string = SIMULATION_PLANS[0].id
   productionLineModalOpen = false
   simulationPlanModalOpen = false
+  // Pre-flight Save validation — null = closed; string identifies which save flow triggered it so the
+  // confirm action can dispatch to the right store.
+  preflightTarget: 'gantt' | 'productionOrder' | null = null
 
   gantt = new GanttStore()
   analysis = new AnalysisStore()
   productionOrder = new ProductionOrderStore()
+  productionProcess = new ProductionProcessStore()
   shopFloor = new ShopFloorStore()
   processTuning = new ProcessTuningStore()
   capacityTuning = new CapacityTuningStore()
   dataIntegration = new DataIntegrationStore()
+
+  notes = new NotesStore()
 
   compare = new CompareStore()
   aiChat = new AIChatStore()
@@ -217,6 +225,59 @@ export class SimulationStore {
       this.panelStates[SUB_REGION_ID] = 'normal'
     }
     this.persistShell()
+  }
+
+  // ---- Cross-view drill-through helpers --------------------------------------
+  // These switch the active main panel *and* set the relevant sub-store selection in one call so any
+  // place in the UI can do `simulation.navigateToToolGroup('HARC Etch')` without knowing the target store.
+  navigateToToolGroup(toolGroupName: string) {
+    const group = this.shopFloor.groups.find((g) => g.name === toolGroupName)
+    if (group) this.shopFloor.selectGroup(group.id)
+    this.setActiveMainPanel('shopFloor')
+  }
+
+  navigateToConstraint(constraintId: string) {
+    // Constraints are scoped per tool group on the Shop Floor view; pick the group that owns the constraint.
+    // The data lives in mock-plan but we don't want to import it here — the helpers expose enough.
+    // Caller usually knows the tool group; fall through to Shop Floor either way.
+    void constraintId
+    this.setActiveMainPanel('shopFloor')
+    this.shopFloor.setConstraintsScope('all')
+  }
+
+  navigateToTechRouting(tech: string) {
+    this.productionProcess.selectTech(tech)
+    this.setActiveMainPanel('productionProcess')
+  }
+
+  navigateToProductionOrder(poId: string, opts?: { openInfo?: boolean }) {
+    this.productionOrder.selectRow(`po::${poId}`)
+    if (opts?.openInfo !== false) this.productionOrder.infoPanelOpen = true
+    this.setActiveMainPanel('productionOrder')
+  }
+
+  navigateToBatch(poId: string, familyId: string, batchId: string) {
+    this.productionOrder.selectRow(`batch::${familyId}::${batchId}`)
+    this.productionOrder.expandedOrderIds.add(poId)
+    this.productionOrder.expandedFamilyIds.add(familyId)
+    this.productionOrder.infoPanelOpen = true
+    this.setActiveMainPanel('productionOrder')
+  }
+
+  // ---- Pre-flight Save flow --------------------------------------------------
+  openPreflight(target: 'gantt' | 'productionOrder') {
+    this.preflightTarget = target
+  }
+
+  closePreflight() {
+    this.preflightTarget = null
+  }
+
+  // Confirm the pending save: dispatches to the right per-panel save() then closes the modal.
+  confirmPreflight() {
+    if (this.preflightTarget === 'gantt') this.gantt.save()
+    else if (this.preflightTarget === 'productionOrder') this.productionOrder.save()
+    this.preflightTarget = null
   }
 }
 

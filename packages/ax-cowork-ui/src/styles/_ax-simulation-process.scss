@@ -1,0 +1,212 @@
+// === SIMULATION PRODUCTION PROCESS ===================================================================================
+// Style module for the Production Processes panel. Reuses .ax-gantt / .ax-analysis_section chrome from the
+// other panels so the visual language stays consistent.
+
+.ax-process_scroll {
+  // Override the analysis scroll's vertical stack — process needs a 2-col split at the top.
+  padding-bottom: 12px;
+}
+
+.ax-process_split {
+  @apply w-full flex gap-3;
+  @apply min-h-0;
+}
+
+.ax-process_split_right {
+  @apply flex-1 min-w-0 flex flex-col gap-3;
+}
+
+// ---- Left rail: tech list cards -------------------------------------------------------------------------------------
+.ax-process_tech_list {
+  @apply flex-none w-72;
+  @apply flex flex-col rounded border border-gray-200 bg-white;
+
+  &_header {
+    @apply h-10 px-3 flex items-center;
+    @apply border-b border-gray-200 bg-indigo-50;
+    @apply text-lg font-semibold text-neutral-800;
+  }
+
+  &_body {
+    @apply flex-1 min-h-0 overflow-auto p-2;
+    @apply flex flex-col gap-2;
+  }
+}
+
+.ax-process_tech_card {
+  @apply text-left w-full;
+  @apply rounded-md border border-gray-200 bg-white p-2;
+  @apply cursor-pointer transition-colors;
+  @apply flex flex-col gap-1;
+
+  &:hover {
+    @apply bg-indigo-50 border-indigo-200;
+  }
+
+  &.is-active {
+    @apply bg-indigo-100 border-indigo-300;
+  }
+
+  &_top {
+    @apply flex items-center justify-between;
+  }
+
+  &_title {
+    @apply font-semibold text-neutral-900;
+  }
+
+  &_stats {
+    @apply mt-1 grid grid-cols-4 gap-2;
+  }
+
+  &_stat_label {
+    @apply text-sm text-neutral-500;
+  }
+
+  &_stat_value {
+    @apply font-semibold text-neutral-900;
+  }
+}
+
+// ---- Pipeline (right top) ------------------------------------------------------------------------------------------
+.ax-process_pipeline_wrap {
+  @apply flex flex-col gap-3;
+}
+
+.ax-process_pipeline {
+  @apply flex items-stretch gap-1 overflow-x-auto pb-1;
+}
+
+.ax-process_pipeline_node {
+  @apply flex items-stretch gap-1;
+}
+
+.ax-process_pipeline_arrow {
+  @apply self-center text-neutral-400 flex-none;
+}
+
+.ax-process_step {
+  @apply flex-none w-44;
+  @apply rounded-md border border-gray-200 bg-white p-2;
+  @apply flex flex-col gap-1;
+
+  &.is-bottleneck {
+    @apply border-orange-300 bg-orange-50;
+  }
+
+  &_top {
+    @apply flex items-center justify-between;
+  }
+
+  &_order {
+    @apply text-sm text-neutral-500 font-mono;
+  }
+
+  &_name {
+    @apply font-semibold text-neutral-900;
+  }
+
+  &_meta {
+    @apply flex flex-col gap-0.5;
+  }
+
+  &_chip {
+    @apply inline-flex items-center gap-1;
+    @apply text-sm text-neutral-600;
+  }
+
+  &_kpis {
+    @apply grid grid-cols-2 gap-2 mt-1;
+  }
+
+  &_kpi_label {
+    @apply text-sm text-neutral-500;
+  }
+
+  &_kpi_value {
+    @apply font-semibold text-neutral-900;
+  }
+
+  &_footer {
+    @apply flex flex-wrap gap-1 mt-1;
+  }
+}
+
+// === SIMULATION SHOP FLOOR ==========================================================================================
+// Extra chrome on top of the existing tree+detail layout: the detail pane now hosts multiple stacked sections.
+
+.ax-sf {
+  @apply w-full h-full flex overflow-hidden bg-white text-base;
+}
+
+.ax-sf_detail_scroll {
+  @apply flex flex-col gap-3 p-3 min-h-0;
+}
+
+.ax-sf_oee_body {
+  @apply flex flex-col gap-3;
+}
+
+.ax-sf_oee_grid {
+  @apply grid grid-cols-1 sm:grid-cols-3 gap-3;
+}
+
+.ax-sf_oee_block {
+  @apply rounded border border-gray-200 bg-white p-3;
+  @apply flex flex-col gap-0.5;
+}
+
+.ax-sf_oee_label {
+  @apply text-sm text-neutral-500;
+}
+
+.ax-sf_oee_value {
+  @apply font-semibold text-neutral-900;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.ax-sf_oee_factors {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-3;
+}
+
+.ax-sf_oee_factor {
+  @apply flex flex-col gap-1;
+}
+
+.ax-sf_oee_factor_label {
+  @apply text-base font-medium text-neutral-700;
+}
+
+// === PRODUCTION ORDER SUMMARY =======================================================================================
+// Top strip above the PO table — mirrors the analysis summary card pattern.
+
+.ax-po_summary {
+  @apply w-full p-3;
+  @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3;
+  @apply bg-white border-b border-gray-200;
+}
+
+.ax-po_summary_card {
+  @apply flex flex-col rounded border border-gray-200 bg-white p-3 min-h-0;
+
+  &_title {
+    @apply flex items-center gap-1 mb-2;
+    @apply text-base font-semibold text-neutral-800;
+  }
+
+  &_body {
+    @apply flex-1 flex flex-col gap-1;
+  }
+}
+
+.ax-po_summary_bar {
+  @apply w-full h-2 rounded bg-neutral-200 overflow-hidden mt-1;
+
+  &_fill {
+    @apply h-full;
+    &__done {
+      @apply bg-green-500;
+    }
+  }
+}

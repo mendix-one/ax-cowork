@@ -6,6 +6,16 @@ import { useSimulationContext } from '../../store/simulation.context'
 import type { ProductionOrder, ScheduleMilestone } from '../../data/mock-plan'
 import type { FlatRow } from './production-order.store'
 import { MilestoneChips, PriorityChip, StatusChip } from './production-order-chips'
+import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
+
+// The notes-store key matches the row's existing key for po/family/batch rows. Customer rows don't carry
+// a planner note in this iteration (customers aren't editable nodes).
+const noteKeyFor = (row: FlatRow): string | null => {
+  if (row.kind === 'po') return `po::${row.poId}`
+  if (row.kind === 'family' && row.familyId) return `family::${row.familyId}`
+  if (row.kind === 'batch' && row.familyId && row.batchId) return `batch::${row.familyId}::${row.batchId}`
+  return null
+}
 
 const milestonesFor = (orders: ProductionOrder[], row: FlatRow): ScheduleMilestone[] => {
   if (row.kind === 'batch') return []
@@ -16,7 +26,9 @@ const milestonesFor = (orders: ProductionOrder[], row: FlatRow): ScheduleMilesto
 }
 
 export const SimulationProductionOrderTable = observer(() => {
-  const po = useSimulationContext().productionOrder
+  const sim = useSimulationContext()
+  const po = sim.productionOrder
+  const notes = sim.notes
 
   const data = po.flatRows
 
@@ -29,16 +41,25 @@ export const SimulationProductionOrderTable = observer(() => {
         sortable: false,
         sticky: 'left',
         accessor: (r) => r.label,
-        render: (_v, row) => (
-          <span className={`ax-po_label ax-po_label__${row.kind}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
-            {row.label}
-            {row.kind === 'po' && row.hotLot && (
-              <Tooltip title="Hot lot">
-                <span className="ax-po_hotlot">★ HOT</span>
-              </Tooltip>
-            )}
-          </span>
-        ),
+        render: (_v, row) => {
+          const nk = noteKeyFor(row)
+          const noteText = nk ? notes.get(nk) : ''
+          return (
+            <span className={`ax-po_label ax-po_label__${row.kind}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+              {row.label}
+              {row.kind === 'po' && row.hotLot && (
+                <Tooltip title="Hot lot">
+                  <span className="ax-po_hotlot">★ HOT</span>
+                </Tooltip>
+              )}
+              {nk && notes.has(nk) && (
+                <Tooltip title={noteText}>
+                  <AxMuiIcon icon="mdiNoteText" size={14} color="#faad14" />
+                </Tooltip>
+              )}
+            </span>
+          )
+        },
       },
       {
         key: 'customer',
@@ -114,7 +135,7 @@ export const SimulationProductionOrderTable = observer(() => {
         },
       },
     ],
-    [po],
+    [po, notes],
   )
 
   const selectedKey = po.selectedRowKey
@@ -139,7 +160,8 @@ export const SimulationProductionOrderTable = observer(() => {
           hasChildren: (r) => !!r.hasChildren,
           isExpanded: (r) => !!r.expanded,
           onToggle: (r) => {
-            if (r.kind === 'po') po.toggleOrderExpanded(r.poId)
+            if (r.kind === 'customer' && r.customer) po.toggleCustomerExpanded(r.customer)
+            else if (r.kind === 'po') po.toggleOrderExpanded(r.poId)
             else if (r.kind === 'family' && r.familyId) po.toggleFamilyExpanded(r.familyId)
           },
         }}

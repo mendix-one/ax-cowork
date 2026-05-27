@@ -1,29 +1,29 @@
-import { Button, Card, Descriptions, Flex, Space, Table, Tag, Typography } from 'antd'
+import { Button, Card, Descriptions, Space, Table, Tag, Typography } from 'antd'
 import type { ColumnsType } from 'antd/es/table'
 import { createStyles } from 'antd-style'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
 import type { QualMatrixRow, ToolGroup, ToolRow } from './shop-floor.store'
+import { calcOee } from './shop-floor.helpers'
+import { SimulationShopFloorCapacityChart } from './SimulationShopFloorCapacityChart'
+import { SimulationShopFloorOee } from './SimulationShopFloorOee'
+import { SimulationShopFloorConstraints } from './SimulationShopFloorConstraints'
 import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
+// Local utility palette used by the tree util-bar and the chamber status dots — kept in this file because
+// it's the only consumer.
 const useStyles = createStyles(({ token }) => ({
-  root: {
-    height: '100%',
-    display: 'flex',
-    overflow: 'hidden',
-    background: token.colorBgContainer,
-  },
   tree: {
     width: 240,
     padding: token.padding,
     borderRight: `1px solid ${token.colorBorderSecondary}`,
     overflow: 'auto',
+    flex: '0 0 240px',
   },
   detail: {
     flex: 1,
     minWidth: 0,
-    padding: token.padding,
     overflow: 'auto',
   },
   groupItem: {
@@ -71,7 +71,7 @@ const GroupTree = observer(() => {
     <div>
       {Object.entries(grouped).map(([mod, items]) => (
         <div key={mod} style={{ marginBottom: 12 }}>
-          <Typography.Text type="secondary" style={{ fontSize: 11, textTransform: 'uppercase' }}>
+          <Typography.Text type="secondary" className="text-sm" style={{ textTransform: 'uppercase' }}>
             ▼ {mod}
           </Typography.Text>
           <div style={{ marginTop: 4 }}>
@@ -79,12 +79,12 @@ const GroupTree = observer(() => {
               const isActive = g.id === store.selectedGroupId
               return (
                 <div key={g.id} className={cx(styles.groupItem, isActive && styles.groupItemActive)} onClick={() => store.selectGroup(g.id)}>
-                  <Typography.Text style={{ fontSize: 12, color: 'inherit' }}>{g.name}</Typography.Text>
+                  <Typography.Text style={{ color: 'inherit' }}>{g.name}</Typography.Text>
                   <Space size={6}>
                     <div className={styles.utilBar}>
                       <div style={{ width: `${g.utilization}%`, height: '100%', background: utilColor(g.utilization) }} />
                     </div>
-                    <Typography.Text style={{ fontSize: 11, color: utilColor(g.utilization) }} strong>
+                    <Typography.Text className="text-sm" style={{ color: utilColor(g.utilization) }} strong>
                       {g.utilization}%
                     </Typography.Text>
                   </Space>
@@ -140,12 +140,12 @@ const ToolsTable = observer(({ tools }: { tools: ToolRow[] }) => {
 })
 
 const QualMatrix = observer(({ rows, tools }: { rows: QualMatrixRow[]; tools: ToolRow[] }) => (
-  <table style={{ width: '100%', fontSize: 12, borderCollapse: 'collapse' }}>
+  <table className="ax-analysis_table">
     <thead>
-      <tr style={{ color: 'rgba(0,0,0,0.45)' }}>
-        <th style={{ textAlign: 'left', padding: 4 }}>Recipe</th>
+      <tr>
+        <th>Recipe</th>
         {tools.map((t) => (
-          <th key={t.id} style={{ padding: 4 }}>
+          <th key={t.id} style={{ textAlign: 'center' }}>
             {t.id.replace('ETC-', '')}
           </th>
         ))}
@@ -153,11 +153,11 @@ const QualMatrix = observer(({ rows, tools }: { rows: QualMatrixRow[]; tools: To
     </thead>
     <tbody>
       {rows.map((row) => (
-        <tr key={row.recipe} style={{ borderTop: '1px solid rgba(0,0,0,0.06)' }}>
-          <td style={{ padding: 4 }}>{row.recipe}</td>
+        <tr key={row.recipe}>
+          <td>{row.recipe}</td>
           {tools.map((t) => (
-            <td key={t.id} style={{ padding: 4, textAlign: 'center' }}>
-              {row.toolQuals[t.id] ? '✓' : <span style={{ color: 'rgba(0,0,0,0.25)' }}>—</span>}
+            <td key={t.id} style={{ textAlign: 'center' }}>
+              {row.toolQuals[t.id] ? <span style={{ color: '#52c41a' }}>✓</span> : <span style={{ color: 'rgba(0,0,0,0.25)' }}>—</span>}
             </td>
           ))}
         </tr>
@@ -168,33 +168,70 @@ const QualMatrix = observer(({ rows, tools }: { rows: QualMatrixRow[]; tools: To
 
 const Detail = observer(({ group }: { group: ToolGroup }) => {
   const store = useSimulationContext().shopFloor
+  const oee = calcOee(group.name)
   return (
-    <>
-      <Typography.Title level={5} style={{ marginTop: 0 }}>
-        Tool Group — {group.name}
-      </Typography.Title>
-      <Descriptions size="small" column={2} bordered>
-        <Descriptions.Item label="Effective WSPM">24,300</Descriptions.Item>
-        <Descriptions.Item label="Theoretical">32,400</Descriptions.Item>
-        <Descriptions.Item label="OEE">82%</Descriptions.Item>
-        <Descriptions.Item label="Avail × Perf × Qual">91% × 95% × 95%</Descriptions.Item>
-        <Descriptions.Item label="Bottleneck role">Days 8–10 (this horizon)</Descriptions.Item>
-        <Descriptions.Item label="Qual matrix">8/10 tools qualified for R-QLC-CH</Descriptions.Item>
-      </Descriptions>
+    <div className="ax-sf_detail_scroll">
+      {/* Tool group header card — quick descriptive read */}
+      <div className="ax-analysis_section">
+        <div className="ax-analysis_section_header">
+          <div className="ax-analysis_section_header_title">
+            <AxMuiIcon icon="mdiFactory" size={18} />
+            <span>Tool Group · {group.name}</span>
+          </div>
+          <Space size={4}>
+            <Tag color="blue">{group.module}</Tag>
+            <Tag color={group.utilization > 85 ? 'red' : group.utilization > 70 ? 'orange' : 'green'}>{group.utilization}% util</Tag>
+          </Space>
+        </div>
+        <div className="ax-analysis_section_body">
+          <Descriptions size="small" column={3} bordered>
+            <Descriptions.Item label="Effective WSPM">{(oee.effective * 30).toLocaleString()}</Descriptions.Item>
+            <Descriptions.Item label="Theoretical">{(oee.theoretical * 30).toLocaleString()}</Descriptions.Item>
+            <Descriptions.Item label="OEE">{Math.round(oee.oee * 100)}%</Descriptions.Item>
+            <Descriptions.Item label="A × P × Q">
+              {Math.round(oee.availability * 100)}% × {Math.round(oee.performance * 100)}% × {Math.round(oee.quality * 100)}%
+            </Descriptions.Item>
+            <Descriptions.Item label="Tools">{store.tools.length}</Descriptions.Item>
+            <Descriptions.Item label="Qual recipes">{store.qualMatrix.length}</Descriptions.Item>
+          </Descriptions>
+        </div>
+      </div>
 
-      <Typography.Title level={5} style={{ marginTop: 16 }}>
-        Tools ({store.tools.length}) — Chamber detail
-      </Typography.Title>
-      <ToolsTable tools={store.tools} />
+      {/* Charts */}
+      <SimulationShopFloorCapacityChart />
+      <SimulationShopFloorOee />
 
-      <Typography.Title level={5} style={{ marginTop: 16 }}>
-        Qualification matrix (recipe × tool)
-      </Typography.Title>
-      <Card size="small">
-        <QualMatrix rows={store.qualMatrix} tools={store.tools} />
-      </Card>
+      {/* Constraints */}
+      <SimulationShopFloorConstraints />
 
-      <Space style={{ marginTop: 16 }}>
+      {/* Tools + qual matrix — kept from the previous version, restyled into section cards */}
+      <div className="ax-analysis_section">
+        <div className="ax-analysis_section_header">
+          <div className="ax-analysis_section_header_title">
+            <AxMuiIcon icon="mdiToolboxOutline" size={18} />
+            <span>Tools ({store.tools.length}) · Chamber detail</span>
+          </div>
+        </div>
+        <div className="ax-analysis_section_body">
+          <ToolsTable tools={store.tools} />
+        </div>
+      </div>
+
+      <div className="ax-analysis_section">
+        <div className="ax-analysis_section_header">
+          <div className="ax-analysis_section_header_title">
+            <AxMuiIcon icon="mdiShieldCheckOutline" size={18} />
+            <span>Qualification matrix (recipe × tool)</span>
+          </div>
+        </div>
+        <div className="ax-analysis_section_body">
+          <Card size="small">
+            <QualMatrix rows={store.qualMatrix} tools={store.tools} />
+          </Card>
+        </div>
+      </div>
+
+      <Space style={{ padding: '0 12px 12px' }}>
         <Button size="small" icon={<AxMuiIcon icon="mdiCalendarOutline" size={14} />}>
           PM calendar
         </Button>
@@ -205,7 +242,7 @@ const Detail = observer(({ group }: { group: ToolGroup }) => {
           Tune capacity
         </Button>
       </Space>
-    </>
+    </div>
   )
 })
 
@@ -214,14 +251,12 @@ export const SimulationShopFloorPanel = observer((props: MainPanelControls) => {
   const store = useSimulationContext().shopFloor
   return (
     <AxDisplayPanel type="main" icon="mdiFactory" title="Shop Floor Capacity" {...props}>
-      <div className={styles.root}>
+      <div className="ax-sf">
         <div className={styles.tree}>
-          <Flex justify="space-between" align="center" style={{ marginBottom: 8 }}>
-            <Typography.Text strong style={{ fontSize: 12 }}>
-              Tool Group Tree
-            </Typography.Text>
-          </Flex>
-          <GroupTree />
+          <Typography.Text strong>Tool Group Tree</Typography.Text>
+          <div style={{ marginTop: 8 }}>
+            <GroupTree />
+          </div>
         </div>
         <div className={styles.detail}>{store.selectedGroup ? <Detail group={store.selectedGroup} /> : null}</div>
       </div>

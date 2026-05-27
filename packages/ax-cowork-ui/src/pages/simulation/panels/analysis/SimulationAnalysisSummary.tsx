@@ -75,11 +75,11 @@ export const SimulationAnalysisSummary = observer(() => {
           </Typography.Text>
           {cap.bottleneckGroup && (
             <div className="ax-analysis_summary_card_chips">
-              <Tag color="orange" style={{ margin: 0 }}>
+              <Tag color="orange" style={{ margin: 0, cursor: 'pointer' }} onClick={() => sim.navigateToToolGroup(cap.bottleneckGroup!)} title="Open in Shop Floor Capacity">
                 Bottleneck · {cap.bottleneckGroup}
               </Tag>
               {cap.highloadGroup && cap.highloadGroup !== cap.bottleneckGroup && (
-                <Tag color="red" style={{ margin: 0 }}>
+                <Tag color="red" style={{ margin: 0, cursor: 'pointer' }} onClick={() => sim.navigateToToolGroup(cap.highloadGroup!)} title="Open in Shop Floor Capacity">
                   Highload · {cap.highloadGroup}
                 </Tag>
               )}
@@ -125,7 +125,21 @@ export const SimulationAnalysisSummary = observer(() => {
             <Typography.Text type="secondary">All tool groups within safe range.</Typography.Text>
           ) : (
             violations.slice(0, 4).map((v) => (
-              <div key={v.group.name} className={`ax-analysis_summary_violation ${v.kind}`}>
+              <div
+                key={v.group.name}
+                className={`ax-analysis_summary_violation ${v.kind}`}
+                role="button"
+                tabIndex={0}
+                style={{ cursor: 'pointer' }}
+                title="Open in Shop Floor Capacity"
+                onClick={() => sim.navigateToToolGroup(v.group.name)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault()
+                    sim.navigateToToolGroup(v.group.name)
+                  }
+                }}
+              >
                 <Tag color={v.kind === 'violation' ? 'red' : 'orange'} style={{ margin: 0 }}>
                   {v.kind === 'violation' ? 'Violation' : 'Highload'}
                 </Tag>

@@ -367,3 +367,170 @@ export const DAILY_TOOL_GROUP_USAGE: { date: string; usage: Record<string, numbe
   }
   return { date, usage }
 })
+
+// --- Production Process routing -------------------------------------------------------------------------------------
+// Per tech code, the ordered manufacturing process steps. Tool groups are referenced by `name` so they line up
+// with TOOL_GROUP_CAPACITIES — the Production Process view derives utilization & bottleneck from that source.
+//
+// Cycle time is per-batch hours (not per-wafer); yield is the expected pass-through ratio for the step.
+
+export type ProcessStepStage = 'FEOL' | 'MOL' | 'BEOL' | 'Test' | 'Assembly'
+
+export type ProcessStep = {
+  id: string
+  order: number
+  name: string // step short label, e.g. "ONON Stack"
+  stage: ProcessStepStage
+  toolGroup: string // must match a TOOL_GROUP_CAPACITIES.name
+  recipe: string // e.g. "R-QLC-V9-232"
+  qualRequired: boolean // step demands a recipe qualification on the tool
+  cycleHours: number // batch cycle time (one wafer slot, full 25-wafer batch)
+  expectedYield: number // 0..1 — wafers out / wafers in for this step
+  note?: string
+}
+
+export type TechRouting = {
+  tech: string // matches ScheduleFamily.tech, e.g. "T-V9-232L"
+  family: string // representative family code, e.g. "V9-QLC-A"
+  description: string
+  layers: number // memory stack height, e.g. 232
+  bitDensity: 'TLC' | 'QLC' // bits-per-cell (TLC=3, QLC=4)
+  steps: ProcessStep[]
+}
+
+// 232L QLC — densest stack, longest HARC etch; HARC is the structural bottleneck for this tech.
+const STEPS_232L: ProcessStep[] = [
+  { id: 's1', order: 1, name: 'FEOL Deposit', stage: 'FEOL', toolGroup: 'FEOL Dep', recipe: 'R-FEOL-V9', qualRequired: false, cycleHours: 18, expectedYield: 0.998 },
+  { id: 's2', order: 2, name: 'ONON Stack', stage: 'FEOL', toolGroup: 'ONON CVD', recipe: 'R-CVD-232L', qualRequired: true, cycleHours: 36, expectedYield: 0.996, note: '232 oxide/nitride pairs' },
+  { id: 's3', order: 3, name: 'HARC Etch', stage: 'FEOL', toolGroup: 'HARC Etch', recipe: 'R-HARC-232L', qualRequired: true, cycleHours: 30, expectedYield: 0.985, note: 'Bottleneck — deep channel etch' },
+  { id: 's4', order: 4, name: 'WL Tungsten Fill', stage: 'MOL', toolGroup: 'WL Fill', recipe: 'R-WL-CVD', qualRequired: false, cycleHours: 24, expectedYield: 0.994 },
+  { id: 's5', order: 5, name: 'CMP', stage: 'MOL', toolGroup: 'CMP', recipe: 'R-CMP-232', qualRequired: false, cycleHours: 12, expectedYield: 0.997 },
+  { id: 's6', order: 6, name: 'BEOL Metal', stage: 'BEOL', toolGroup: 'BEOL', recipe: 'R-BEOL-V9', qualRequired: false, cycleHours: 20, expectedYield: 0.995 },
+  { id: 's7', order: 7, name: 'Wafer Probe', stage: 'Test', toolGroup: 'Probe', recipe: 'R-PRB-QLC-V9', qualRequired: true, cycleHours: 8, expectedYield: 0.93, note: 'QLC sort, 1024-Vt levels' },
+  { id: 's8', order: 8, name: 'Assembly', stage: 'Assembly', toolGroup: 'Asm', recipe: 'R-ASM-eMMC', qualRequired: false, cycleHours: 16, expectedYield: 0.99 },
+]
+
+// 176L TLC — mid-density; cycle times shorter, yield higher.
+const STEPS_176L: ProcessStep[] = [
+  { id: 's1', order: 1, name: 'FEOL Deposit', stage: 'FEOL', toolGroup: 'FEOL Dep', recipe: 'R-FEOL-V9', qualRequired: false, cycleHours: 18, expectedYield: 0.998 },
+  { id: 's2', order: 2, name: 'ONON Stack', stage: 'FEOL', toolGroup: 'ONON CVD', recipe: 'R-CVD-176L', qualRequired: true, cycleHours: 28, expectedYield: 0.997, note: '176 oxide/nitride pairs' },
+  { id: 's3', order: 3, name: 'HARC Etch', stage: 'FEOL', toolGroup: 'HARC Etch', recipe: 'R-HARC-176L', qualRequired: true, cycleHours: 22, expectedYield: 0.99 },
+  { id: 's4', order: 4, name: 'WL Tungsten Fill', stage: 'MOL', toolGroup: 'WL Fill', recipe: 'R-WL-CVD', qualRequired: false, cycleHours: 20, expectedYield: 0.996 },
+  { id: 's5', order: 5, name: 'CMP', stage: 'MOL', toolGroup: 'CMP', recipe: 'R-CMP-176', qualRequired: false, cycleHours: 10, expectedYield: 0.997 },
+  { id: 's6', order: 6, name: 'BEOL Metal', stage: 'BEOL', toolGroup: 'BEOL', recipe: 'R-BEOL-V9', qualRequired: false, cycleHours: 20, expectedYield: 0.996 },
+  { id: 's7', order: 7, name: 'Wafer Probe', stage: 'Test', toolGroup: 'Probe', recipe: 'R-PRB-TLC-V9', qualRequired: true, cycleHours: 6, expectedYield: 0.96 },
+  { id: 's8', order: 8, name: 'Assembly', stage: 'Assembly', toolGroup: 'Asm', recipe: 'R-ASM-eMMC', qualRequired: false, cycleHours: 16, expectedYield: 0.99 },
+]
+
+// 128L TLC — legacy node, fastest cycle, best yield.
+const STEPS_128L: ProcessStep[] = [
+  { id: 's1', order: 1, name: 'FEOL Deposit', stage: 'FEOL', toolGroup: 'FEOL Dep', recipe: 'R-FEOL-V8', qualRequired: false, cycleHours: 14, expectedYield: 0.999 },
+  { id: 's2', order: 2, name: 'ONON Stack', stage: 'FEOL', toolGroup: 'ONON CVD', recipe: 'R-CVD-128L', qualRequired: false, cycleHours: 22, expectedYield: 0.998 },
+  { id: 's3', order: 3, name: 'HARC Etch', stage: 'FEOL', toolGroup: 'HARC Etch', recipe: 'R-HARC-128L', qualRequired: false, cycleHours: 18, expectedYield: 0.993 },
+  { id: 's4', order: 4, name: 'WL Tungsten Fill', stage: 'MOL', toolGroup: 'WL Fill', recipe: 'R-WL-CVD', qualRequired: false, cycleHours: 18, expectedYield: 0.997 },
+  { id: 's5', order: 5, name: 'CMP', stage: 'MOL', toolGroup: 'CMP', recipe: 'R-CMP-128', qualRequired: false, cycleHours: 10, expectedYield: 0.998 },
+  { id: 's6', order: 6, name: 'BEOL Metal', stage: 'BEOL', toolGroup: 'BEOL', recipe: 'R-BEOL-V8', qualRequired: false, cycleHours: 18, expectedYield: 0.996 },
+  { id: 's7', order: 7, name: 'Wafer Probe', stage: 'Test', toolGroup: 'Probe', recipe: 'R-PRB-TLC-V8', qualRequired: false, cycleHours: 6, expectedYield: 0.97 },
+  { id: 's8', order: 8, name: 'Assembly', stage: 'Assembly', toolGroup: 'Asm', recipe: 'R-ASM-eMMC', qualRequired: false, cycleHours: 14, expectedYield: 0.99 },
+]
+
+export const TECH_ROUTINGS: TechRouting[] = [
+  { tech: 'T-V9-232L', family: 'V9-QLC-A', description: '232-layer QLC NAND, V9 generation', layers: 232, bitDensity: 'QLC', steps: STEPS_232L },
+  { tech: 'T-V9-176L', family: 'V9-TLC-B', description: '176-layer TLC NAND, V9 generation', layers: 176, bitDensity: 'TLC', steps: STEPS_176L },
+  { tech: 'T-V9-128L', family: 'V9-TLC-C', description: '128-layer TLC NAND, V8 platform', layers: 128, bitDensity: 'TLC', steps: STEPS_128L },
+]
+
+// --- Tooling constraints --------------------------------------------------------------------------------------------
+// Events that impact the plan window: PM maintenance, qualification expirations, ramp-ups of new tools, downtime.
+// The Shop Floor view surfaces these so the planner can see *why* a tool group is constrained.
+
+export type ConstraintKind = 'pm' | 'qual-expiry' | 'downtime' | 'ramp-up' | 'recipe-lock'
+export type ConstraintSeverity = 'info' | 'warning' | 'critical'
+
+export type ToolingConstraint = {
+  id: string
+  kind: ConstraintKind
+  severity: ConstraintSeverity
+  toolGroup: string // matches TOOL_GROUP_CAPACITIES.name
+  toolId?: string // optional specific tool, e.g. "ETC-44"
+  start: string // YYYY-MM-DD
+  end: string // YYYY-MM-DD
+  title: string
+  detail: string
+  // Estimated impact on the group's daily throughput while active, 0..1 (0.2 = 20% capacity loss).
+  impactRatio: number
+}
+
+export const TOOLING_CONSTRAINTS: ToolingConstraint[] = [
+  {
+    id: 'c1',
+    kind: 'pm',
+    severity: 'warning',
+    toolGroup: 'HARC Etch',
+    toolId: 'ETC-44',
+    start: '2026-05-06',
+    end: '2026-05-07',
+    title: 'PM window — ETC-44 (2 days)',
+    detail: 'Scheduled preventive maintenance. Chamber C drift trending up, full PM expected.',
+    impactRatio: 0.12,
+  },
+  {
+    id: 'c2',
+    kind: 'qual-expiry',
+    severity: 'critical',
+    toolGroup: 'HARC Etch',
+    toolId: 'ETC-44',
+    start: '2026-06-12',
+    end: '2026-06-12',
+    title: 'Qual expiring — R-HARC-232L on ETC-44 chamber C',
+    detail: 'Re-qualification monolot required by 2026-06-12 or chamber drops off the qual matrix.',
+    impactRatio: 0,
+  },
+  {
+    id: 'c3',
+    kind: 'downtime',
+    severity: 'critical',
+    toolGroup: 'Probe',
+    toolId: 'PRB-07',
+    start: '2026-05-01',
+    end: '2026-05-03',
+    title: 'Down — PRB-07 (3 days)',
+    detail: 'Probe card replacement after parametric drift. Estimated -18% Probe group throughput.',
+    impactRatio: 0.18,
+  },
+  {
+    id: 'c4',
+    kind: 'ramp-up',
+    severity: 'info',
+    toolGroup: 'WL Fill',
+    toolId: 'WL-09',
+    start: '2026-05-08',
+    end: '2026-05-14',
+    title: 'Ramp-up — WL-09 (new tool)',
+    detail: 'First production tool of refreshed WL Fill platform. Throttled to 50% for first week, then linear ramp.',
+    impactRatio: -0.08,
+  },
+  {
+    id: 'c5',
+    kind: 'recipe-lock',
+    severity: 'warning',
+    toolGroup: 'ONON CVD',
+    start: '2026-05-04',
+    end: '2026-05-10',
+    title: 'Recipe lock — R-CVD-232L',
+    detail: 'Process engineering froze the recipe pending SPC review; no changes allowed in the window.',
+    impactRatio: 0,
+  },
+  {
+    id: 'c6',
+    kind: 'pm',
+    severity: 'info',
+    toolGroup: 'CMP',
+    toolId: 'CMP-12',
+    start: '2026-05-11',
+    end: '2026-05-11',
+    title: 'PM window — CMP-12 (1 day)',
+    detail: 'Pad change and slurry line flush.',
+    impactRatio: 0.05,
+  },
+]

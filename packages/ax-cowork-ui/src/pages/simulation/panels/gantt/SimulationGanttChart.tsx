@@ -1,6 +1,6 @@
 import { useMemo } from 'react'
 import { observer } from 'mobx-react-lite'
-import ReactGantt, { type GanttConfig } from '@dhx/react-gantt'
+import ReactGantt, { type BatchChanges, type GanttConfig } from '@dhx/react-gantt'
 import '@dhx/react-gantt/dist/react-gantt.css'
 import { useSimulationContext } from '../../store/simulation.context'
 import type { GanttTaskRow } from './gantt.store'
@@ -79,9 +79,30 @@ export const SimulationGanttChart = observer(() => {
     [],
   )
 
+  // dhx hands us a BatchChanges payload after each drag/resize. We translate update actions on batch tasks
+  // (id format `${familyId}::${batchId}`) into a store mutation; the cascade recomputes PF/PO spans.
+  const dataHandler = useMemo(
+    () => ({
+      batchSave: (changes: BatchChanges) => {
+        for (const change of changes.tasks ?? []) {
+          if (change.action !== 'update' && change.action !== 'edit') continue
+          const id = String(change.id)
+          if (!id.includes('::')) continue // skip PO / family updates — they're computed from children
+          const [familyId, batchId] = id.split('::')
+          const data = change.data as { start_date?: Date | string; end_date?: Date | string } | undefined
+          if (!data?.start_date || !data?.end_date) continue
+          const start = data.start_date instanceof Date ? data.start_date : new Date(data.start_date)
+          const end = data.end_date instanceof Date ? data.end_date : new Date(data.end_date)
+          gantt.rescheduleBatch(familyId, batchId, start, end)
+        }
+      },
+    }),
+    [gantt],
+  )
+
   return (
     <div className="ax-gantt_chart">
-      <ReactGantt tasks={tasks} links={[]} markers={markers} config={config} templates={templates} theme="terrace" />
+      <ReactGantt tasks={tasks} links={[]} markers={markers} config={config} templates={templates} theme="terrace" data={dataHandler} />
     </div>
   )
 })

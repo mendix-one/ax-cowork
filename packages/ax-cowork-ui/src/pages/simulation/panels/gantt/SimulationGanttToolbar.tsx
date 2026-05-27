@@ -5,7 +5,8 @@ import { useSimulationContext } from '../../store/simulation.context'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 export const SimulationGanttToolbar = observer(() => {
-  const gantt = useSimulationContext().gantt
+  const sim = useSimulationContext()
+  const gantt = sim.gantt
   return (
     <Flex align="center" justify="space-between" gap="small" className="ax-gantt_toolbar" style={{ width: '100%' }}>
       <Space size={10}>
@@ -70,8 +71,8 @@ export const SimulationGanttToolbar = observer(() => {
         <Tooltip title="Reset">
           <Button size="small" icon={<AxMuiIcon icon="mdiRestore" size={14} />} onClick={() => gantt.reset()} />
         </Tooltip>
-        <Tooltip title="Save">
-          <Button size="small" type="primary" icon={<AxMuiIcon icon="mdiContentSaveOutline" size={14} />} onClick={() => gantt.save()}>
+        <Tooltip title="Save · runs a pre-flight validation first">
+          <Button size="small" type="primary" icon={<AxMuiIcon icon="mdiContentSaveOutline" size={14} />} onClick={() => sim.openPreflight('gantt')}>
             Save
           </Button>
         </Tooltip>

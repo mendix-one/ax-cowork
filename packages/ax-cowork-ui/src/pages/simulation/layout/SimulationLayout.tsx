@@ -15,6 +15,7 @@ import type { MainPanelControls, SubPanelControls } from '@/shared/display-panel
 import { SimulationGanttPanel } from '@/pages/simulation/panels/gantt/SimulationGanttPanel.tsx'
 import { SimulationAnalysisPanel } from '@/pages/simulation/panels/analysis/SimulationAnalysisPanel.tsx'
 import { SimulationProductionOrderPanel } from '@/pages/simulation/panels/production-order/SimulationProductionOrderPanel.tsx'
+import { SimulationProductionProcessPanel } from '@/pages/simulation/panels/production-process/SimulationProductionProcessPanel.tsx'
 import { SimulationShopFloorPanel } from '@/pages/simulation/panels/shop-floor/SimulationShopFloorPanel.tsx'
 import { SimulationProcessTuningPanel } from '@/pages/simulation/panels/process-tuning/SimulationProcessTuningPanel.tsx'
 import { SimulationCapacityTuningPanel } from '@/pages/simulation/panels/capacity-tuning/SimulationCapacityTuningPanel.tsx'
@@ -50,6 +51,7 @@ const MAIN_PANELS: Record<MainPanelId, ComponentType<MainPanelControls>> = {
   gantt: SimulationGanttPanel,
   analysis: SimulationAnalysisPanel,
   productionOrder: SimulationProductionOrderPanel,
+  productionProcess: SimulationProductionProcessPanel,
   shopFloor: SimulationShopFloorPanel,
   processTuning: SimulationProcessTuningPanel,
   capacityTuning: SimulationCapacityTuningPanel,

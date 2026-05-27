@@ -32,6 +32,9 @@ export type GanttTaskRow = {
   waferCount?: number
   note?: string
   scheduleClass: ScheduleClass
+  // Drag-to-reschedule: dhx respects `readonly: true` to lock a task from drag/resize.
+  // PO and family rows roll up children, batches that are already running are locked.
+  readonly?: boolean
 }
 
 // Marker payload for the dhx-react-gantt `markers` prop — Today + per-PO milestones.
@@ -247,6 +250,8 @@ export class GanttStore {
         priority: order.priority,
         scheduleClass: order.scheduleClass,
         color: scheduleColor(order.scheduleClass),
+        // Project rows are always readonly — their span is computed from children, not draggable.
+        readonly: true,
       })
       for (const family of order.schedule) {
         out.push({
@@ -262,6 +267,7 @@ export class GanttStore {
           priority: family.priority,
           scheduleClass: family.scheduleClass,
           color: scheduleColor(family.scheduleClass),
+          readonly: true,
         })
         for (const batch of family.batches) {
           out.push({
@@ -277,6 +283,8 @@ export class GanttStore {
             note: batch.note,
             scheduleClass: batch.scheduleClass,
             color: scheduleColor(batch.scheduleClass),
+            // Running (fixed) batches are locked — already executing on the floor.
+            readonly: batch.scheduleClass === 'fixed',
           })
         }
       }
@@ -378,5 +386,42 @@ export class GanttStore {
     // Mock save — in a real flow this would push to the back-end.
     this.historyCount = 0
     this.futureCount = 0
+  }
+
+  // ---- Drag-to-reschedule cascade ---------------------------------------------
+  // The dhx gantt batchSave callback hands us batch task ids in the form `${familyId}::${batchId}` together
+  // with their new start/end dates. We persist into the underlying mock-plan structure and cascade the
+  // window up to the family and PO.
+  rescheduleBatch(familyTaskId: string, batchId: string, start: Date, end: Date) {
+    const [familyId] = familyTaskId.split('::')
+    const order = this.orders.find((o) => o.schedule.some((f) => f.id === familyId))
+    if (!order) return
+    const family = order.schedule.find((f) => f.id === familyId)
+    if (!family) return
+    const batch = family.batches.find((b) => b.id === batchId)
+    if (!batch || batch.scheduleClass === 'fixed') return // running batches are readonly — extra guard
+
+    const startStr = start.toISOString().slice(0, 10)
+    const endStr = end.toISOString().slice(0, 10)
+    batch.start = startStr
+    batch.end = endStr
+    batch.durationDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)))
+    // Any move converts a previously-"new" batch into the "changes" class so the planner sees the modification.
+    if (batch.scheduleClass !== 'new') batch.scheduleClass = 'changes'
+
+    // Cascade — recompute family span from its batches and PO span from its families.
+    family.start = family.batches.reduce((a, b) => (b.start < a ? b.start : a), family.batches[0].start)
+    family.end = family.batches.reduce((a, b) => (b.end > a ? b.end : a), family.batches[0].end)
+    family.durationDays = Math.max(
+      1,
+      Math.round((new Date(family.end).getTime() - new Date(family.start).getTime()) / (24 * 60 * 60 * 1000)),
+    )
+    if (family.scheduleClass !== 'new') family.scheduleClass = 'changes'
+
+    order.waferStart = order.schedule.reduce((a, f) => (f.start < a ? f.start : a), order.schedule[0].start)
+    order.end = order.schedule.reduce((a, f) => (f.end > a ? f.end : a), order.schedule[0].end)
+    if (order.scheduleClass !== 'new') order.scheduleClass = 'changes'
+
+    this.markEdited()
   }
 }

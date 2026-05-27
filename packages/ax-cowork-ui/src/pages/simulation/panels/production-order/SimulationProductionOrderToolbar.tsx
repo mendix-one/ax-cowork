@@ -1,9 +1,9 @@
-import { Button, DatePicker, Divider, Flex, Select, Space, Tooltip } from 'antd'
+import { Button, DatePicker, Divider, Flex, Segmented, Select, Space, Tooltip } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
-import type { StatusFilter } from './production-order.store'
+import type { GroupBy, StatusFilter } from './production-order.store'
 
 const STATUS_OPTIONS: { label: string; value: StatusFilter }[] = [
   { label: 'All', value: 'all' },
@@ -13,7 +13,8 @@ const STATUS_OPTIONS: { label: string; value: StatusFilter }[] = [
 ]
 
 export const SimulationProductionOrderToolbar = observer(() => {
-  const po = useSimulationContext().productionOrder
+  const sim = useSimulationContext()
+  const po = sim.productionOrder
   return (
     <Flex align="center" justify="space-between" gap="small" className="ax-po_toolbar" style={{ width: '100%' }}>
       <Space size={10}>
@@ -29,6 +30,17 @@ export const SimulationProductionOrderToolbar = observer(() => {
         />
         <Divider vertical style={{ margin: 0 }} />
         <Select<StatusFilter> size="small" style={{ minWidth: 180 }} value={po.statusFilter} onChange={(v) => po.setStatusFilter(v)} options={STATUS_OPTIONS} />
+        <Divider vertical style={{ margin: 0 }} />
+        {/* Group-by pivot — flip the tree between PO-first and Customer-first reading order. */}
+        <Segmented
+          size="small"
+          value={po.groupBy}
+          onChange={(v) => po.setGroupBy(v as GroupBy)}
+          options={[
+            { label: 'By PO', value: 'po' },
+            { label: 'By Customer', value: 'customer' },
+          ]}
+        />
         <Divider vertical style={{ margin: 0 }} />
         <Space size={2}>
           <Tooltip title="Collapse all">
@@ -68,8 +80,8 @@ export const SimulationProductionOrderToolbar = observer(() => {
         <Tooltip title="Reset">
           <Button size="small" icon={<AxMuiIcon icon="mdiRestore" size={14} />} onClick={() => po.reset()} />
         </Tooltip>
-        <Tooltip title="Save">
-          <Button size="small" type="primary" icon={<AxMuiIcon icon="mdiContentSaveOutline" size={14} />} onClick={() => po.save()}>
+        <Tooltip title="Save · runs a pre-flight validation first">
+          <Button size="small" type="primary" icon={<AxMuiIcon icon="mdiContentSaveOutline" size={14} />} onClick={() => sim.openPreflight('productionOrder')}>
             Save
           </Button>
         </Tooltip>

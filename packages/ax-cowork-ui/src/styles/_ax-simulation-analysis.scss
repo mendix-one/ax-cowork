@@ -189,6 +189,50 @@
   }
 }
 
+// ---- Compare panel (sub-panel, promoted) -------------------------------------------------------------------------
+.ax-compare_root {
+  @apply flex flex-col gap-3 p-3 h-full overflow-auto bg-white text-base;
+}
+
+.ax-compare_selectors {
+  @apply flex items-end gap-2;
+}
+
+.ax-compare_selector {
+  @apply flex-1 flex flex-col gap-1 min-w-0;
+}
+
+.ax-compare_selector_arrow {
+  @apply self-center text-neutral-400 flex-none mb-1;
+}
+
+.ax-compare_kpis {
+  @apply grid grid-cols-2 lg:grid-cols-5 gap-2;
+  @apply rounded border border-gray-200 bg-white p-3;
+}
+
+.ax-compare_kpi {
+  @apply flex flex-col items-start gap-1;
+  &_label {
+    @apply text-sm text-neutral-500;
+  }
+  &_value {
+    @apply font-semibold text-neutral-900;
+    font-size: 22px;
+    line-height: 1.1;
+    &__small {
+      font-size: 16px;
+    }
+  }
+}
+
+// ---- Production Order: planner note editor -----------------------------------------------------------------------
+.ax-po_note_editor {
+  &_header {
+    @apply flex items-center gap-1 mb-1 text-base text-neutral-700;
+  }
+}
+
 // ---- Generic table ------------------------------------------------------------------------------------------------
 .ax-analysis_table {
   width: 100%;

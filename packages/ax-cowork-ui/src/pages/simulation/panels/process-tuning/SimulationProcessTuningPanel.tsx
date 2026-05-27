@@ -65,11 +65,9 @@ const TuneItem = observer(({ s, active, onClick }: { s: TuneSuggestion; active: 
           {s.delta.toFixed(1)}%
         </Tag>
       </Flex>
-      <Typography.Text style={{ fontSize: 12 }}>
-        {s.toolGroup} · {s.recipe}
-      </Typography.Text>
+      <Typography.Text>{s.toolGroup} · {s.recipe}</Typography.Text>
       <div>
-        <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+        <Typography.Text type="secondary" className="text-sm">
           Confidence {s.confidence}%
         </Typography.Text>
       </div>
@@ -152,7 +150,7 @@ const TuneDetail = observer(({ s }: { s: TuneSuggestion }) => {
       </Space>
 
       <div style={{ marginTop: 12 }}>
-        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+        <Typography.Text type="secondary" className="text-sm">
           History: {s.id} raised by AI {s.raisedAt}
         </Typography.Text>
       </div>

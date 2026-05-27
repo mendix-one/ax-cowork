@@ -83,9 +83,9 @@ const Item = observer(({ t, active, onClick }: { t: CapacityTune; active: boolea
           {t.deltaPct.toFixed(1)}%
         </Tag>
       </Flex>
-      <Typography.Text style={{ fontSize: 12 }}>{t.toolGroup}</Typography.Text>
+      <Typography.Text>{t.toolGroup}</Typography.Text>
       <div>
-        <Typography.Text type="secondary" style={{ fontSize: 11 }}>
+        <Typography.Text type="secondary" className="text-sm">
           Confidence {t.confidence}%
         </Typography.Text>
       </div>

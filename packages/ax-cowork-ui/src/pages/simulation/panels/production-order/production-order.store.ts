@@ -1,6 +1,13 @@
 import { makeAutoObservable } from 'mobx'
 import { MOCK_PRODUCTION_ORDERS, type PoStatus, type ProductionOrder, type ScheduleBatch, type ScheduleClass, type ScheduleFamily } from '../../data/mock-plan'
 
+// Local date arithmetic helper — mock-plan exports HORIZON dates but not addDays.
+const addDays = (start: string, days: number): string => {
+  const d = new Date(start)
+  d.setUTCDate(d.getUTCDate() + days)
+  return d.toISOString().slice(0, 10)
+}
+
 // Toolbar status filter — derived from PO.scheduleClass.
 //   • all              — no filter
 //   • new              — scheduleClass === 'new'
@@ -10,11 +17,12 @@ export type StatusFilter = 'all' | 'new' | 'running-changes' | 'running-fixed'
 
 // Flat row model fed into AxControlTable. The PO/Family/Batch tree is flattened
 // based on the current expand state; the first column renders depth + chevron.
-export type RowKind = 'po' | 'family' | 'batch'
+// In customer-pivot mode an extra 'customer' level is added at depth 0 (PO/PF/MB shift down 1).
+export type RowKind = 'customer' | 'po' | 'family' | 'batch'
 export type FlatRow = {
   key: string
   kind: RowKind
-  depth: 0 | 1 | 2
+  depth: 0 | 1 | 2 | 3
   parentKey?: string
   expanded?: boolean
   hasChildren?: boolean
@@ -33,7 +41,11 @@ export type FlatRow = {
   poId: string
   familyId?: string
   batchId?: string
+  customer?: string
 }
+
+// Group-by mode for the table — drives flatRows builder selection.
+export type GroupBy = 'po' | 'customer'
 
 const uniq = <T>(arr: T[]): T[] => Array.from(new Set(arr))
 
@@ -52,6 +64,10 @@ export class ProductionOrderStore {
   startDate = '2026-04-29'
   endDate = '2026-05-12'
   statusFilter: StatusFilter = 'all'
+  // Pivot mode: 'po' = PO → PF → MB tree; 'customer' = Customer → PO → PF → MB tree.
+  groupBy: GroupBy = 'po'
+  // Customer-level expand set — populated lazily as the planner expands.
+  expandedCustomers = new Set<string>()
 
   // Panel slots
   filterSidebarOpen = false
@@ -94,6 +110,24 @@ export class ProductionOrderStore {
 
   setStatusFilter(value: StatusFilter) {
     this.statusFilter = value
+  }
+
+  setGroupBy(value: GroupBy) {
+    this.groupBy = value
+    // When switching to customer pivot, auto-expand every customer so the planner sees POs immediately.
+    if (value === 'customer') {
+      const customers = new Set(this.orders.map((o) => o.customer))
+      this.expandedCustomers = customers
+    }
+  }
+
+  isCustomerExpanded(name: string) {
+    return this.expandedCustomers.has(name)
+  }
+
+  toggleCustomerExpanded(name: string) {
+    if (this.expandedCustomers.has(name)) this.expandedCustomers.delete(name)
+    else this.expandedCustomers.add(name)
   }
 
   // ---- panel slots -----------------------------------------------------------
@@ -206,70 +240,123 @@ export class ProductionOrderStore {
   }
 
   // Flatten PO → Family → Batch based on the current expand state.
+  // When groupBy === 'customer' we wrap in a Customer level, shifting depths by 1.
   get flatRows(): FlatRow[] {
+    return this.groupBy === 'customer' ? this.flatRowsByCustomer() : this.flatRowsByPo()
+  }
+
+  private flatRowsByPo(): FlatRow[] {
     const out: FlatRow[] = []
     for (const po of this.filteredOrders) {
-      const poKey = `po::${po.id}`
-      const poRatio = po.qty > 0 ? po.outWafers / po.qty : 0
+      this.pushPoRows(out, po, 0)
+    }
+    return out
+  }
+
+  // Group POs under their customer. Customer rows summarise commitment + out across all visible POs.
+  private flatRowsByCustomer(): FlatRow[] {
+    const out: FlatRow[] = []
+    // Group orders by customer, keeping first-seen ordering for stability.
+    const byCustomer = new Map<string, ProductionOrder[]>()
+    for (const po of this.filteredOrders) {
+      const list = byCustomer.get(po.customer) ?? []
+      list.push(po)
+      byCustomer.set(po.customer, list)
+    }
+    for (const [customer, orders] of byCustomer) {
+      const custKey = `customer::${customer}`
+      const commitment = orders.reduce((s, o) => s + o.qty, 0)
+      const outWafers = orders.reduce((s, o) => s + o.outWafers, 0)
+      const earliestStart = orders.reduce((a, o) => (o.waferStart < a ? o.waferStart : a), orders[0].waferStart)
+      const latestEnd = orders.reduce((a, o) => (o.end > a ? o.end : a), orders[0].end)
       out.push({
-        key: poKey,
-        kind: 'po',
+        key: custKey,
+        kind: 'customer',
         depth: 0,
-        expanded: this.expandedOrderIds.has(po.id),
-        hasChildren: po.schedule.length > 0,
-        label: po.id,
-        customerShort: po.customerShort,
-        priority: po.priority,
-        hotLot: po.hotLot,
-        commitment: po.qty,
-        outWafers: po.outWafers,
-        status: po.poStatus,
-        scheduleClass: po.scheduleClass,
-        startDate: po.waferStart,
-        endDate: po.end,
-        poId: po.id,
+        expanded: this.isCustomerExpanded(customer),
+        hasChildren: orders.length > 0,
+        label: customer,
+        customerShort: orders[0].customerShort,
+        customer,
+        commitment,
+        outWafers,
+        scheduleClass: 'fixed',
+        startDate: earliestStart,
+        endDate: latestEnd,
+        poId: orders[0].id,
       })
-      if (!this.expandedOrderIds.has(po.id)) continue
-      for (const family of po.schedule) {
-        const famKey = `family::${family.id}`
-        out.push({
-          key: famKey,
-          kind: 'family',
-          depth: 1,
-          parentKey: poKey,
-          expanded: this.expandedFamilyIds.has(family.id),
-          hasChildren: family.batches.length > 0,
-          label: family.label,
-          priority: family.priority,
-          hotLot: family.hotLot,
-          commitment: familyCommitment(family),
-          outWafers: familyOut(family, poRatio),
-          scheduleClass: family.scheduleClass,
-          startDate: family.start,
-          endDate: family.end,
-          poId: po.id,
-          familyId: family.id,
-        })
-        if (!this.expandedFamilyIds.has(family.id)) continue
-        for (const batch of family.batches) {
-          out.push({
-            key: `batch::${batchKey(family.id, batch)}`,
-            kind: 'batch',
-            depth: 2,
-            parentKey: famKey,
-            commitment: batch.waferCount,
-            label: batch.name,
-            scheduleClass: batch.scheduleClass,
-            startDate: batch.start,
-            endDate: batch.end,
-            poId: po.id,
-            familyId: family.id,
-            batchId: batch.id,
-          })
-        }
+      if (!this.isCustomerExpanded(customer)) continue
+      for (const po of orders) {
+        this.pushPoRows(out, po, 1, custKey)
       }
     }
     return out
+  }
+
+  private pushPoRows(out: FlatRow[], po: ProductionOrder, baseDepth: 0 | 1, parentKey?: string) {
+    const poKey = `po::${po.id}`
+    const poRatio = po.qty > 0 ? po.outWafers / po.qty : 0
+    out.push({
+      key: poKey,
+      kind: 'po',
+      depth: baseDepth,
+      parentKey,
+      expanded: this.expandedOrderIds.has(po.id),
+      hasChildren: po.schedule.length > 0,
+      label: po.id,
+      customerShort: po.customerShort,
+      customer: po.customer,
+      priority: po.priority,
+      hotLot: po.hotLot,
+      commitment: po.qty,
+      outWafers: po.outWafers,
+      status: po.poStatus,
+      scheduleClass: po.scheduleClass,
+      startDate: po.waferStart,
+      endDate: po.end,
+      poId: po.id,
+    })
+    if (!this.expandedOrderIds.has(po.id)) return
+    const famDepth = (baseDepth + 1) as 1 | 2
+    const batchDepth = (baseDepth + 2) as 2 | 3
+    for (const family of po.schedule) {
+      const famKey = `family::${family.id}`
+      out.push({
+        key: famKey,
+        kind: 'family',
+        depth: famDepth,
+        parentKey: poKey,
+        expanded: this.expandedFamilyIds.has(family.id),
+        hasChildren: family.batches.length > 0,
+        label: family.label,
+        priority: family.priority,
+        hotLot: family.hotLot,
+        commitment: familyCommitment(family),
+        outWafers: familyOut(family, poRatio),
+        scheduleClass: family.scheduleClass,
+        startDate: family.start,
+        endDate: family.end,
+        poId: po.id,
+        familyId: family.id,
+      })
+      if (!this.expandedFamilyIds.has(family.id)) continue
+      for (const batch of family.batches) {
+        out.push({
+          key: `batch::${batchKey(family.id, batch)}`,
+          kind: 'batch',
+          depth: batchDepth,
+          parentKey: famKey,
+          commitment: batch.waferCount,
+          label: batch.name,
+          scheduleClass: batch.scheduleClass,
+          startDate: batch.start,
+          endDate: batch.end,
+          poId: po.id,
+          familyId: family.id,
+          batchId: batch.id,
+        })
+      }
+    }
   }
 
   // ---- undo / redo / reset / save (mock) -------------------------------------
@@ -310,5 +397,130 @@ export class ProductionOrderStore {
   save() {
     this.historyCount = 0
     this.futureCount = 0
+  }
+
+  // ---- planner mutations (in-memory only; will move to BE later) -----------------
+  // Edit the target wafer-out for a single batch. The PO/family rollups recompute automatically
+  // because flatRows derives commitment by summing batches.
+  setBatchWaferCount(poId: string, familyId: string, batchId: string, count: number) {
+    const order = this.orders.find((o) => o.id === poId)
+    const family = order?.schedule.find((f) => f.id === familyId)
+    const batch = family?.batches.find((b) => b.id === batchId)
+    if (!batch) return
+    batch.waferCount = Math.max(0, Math.floor(count))
+    // Splitting/editing a batch transitions it into the 'changes' class — it's no longer "as planned".
+    if (batch.scheduleClass === 'fixed') batch.scheduleClass = 'changes'
+    this.markEdited()
+  }
+
+  // Split a batch in two equal halves, keeping the original schedule window. The first half keeps
+  // the original id (renamed to "/A"), the second half is appended right after (id suffix "/B").
+  splitBatch(poId: string, familyId: string, batchId: string) {
+    const order = this.orders.find((o) => o.id === poId)
+    const family = order?.schedule.find((f) => f.id === familyId)
+    if (!family) return
+    const idx = family.batches.findIndex((b) => b.id === batchId)
+    if (idx < 0) return
+    const original = family.batches[idx]
+    if (original.waferCount < 2) return // nothing meaningful to split
+    const half = Math.floor(original.waferCount / 2)
+    const remainder = original.waferCount - half
+    original.waferCount = remainder
+    if (original.scheduleClass === 'fixed') original.scheduleClass = 'changes'
+    // Strip any prior /A or /B suffix from the original name, then append /A.
+    const baseName = original.name.replace(/\/[AB]$/, '')
+    original.name = `${baseName}/A`
+    const newBatch: ScheduleBatch = {
+      id: `${baseName}_split_${Date.now()}`,
+      name: `${baseName}/B`,
+      waferCount: half,
+      start: original.start,
+      end: original.end,
+      durationDays: original.durationDays,
+      status: original.status,
+      scheduleClass: 'new',
+      toolGroup: original.toolGroup,
+      note: `Split from ${baseName}`,
+    }
+    family.batches.splice(idx + 1, 0, newBatch)
+    this.markEdited()
+  }
+
+  // Append a new batch at the end of a family. Defaults: 100 wafers, 5-day window starting right after
+  // the previous batch ends (or the family start if there were no batches yet). Marked as 'new' schedule.
+  addBatch(poId: string, familyId: string) {
+    const order = this.orders.find((o) => o.id === poId)
+    const family = order?.schedule.find((f) => f.id === familyId)
+    if (!family) return
+    const last = family.batches[family.batches.length - 1]
+    const startDate = last?.end ?? family.start
+    const endDate = addDays(startDate, 5)
+    const newBatch: ScheduleBatch = {
+      id: `b${family.batches.length + 1}_${Date.now()}`,
+      name: `B-${family.batches.length + 1}`,
+      waferCount: 100,
+      start: startDate,
+      end: endDate,
+      durationDays: 5,
+      status: 'on-track',
+      scheduleClass: 'new',
+    }
+    family.batches.push(newBatch)
+    this.markEdited()
+  }
+
+  // Append a new family to a PO with one default batch. Uses the first existing family's tech as a hint;
+  // falls back to a sensible default for a fresh order.
+  addFamily(poId: string) {
+    const order = this.orders.find((o) => o.id === poId)
+    if (!order) return
+    const seedTech = order.schedule[0]?.tech ?? 'T-V9-128L'
+    const newFamilyId = `fam-${order.id.slice(-3)}-new-${order.schedule.length + 1}`
+    const startDate = order.waferStart
+    const endDate = addDays(startDate, 7)
+    const newFamily: ScheduleFamily = {
+      id: newFamilyId,
+      label: `${order.family}-N${order.schedule.length + 1}`,
+      tech: seedTech,
+      priority: order.priority,
+      start: startDate,
+      end: endDate,
+      durationDays: 7,
+      status: 'on-track',
+      scheduleClass: 'new',
+      batches: [
+        {
+          id: 'b1',
+          name: 'B-1',
+          waferCount: 100,
+          start: startDate,
+          end: addDays(startDate, 5),
+          durationDays: 5,
+          status: 'on-track',
+          scheduleClass: 'new',
+        },
+      ],
+    }
+    order.schedule.push(newFamily)
+    // Auto-expand the new family so the planner sees its (default) batch right away.
+    this.expandedOrderIds.add(poId)
+    this.expandedFamilyIds.add(newFamilyId)
+    this.markEdited()
+  }
+
+  // Remove a batch. Used by the info panel "Remove batch" action — a running batch (scheduleClass === 'fixed')
+  // is intentionally not removed; the UI should hide the action in that case.
+  removeBatch(poId: string, familyId: string, batchId: string) {
+    const order = this.orders.find((o) => o.id === poId)
+    const family = order?.schedule.find((f) => f.id === familyId)
+    if (!family) return
+    const idx = family.batches.findIndex((b) => b.id === batchId)
+    if (idx < 0) return
+    if (family.batches[idx].scheduleClass === 'fixed') return
+    family.batches.splice(idx, 1)
+    if (this.selectedRowKey === `batch::${familyId}::${batchId}`) {
+      this.selectedRowKey = `family::${familyId}`
+    }
+    this.markEdited()
   }
 }

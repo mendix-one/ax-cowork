@@ -2,6 +2,7 @@ import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
 import { SimulationProductionOrderToolbar } from './SimulationProductionOrderToolbar'
 import { SimulationProductionOrderFilterSidebar } from './SimulationProductionOrderFilterSidebar'
+import { SimulationProductionOrderSummary } from './SimulationProductionOrderSummary'
 import { SimulationProductionOrderTable } from './SimulationProductionOrderTable'
 import { SimulationProductionOrderInfoPanel } from './SimulationProductionOrderInfoPanel'
 import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
@@ -14,6 +15,7 @@ export const SimulationProductionOrderPanel = observer((props: MainPanelControls
         <div className="ax-po_body">
           {po.filterSidebarOpen && <SimulationProductionOrderFilterSidebar />}
           <div className="ax-po_body_content">
+            <SimulationProductionOrderSummary />
             <SimulationProductionOrderTable />
             {po.infoPanelOpen && <SimulationProductionOrderInfoPanel />}
           </div>

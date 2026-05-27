@@ -107,11 +107,16 @@ const QUAL_MATRIX: QualMatrixRow[] = [
   },
 ]
 
+export type ConstraintsScope = 'group' | 'all'
+
 export class ShopFloorStore {
   groups: ToolGroup[] = TOOL_GROUPS
   selectedGroupId: string = 'harc-etch'
   tools: ToolRow[] = TOOLS
   qualMatrix: QualMatrixRow[] = QUAL_MATRIX
+
+  // Constraints panel scope toggle: focus on the selected group, or show the full shop floor.
+  constraintsScope: ConstraintsScope = 'group'
 
   constructor() {
     makeAutoObservable(this)
@@ -121,7 +126,18 @@ export class ShopFloorStore {
     return this.groups.find((g) => g.id === this.selectedGroupId)
   }
 
+  // Mapping our internal `name` (e.g. "HARC Etch") to the canonical TOOL_GROUP_CAPACITIES name —
+  // they happen to match today, so this is a passthrough; isolated here so a future rename only
+  // changes one place.
+  get selectedGroupCapacityName(): string | undefined {
+    return this.selectedGroup?.name
+  }
+
   selectGroup(id: string) {
     this.selectedGroupId = id
+  }
+
+  setConstraintsScope(scope: ConstraintsScope) {
+    this.constraintsScope = scope
   }
 }
