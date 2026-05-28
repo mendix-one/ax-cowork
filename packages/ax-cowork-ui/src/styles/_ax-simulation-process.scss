@@ -59,33 +59,140 @@
   }
 }
 
-// ---- Pipeline (right top) ------------------------------------------------------------------------------------------
-// Layout is stage-grouped: each .ax-process_pipeline_stage stacks a banner + a horizontal row of step
-// tiles separated by inline move/wait chips. Between stage groups a larger "stage transition" chip
-// surfaces the cross-bay move/wait that the planner usually wants to scrutinise most.
+// ---- Main panel layout (right of tech-list sidebar) ----------------------------------------------------------------
+// 4 vertically-stacked sections (Summary KPIs → Stage overview → Per-stage detail → Step table).
+// Edge-to-edge layout + sticky section headers come from .ax-analysis_scroll (shared with the
+// Analysis panel) — see _ax-simulation-analysis.scss for the base rules.
+
 .ax-process_pipeline_wrap {
-  @apply flex flex-col gap-3;
+  @apply flex flex-col;
 }
 
-.ax-process_pipeline {
-  @apply flex flex-col gap-2 overflow-x-auto pb-1;
+// KPI strip — small bottom gap so it visually separates from the first sticky section header that
+// follows. Other sections stack flush (their Stone-100 headers do the separating).
+.ax-process_kpis {
+  @apply mb-2;
 }
 
-.ax-process_pipeline_stage {
-  @apply flex flex-col gap-1;
+// --- 1. Summary KPI strip ---
+.ax-process_kpis {
+  @apply w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3;
 }
 
-.ax-process_stage_banner {
-  @apply flex items-center gap-2 px-1;
-  @apply text-base text-neutral-700;
+.ax-process_kpi {
+  @apply flex flex-col gap-0.5 rounded border border-gray-200 bg-white p-3 min-h-0;
 
-  &_meta {
+  &_label {
     @apply text-sm text-neutral-500;
+  }
+  &_value {
+    @apply font-semibold text-neutral-900;
+    font-size: 22px;
+    line-height: 1.1;
+  }
+  &_sub {
+    @apply text-sm text-neutral-500;
+  }
+
+  // Tone modifiers — keep the card chrome neutral but tint the VALUE so the eye is drawn to bad/good
+  // metrics. Matches the convention used by analysis_stat values.
+  &__warn .ax-process_kpi_value {
+    @apply text-ax-pri-p2-text;
+  }
+  &__good .ax-process_kpi_value {
+    @apply text-ax-risk-ok;
   }
 }
 
-.ax-process_pipeline_row {
-  @apply flex items-stretch gap-1;
+// --- 2. Stage overview ---
+.ax-process_overview {
+  @apply flex items-stretch gap-2 overflow-x-auto pb-1;
+}
+
+.ax-process_overview_cell {
+  @apply flex items-stretch gap-2;
+}
+
+.ax-process_overview_card {
+  @apply flex-none w-44 flex flex-col gap-1;
+  @apply rounded-md border border-gray-200 bg-white p-2;
+
+  &_top {
+    @apply flex items-center justify-between;
+  }
+  &_steps {
+    @apply text-sm text-neutral-500;
+  }
+  &_clock {
+    @apply font-semibold text-neutral-900;
+    font-size: 18px;
+    line-height: 1.1;
+  }
+}
+
+// Proportion bar — 8px tall, full-width, three horizontal segments coloured per type.
+// Indigo for process (the canonical primary work), Sky for move (transport), Amber for wait
+// (queue/idle — same tone as the wait chips so the planner sees the same colour everywhere).
+.ax-process_overview_bar {
+  @apply w-full h-2 rounded overflow-hidden;
+  @apply bg-neutral-200;
+  @apply flex;
+
+  &_seg {
+    @apply h-full;
+    &__process {
+      background: theme('colors.indigo.400');
+    }
+    &__move {
+      background: theme('colors.sky.400');
+    }
+    &__wait {
+      background: theme('colors.amber.400');
+    }
+  }
+}
+
+// Mini legend underneath the overview cards.
+.ax-process_overview_legend {
+  @apply mt-2 flex flex-wrap items-center gap-3 text-sm text-neutral-600;
+
+  &_item {
+    @apply inline-flex items-center gap-1;
+  }
+  &_swatch {
+    @apply inline-block rounded-sm;
+    width: 10px;
+    height: 10px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    &__process {
+      background: theme('colors.indigo.400');
+    }
+    &__move {
+      background: theme('colors.sky.400');
+    }
+    &__wait {
+      background: theme('colors.amber.400');
+    }
+  }
+}
+
+// --- 3..N. Per-stage section internals ---
+// The per-stage section reuses the .ax-analysis_section chrome (header sticky, body padded). Inside
+// the body we stack: flow diagram (row of step tiles) → spacing → detail table.
+.ax-process_stage_section_row {
+  @apply flex items-stretch gap-1 overflow-x-auto pb-1;
+}
+.ax-process_stage_section_table {
+  @apply mt-3;
+}
+
+// Legacy hooks kept for any external CSS still referencing the old pipeline class names.
+.ax-process_pipeline,
+.ax-process_pipeline_stage,
+.ax-process_pipeline_row,
+.ax-process_stage_banner,
+.ax-process_stage_transition {
+  // intentionally empty — superseded by .ax-process_stages and .ax-process_stage_section_*
 }
 
 .ax-process_pipeline_node {

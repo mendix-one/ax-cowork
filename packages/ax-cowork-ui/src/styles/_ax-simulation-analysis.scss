@@ -8,10 +8,29 @@
 //   • text-lg   (16px) — important text (section titles, primary card titles)
 //   • text-sm   (12px) — hints / captions / legend annotations only
 
+// Scroll container shared by the Analysis and Process panel main bodies.
+// Layout choices (consistent across both panels):
+//   • Edge-to-edge — no inner padding, no gap between section boxes. Section headers (Stone-100
+//     banded) serve as the visual separator between sections.
+//   • Sticky section headers — each .ax-analysis_section_header is position:sticky top:0 so it
+//     pins to the top of the scroll context while the planner reads its section, and CSS sticky
+//     naturally hands off to the next section's header when the previous one scrolls past.
 .ax-analysis_scroll {
-  @apply flex-1 min-h-0 overflow-auto p-3;
-  @apply flex flex-col gap-3;
+  @apply flex-1 min-h-0 overflow-auto;
+  @apply flex flex-col;
   @apply bg-white text-base;
+
+  // Sections inside the scroll: no border, no rounded corners — full-width content blocks.
+  .ax-analysis_section {
+    @apply rounded-none border-0;
+  }
+
+  // Sticky section headers — pin to the scroll context's top as the planner scrolls past each
+  // section. Stone-100 background fully occludes content scrolling underneath; z-index keeps the
+  // pinned header above body content + above the next section while it's still entering view.
+  .ax-analysis_section_header {
+    @apply sticky top-0 z-10;
+  }
 }
 
 // ---- Top summary strip --------------------------------------------------------------------------------------------

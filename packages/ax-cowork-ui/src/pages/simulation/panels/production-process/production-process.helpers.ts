@@ -103,6 +103,23 @@ export const calcStageGroups = (routing: TechRouting): StageGroup[] => {
   })
 }
 
+// Total clock time for a single stage group (process + move + wait). Used both for the stage
+// overview card KPI and for sizing the composition bar's segments.
+export const stageClockHours = (g: StageGroup): number => g.totalCycleHours + g.totalMoveHours + g.totalWaitHours
+
+// Percentage breakdown of a stage's clock time across process / move / wait. Returns 0s when the
+// stage has no time at all (defensive — every real stage should have at least cycle hours).
+export type StageProportion = { process: number; move: number; wait: number }
+export const stageProportion = (g: StageGroup): StageProportion => {
+  const total = stageClockHours(g)
+  if (total <= 0) return { process: 0, move: 0, wait: 0 }
+  return {
+    process: (g.totalCycleHours / total) * 100,
+    move: (g.totalMoveHours / total) * 100,
+    wait: (g.totalWaitHours / total) * 100,
+  }
+}
+
 // Routing matrix — for each tech × tool group cell, the step(s) that use it.
 // Used to render the "which tech needs which group" table at the bottom of the panel.
 export type RoutingMatrixCell = {
