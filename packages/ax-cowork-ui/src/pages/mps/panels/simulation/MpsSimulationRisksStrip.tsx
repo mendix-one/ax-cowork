@@ -87,36 +87,36 @@ export const MpsSimulationRisksStrip = observer(() => {
   const criticalCount = risks.filter((r) => r.severity === 'critical').length
 
   return (
-    <div className={`ax-simulation_risks ${open ? 'is-open' : 'is-collapsed'}`}>
-      <button type="button" className="ax-simulation_risks_header" onClick={() => sim.simulation.toggleRisksStrip()} aria-expanded={open}>
+    <div className={`ax-mps-simulation_risks ${open ? 'is-open' : 'is-collapsed'}`}>
+      <button type="button" className="ax-mps-simulation_risks_header" onClick={() => sim.simulation.toggleRisksStrip()} aria-expanded={open}>
         <AxMuiIcon icon={open ? 'mdiChevronDown' : 'mdiChevronUp'} size={14} />
-        <AxMuiIcon icon="mdiShieldAlertOutline" size={14} className="ax-simulation_risks_header_icon" />
-        <span className="ax-simulation_risks_header_title">Risks</span>
-        <span className="ax-simulation_risks_header_count">
+        <AxMuiIcon icon="mdiShieldAlertOutline" size={14} className="ax-mps-simulation_risks_header_icon" />
+        <span className="ax-mps-simulation_risks_header_title">Risks</span>
+        <span className="ax-mps-simulation_risks_header_count">
           {risks.length} total
-          {criticalCount > 0 && <span className="ax-simulation_risks_header_critical"> · {criticalCount} critical</span>}
+          {criticalCount > 0 && <span className="ax-mps-simulation_risks_header_critical"> · {criticalCount} critical</span>}
         </span>
-        <span className="ax-simulation_risks_header_hint">Click an item to open it in Shop Floor Capacity</span>
+        <span className="ax-mps-simulation_risks_header_hint">Click an item to open it in Shop Floor Capacity</span>
       </button>
       {open && (
-        <div className="ax-simulation_risks_list">
+        <div className="ax-mps-simulation_risks_list">
           {risks.length === 0 ? (
-            <div className="ax-simulation_risks_empty">No active risks in this horizon — the plan is clean.</div>
+            <div className="ax-mps-simulation_risks_empty">No active risks in this horizon — the plan is clean.</div>
           ) : (
             risks.map((r) => (
               <Tooltip key={r.key} title={r.detail} mouseEnterDelay={0.35}>
                 <button
                   type="button"
-                  className={`ax-simulation_risks_row ax-simulation_risks_row__${r.severity}`}
+                  className={`ax-mps-simulation_risks_row ax-mps-simulation_risks_row__${r.severity}`}
                   onClick={() => sim.navigateToToolGroup(r.toolGroup)}
                   aria-label={`${r.kind} on ${r.toolGroup}: ${r.title}`}
                 >
-                  <AxMuiIcon icon={SEVERITY_ICON[r.severity]} size={14} className="ax-simulation_risks_row_severity" />
-                  <span className="ax-simulation_risks_row_kind">{r.kind}</span>
-                  <span className="ax-simulation_risks_row_group">{r.toolGroup}</span>
-                  <span className="ax-simulation_risks_row_title">{r.title}</span>
-                  {r.window && <span className="ax-simulation_risks_row_window">{r.window}</span>}
-                  <AxMuiIcon icon="mdiArrowTopRight" size={12} className="ax-simulation_risks_row_arrow" />
+                  <AxMuiIcon icon={SEVERITY_ICON[r.severity]} size={14} className="ax-mps-simulation_risks_row_severity" />
+                  <span className="ax-mps-simulation_risks_row_kind">{r.kind}</span>
+                  <span className="ax-mps-simulation_risks_row_group">{r.toolGroup}</span>
+                  <span className="ax-mps-simulation_risks_row_title">{r.title}</span>
+                  {r.window && <span className="ax-mps-simulation_risks_row_window">{r.window}</span>}
+                  <AxMuiIcon icon="mdiArrowTopRight" size={12} className="ax-mps-simulation_risks_row_arrow" />
                 </button>
               </Tooltip>
             ))

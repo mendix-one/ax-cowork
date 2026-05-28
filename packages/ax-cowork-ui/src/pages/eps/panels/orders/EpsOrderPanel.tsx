@@ -15,10 +15,10 @@ export const EpsOrderPanel = observer((props: MainPanelControls) => {
   const po = useEpsContext().order
   return (
     <AxDisplayPanel type="main" icon="mdiClipboardListOutline" title="Orders" tools={<EpsOrderToolbar />} {...props}>
-      <div className="ax-order">
-        <div className="ax-order_body">
+      <div className="ax-eps-order">
+        <div className="ax-eps-order_body">
           {po.filterSidebarOpen && <EpsAdjustmentSidebar onClose={() => po.toggleFilterSidebar()} />}
-          <div className="ax-order_body_content">
+          <div className="ax-eps-order_body_content">
             <EpsOrderTable />
             {po.infoPanelOpen && <EpsOrderInfoPanel />}
           </div>

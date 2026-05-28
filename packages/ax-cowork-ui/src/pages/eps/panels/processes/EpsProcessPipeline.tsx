@@ -13,7 +13,7 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 //   5. BEOL (step by step)
 //   6. Test (step by step)
 //   7. Assembly (step by step)
-// Each section's header is sticky (inherited from .ax-analysis_scroll), so as the planner scrolls,
+// Each section's header is sticky (inherited from .ax-eps-analysis_scroll), so as the planner scrolls,
 // the current section's stage banner stays pinned at top until the next stage takes over.
 
 const STAGE_TAG_COLOR: Record<ProcessStepStage, string> = {
@@ -51,10 +51,10 @@ const stageYield = (g: StageGroup) => g.steps.reduce((y, s) => y * s.expectedYie
 // ----- KPI card --------------------------------------------------------------------------------
 type KpiCardProps = { label: string; value: string; sub?: string; tone?: 'default' | 'warn' | 'good' }
 const KpiCard = ({ label, value, sub, tone = 'default' }: KpiCardProps) => (
-  <div className={`ax-process_kpi ax-process_kpi__${tone}`}>
-    <div className="ax-process_kpi_label">{label}</div>
-    <div className="ax-process_kpi_value">{value}</div>
-    {sub && <div className="ax-process_kpi_sub">{sub}</div>}
+  <div className={`ax-eps-process_kpi ax-eps-process_kpi__${tone}`}>
+    <div className="ax-eps-process_kpi_label">{label}</div>
+    <div className="ax-eps-process_kpi_value">{value}</div>
+    {sub && <div className="ax-eps-process_kpi_sub">{sub}</div>}
   </div>
 )
 
@@ -63,16 +63,16 @@ const StageOverviewCard = ({ group }: { group: StageGroup }) => {
   const clock = stageClockHours(group)
   const p = stageProportion(group)
   return (
-    <div className="ax-process_overview_card">
-      <div className="ax-process_overview_card_top">
+    <div className="ax-eps-process_overview_card">
+      <div className="ax-eps-process_overview_card_top">
         <Tag color={STAGE_TAG_COLOR[group.stage]} style={{ margin: 0 }}>
           {group.stage}
         </Tag>
-        <span className="ax-process_overview_card_steps">
+        <span className="ax-eps-process_overview_card_steps">
           {group.steps.length} step{group.steps.length === 1 ? '' : 's'}
         </span>
       </div>
-      <div className="ax-process_overview_card_clock">{formatCycle(clock)}</div>
+      <div className="ax-eps-process_overview_card_clock">{formatCycle(clock)}</div>
       <Tooltip
         title={
           <div style={{ whiteSpace: 'pre-line' }}>
@@ -86,10 +86,10 @@ const StageOverviewCard = ({ group }: { group: StageGroup }) => {
           </div>
         }
       >
-        <div className="ax-process_overview_bar" aria-label="time composition">
-          <div className="ax-process_overview_bar_seg ax-process_overview_bar_seg__process" style={{ width: `${p.process}%` }} />
-          <div className="ax-process_overview_bar_seg ax-process_overview_bar_seg__move" style={{ width: `${p.move}%` }} />
-          <div className="ax-process_overview_bar_seg ax-process_overview_bar_seg__wait" style={{ width: `${p.wait}%` }} />
+        <div className="ax-eps-process_overview_bar" aria-label="time composition">
+          <div className="ax-eps-process_overview_bar_seg ax-eps-process_overview_bar_seg__process" style={{ width: `${p.process}%` }} />
+          <div className="ax-eps-process_overview_bar_seg ax-eps-process_overview_bar_seg__move" style={{ width: `${p.move}%` }} />
+          <div className="ax-eps-process_overview_bar_seg ax-eps-process_overview_bar_seg__wait" style={{ width: `${p.wait}%` }} />
         </div>
       </Tooltip>
     </div>
@@ -102,7 +102,7 @@ const renderStepTile = (step: ProcessStep, isBottleneck: boolean, onDrill: (tool
   const badge = utilBadge(ratio)
   return (
     <div
-      className={`ax-process_step ${isBottleneck ? 'is-bottleneck' : ''}`}
+      className={`ax-eps-process_step ${isBottleneck ? 'is-bottleneck' : ''}`}
       role="button"
       tabIndex={0}
       title={`Open ${step.toolGroup} in Shop Floor Capacity`}
@@ -114,38 +114,38 @@ const renderStepTile = (step: ProcessStep, isBottleneck: boolean, onDrill: (tool
         }
       }}
     >
-      <div className="ax-process_step_top">
-        <span className="ax-process_step_order">#{step.order}</span>
+      <div className="ax-eps-process_step_top">
+        <span className="ax-eps-process_step_order">#{step.order}</span>
         <Tag color={STAGE_TAG_COLOR[step.stage]} style={{ margin: 0 }}>
           {step.stage}
         </Tag>
       </div>
-      <div className="ax-process_step_name">{step.name}</div>
-      <div className="ax-process_step_meta">
+      <div className="ax-eps-process_step_name">{step.name}</div>
+      <div className="ax-eps-process_step_meta">
         <Tooltip title="Tool group">
-          <span className="ax-process_step_chip">
+          <span className="ax-eps-process_step_chip">
             <AxMuiIcon icon="mdiFactory" size={12} />
             {step.toolGroup}
           </span>
         </Tooltip>
         <Tooltip title={step.qualRequired ? 'Recipe qualification required' : 'No qual gate'}>
-          <span className="ax-process_step_chip">
+          <span className="ax-eps-process_step_chip">
             <AxMuiIcon icon={step.qualRequired ? 'mdiShieldCheckOutline' : 'mdiCheckCircleOutline'} size={12} />
             {step.recipe}
           </span>
         </Tooltip>
       </div>
-      <div className="ax-process_step_kpis">
-        <div className="ax-process_step_kpi">
-          <div className="ax-process_step_kpi_label">Cycle</div>
-          <div className="ax-process_step_kpi_value">{formatCycle(step.cycleHours)}</div>
+      <div className="ax-eps-process_step_kpis">
+        <div className="ax-eps-process_step_kpi">
+          <div className="ax-eps-process_step_kpi_label">Cycle</div>
+          <div className="ax-eps-process_step_kpi_value">{formatCycle(step.cycleHours)}</div>
         </div>
-        <div className="ax-process_step_kpi">
-          <div className="ax-process_step_kpi_label">Yield</div>
-          <div className="ax-process_step_kpi_value">{formatYield(step.expectedYield)}</div>
+        <div className="ax-eps-process_step_kpi">
+          <div className="ax-eps-process_step_kpi_label">Yield</div>
+          <div className="ax-eps-process_step_kpi_value">{formatYield(step.expectedYield)}</div>
         </div>
       </div>
-      <div className="ax-process_step_footer">
+      <div className="ax-eps-process_step_footer">
         <Tag color={badge.color} style={{ margin: 0 }}>
           {badge.label} · {Math.round(ratio * 100)}%
         </Tag>
@@ -162,17 +162,17 @@ const renderStepTile = (step: ProcessStep, isBottleneck: boolean, onDrill: (tool
 // Inter-step / inter-stage transition chip with Move + Wait pills.
 const renderTransition = (move: number, wait: number, variant: 'inline' | 'large', title: string) => (
   <Tooltip title={title}>
-    <div className={`ax-process_transition ax-process_transition__${variant}`}>
-      <AxMuiIcon icon="mdiArrowRightThick" size={variant === 'large' ? 22 : 16} className="ax-process_transition_arrow" />
-      <div className="ax-process_transition_chips">
+    <div className={`ax-eps-process_transition ax-eps-process_transition__${variant}`}>
+      <AxMuiIcon icon="mdiArrowRightThick" size={variant === 'large' ? 22 : 16} className="ax-eps-process_transition_arrow" />
+      <div className="ax-eps-process_transition_chips">
         {move > 0 && (
-          <span className="ax-process_transition_chip ax-process_transition_chip__move">
+          <span className="ax-eps-process_transition_chip ax-eps-process_transition_chip__move">
             <AxMuiIcon icon="mdiTransitConnectionVariant" size={11} />
             {formatCycle(move)} move
           </span>
         )}
         {wait > 0 && (
-          <span className="ax-process_transition_chip ax-process_transition_chip__wait">
+          <span className="ax-eps-process_transition_chip ax-eps-process_transition_chip__wait">
             <AxMuiIcon icon="mdiTimerSandEmpty" size={11} />
             {formatCycle(wait)} wait
           </span>
@@ -186,7 +186,7 @@ const renderTransition = (move: number, wait: number, variant: 'inline' | 'large
 
 // Stage-level rollup table — one row per stage, used in the Overall pipeline section.
 const OverallStageTable = ({ stages }: { stages: StageGroup[] }) => (
-  <table className="ax-analysis_table">
+  <table className="ax-eps-analysis_table">
     <thead>
       <tr>
         <th>Stage</th>
@@ -223,7 +223,7 @@ const OverallStageTable = ({ stages }: { stages: StageGroup[] }) => (
 
 // Per-stage step table — one row per step inside the stage, used in each per-stage section.
 const StageStepTable = ({ steps, bottleneckStepId }: { steps: ProcessStep[]; bottleneckStepId: string | null }) => (
-  <table className="ax-analysis_table">
+  <table className="ax-eps-analysis_table">
     <thead>
       <tr>
         <th>#</th>
@@ -273,9 +273,9 @@ type StageSectionProps = {
 const StageSection = ({ group, bottleneckStepId, onDrill }: StageSectionProps) => {
   const clock = stageClockHours(group)
   return (
-    <div className="ax-analysis_section">
-      <div className="ax-analysis_section_header">
-        <div className="ax-analysis_section_header_title">
+    <div className="ax-eps-analysis_section">
+      <div className="ax-eps-analysis_section_header">
+        <div className="ax-eps-analysis_section_header_title">
           <Tag color={STAGE_TAG_COLOR[group.stage]} style={{ margin: 0 }}>
             {group.stage}
           </Tag>
@@ -288,11 +288,11 @@ const StageSection = ({ group, bottleneckStepId, onDrill }: StageSectionProps) =
           {' · '}{formatCycle(clock)} clock · {formatYield(stageYield(group))} yield
         </Typography.Text>
       </div>
-      <div className="ax-analysis_section_body">
+      <div className="ax-eps-analysis_section_body">
         {/* Flow diagram — step tiles + inline transitions between steps in this stage */}
-        <div className="ax-process_stage_section_row">
+        <div className="ax-eps-process_stage_section_row">
           {group.steps.map((step, sIdx) => (
-            <div key={step.id} className="ax-process_pipeline_node">
+            <div key={step.id} className="ax-eps-process_pipeline_node">
               {renderStepTile(step, step.id === bottleneckStepId, onDrill)}
               {sIdx < group.steps.length - 1 &&
                 renderTransition(
@@ -305,7 +305,7 @@ const StageSection = ({ group, bottleneckStepId, onDrill }: StageSectionProps) =
           ))}
         </div>
         {/* Detail table for this stage's steps */}
-        <div className="ax-process_stage_section_table">
+        <div className="ax-eps-process_stage_section_table">
           <StageStepTable steps={group.steps} bottleneckStepId={bottleneckStepId} />
         </div>
       </div>
@@ -342,9 +342,9 @@ export const EpsProcessPipeline = observer(() => {
   const nonProcessPct = totalClock > 0 ? Math.round(((totalMove + totalWait) / totalClock) * 100) : 0
 
   return (
-    <div className="ax-process_pipeline_wrap">
+    <div className="ax-eps-process_pipeline_wrap">
       {/* ===== 1. Summary KPI strip ============================================================ */}
-      <div className="ax-process_kpis">
+      <div className="ax-eps-process_kpis">
         <KpiCard
           label="End-to-end clock"
           value={formatCycle(totalClock)}
@@ -370,9 +370,9 @@ export const EpsProcessPipeline = observer(() => {
       </div>
 
       {/* ===== 2. Overall pipeline ============================================================= */}
-      <div className="ax-analysis_section">
-        <div className="ax-analysis_section_header">
-          <div className="ax-analysis_section_header_title">
+      <div className="ax-eps-analysis_section">
+        <div className="ax-eps-analysis_section_header">
+          <div className="ax-eps-analysis_section_header_title">
             <AxMuiIcon icon="mdiViewSequentialOutline" size={18} />
             <span>Overall pipeline · stage to stage</span>
           </div>
@@ -380,10 +380,10 @@ export const EpsProcessPipeline = observer(() => {
             Cards split process / move / wait. Wide amber = queue-bound stage.
           </Typography.Text>
         </div>
-        <div className="ax-analysis_section_body">
-          <div className="ax-process_overview">
+        <div className="ax-eps-analysis_section_body">
+          <div className="ax-eps-process_overview">
             {stages.map((g, gIdx) => (
-              <div key={g.stage} className="ax-process_overview_cell">
+              <div key={g.stage} className="ax-eps-process_overview_cell">
                 <StageOverviewCard group={g} />
                 {gIdx < stages.length - 1 &&
                   renderTransition(
@@ -395,21 +395,21 @@ export const EpsProcessPipeline = observer(() => {
               </div>
             ))}
           </div>
-          <div className="ax-process_overview_legend">
-            <span className="ax-process_overview_legend_item">
-              <span className="ax-process_overview_legend_swatch ax-process_overview_legend_swatch__process" />
+          <div className="ax-eps-process_overview_legend">
+            <span className="ax-eps-process_overview_legend_item">
+              <span className="ax-eps-process_overview_legend_swatch ax-eps-process_overview_legend_swatch__process" />
               Process
             </span>
-            <span className="ax-process_overview_legend_item">
-              <span className="ax-process_overview_legend_swatch ax-process_overview_legend_swatch__move" />
+            <span className="ax-eps-process_overview_legend_item">
+              <span className="ax-eps-process_overview_legend_swatch ax-eps-process_overview_legend_swatch__move" />
               Move
             </span>
-            <span className="ax-process_overview_legend_item">
-              <span className="ax-process_overview_legend_swatch ax-process_overview_legend_swatch__wait" />
+            <span className="ax-eps-process_overview_legend_item">
+              <span className="ax-eps-process_overview_legend_swatch ax-eps-process_overview_legend_swatch__wait" />
               Wait
             </span>
           </div>
-          <div className="ax-process_stage_section_table">
+          <div className="ax-eps-process_stage_section_table">
             <OverallStageTable stages={stages} />
           </div>
         </div>

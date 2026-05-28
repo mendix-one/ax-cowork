@@ -15,8 +15,8 @@ const ColumnTuneRow = observer(({ tune, index, total }: { tune: ColumnTune; inde
   const po = useMpsContext().order
   const isSelectCol = tune.key === '_select'
   return (
-    <div className="ax-order_tune_row">
-      <div className="ax-order_tune_row_move">
+    <div className="ax-mps-order_tune_row">
+      <div className="ax-mps-order_tune_row_move">
         <Tooltip title="Move up">
           <Button
             size="small"
@@ -41,7 +41,7 @@ const ColumnTuneRow = observer(({ tune, index, total }: { tune: ColumnTune; inde
         disabled={isSelectCol}
         onChange={(e) => po.setColumnVisible(tune.key, e.target.checked)}
       />
-      <span className="ax-order_tune_row_label" title={tune.label}>{tune.label}</span>
+      <span className="ax-mps-order_tune_row_label" title={tune.label}>{tune.label}</span>
       <Segmented<ColumnSticky>
         size="small"
         value={tune.sticky}
@@ -76,12 +76,12 @@ const TuneContent = observer(() => {
   const po = useMpsContext().order
   const total = po.tableTune.length
   return (
-    <div className="ax-order_tune">
-      <div className="ax-order_tune_header">
+    <div className="ax-mps-order_tune">
+      <div className="ax-mps-order_tune_header">
         <span>Column tune</span>
         <Button size="small" type="text" onClick={() => po.resetTableTune()}>Reset</Button>
       </div>
-      <div className="ax-order_tune_body">
+      <div className="ax-mps-order_tune_body">
         {po.tableTune.map((tune, index) => (
           <ColumnTuneRow key={tune.key} tune={tune} index={index} total={total} />
         ))}

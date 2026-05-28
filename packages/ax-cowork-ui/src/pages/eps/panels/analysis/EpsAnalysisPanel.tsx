@@ -25,10 +25,10 @@ export const EpsAnalysisPanel = observer((props: MainPanelControls) => {
       tools={<EpsAnalysisToolbar />}
       {...props}
     >
-      <div className="ax-simulation">
-        <div className="ax-simulation_body">
+      <div className="ax-eps-simulation">
+        <div className="ax-eps-simulation_body">
           {analysis.filterSidebarOpen && <EpsAdjustmentSidebar onClose={() => analysis.toggleFilterSidebar()} />}
-          <div className="ax-simulation_body_content ax-analysis_scroll">
+          <div className="ax-eps-simulation_body_content ax-eps-analysis_scroll">
             <EpsAnalysisSummary />
             <EpsAnalysisShopFloorArea />
             <EpsAnalysisToolGroupBars />

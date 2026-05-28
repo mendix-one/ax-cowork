@@ -1,6 +1,6 @@
 // === SIMULATION ANALYSIS =============================================================================================
 // Style module for the Analysis panel inside the Simulation page.
-// Re-uses the .ax-simulation / .ax-simulation_body / .ax-simulation_side chrome from _ax-simulation-gantt.scss so the
+// Re-uses the .ax-eps-simulation / .ax-eps-simulation_body / .ax-eps-simulation_side chrome from _ax-eps-simulation-gantt.scss so the
 // adjustment sidebar lines up exactly with the gantt's filter sidebar.
 //
 // Type scale follows the project convention:
@@ -12,34 +12,34 @@
 // Layout choices (consistent across both panels):
 //   • Edge-to-edge — no inner padding, no gap between section boxes. Section headers (Stone-100
 //     banded) serve as the visual separator between sections.
-//   • Sticky section headers — each .ax-analysis_section_header is position:sticky top:0 so it
+//   • Sticky section headers — each .ax-eps-analysis_section_header is position:sticky top:0 so it
 //     pins to the top of the scroll context while the planner reads its section, and CSS sticky
 //     naturally hands off to the next section's header when the previous one scrolls past.
-.ax-analysis_scroll {
+.ax-eps-analysis_scroll {
   @apply flex-1 min-h-0 overflow-auto;
   @apply flex flex-col;
   @apply bg-white text-base;
 
   // Sections inside the scroll: no border, no rounded corners — full-width content blocks.
-  .ax-analysis_section {
+  .ax-eps-analysis_section {
     @apply rounded-none border-0;
   }
 
   // Sticky section headers — pin to the scroll context's top as the planner scrolls past each
   // section. Stone-100 background fully occludes content scrolling underneath; z-index keeps the
   // pinned header above body content + above the next section while it's still entering view.
-  .ax-analysis_section_header {
+  .ax-eps-analysis_section_header {
     @apply sticky top-0 z-10;
   }
 }
 
 // ---- Top summary strip --------------------------------------------------------------------------------------------
-.ax-analysis_summary {
+.ax-eps-analysis_summary {
   @apply w-full;
   @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3;
 }
 
-.ax-analysis_summary_card {
+.ax-eps-analysis_summary_card {
   @apply flex flex-col rounded border border-gray-200 bg-white p-3 min-h-0;
   @apply text-base;
   transition:
@@ -49,7 +49,7 @@
   &:hover {
     @apply border-indigo-200;
     box-shadow: 0 1px 4px rgba(63, 81, 181, 0.08);
-    .ax-analysis_summary_card_open {
+    .ax-eps-analysis_summary_card_open {
       @apply text-indigo-600;
     }
   }
@@ -91,7 +91,7 @@
   }
 }
 
-.ax-analysis_stat {
+.ax-eps-analysis_stat {
   @apply flex flex-col items-start;
 
   &_label {
@@ -108,15 +108,15 @@
 // ---- Totals tiles (PO → PF → MB hierarchy) ----------------------------------------------------------------------
 // Three colored tiles separated by chevrons. Each tile is a vertical stack of icon, value, and label —
 // the chevron between them makes the parent→child hierarchy literal rather than implied.
-.ax-analysis_totals {
+.ax-eps-analysis_totals {
   @apply flex items-stretch justify-between gap-1 mb-1;
 }
 
-.ax-analysis_totals_arrow {
+.ax-eps-analysis_totals_arrow {
   @apply self-center text-neutral-400 flex-none;
 }
 
-.ax-analysis_totals_tile {
+.ax-eps-analysis_totals_tile {
   @apply flex-1 min-w-0;
   @apply flex flex-col items-center justify-center gap-1;
   @apply px-2 py-2 rounded-md;
@@ -150,7 +150,7 @@
   &__po {
     background-color: #e8eaf6; // Indigo 50
     border-color: #c5cae9; // Indigo 100
-    .ax-analysis_totals_tile_icon {
+    .ax-eps-analysis_totals_tile_icon {
       background-color: #c5cae9; // Indigo 100
       color: #283593; // axSchedule.fixed.edge (Indigo 800)
     }
@@ -159,7 +159,7 @@
   &__pf {
     background-color: #e3f2fd; // Blue 50
     border-color: #bbdefb; // Blue 100
-    .ax-analysis_totals_tile_icon {
+    .ax-eps-analysis_totals_tile_icon {
       background-color: #bbdefb; // Blue 100
       color: #0d47a1; // axSchedule.changes.edge (Blue 800)
     }
@@ -168,14 +168,14 @@
   &__mb {
     background-color: #e0f2f1; // Teal 50
     border-color: #b2dfdb; // Teal 100
-    .ax-analysis_totals_tile_icon {
+    .ax-eps-analysis_totals_tile_icon {
       background-color: #b2dfdb; // Teal 100
       color: #00695c; // axSchedule.new.edge (Teal 800)
     }
   }
 }
 
-.ax-analysis_summary_violation {
+.ax-eps-analysis_summary_violation {
   @apply w-full flex items-center justify-between gap-2 p-1 rounded border border-gray-200;
   @apply text-base;
 
@@ -192,7 +192,7 @@
 }
 
 // ---- Generic section card -----------------------------------------------------------------------------------------
-.ax-analysis_section {
+.ax-eps-analysis_section {
   @apply flex flex-col rounded border border-gray-200 bg-white;
 
   &_header {
@@ -216,7 +216,7 @@
 }
 
 // ---- Heatmap ------------------------------------------------------------------------------------------------------
-.ax-analysis_heatmap {
+.ax-eps-analysis_heatmap {
   border-collapse: separate;
   border-spacing: 0;
   width: 100%;
@@ -251,28 +251,28 @@
 }
 
 // ---- Compare panel (sub-panel, promoted) -------------------------------------------------------------------------
-.ax-compare_root {
+.ax-eps-compare_root {
   @apply flex flex-col gap-3 p-3 h-full overflow-auto bg-white text-base;
 }
 
-.ax-compare_selectors {
+.ax-eps-compare_selectors {
   @apply flex items-end gap-2;
 }
 
-.ax-compare_selector {
+.ax-eps-compare_selector {
   @apply flex-1 flex flex-col gap-1 min-w-0;
 }
 
-.ax-compare_selector_arrow {
+.ax-eps-compare_selector_arrow {
   @apply self-center text-neutral-400 flex-none mb-1;
 }
 
-.ax-compare_kpis {
+.ax-eps-compare_kpis {
   @apply grid grid-cols-2 lg:grid-cols-5 gap-2;
   @apply rounded border border-gray-200 bg-white p-3;
 }
 
-.ax-compare_kpi {
+.ax-eps-compare_kpi {
   @apply flex flex-col items-start gap-1;
   &_label {
     @apply text-sm text-neutral-500;
@@ -288,14 +288,14 @@
 }
 
 // ---- Production Order: planner note editor -----------------------------------------------------------------------
-.ax-order_note_editor {
+.ax-eps-order_note_editor {
   &_header {
     @apply flex items-center gap-1 mb-1 text-base text-neutral-700;
   }
 }
 
 // ---- Generic table ------------------------------------------------------------------------------------------------
-.ax-analysis_table {
+.ax-eps-analysis_table {
   width: 100%;
   border-collapse: collapse;
   @apply text-base;

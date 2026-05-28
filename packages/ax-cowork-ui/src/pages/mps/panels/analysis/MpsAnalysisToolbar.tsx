@@ -12,7 +12,7 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 export const MpsAnalysisToolbar = observer(() => {
   const analysis = useMpsContext().analysis
   return (
-    <Flex align="center" justify="space-between" gap="small" className="ax-simulation_toolbar" style={{ width: '100%' }}>
+    <Flex align="center" justify="space-between" gap="small" className="ax-mps-simulation_toolbar" style={{ width: '100%' }}>
       <Space size={10}>
         <DatePicker.RangePicker
           size="small"
@@ -35,17 +35,17 @@ export const MpsAnalysisToolbar = observer(() => {
         <Divider vertical style={{ margin: 0 }} />
         {/* Schedule-lineage legend — same swatches as the simulation toolbar so the planner can decode chart
             colors without switching panels. */}
-        <span className="ax-simulation_legend" aria-label="Schedule lineage legend">
-          <span className="ax-simulation_legend_item">
-            <span className="ax-simulation_legend_swatch ax-simulation_legend_swatch__fixed" />
+        <span className="ax-mps-simulation_legend" aria-label="Schedule lineage legend">
+          <span className="ax-mps-simulation_legend_item">
+            <span className="ax-mps-simulation_legend_swatch ax-mps-simulation_legend_swatch__fixed" />
             Fixed
           </span>
-          <span className="ax-simulation_legend_item">
-            <span className="ax-simulation_legend_swatch ax-simulation_legend_swatch__changes" />
+          <span className="ax-mps-simulation_legend_item">
+            <span className="ax-mps-simulation_legend_swatch ax-mps-simulation_legend_swatch__changes" />
             Changes
           </span>
-          <span className="ax-simulation_legend_item">
-            <span className="ax-simulation_legend_swatch ax-simulation_legend_swatch__new" />
+          <span className="ax-mps-simulation_legend_item">
+            <span className="ax-mps-simulation_legend_swatch ax-mps-simulation_legend_swatch__new" />
             New
           </span>
         </span>

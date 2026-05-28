@@ -15,8 +15,8 @@ export type MpsAdjustmentSidebarProps = {
 export const MpsAdjustmentSidebar = observer((props: MpsAdjustmentSidebarProps) => {
   const simulation = useMpsContext().simulation
   return (
-    <div className="ax-simulation_side">
-      <div className="ax-simulation_side_header">
+    <div className="ax-mps-simulation_side">
+      <div className="ax-mps-simulation_side_header">
         <span>Adjustment</span>
         <Button
           size="small"
@@ -26,8 +26,8 @@ export const MpsAdjustmentSidebar = observer((props: MpsAdjustmentSidebarProps) 
           onClick={props.onClose}
         />
       </div>
-      <div className="ax-simulation_side_body">
-        <div className="ax-simulation_filter_group">
+      <div className="ax-mps-simulation_side_body">
+        <div className="ax-mps-simulation_filter_group">
           <Tree
             checkable
             selectable={false}
@@ -43,7 +43,7 @@ export const MpsAdjustmentSidebar = observer((props: MpsAdjustmentSidebarProps) 
           />
         </div>
       </div>
-      <div className="ax-simulation_side_footer">
+      <div className="ax-mps-simulation_side_footer">
         <Space size="small">
           <Button size="small" onClick={() => simulation.resetAdjustment()}>
             Reset

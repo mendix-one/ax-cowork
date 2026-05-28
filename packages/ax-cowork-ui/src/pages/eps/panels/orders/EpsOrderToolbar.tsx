@@ -16,7 +16,7 @@ const STATUS_OPTIONS: { label: string; value: StatusFilter }[] = [
 export const EpsOrderToolbar = observer(() => {
   const po = useEpsContext().order
   return (
-    <Flex align="center" justify="space-between" gap="small" className="ax-order_toolbar" style={{ width: '100%' }}>
+    <Flex align="center" justify="space-between" gap="small" className="ax-eps-order_toolbar" style={{ width: '100%' }}>
       <Space size={10}>
         <DatePicker.RangePicker
           size="small"
@@ -73,21 +73,21 @@ export const EpsOrderToolbar = observer(() => {
         {/* Schedule-lineage legend — decoder for the State column chips. Includes Exclude (Blue Grey
             ghost) which the simulation/analysis legends don't carry, since this is the only view that
             renders rows for items the planner has unchecked in the Adjustment sidebar. */}
-        <span className="ax-simulation_legend" aria-label="Schedule lineage legend">
-          <span className="ax-simulation_legend_item">
-            <span className="ax-simulation_legend_swatch ax-simulation_legend_swatch__fixed" />
+        <span className="ax-eps-simulation_legend" aria-label="Schedule lineage legend">
+          <span className="ax-eps-simulation_legend_item">
+            <span className="ax-eps-simulation_legend_swatch ax-eps-simulation_legend_swatch__fixed" />
             Fixed
           </span>
-          <span className="ax-simulation_legend_item">
-            <span className="ax-simulation_legend_swatch ax-simulation_legend_swatch__changes" />
+          <span className="ax-eps-simulation_legend_item">
+            <span className="ax-eps-simulation_legend_swatch ax-eps-simulation_legend_swatch__changes" />
             Changes
           </span>
-          <span className="ax-simulation_legend_item">
-            <span className="ax-simulation_legend_swatch ax-simulation_legend_swatch__new" />
+          <span className="ax-eps-simulation_legend_item">
+            <span className="ax-eps-simulation_legend_swatch ax-eps-simulation_legend_swatch__new" />
             New
           </span>
-          <span className="ax-simulation_legend_item">
-            <span className="ax-simulation_legend_swatch ax-simulation_legend_swatch__exclude" />
+          <span className="ax-eps-simulation_legend_item">
+            <span className="ax-eps-simulation_legend_swatch ax-eps-simulation_legend_swatch__exclude" />
             Exclude
           </span>
         </span>

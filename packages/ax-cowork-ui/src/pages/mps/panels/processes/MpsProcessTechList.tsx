@@ -11,17 +11,17 @@ export const MpsProcessTechList = observer(() => {
   const summaries = calcTechSummaries(sim.simulation.filteredOrders)
 
   return (
-    <div className="ax-process_tech_list">
-      <div className="ax-process_tech_list_header">
+    <div className="ax-mps-process_tech_list">
+      <div className="ax-mps-process_tech_list_header">
         <span>Technology routings</span>
       </div>
-      <div className="ax-process_tech_list_body">
+      <div className="ax-mps-process_tech_list_body">
         {summaries.map((s) => {
           const isActive = s.tech === process.selectedTech
           return (
-            <button key={s.tech} type="button" className={`ax-process_tech_card ${isActive ? 'is-active' : ''}`} onClick={() => process.selectTech(s.tech)}>
-              <div className="ax-process_tech_card_top">
-                <div className="ax-process_tech_card_title">{s.tech}</div>
+            <button key={s.tech} type="button" className={`ax-mps-process_tech_card ${isActive ? 'is-active' : ''}`} onClick={() => process.selectTech(s.tech)}>
+              <div className="ax-mps-process_tech_card_top">
+                <div className="ax-mps-process_tech_card_title">{s.tech}</div>
                 <Tag color={s.bitDensity === 'QLC' ? 'purple' : 'blue'} style={{ margin: 0 }}>
                   {s.bitDensity}
                 </Tag>
@@ -29,24 +29,24 @@ export const MpsProcessTechList = observer(() => {
               <Typography.Text type="secondary" className="text-sm">
                 {s.family} · {s.layers}L
               </Typography.Text>
-              <div className="ax-process_tech_card_stats">
+              <div className="ax-mps-process_tech_card_stats">
                 <div>
-                  <div className="ax-process_tech_card_stat_label">POs in plan</div>
-                  <div className="ax-process_tech_card_stat_value">{s.poCount}</div>
+                  <div className="ax-mps-process_tech_card_stat_label">POs in plan</div>
+                  <div className="ax-mps-process_tech_card_stat_value">{s.poCount}</div>
                 </div>
                 <div>
-                  <div className="ax-process_tech_card_stat_label">Wafers</div>
-                  <div className="ax-process_tech_card_stat_value">{s.totalWafers.toLocaleString()}</div>
+                  <div className="ax-mps-process_tech_card_stat_label">Wafers</div>
+                  <div className="ax-mps-process_tech_card_stat_value">{s.totalWafers.toLocaleString()}</div>
                 </div>
                 <div>
                   <Tooltip title={`Processing ${formatCycle(s.totalCycleHours)} · Move ${formatCycle(s.totalMoveHours)} · Wait ${formatCycle(s.totalWaitHours)}`}>
-                    <div className="ax-process_tech_card_stat_label">End-to-end</div>
-                    <div className="ax-process_tech_card_stat_value">{formatCycle(s.totalClockHours)}</div>
+                    <div className="ax-mps-process_tech_card_stat_label">End-to-end</div>
+                    <div className="ax-mps-process_tech_card_stat_value">{formatCycle(s.totalClockHours)}</div>
                   </Tooltip>
                 </div>
                 <div>
-                  <div className="ax-process_tech_card_stat_label">E2E yield</div>
-                  <div className="ax-process_tech_card_stat_value">{formatYield(s.endToEndYield)}</div>
+                  <div className="ax-mps-process_tech_card_stat_label">E2E yield</div>
+                  <div className="ax-mps-process_tech_card_stat_value">{formatYield(s.endToEndYield)}</div>
                 </div>
               </div>
               {s.bottleneckStep && (

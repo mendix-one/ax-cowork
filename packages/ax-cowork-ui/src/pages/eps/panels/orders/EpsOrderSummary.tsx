@@ -40,13 +40,13 @@ export const EpsOrderSummary = observer(() => {
   const remainingPct = 100 - outPct
 
   return (
-    <div className="ax-order_summary">
-      <div className="ax-order_summary_card">
-        <div className="ax-order_summary_card_title">
+    <div className="ax-eps-order_summary">
+      <div className="ax-eps-order_summary_card">
+        <div className="ax-eps-order_summary_card_title">
           <AxMuiIcon icon="mdiClipboardListOutline" size={16} />
           <span>Visible orders</span>
         </div>
-        <div className="ax-order_summary_card_body">
+        <div className="ax-eps-order_summary_card_body">
           <Statistic value={s.poCount} suffix={<Typography.Text type="secondary" className="text-sm"> POs · {s.batchCount} batches</Typography.Text>} valueStyle={{ fontSize: 22, color: '#2196f3' }} />
           <Typography.Text type="secondary" className="text-sm">
             Running {s.runningCount} · At-risk {s.atRiskCount}
@@ -54,12 +54,12 @@ export const EpsOrderSummary = observer(() => {
         </div>
       </div>
 
-      <div className="ax-order_summary_card">
-        <div className="ax-order_summary_card_title">
+      <div className="ax-eps-order_summary_card">
+        <div className="ax-eps-order_summary_card_title">
           <AxMuiIcon icon="mdiPackageVariantClosed" size={16} />
           <span>Committed wafers</span>
         </div>
-        <div className="ax-order_summary_card_body">
+        <div className="ax-eps-order_summary_card_body">
           <Statistic value={s.totalCommitted} suffix={<Typography.Text type="secondary" className="text-sm"> wafers</Typography.Text>} valueStyle={{ fontSize: 22, color: '#3F51B5' }} />
           <Typography.Text type="secondary" className="text-sm">
             Across {s.poCount} production orders
@@ -67,25 +67,25 @@ export const EpsOrderSummary = observer(() => {
         </div>
       </div>
 
-      <div className="ax-order_summary_card">
-        <div className="ax-order_summary_card_title">
+      <div className="ax-eps-order_summary_card">
+        <div className="ax-eps-order_summary_card_title">
           <AxMuiIcon icon="mdiCheckCircleOutline" size={16} />
           <span>Out</span>
         </div>
-        <div className="ax-order_summary_card_body">
+        <div className="ax-eps-order_summary_card_body">
           <Statistic value={s.totalOut} suffix={<Typography.Text type="secondary" className="text-sm"> wafers · {outPct}%</Typography.Text>} valueStyle={{ fontSize: 22, color: '#4caf50' }} />
-          <div className="ax-order_summary_bar">
-            <div className="ax-order_summary_bar_fill ax-order_summary_bar_fill__done" style={{ width: `${outPct}%` }} />
+          <div className="ax-eps-order_summary_bar">
+            <div className="ax-eps-order_summary_bar_fill ax-eps-order_summary_bar_fill__done" style={{ width: `${outPct}%` }} />
           </div>
         </div>
       </div>
 
-      <div className="ax-order_summary_card">
-        <div className="ax-order_summary_card_title">
+      <div className="ax-eps-order_summary_card">
+        <div className="ax-eps-order_summary_card_title">
           <AxMuiIcon icon="mdiClockOutline" size={16} />
           <span>Remaining</span>
         </div>
-        <div className="ax-order_summary_card_body">
+        <div className="ax-eps-order_summary_card_body">
           <Statistic
             value={s.totalRemaining}
             suffix={<Typography.Text type="secondary" className="text-sm"> wafers · {remainingPct}%</Typography.Text>}

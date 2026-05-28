@@ -81,7 +81,7 @@ export const MpsOrderTable = observer(() => {
         render: (_v, row) => {
           const isSelected = selectedKey === row.key
           return (
-            <span className="ax-order_select" title={isSelected ? 'Click row to deselect' : 'Click row to view info'}>
+            <span className="ax-mps-order_select" title={isSelected ? 'Click row to deselect' : 'Click row to view info'}>
               <AxMuiIcon icon="mdiDragVertical" size={16} color={isSelected ? '#673AB7' : '#bfbfbf'} />
             </span>
           )
@@ -99,11 +99,11 @@ export const MpsOrderTable = observer(() => {
           const nk = noteKeyFor(row)
           const noteText = nk ? notes.get(nk) : ''
           return (
-            <span className={`ax-order_label ax-order_label__${row.kind}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+            <span className={`ax-mps-order_label ax-mps-order_label__${row.kind}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               {row.label}
               {row.kind === 'po' && row.hotLot && (
                 <Tooltip title="Hot lot">
-                  <span className="ax-order_hotlot">★ HOT</span>
+                  <span className="ax-mps-order_hotlot">★ HOT</span>
                 </Tooltip>
               )}
               {nk && notes.has(nk) && (
@@ -274,11 +274,11 @@ export const MpsOrderTable = observer(() => {
   // inherit the band of their first child PO, which keeps the visual grouping continuous.
   const rowClassName = (row: FlatRow): string => {
     const idx = poBandIndex.get(row.poId) ?? 0
-    return idx % 2 === 0 ? 'ax-order_row__band-a' : 'ax-order_row__band-b'
+    return idx % 2 === 0 ? 'ax-mps-order_row__band-a' : 'ax-mps-order_row__band-b'
   }
 
   return (
-    <div className="ax-order_table">
+    <div className="ax-mps-order_table">
       <AxControlTable<FlatRow>
         data={data}
         columns={columns}

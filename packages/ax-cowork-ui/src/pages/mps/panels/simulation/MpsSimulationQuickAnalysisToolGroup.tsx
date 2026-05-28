@@ -7,7 +7,7 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // Threshold colors (Update 3 — aligned with $ax-* tokens).
 const SAFE_THRESHOLD = 0.8
-const COLOR_TOTAL = '#37474F' // $ax-capacity — total tool-group capacity
+const COLOR_TOTAL = '#37474F' // $ax-mps-capacity — total tool-group capacity
 const COLOR_USED_SAFE = '#0277BD' // $ax-normal    — usage under 80% of total
 const COLOR_USED_WARN = '#EF6C00' // $ax-highload  — 80% ≤ usage ≤ total
 const COLOR_USED_DANGER = '#C62828' // $ax-violation — usage > total
@@ -91,16 +91,16 @@ export const MpsSimulationQuickAnalysisToolGroup = observer(() => {
   }, [])
 
   return (
-    <div className="ax-simulation_analysis_card ax-simulation_analysis_card__chart">
-      <div className="ax-simulation_analysis_card_header">
-        <div className="ax-simulation_analysis_card_header_title">Tool-group capacities</div>
-        <div className="ax-simulation_analysis_card_header_option">
-          <button className="ax-simulation_analysis_card_header_option_button" type="button" title={'Large view'}>
-            <AxMuiIcon icon={'mdiArrowExpandAll'} size="1.15rem" className="ax-simulation_analysis_header_option_button_icon" />
+    <div className="ax-mps-simulation_analysis_card ax-mps-simulation_analysis_card__chart">
+      <div className="ax-mps-simulation_analysis_card_header">
+        <div className="ax-mps-simulation_analysis_card_header_title">Tool-group capacities</div>
+        <div className="ax-mps-simulation_analysis_card_header_option">
+          <button className="ax-mps-simulation_analysis_card_header_option_button" type="button" title={'Large view'}>
+            <AxMuiIcon icon={'mdiArrowExpandAll'} size="1.15rem" className="ax-mps-simulation_analysis_header_option_button_icon" />
           </button>
         </div>
       </div>
-      <div className="ax-simulation_analysis_card_chart_box">
+      <div className="ax-mps-simulation_analysis_card_chart_box">
         <ReactECharts option={option} style={{ height: '100%', width: '100%' }} notMerge lazyUpdate />
       </div>
     </div>

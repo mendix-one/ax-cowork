@@ -79,7 +79,7 @@ export const MpsPreflightModal = observer((props: MpsPreflightModalProps) => {
     >
       {banner}
       {findings.length === 0 ? null : (
-        <table className="ax-analysis_table">
+        <table className="ax-mps-analysis_table">
           <thead>
             <tr>
               <th style={{ width: 110 }}>Severity</th>

@@ -29,9 +29,9 @@ export const MpsAnalysisHeatmap = observer(() => {
   const buckets = rows[0]?.cells.map((c) => c.bucket) ?? []
 
   return (
-    <div className="ax-analysis_section">
-      <div className="ax-analysis_section_header">
-        <div className="ax-analysis_section_header_title">
+    <div className="ax-mps-analysis_section">
+      <div className="ax-mps-analysis_section_header">
+        <div className="ax-mps-analysis_section_header_title">
           <AxMuiIcon icon="mdiViewGridOutline" size={18} />
           <span>Workload heatmap · Tool group × {analysis.heatGranularity}</span>
         </div>
@@ -47,15 +47,15 @@ export const MpsAnalysisHeatmap = observer(() => {
           ]}
         />
       </div>
-      <div className="ax-analysis_section_body" style={{ overflowX: 'auto' }}>
-        <table className="ax-analysis_heatmap">
+      <div className="ax-mps-analysis_section_body" style={{ overflowX: 'auto' }}>
+        <table className="ax-mps-analysis_heatmap">
           <thead>
             <tr>
-              <th className="ax-analysis_heatmap_label" style={{ textAlign: 'left' }}>
+              <th className="ax-mps-analysis_heatmap_label" style={{ textAlign: 'left' }}>
                 Tool Group
               </th>
               {buckets.map((b) => (
-                <th key={b} className="ax-analysis_heatmap_label" style={{ textAlign: 'center' }}>
+                <th key={b} className="ax-mps-analysis_heatmap_label" style={{ textAlign: 'center' }}>
                   {b.length > 7 ? b.slice(5) : b}
                 </th>
               ))}
@@ -64,11 +64,11 @@ export const MpsAnalysisHeatmap = observer(() => {
           <tbody>
             {rows.map((row) => (
               <tr key={row.toolGroup}>
-                <td className="ax-analysis_heatmap_label">{row.toolGroup}</td>
+                <td className="ax-mps-analysis_heatmap_label">{row.toolGroup}</td>
                 {row.cells.map((cell) => (
                   <td key={cell.bucket} style={{ textAlign: 'center' }}>
                     <Tooltip title={`${row.toolGroup} · ${cell.bucket} · ${BAND_LABEL[cell.band]} (${Math.round(cell.ratio * 100)}%)`}>
-                      <span className="ax-analysis_heatmap_cell" style={{ background: BAND_COLOR[cell.band] }} />
+                      <span className="ax-mps-analysis_heatmap_cell" style={{ background: BAND_COLOR[cell.band] }} />
                     </Tooltip>
                   </td>
                 ))}
@@ -76,10 +76,10 @@ export const MpsAnalysisHeatmap = observer(() => {
             ))}
           </tbody>
         </table>
-        <div className="ax-analysis_heatmap_legend">
+        <div className="ax-mps-analysis_heatmap_legend">
           {(['idle', 'safe', 'warning', 'overload'] as HeatBand[]).map((b) => (
             <Typography.Text key={b} type="secondary">
-              <span className="ax-analysis_heatmap_swatch" style={{ background: BAND_COLOR[b] }} />
+              <span className="ax-mps-analysis_heatmap_swatch" style={{ background: BAND_COLOR[b] }} />
               {b} {BAND_LABEL[b]}
             </Typography.Text>
           ))}

@@ -6,7 +6,7 @@ import { observer } from 'mobx-react-lite'
 // here either. Toolbar carries just the help text describing what this view is.
 export const MpsProcessToolbar = observer(() => {
   return (
-    <Flex align="center" justify="space-between" gap="small" className="ax-simulation_toolbar" style={{ width: '100%' }}>
+    <Flex align="center" justify="space-between" gap="small" className="ax-mps-simulation_toolbar" style={{ width: '100%' }}>
       <Space size={10}>
         <Typography.Text type="secondary" className="text-sm">
           Read-only view of the manufacturing routing per technology — pick a tech on the left to see its pipeline.

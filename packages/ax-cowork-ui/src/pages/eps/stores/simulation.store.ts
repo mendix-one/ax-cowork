@@ -36,7 +36,7 @@ export type SimulationTaskRow = {
   // PO and family rows roll up children, batches that are already running are locked.
   readonly?: boolean
   // Index of the PO this row belongs to within the filtered list (0, 1, 2 …) — used by the bar template to
-  // attach an alternating `ax-simulation-poband__{a|b}` class so the SCSS can zebra-band by PO group.
+  // attach an alternating `ax-eps-simulation-poband__{a|b}` class so the SCSS can zebra-band by PO group.
   poIndex: number
 }
 
@@ -331,7 +331,7 @@ export class SimulationStore {
       {
         id: 'today',
         start_date: new Date(this.today),
-        css: 'ax-simulation-today-marker',
+        css: 'ax-eps-simulation-today-marker',
         text: 'TODAY',
         title: `Today · ${this.today}`,
       },
@@ -341,7 +341,7 @@ export class SimulationStore {
         out.push({
           id: `milestone::${order.id}::${m.id}`,
           start_date: new Date(m.date),
-          css: `ax-simulation-milestone-marker ax-simulation-milestone-marker__${m.state}`,
+          css: `ax-eps-simulation-milestone-marker ax-eps-simulation-milestone-marker__${m.state}`,
           text: `${order.id} · ${m.label}`,
           title: buildMilestoneTooltip(m),
           state: m.state,

@@ -74,16 +74,16 @@ export const MpsSimulationQuickAnalysisOverall = observer(() => {
   }, [])
 
   return (
-    <div className="ax-simulation_analysis_card ax-simulation_analysis_card__chart">
-      <div className="ax-simulation_analysis_card_header">
-        <div className="ax-simulation_analysis_card_header_title">Shop floor — overall capacity</div>
-        <div className="ax-simulation_analysis_card_header_option">
-          <button className="ax-simulation_analysis_card_header_option_button" type="button" title={'Large view'}>
-            <AxMuiIcon icon={'mdiArrowExpandAll'} size="1.15rem" className="ax-simulation_analysis_header_option_button_icon" />
+    <div className="ax-mps-simulation_analysis_card ax-mps-simulation_analysis_card__chart">
+      <div className="ax-mps-simulation_analysis_card_header">
+        <div className="ax-mps-simulation_analysis_card_header_title">Shop floor — overall capacity</div>
+        <div className="ax-mps-simulation_analysis_card_header_option">
+          <button className="ax-mps-simulation_analysis_card_header_option_button" type="button" title={'Large view'}>
+            <AxMuiIcon icon={'mdiArrowExpandAll'} size="1.15rem" className="ax-mps-simulation_analysis_header_option_button_icon" />
           </button>
         </div>
       </div>
-      <div className="ax-simulation_analysis_card_chart_box">
+      <div className="ax-mps-simulation_analysis_card_chart_box">
         <ReactECharts option={option} style={{ height: '100%', width: '100%' }} notMerge lazyUpdate />
       </div>
     </div>

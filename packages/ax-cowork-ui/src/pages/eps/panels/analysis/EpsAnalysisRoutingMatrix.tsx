@@ -13,15 +13,15 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 export const EpsAnalysisRoutingMatrix = observer(() => {
   const matrix = calcRoutingMatrix()
   return (
-    <div className="ax-analysis_section">
-      <div className="ax-analysis_section_header">
-        <div className="ax-analysis_section_header_title">
+    <div className="ax-eps-analysis_section">
+      <div className="ax-eps-analysis_section_header">
+        <div className="ax-eps-analysis_section_header_title">
           <AxMuiIcon icon="mdiSwapHorizontalVariant" size={18} />
           <span>Routing matrix · Tech × Tool group</span>
         </div>
       </div>
-      <div className="ax-analysis_section_body" style={{ overflowX: 'auto' }}>
-        <table className="ax-analysis_table">
+      <div className="ax-eps-analysis_section_body" style={{ overflowX: 'auto' }}>
+        <table className="ax-eps-analysis_table">
           <thead>
             <tr>
               <th>Tech</th>

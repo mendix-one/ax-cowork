@@ -37,17 +37,17 @@ export const EpsComparePanel = observer((props: SubPanelControls) => {
 
   return (
     <AxDisplayPanel type="sub" icon="mdiCompareHorizontal" title="Compare plans" {...props}>
-      <div className="ax-compare_root">
+      <div className="ax-eps-compare_root">
         {/* Plan selectors */}
-        <div className="ax-compare_selectors">
-          <div className="ax-compare_selector">
+        <div className="ax-eps-compare_selectors">
+          <div className="ax-eps-compare_selector">
             <Typography.Text type="secondary" className="text-sm">
               Plan A · baseline
             </Typography.Text>
             <Select size="small" value={compare.leftPlanId} onChange={(v) => compare.setLeftPlan(v)} options={planOptions} style={{ width: '100%' }} />
           </div>
-          <AxMuiIcon icon="mdiSwapHorizontalVariant" size={18} className="ax-compare_selector_arrow" />
-          <div className="ax-compare_selector">
+          <AxMuiIcon icon="mdiSwapHorizontalVariant" size={18} className="ax-eps-compare_selector_arrow" />
+          <div className="ax-eps-compare_selector">
             <Typography.Text type="secondary" className="text-sm">
               Plan B · candidate
             </Typography.Text>
@@ -56,46 +56,46 @@ export const EpsComparePanel = observer((props: SubPanelControls) => {
         </div>
 
         {/* Diff KPI strip */}
-        <div className="ax-compare_kpis">
-          <div className="ax-compare_kpi">
-            <div className="ax-compare_kpi_label">Committed</div>
-            <div className="ax-compare_kpi_value">{right.committed.toLocaleString()}</div>
+        <div className="ax-eps-compare_kpis">
+          <div className="ax-eps-compare_kpi">
+            <div className="ax-eps-compare_kpi_label">Committed</div>
+            <div className="ax-eps-compare_kpi_value">{right.committed.toLocaleString()}</div>
             <Tooltip title={`Plan A: ${left.committed.toLocaleString()}`}>
               <Tag color={TONE_COLOR[dCommitted.tone]} style={{ margin: 0 }}>
                 {dCommitted.text}
               </Tag>
             </Tooltip>
           </div>
-          <div className="ax-compare_kpi">
-            <div className="ax-compare_kpi_label">Wafers out</div>
-            <div className="ax-compare_kpi_value">{right.out.toLocaleString()}</div>
+          <div className="ax-eps-compare_kpi">
+            <div className="ax-eps-compare_kpi_label">Wafers out</div>
+            <div className="ax-eps-compare_kpi_value">{right.out.toLocaleString()}</div>
             <Tooltip title={`Plan A: ${left.out.toLocaleString()}`}>
               <Tag color={TONE_COLOR[dOut.tone]} style={{ margin: 0 }}>
                 {dOut.text}
               </Tag>
             </Tooltip>
           </div>
-          <div className="ax-compare_kpi">
-            <div className="ax-compare_kpi_label">At-risk POs</div>
-            <div className="ax-compare_kpi_value">{right.atRiskPoCount}</div>
+          <div className="ax-eps-compare_kpi">
+            <div className="ax-eps-compare_kpi_label">At-risk POs</div>
+            <div className="ax-eps-compare_kpi_value">{right.atRiskPoCount}</div>
             <Tooltip title={`Plan A: ${left.atRiskPoCount}`}>
               <Tag color={TONE_COLOR[dAtRisk.tone]} style={{ margin: 0 }}>
                 {dAtRisk.text}
               </Tag>
             </Tooltip>
           </div>
-          <div className="ax-compare_kpi">
-            <div className="ax-compare_kpi_label">Plan end</div>
-            <div className="ax-compare_kpi_value">{right.endDate.slice(5)}</div>
+          <div className="ax-eps-compare_kpi">
+            <div className="ax-eps-compare_kpi_label">Plan end</div>
+            <div className="ax-eps-compare_kpi_value">{right.endDate.slice(5)}</div>
             <Tooltip title={`Plan A: ${left.endDate.slice(5)}`}>
               <Tag color={TONE_COLOR[dEndTone]} style={{ margin: 0 }}>
                 {endDeltaDays === 0 ? '±0d' : `${endDeltaDays > 0 ? '+' : ''}${endDeltaDays}d`}
               </Tag>
             </Tooltip>
           </div>
-          <div className="ax-compare_kpi">
-            <div className="ax-compare_kpi_label">Bottleneck</div>
-            <div className="ax-compare_kpi_value ax-compare_kpi_value__small">{right.bottleneckGroup}</div>
+          <div className="ax-eps-compare_kpi">
+            <div className="ax-eps-compare_kpi_label">Bottleneck</div>
+            <div className="ax-eps-compare_kpi_value ax-eps-compare_kpi_value__small">{right.bottleneckGroup}</div>
             <Tag color={right.bottleneckGroup === left.bottleneckGroup ? 'default' : 'blue'} style={{ margin: 0 }}>
               {right.bottleneckGroup === left.bottleneckGroup ? 'unchanged' : `was ${left.bottleneckGroup}`}
             </Tag>
@@ -103,15 +103,15 @@ export const EpsComparePanel = observer((props: SubPanelControls) => {
         </div>
 
         {/* Diff list */}
-        <div className="ax-analysis_section">
-          <div className="ax-analysis_section_header">
-            <div className="ax-analysis_section_header_title">
+        <div className="ax-eps-analysis_section">
+          <div className="ax-eps-analysis_section_header">
+            <div className="ax-eps-analysis_section_header_title">
               <AxMuiIcon icon="mdiFormatListBulleted" size={18} />
               <span>Changes Plan A → Plan B ({compare.diffs.length})</span>
             </div>
           </div>
-          <div className="ax-analysis_section_body">
-            <table className="ax-analysis_table">
+          <div className="ax-eps-analysis_section_body">
+            <table className="ax-eps-analysis_table">
               <thead>
                 <tr>
                   <th>Change</th>

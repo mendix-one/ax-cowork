@@ -25,10 +25,10 @@ export const MpsAnalysisPanel = observer((props: MainPanelControls) => {
       tools={<MpsAnalysisToolbar />}
       {...props}
     >
-      <div className="ax-simulation">
-        <div className="ax-simulation_body">
+      <div className="ax-mps-simulation">
+        <div className="ax-mps-simulation_body">
           {analysis.filterSidebarOpen && <MpsAdjustmentSidebar onClose={() => analysis.toggleFilterSidebar()} />}
-          <div className="ax-simulation_body_content ax-analysis_scroll">
+          <div className="ax-mps-simulation_body_content ax-mps-analysis_scroll">
             <MpsAnalysisSummary />
             <MpsAnalysisShopFloorArea />
             <MpsAnalysisToolGroupBars />

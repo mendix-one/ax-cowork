@@ -12,18 +12,18 @@ export const MpsAnalysisFamilyTech = observer(() => {
   const rows = calcFamilyTechRows(orders)
 
   return (
-    <div className="ax-analysis_section">
-      <div className="ax-analysis_section_header">
-        <div className="ax-analysis_section_header_title">
+    <div className="ax-mps-analysis_section">
+      <div className="ax-mps-analysis_section_header">
+        <div className="ax-mps-analysis_section_header_title">
           <AxMuiIcon icon="mdiFamilyTree" size={18} />
           <span>Production Family · Spec / Tech analysis</span>
         </div>
       </div>
-      <div className="ax-analysis_section_body">
+      <div className="ax-mps-analysis_section_body">
         {rows.length === 0 ? (
           <Typography.Text type="secondary">No families in the current selection.</Typography.Text>
         ) : (
-          <table className="ax-analysis_table">
+          <table className="ax-mps-analysis_table">
             <thead>
               <tr>
                 <th>Tech</th>

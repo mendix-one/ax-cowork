@@ -79,7 +79,7 @@ export const EpsPreflightModal = observer((props: EpsPreflightModalProps) => {
     >
       {banner}
       {findings.length === 0 ? null : (
-        <table className="ax-analysis_table">
+        <table className="ax-eps-analysis_table">
           <thead>
             <tr>
               <th style={{ width: 110 }}>Severity</th>

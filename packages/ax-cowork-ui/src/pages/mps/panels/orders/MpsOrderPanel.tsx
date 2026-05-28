@@ -15,10 +15,10 @@ export const MpsOrderPanel = observer((props: MainPanelControls) => {
   const po = useMpsContext().order
   return (
     <AxDisplayPanel type="main" icon="mdiClipboardListOutline" title="Orders" tools={<MpsOrderToolbar />} {...props}>
-      <div className="ax-order">
-        <div className="ax-order_body">
+      <div className="ax-mps-order">
+        <div className="ax-mps-order_body">
           {po.filterSidebarOpen && <MpsAdjustmentSidebar onClose={() => po.toggleFilterSidebar()} />}
-          <div className="ax-order_body_content">
+          <div className="ax-mps-order_body_content">
             <MpsOrderTable />
             {po.infoPanelOpen && <MpsOrderInfoPanel />}
           </div>

@@ -13,7 +13,7 @@ export const AX_COLORS = {
   newSchedule: axSchedule.new.bar,
 } as const
 
-// Bar fill colour by schedule class — kept in sync with the SCSS overrides under .ax-simulation-row__<cls>.
+// Bar fill colour by schedule class — kept in sync with the SCSS overrides under .ax-eps-simulation-row__<cls>.
 export const SCHEDULE_COLOR: Record<ScheduleClass, string> = {
   fixed: axSchedule.fixed.bar,
   changes: axSchedule.changes.bar,

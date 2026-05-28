@@ -82,9 +82,9 @@ export const MpsAnalysisToolGroupBars = observer(() => {
   }, [groups])
 
   return (
-    <div className="ax-analysis_section">
-      <div className="ax-analysis_section_header">
-        <div className="ax-analysis_section_header_title">
+    <div className="ax-mps-analysis_section">
+      <div className="ax-mps-analysis_section_header">
+        <div className="ax-mps-analysis_section_header_title">
           <AxMuiIcon icon="mdiChartBar" size={18} />
           <span>Tool-group capacity</span>
         </div>
@@ -106,7 +106,7 @@ export const MpsAnalysisToolGroupBars = observer(() => {
           />
         </Space>
       </div>
-      <div className="ax-analysis_section_body" style={{ height: 260 }}>
+      <div className="ax-mps-analysis_section_body" style={{ height: 260 }}>
         <ReactECharts option={option} style={{ height: '100%', width: '100%' }} notMerge lazyUpdate />
       </div>
     </div>

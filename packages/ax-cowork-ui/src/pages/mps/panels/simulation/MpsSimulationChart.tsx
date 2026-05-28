@@ -9,16 +9,16 @@ import type { SimulationTaskRow } from '../../stores/simulation.store'
 // Update 3: keep priority chip; HOT chip / overload chip removed.
 const renderTaskText = (task: SimulationTaskRow): string => {
   if (task.rowKind === 'po') {
-    const pri = `<span class="ax-simulation-chip ax-simulation-chip__pri-${task.priority?.toLowerCase()}">${task.priority}</span>`
-    return `<span class="ax-simulation-po-text">${task.id}</span> <span class="ax-simulation-muted">${task.customerShort ?? ''}</span> ${pri}`
+    const pri = `<span class="ax-mps-simulation-chip ax-mps-simulation-chip__pri-${task.priority?.toLowerCase()}">${task.priority}</span>`
+    return `<span class="ax-mps-simulation-po-text">${task.id}</span> <span class="ax-mps-simulation-muted">${task.customerShort ?? ''}</span> ${pri}`
   }
   if (task.rowKind === 'family') {
-    const pri = `<span class="ax-simulation-chip ax-simulation-chip__pri-${task.priority?.toLowerCase()}">${task.priority}</span>`
-    return `<span class="ax-simulation-family-text">${task.text}</span> <span class="ax-simulation-muted">${task.techCode ?? ''}</span> ${pri}`
+    const pri = `<span class="ax-mps-simulation-chip ax-mps-simulation-chip__pri-${task.priority?.toLowerCase()}">${task.priority}</span>`
+    return `<span class="ax-mps-simulation-family-text">${task.text}</span> <span class="ax-mps-simulation-muted">${task.techCode ?? ''}</span> ${pri}`
   }
   // batch
-  const note = task.note ? ` <span class="ax-simulation-muted">${task.note}</span>` : ''
-  return `<span class="ax-simulation-batch-text">${task.text}</span> <span class="ax-simulation-muted">${task.waferCount ?? '?'} wafers</span>${note}`
+  const note = task.note ? ` <span class="ax-mps-simulation-muted">${task.note}</span>` : ''
+  return `<span class="ax-mps-simulation-batch-text">${task.text}</span> <span class="ax-mps-simulation-muted">${task.waferCount ?? '?'} wafers</span>${note}`
 }
 
 const fmtDate = (date?: Date) => {
@@ -66,16 +66,16 @@ export const MpsSimulationChart = observer(() => {
   const markers = simulation.dhxMarkers
 
   // Bar class = schedule class + row kind + PO-band (Update 3: replaces lot-status / hot-lot classes).
-  // The `ax-simulation-poband__{a|b}` class alternates per PO so SCSS can zebra-band the timeline rows by group —
+  // The `ax-mps-simulation-poband__{a|b}` class alternates per PO so SCSS can zebra-band the timeline rows by group —
   // makes it obvious where one Production Order ends and the next begins, without printing a separator row.
   const rowBandClass = (task: SimulationTaskRow) => {
     const band = task.poIndex % 2 === 0 ? 'a' : 'b'
-    return `ax-simulation-poband__${band} ax-simulation-poband-row__${task.rowKind}`
+    return `ax-mps-simulation-poband__${band} ax-mps-simulation-poband-row__${task.rowKind}`
   }
   const templates = useMemo(
     () => ({
       task_class: (_start: Date, _end: Date, task: SimulationTaskRow) =>
-        `ax-simulation-row ax-simulation-row__${task.scheduleClass} ax-simulation-row__${task.rowKind} ${rowBandClass(task)}`,
+        `ax-mps-simulation-row ax-mps-simulation-row__${task.scheduleClass} ax-mps-simulation-row__${task.rowKind} ${rowBandClass(task)}`,
       // Full-row zebra (timeline side) + accent rule for PO rows that mark a new group.
       task_row_class: (_start: Date, _end: Date, task: SimulationTaskRow) => rowBandClass(task),
       // Same alternation in the left grid so banding lines up perfectly across the splitter.
@@ -112,7 +112,7 @@ export const MpsSimulationChart = observer(() => {
   )
 
   return (
-    <div className="ax-simulation_chart">
+    <div className="ax-mps-simulation_chart">
       <ReactGantt tasks={tasks} links={[]} markers={markers} config={config} templates={templates} theme="terrace" data={dataHandler} />
     </div>
   )

@@ -12,7 +12,7 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 // Shop Floor — operational view of one tool group at a time.
 // Layout mirrors Gantt / Analysis / Production Order / Production Processes:
 //   • Persistent left sidebar = Tool Group Tree (always visible — primary navigation).
-//   • Main content = vertically-stacked sections inside .ax-analysis_scroll so it inherits the
+//   • Main content = vertically-stacked sections inside .ax-eps-analysis_scroll so it inherits the
 //     edge-to-edge + sticky-section-header behaviour shared with the other panels.
 //   • Detail tables (Tools / Qualification matrix) pick up the same PO-table look (Stone-100 header,
 //     gray-300 bottom separator, zebra rows, Amber-50 hover, gray-200 grid).
@@ -32,7 +32,7 @@ const chamberDot = (s: 'up' | 'down' | 'drift') =>
 
 // ----- Toolbar (matches process panel — read-only hint) -------------------------------------------
 const CapacityToolbar = observer(() => (
-  <Flex align="center" justify="space-between" gap="small" className="ax-simulation_toolbar" style={{ width: '100%' }}>
+  <Flex align="center" justify="space-between" gap="small" className="ax-eps-simulation_toolbar" style={{ width: '100%' }}>
     <Space size={10}>
       <Typography.Text type="secondary" className="text-sm">
         Read-only operational view per tool group — pick a tool group on the left to inspect its capacity, OEE, constraints, tools and qualifications.
@@ -51,31 +51,31 @@ const CapacityToolGroupTree = observer(() => {
     return acc
   }, {})
   return (
-    <div className="ax-capacity_tree">
-      <div className="ax-capacity_tree_header">
+    <div className="ax-eps-capacity_tree">
+      <div className="ax-eps-capacity_tree_header">
         <span>Tool groups</span>
       </div>
-      <div className="ax-capacity_tree_body">
+      <div className="ax-eps-capacity_tree_body">
         {Object.entries(grouped).map(([mod, items]) => (
-          <div key={mod} className="ax-capacity_tree_module">
-            <div className="ax-capacity_tree_module_label">{mod}</div>
+          <div key={mod} className="ax-eps-capacity_tree_module">
+            <div className="ax-eps-capacity_tree_module_label">{mod}</div>
             {items.map((g) => {
               const isActive = g.id === store.selectedGroupId
               return (
                 <button
                   key={g.id}
                   type="button"
-                  className={`ax-capacity_tree_card ${isActive ? 'is-active' : ''}`}
+                  className={`ax-eps-capacity_tree_card ${isActive ? 'is-active' : ''}`}
                   onClick={() => store.selectGroup(g.id)}
                 >
-                  <div className="ax-capacity_tree_card_top">
-                    <span className="ax-capacity_tree_card_name">{g.name}</span>
+                  <div className="ax-eps-capacity_tree_card_top">
+                    <span className="ax-eps-capacity_tree_card_name">{g.name}</span>
                     <Typography.Text className="text-sm" style={{ color: utilColor(g.utilization) }} strong>
                       {g.utilization}%
                     </Typography.Text>
                   </div>
-                  <div className="ax-capacity_tree_card_bar">
-                    <div className="ax-capacity_tree_card_bar_fill" style={{ width: `${g.utilization}%`, background: utilColor(g.utilization) }} />
+                  <div className="ax-eps-capacity_tree_card_bar">
+                    <div className="ax-eps-capacity_tree_card_bar_fill" style={{ width: `${g.utilization}%`, background: utilColor(g.utilization) }} />
                   </div>
                 </button>
               )
@@ -90,10 +90,10 @@ const CapacityToolGroupTree = observer(() => {
 // ----- KPI strip -----------------------------------------------------------------------------------
 type KpiCardProps = { label: string; value: string; sub?: string; tone?: 'default' | 'warn' | 'good' }
 const KpiCard = ({ label, value, sub, tone = 'default' }: KpiCardProps) => (
-  <div className={`ax-capacity_kpi ax-capacity_kpi__${tone}`}>
-    <div className="ax-capacity_kpi_label">{label}</div>
-    <div className="ax-capacity_kpi_value">{value}</div>
-    {sub && <div className="ax-capacity_kpi_sub">{sub}</div>}
+  <div className={`ax-eps-capacity_kpi ax-eps-capacity_kpi__${tone}`}>
+    <div className="ax-eps-capacity_kpi_label">{label}</div>
+    <div className="ax-eps-capacity_kpi_value">{value}</div>
+    {sub && <div className="ax-eps-capacity_kpi_sub">{sub}</div>}
   </div>
 )
 
@@ -104,7 +104,7 @@ const KpiStrip = observer(({ group }: { group: ToolGroup }) => {
   const runningTools = store.tools.filter((t) => t.status === 'Running').length
   const totalTools = store.tools.length
   return (
-    <div className="ax-capacity_kpis">
+    <div className="ax-eps-capacity_kpis">
       <KpiCard
         label="Utilization"
         value={`${group.utilization}%`}
@@ -132,9 +132,9 @@ const KpiStrip = observer(({ group }: { group: ToolGroup }) => {
   )
 })
 
-// ----- Tools table (PO-style via .ax-capacity_detail scope, see SCSS) ----------------------------------
+// ----- Tools table (PO-style via .ax-eps-capacity_detail scope, see SCSS) ----------------------------------
 const ToolsTable = observer(({ tools }: { tools: ToolRow[] }) => (
-  <table className="ax-analysis_table">
+  <table className="ax-eps-analysis_table">
     <thead>
       <tr>
         <th>Tool ID</th>
@@ -183,7 +183,7 @@ const ToolsTable = observer(({ tools }: { tools: ToolRow[] }) => (
 
 // ----- Qualification matrix (PO-style table) -----------------------------------------------------
 const QualMatrix = observer(({ rows, tools }: { rows: QualMatrixRow[]; tools: ToolRow[] }) => (
-  <table className="ax-analysis_table">
+  <table className="ax-eps-analysis_table">
     <thead>
       <tr>
         <th>Recipe</th>
@@ -220,9 +220,9 @@ const CapacityDetail = observer(({ group }: { group: ToolGroup }) => {
       <KpiStrip group={group} />
 
       {/* 2. Tool group identity + meta */}
-      <div className="ax-analysis_section">
-        <div className="ax-analysis_section_header">
-          <div className="ax-analysis_section_header_title">
+      <div className="ax-eps-analysis_section">
+        <div className="ax-eps-analysis_section_header">
+          <div className="ax-eps-analysis_section_header_title">
             <AxMuiIcon icon="mdiFactory" size={18} />
             <span>{group.name} · {group.module}</span>
           </div>
@@ -232,7 +232,7 @@ const CapacityDetail = observer(({ group }: { group: ToolGroup }) => {
             </Tag>
           </Tooltip>
         </div>
-        <div className="ax-analysis_section_body">
+        <div className="ax-eps-analysis_section_body">
           <Typography.Text type="secondary" className="text-sm">
             {store.tools.length} tools in this group · {store.qualMatrix.length} recipes qualified across the group.
             Use the charts below to drill into capacity / OEE / constraints, then the Tools and Qualification
@@ -251,9 +251,9 @@ const CapacityDetail = observer(({ group }: { group: ToolGroup }) => {
       <EpsCapacityConstraints />
 
       {/* 6. Tools — chamber detail */}
-      <div className="ax-analysis_section">
-        <div className="ax-analysis_section_header">
-          <div className="ax-analysis_section_header_title">
+      <div className="ax-eps-analysis_section">
+        <div className="ax-eps-analysis_section_header">
+          <div className="ax-eps-analysis_section_header_title">
             <AxMuiIcon icon="mdiToolboxOutline" size={18} />
             <span>Tools ({store.tools.length}) · Chamber detail</span>
           </div>
@@ -261,15 +261,15 @@ const CapacityDetail = observer(({ group }: { group: ToolGroup }) => {
             Per-tool chamber state, qualified recipes, last PM, current status.
           </Typography.Text>
         </div>
-        <div className="ax-analysis_section_body">
+        <div className="ax-eps-analysis_section_body">
           <ToolsTable tools={store.tools} />
         </div>
       </div>
 
       {/* 7. Qualification matrix */}
-      <div className="ax-analysis_section">
-        <div className="ax-analysis_section_header">
-          <div className="ax-analysis_section_header_title">
+      <div className="ax-eps-analysis_section">
+        <div className="ax-eps-analysis_section_header">
+          <div className="ax-eps-analysis_section_header_title">
             <AxMuiIcon icon="mdiShieldCheckOutline" size={18} />
             <span>Qualification matrix · recipe × tool</span>
           </div>
@@ -277,7 +277,7 @@ const CapacityDetail = observer(({ group }: { group: ToolGroup }) => {
             ✓ = tool is currently qualified to run the recipe. Empty = no qual; the planner can't dispatch this recipe on that tool until a qual run lands.
           </Typography.Text>
         </div>
-        <div className="ax-analysis_section_body">
+        <div className="ax-eps-analysis_section_body">
           <QualMatrix rows={store.qualMatrix} tools={store.tools} />
         </div>
       </div>
@@ -290,10 +290,10 @@ export const EpsCapacityPanel = observer((props: MainPanelControls) => {
   const store = useEpsContext().capacity
   return (
     <AxDisplayPanel type="main" icon="mdiFactory" title="Capacity" tools={<CapacityToolbar />} {...props}>
-      <div className="ax-simulation">
-        <div className="ax-simulation_body">
+      <div className="ax-eps-simulation">
+        <div className="ax-eps-simulation_body">
           <CapacityToolGroupTree />
-          <div className="ax-simulation_body_content ax-analysis_scroll ax-capacity_detail">
+          <div className="ax-eps-simulation_body_content ax-eps-analysis_scroll ax-eps-capacity_detail">
             {store.selectedGroup ? <CapacityDetail group={store.selectedGroup} /> : null}
           </div>
         </div>

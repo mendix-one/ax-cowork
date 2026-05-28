@@ -15,7 +15,7 @@ const renderCardTitle = (args: {
   onOpen?: () => void
   openLabel: string
 }) => (
-  <div className="ax-analysis_summary_card_title">
+  <div className="ax-mps-analysis_summary_card_title">
     <AxMuiIcon icon={args.icon} size={16} />
     <span style={{ flex: 1 }}>{args.label}</span>
     {args.onOpen && (
@@ -24,7 +24,7 @@ const renderCardTitle = (args: {
           type="button"
           onClick={args.onOpen}
           aria-label={args.openLabel}
-          className="ax-analysis_summary_card_open"
+          className="ax-mps-analysis_summary_card_open"
           style={{
             background: 'transparent',
             border: 'none',
@@ -65,34 +65,34 @@ export const MpsAnalysisSummary = observer(() => {
   const violationTarget = violations[0]?.group.name ?? cap.bottleneckGroup ?? cap.highloadGroup
 
   return (
-    <div className="ax-analysis_summary">
+    <div className="ax-mps-analysis_summary">
       {/* Totals — three tiles showing the PO → PF → MB hierarchy, plus a one-line ratio caption. */}
-      <div className="ax-analysis_summary_card">
+      <div className="ax-mps-analysis_summary_card">
         {renderCardTitle({ icon: 'mdiViewListOutline', label: 'Totals', openLabel: 'Open Production Order panel', onOpen: () => sim.setActiveMainPanel('orders') })}
-        <div className="ax-analysis_summary_card_body">
-          <div className="ax-analysis_totals">
-            <div className="ax-analysis_totals_tile ax-analysis_totals_tile__po">
-              <div className="ax-analysis_totals_tile_icon">
+        <div className="ax-mps-analysis_summary_card_body">
+          <div className="ax-mps-analysis_totals">
+            <div className="ax-mps-analysis_totals_tile ax-mps-analysis_totals_tile__po">
+              <div className="ax-mps-analysis_totals_tile_icon">
                 <AxMuiIcon icon="mdiClipboardListOutline" size={20} />
               </div>
-              <div className="ax-analysis_totals_tile_value">{totals.po}</div>
-              <div className="ax-analysis_totals_tile_label">Production Orders</div>
+              <div className="ax-mps-analysis_totals_tile_value">{totals.po}</div>
+              <div className="ax-mps-analysis_totals_tile_label">Production Orders</div>
             </div>
-            <AxMuiIcon icon="mdiChevronRight" size={16} className="ax-analysis_totals_arrow" />
-            <div className="ax-analysis_totals_tile ax-analysis_totals_tile__pf">
-              <div className="ax-analysis_totals_tile_icon">
+            <AxMuiIcon icon="mdiChevronRight" size={16} className="ax-mps-analysis_totals_arrow" />
+            <div className="ax-mps-analysis_totals_tile ax-mps-analysis_totals_tile__pf">
+              <div className="ax-mps-analysis_totals_tile_icon">
                 <AxMuiIcon icon="mdiCubeOutline" size={20} />
               </div>
-              <div className="ax-analysis_totals_tile_value">{totals.pf}</div>
-              <div className="ax-analysis_totals_tile_label">Product Families</div>
+              <div className="ax-mps-analysis_totals_tile_value">{totals.pf}</div>
+              <div className="ax-mps-analysis_totals_tile_label">Product Families</div>
             </div>
-            <AxMuiIcon icon="mdiChevronRight" size={16} className="ax-analysis_totals_arrow" />
-            <div className="ax-analysis_totals_tile ax-analysis_totals_tile__mb">
-              <div className="ax-analysis_totals_tile_icon">
+            <AxMuiIcon icon="mdiChevronRight" size={16} className="ax-mps-analysis_totals_arrow" />
+            <div className="ax-mps-analysis_totals_tile ax-mps-analysis_totals_tile__mb">
+              <div className="ax-mps-analysis_totals_tile_icon">
                 <AxMuiIcon icon="mdiLayersTripleOutline" size={20} />
               </div>
-              <div className="ax-analysis_totals_tile_value">{totals.mb}</div>
-              <div className="ax-analysis_totals_tile_label">Mfg Batches</div>
+              <div className="ax-mps-analysis_totals_tile_value">{totals.mb}</div>
+              <div className="ax-mps-analysis_totals_tile_label">Mfg Batches</div>
             </div>
           </div>
           <Typography.Text type="secondary" className="text-sm">
@@ -102,14 +102,14 @@ export const MpsAnalysisSummary = observer(() => {
       </div>
 
       {/* Avg shop-floor capacity */}
-      <div className="ax-analysis_summary_card">
+      <div className="ax-mps-analysis_summary_card">
         {renderCardTitle({
           icon: 'mdiSpeedometer',
           label: 'Avg shop-floor capacity',
           openLabel: cap.bottleneckGroup ? `Open Shop Floor — ${cap.bottleneckGroup}` : 'Open Shop Floor Capacity',
           onOpen: () => (cap.bottleneckGroup ? sim.navigateToToolGroup(cap.bottleneckGroup) : sim.setActiveMainPanel('capacity')),
         })}
-        <div className="ax-analysis_summary_card_body">
+        <div className="ax-mps-analysis_summary_card_body">
           <Statistic
             value={cap.avgDaily}
             suffix={<Typography.Text type="secondary" className="text-sm"> wafer-moves/day</Typography.Text>}
@@ -119,7 +119,7 @@ export const MpsAnalysisSummary = observer(() => {
             vs Safe {cap.safe} · {cap.avgVsSafePct}% · vs Limit {cap.limit} · {cap.avgVsLimitPct}%
           </Typography.Text>
           {cap.bottleneckGroup && (
-            <div className="ax-analysis_summary_card_chips">
+            <div className="ax-mps-analysis_summary_card_chips">
               <Tag color="orange" style={{ margin: 0, cursor: 'pointer' }} onClick={() => sim.navigateToToolGroup(cap.bottleneckGroup!)} title="Open in Shop Floor Capacity">
                 Bottleneck · {cap.bottleneckGroup}
               </Tag>
@@ -134,14 +134,14 @@ export const MpsAnalysisSummary = observer(() => {
       </div>
 
       {/* Shipment & milestone */}
-      <div className="ax-analysis_summary_card">
+      <div className="ax-mps-analysis_summary_card">
         {renderCardTitle({
           icon: 'mdiTruckDeliveryOutline',
           label: <>Shipment &amp; milestone</>,
           openLabel: shipmentTarget ? `Open Production Order — ${shipmentTarget}` : 'Open Production Order panel',
           onOpen: () => (shipmentTarget ? sim.navigateToOrder(shipmentTarget) : sim.setActiveMainPanel('orders')),
         })}
-        <div className="ax-analysis_summary_card_body">
+        <div className="ax-mps-analysis_summary_card_body">
           <Statistic
             value={ship.totalWafersOut}
             suffix={<Typography.Text type="secondary" className="text-sm"> wafers planned</Typography.Text>}
@@ -162,21 +162,21 @@ export const MpsAnalysisSummary = observer(() => {
       </div>
 
       {/* Violations / Highload list */}
-      <div className="ax-analysis_summary_card">
+      <div className="ax-mps-analysis_summary_card">
         {renderCardTitle({
           icon: 'mdiAlertOctagonOutline',
           label: <>Violations &amp; High-load</>,
           openLabel: violationTarget ? `Open Shop Floor — ${violationTarget}` : 'Open Shop Floor Capacity',
           onOpen: () => (violationTarget ? sim.navigateToToolGroup(violationTarget) : sim.setActiveMainPanel('capacity')),
         })}
-        <div className="ax-analysis_summary_card_body ax-analysis_summary_card_body__list">
+        <div className="ax-mps-analysis_summary_card_body ax-mps-analysis_summary_card_body__list">
           {violations.length === 0 ? (
             <Typography.Text type="secondary">All tool groups within safe range.</Typography.Text>
           ) : (
             violations.slice(0, 4).map((v) => (
               <div
                 key={v.group.name}
-                className={`ax-analysis_summary_violation ${v.kind}`}
+                className={`ax-mps-analysis_summary_violation ${v.kind}`}
                 role="button"
                 tabIndex={0}
                 style={{ cursor: 'pointer' }}
@@ -192,7 +192,7 @@ export const MpsAnalysisSummary = observer(() => {
                 <Tag color={v.kind === 'violation' ? 'red' : 'orange'} style={{ margin: 0 }}>
                   {v.kind === 'violation' ? 'Violation' : 'Highload'}
                 </Tag>
-                <span className="ax-analysis_summary_violation_label">{v.group.name}</span>
+                <span className="ax-mps-analysis_summary_violation_label">{v.group.name}</span>
                 <Typography.Text strong style={{ color: v.kind === 'violation' ? '#f44336' : '#ff9800' }}>
                   {Math.round(v.ratio * 100)}%
                 </Typography.Text>

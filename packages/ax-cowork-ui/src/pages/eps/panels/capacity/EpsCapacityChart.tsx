@@ -54,15 +54,15 @@ export const EpsCapacityChart = observer(() => {
   }, [series])
 
   return (
-    <div className="ax-analysis_section">
-      <div className="ax-analysis_section_header">
-        <div className="ax-analysis_section_header_title">
+    <div className="ax-eps-analysis_section">
+      <div className="ax-eps-analysis_section_header">
+        <div className="ax-eps-analysis_section_header_title">
           <AxMuiIcon icon="mdiChartLineVariant" size={18} />
           <span>Capacity vs demand · {group?.name ?? '—'}</span>
         </div>
-        <div className="ax-analysis_section_header_hint">Red dots mark days where demand exceeded capacity.</div>
+        <div className="ax-eps-analysis_section_header_hint">Red dots mark days where demand exceeded capacity.</div>
       </div>
-      <div className="ax-analysis_section_body" style={{ height: 240 }}>
+      <div className="ax-eps-analysis_section_body" style={{ height: 240 }}>
         {group ? (
           <ReactECharts option={option} style={{ height: '100%', width: '100%' }} notMerge lazyUpdate />
         ) : (

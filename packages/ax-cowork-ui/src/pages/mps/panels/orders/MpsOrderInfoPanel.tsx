@@ -21,16 +21,16 @@ const EntityNotesList = observer(({ entityKey, placeholder }: { entityKey: strin
     setDraft('')
   }
   return (
-    <div className="ax-order_pn">
+    <div className="ax-mps-order_pn">
       {notes.length === 0 ? (
         <Typography.Text type="secondary" className="text-sm">
           No notes yet — add one below.
         </Typography.Text>
       ) : (
-        <div className="ax-order_pn_list">
+        <div className="ax-mps-order_pn_list">
           {notes.map((n) => (
-            <div key={n.id} className="ax-order_pn_item">
-              <div className="ax-order_pn_item_meta">
+            <div key={n.id} className="ax-mps-order_pn_item">
+              <div className="ax-mps-order_pn_item_meta">
                 <AxMuiIcon icon="mdiNoteTextOutline" size={12} />
                 <span>{new Date(n.createdAt).toLocaleString()}</span>
                 <Tooltip title="Delete note">
@@ -38,13 +38,13 @@ const EntityNotesList = observer(({ entityKey, placeholder }: { entityKey: strin
                     size="small"
                     type="text"
                     danger
-                    className="ax-order_pn_item_del"
+                    className="ax-mps-order_pn_item_del"
                     icon={<AxMuiIcon icon="mdiClose" size={12} />}
                     onClick={() => po.removeNote(entityKey, n.id)}
                   />
                 </Tooltip>
               </div>
-              <div className="ax-order_pn_item_text">{n.text}</div>
+              <div className="ax-mps-order_pn_item_text">{n.text}</div>
             </div>
           ))}
         </div>
@@ -78,17 +78,17 @@ const BatchesList = observer(({ poId, familyId }: { poId: string; familyId: stri
     )
   }
   return (
-    <div className="ax-order_fams">
+    <div className="ax-mps-order_fams">
       {family.batches.map((b) => (
-        <button key={b.id} type="button" className="ax-order_fams_item" onClick={() => po.selectRow(`batch::${family.id}::${b.id}`)}>
-          <div className="ax-order_fams_item_top">
-            <span className="ax-order_fams_item_label">{b.name}</span>
+        <button key={b.id} type="button" className="ax-mps-order_fams_item" onClick={() => po.selectRow(`batch::${family.id}::${b.id}`)}>
+          <div className="ax-mps-order_fams_item_top">
+            <span className="ax-mps-order_fams_item_label">{b.name}</span>
             <Tag color="default" style={{ margin: 0 }}>
               {b.waferCount.toLocaleString()} wafers
             </Tag>
             <StateChip state={b.scheduleClass} />
           </div>
-          <div className="ax-order_fams_item_meta">
+          <div className="ax-mps-order_fams_item_meta">
             <span>{b.durationDays} days</span>
             <span>·</span>
             <span>{b.start} → {b.end}</span>
@@ -118,19 +118,19 @@ const FamiliesList = observer(({ poId }: { poId: string }) => {
     )
   }
   return (
-    <div className="ax-order_fams">
+    <div className="ax-mps-order_fams">
       {order.schedule.map((f) => {
         const commitment = f.batches.reduce((s, b) => s + b.waferCount, 0)
         return (
-          <button key={f.id} type="button" className="ax-order_fams_item" onClick={() => po.selectRow(`family::${f.id}`)}>
-            <div className="ax-order_fams_item_top">
-              <span className="ax-order_fams_item_label">{f.label}</span>
+          <button key={f.id} type="button" className="ax-mps-order_fams_item" onClick={() => po.selectRow(`family::${f.id}`)}>
+            <div className="ax-mps-order_fams_item_top">
+              <span className="ax-mps-order_fams_item_label">{f.label}</span>
               <Tag color="default" style={{ margin: 0 }}>
                 {f.tech}
               </Tag>
               <StateChip state={f.scheduleClass} />
             </div>
-            <div className="ax-order_fams_item_meta">
+            <div className="ax-mps-order_fams_item_meta">
               <span>{commitment.toLocaleString()} wafers</span>
               <span>·</span>
               <span>{f.batches.length} batches</span>
@@ -192,10 +192,10 @@ export const MpsOrderInfoPanel = observer(() => {
       const canToggleExclude = order.scheduleClass === 'new'
       const state = isExcluded ? 'exclude' : order.scheduleClass
       titleLeft = (
-        <span className="ax-order_info_header_title">
-          <span className="ax-order_info_header_title_code">{order.id}</span>
-          <span className="ax-order_info_header_title_sep">·</span>
-          <span className="ax-order_info_header_title_context">{order.customer}</span>
+        <span className="ax-mps-order_info_header_title">
+          <span className="ax-mps-order_info_header_title_code">{order.id}</span>
+          <span className="ax-mps-order_info_header_title_sep">·</span>
+          <span className="ax-mps-order_info_header_title_context">{order.customer}</span>
           <PriorityChip priority={order.priority} />
           <StateChip state={state} />
         </span>
@@ -228,10 +228,10 @@ export const MpsOrderInfoPanel = observer(() => {
       const canToggleExclude = family.scheduleClass === 'new'
       const state = isExcluded ? 'exclude' : family.scheduleClass
       titleLeft = (
-        <span className="ax-order_info_header_title">
-          <span className="ax-order_info_header_title_code">{family.label}</span>
-          <span className="ax-order_info_header_title_sep">·</span>
-          <span className="ax-order_info_header_title_context">{order.id}</span>
+        <span className="ax-mps-order_info_header_title">
+          <span className="ax-mps-order_info_header_title_code">{family.label}</span>
+          <span className="ax-mps-order_info_header_title_sep">·</span>
+          <span className="ax-mps-order_info_header_title_context">{order.id}</span>
           <PriorityChip priority={family.priority} />
           <StateChip state={state} />
         </span>
@@ -264,10 +264,10 @@ export const MpsOrderInfoPanel = observer(() => {
       const canToggleExclude = batch.scheduleClass === 'new'
       const state = isExcluded ? 'exclude' : batch.scheduleClass
       titleLeft = (
-        <span className="ax-order_info_header_title">
-          <span className="ax-order_info_header_title_code">{batch.name}</span>
-          <span className="ax-order_info_header_title_sep">·</span>
-          <span className="ax-order_info_header_title_context">{family!.label}</span>
+        <span className="ax-mps-order_info_header_title">
+          <span className="ax-mps-order_info_header_title_code">{batch.name}</span>
+          <span className="ax-mps-order_info_header_title_sep">·</span>
+          <span className="ax-mps-order_info_header_title_context">{family!.label}</span>
           <StateChip state={state} />
         </span>
       )
@@ -323,13 +323,13 @@ export const MpsOrderInfoPanel = observer(() => {
 
   // Height varies by mode — 12rem for the dense summary, 48rem (capped at 40% of body) for the
   // taller detail cards. Driven by a modifier class so the SCSS owns the values.
-  const heightClass = row && order ? 'ax-order_info__detail' : 'ax-order_info__summary'
+  const heightClass = row && order ? 'ax-mps-order_info__detail' : 'ax-mps-order_info__summary'
 
   return (
-    <div className={`ax-order_info ${heightClass}`}>
-      <div className="ax-order_info_header">
-        <div className="ax-order_info_header_left">{titleLeft}</div>
-        <div className="ax-order_info_header_right">
+    <div className={`ax-mps-order_info ${heightClass}`}>
+      <div className="ax-mps-order_info_header">
+        <div className="ax-mps-order_info_header_left">{titleLeft}</div>
+        <div className="ax-mps-order_info_header_right">
           {titleActions}
           <Button
             size="small"
@@ -340,7 +340,7 @@ export const MpsOrderInfoPanel = observer(() => {
           />
         </div>
       </div>
-      <div className="ax-order_info_body">
+      <div className="ax-mps-order_info_body">
         {!row || !order ? (
           <MpsOrderSummary />
         ) : row.kind === 'po' ? (
@@ -351,10 +351,10 @@ export const MpsOrderInfoPanel = observer(() => {
             const progressPct = order.qty > 0 ? Math.round((order.outWafers / order.qty) * 100) : 0
             const remark = remarkForOrder(order)
             return (
-              <div className="ax-order_info_card">
+              <div className="ax-mps-order_info_card">
                 {/* ---- Meta Info ------------------------------------------------------------- */}
-                <div className="ax-order_info_section">
-                  <div className="ax-order_info_section_title">Meta Info</div>
+                <div className="ax-mps-order_info_section">
+                  <div className="ax-mps-order_info_section_title">Meta Info</div>
                   <Descriptions
                     size="small"
                     column={2}
@@ -388,8 +388,8 @@ export const MpsOrderInfoPanel = observer(() => {
                 </div>
 
                 {/* ---- Production Family ----------------------------------------------------- */}
-                <div className="ax-order_info_section">
-                  <div className="ax-order_info_section_title">
+                <div className="ax-mps-order_info_section">
+                  <div className="ax-mps-order_info_section_title">
                     Production Family ({order.schedule.length})
                     <Button
                       size="small"
@@ -404,8 +404,8 @@ export const MpsOrderInfoPanel = observer(() => {
                 </div>
 
                 {/* ---- Notes ----------------------------------------------------------------- */}
-                <div className="ax-order_info_section">
-                  <div className="ax-order_info_section_title">Notes ({po.getNotes(noteKeyForOrder(order.id)).length})</div>
+                <div className="ax-mps-order_info_section">
+                  <div className="ax-mps-order_info_section_title">Notes ({po.getNotes(noteKeyForOrder(order.id)).length})</div>
                   <EntityNotesList entityKey={noteKeyForOrder(order.id)} placeholder="Add a new note for this production order…" />
                 </div>
               </div>
@@ -424,10 +424,10 @@ export const MpsOrderInfoPanel = observer(() => {
             const remark = '' // Family-level remark not modelled yet — leave em-dash so layout stays consistent.
             const noteKey = noteKeyForFamily(family.id)
             return (
-              <div className="ax-order_info_card">
+              <div className="ax-mps-order_info_card">
                 {/* ---- Meta Info ------------------------------------------------------------- */}
-                <div className="ax-order_info_section">
-                  <div className="ax-order_info_section_title">Meta Info</div>
+                <div className="ax-mps-order_info_section">
+                  <div className="ax-mps-order_info_section_title">Meta Info</div>
                   <Descriptions size="small" column={2} bordered labelStyle={{ width: 110, fontWeight: 500, color: '#262626' }}>
                     <Descriptions.Item label="Code">{family.label}</Descriptions.Item>
                     <Descriptions.Item label="Order">{order.id}</Descriptions.Item>
@@ -454,8 +454,8 @@ export const MpsOrderInfoPanel = observer(() => {
                 </div>
 
                 {/* ---- Production Batch ------------------------------------------------------ */}
-                <div className="ax-order_info_section">
-                  <div className="ax-order_info_section_title">
+                <div className="ax-mps-order_info_section">
+                  <div className="ax-mps-order_info_section_title">
                     Production Batch ({family.batches.length})
                     <Button
                       size="small"
@@ -470,8 +470,8 @@ export const MpsOrderInfoPanel = observer(() => {
                 </div>
 
                 {/* ---- Notes ----------------------------------------------------------------- */}
-                <div className="ax-order_info_section">
-                  <div className="ax-order_info_section_title">Notes ({po.getNotes(noteKey).length})</div>
+                <div className="ax-mps-order_info_section">
+                  <div className="ax-mps-order_info_section_title">Notes ({po.getNotes(noteKey).length})</div>
                   <EntityNotesList entityKey={noteKey} placeholder="Add a new note for this production family…" />
                 </div>
               </div>
@@ -484,10 +484,10 @@ export const MpsOrderInfoPanel = observer(() => {
             const remaining = Math.max(0, batch.waferCount - batchWaf.completed)
             const noteKey = noteKeyForBatch(family.id, batch.id)
             return (
-              <div className="ax-order_info_card">
+              <div className="ax-mps-order_info_card">
                 {/* ---- Meta Info ------------------------------------------------------------- */}
-                <div className="ax-order_info_section">
-                  <div className="ax-order_info_section_title">Meta Info</div>
+                <div className="ax-mps-order_info_section">
+                  <div className="ax-mps-order_info_section_title">Meta Info</div>
                   <Descriptions size="small" column={2} bordered labelStyle={{ width: 110, fontWeight: 500, color: '#262626' }}>
                     <Descriptions.Item label="Code">{batch.name}</Descriptions.Item>
                     <Descriptions.Item label="Family">{family.label}</Descriptions.Item>
@@ -519,8 +519,8 @@ export const MpsOrderInfoPanel = observer(() => {
                 </div>
 
                 {/* ---- Notes ----------------------------------------------------------------- */}
-                <div className="ax-order_info_section">
-                  <div className="ax-order_info_section_title">Notes ({po.getNotes(noteKey).length})</div>
+                <div className="ax-mps-order_info_section">
+                  <div className="ax-mps-order_info_section_title">Notes ({po.getNotes(noteKey).length})</div>
                   <EntityNotesList entityKey={noteKey} placeholder="Add a new note for this manufacturing batch…" />
                 </div>
               </div>

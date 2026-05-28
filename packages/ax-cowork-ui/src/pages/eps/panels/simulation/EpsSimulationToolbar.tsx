@@ -10,7 +10,7 @@ export const EpsSimulationToolbar = observer(() => {
   const simulation = sim.simulation
 
   return (
-    <Flex align="center" justify="space-between" gap="small" className="ax-simulation_toolbar" style={{ width: '100%' }}>
+    <Flex align="center" justify="space-between" gap="small" className="ax-eps-simulation_toolbar" style={{ width: '100%' }}>
       <Space size={10}>
         <DatePicker.RangePicker
           size="small"
@@ -65,17 +65,17 @@ export const EpsSimulationToolbar = observer(() => {
         <Divider vertical style={{ margin: 0 }} />
         {/* Schedule-lineage legend — three swatches matching the bar fills below so the planner can decode bar
             colors without leaving the panel. Keep inline; if we add more categories, promote to a popover. */}
-        <span className="ax-simulation_legend" aria-label="Schedule lineage legend">
-          <span className="ax-simulation_legend_item">
-            <span className="ax-simulation_legend_swatch ax-simulation_legend_swatch__fixed" />
+        <span className="ax-eps-simulation_legend" aria-label="Schedule lineage legend">
+          <span className="ax-eps-simulation_legend_item">
+            <span className="ax-eps-simulation_legend_swatch ax-eps-simulation_legend_swatch__fixed" />
             Fixed
           </span>
-          <span className="ax-simulation_legend_item">
-            <span className="ax-simulation_legend_swatch ax-simulation_legend_swatch__changes" />
+          <span className="ax-eps-simulation_legend_item">
+            <span className="ax-eps-simulation_legend_swatch ax-eps-simulation_legend_swatch__changes" />
             Changes
           </span>
-          <span className="ax-simulation_legend_item">
-            <span className="ax-simulation_legend_swatch ax-simulation_legend_swatch__new" />
+          <span className="ax-eps-simulation_legend_item">
+            <span className="ax-eps-simulation_legend_swatch ax-eps-simulation_legend_swatch__new" />
             New
           </span>
         </span>

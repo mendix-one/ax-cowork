@@ -7,6 +7,10 @@
 @use 'mps/ax-mps-order' as *;
 @use 'mps/ax-mps-analysis' as *;
 @use 'mps/ax-mps-process' as *;
+@use 'eps/ax-eps-simulation' as *;
+@use 'eps/ax-eps-order' as *;
+@use 'eps/ax-eps-analysis' as *;
+@use 'eps/ax-eps-process' as *;
 
 html,
 body,

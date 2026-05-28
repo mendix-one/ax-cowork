@@ -12,10 +12,10 @@ import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/A
 export const MpsProcessPanel = observer((props: MainPanelControls) => {
   return (
     <AxDisplayPanel type="main" icon="mdiSitemapOutline" title="Processes" tools={<MpsProcessToolbar />} {...props}>
-      <div className="ax-simulation">
-        <div className="ax-simulation_body">
+      <div className="ax-mps-simulation">
+        <div className="ax-mps-simulation_body">
           <MpsProcessTechList />
-          <div className="ax-simulation_body_content ax-analysis_scroll ax-process_scroll">
+          <div className="ax-mps-simulation_body_content ax-mps-analysis_scroll ax-mps-process_scroll">
             <MpsProcessPipeline />
           </div>
         </div>

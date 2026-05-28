@@ -37,9 +37,9 @@ export const EpsCapacityConstraints = observer(() => {
   const items = scopedToGroup && group ? constraintsFor(group.name) : allConstraints()
 
   return (
-    <div className="ax-analysis_section">
-      <div className="ax-analysis_section_header">
-        <div className="ax-analysis_section_header_title">
+    <div className="ax-eps-analysis_section">
+      <div className="ax-eps-analysis_section_header">
+        <div className="ax-eps-analysis_section_header_title">
           <AxMuiIcon icon="mdiAlertOctagonOutline" size={18} />
           <span>Constraints ({items.length})</span>
         </div>
@@ -53,11 +53,11 @@ export const EpsCapacityConstraints = observer(() => {
           ]}
         />
       </div>
-      <div className="ax-analysis_section_body">
+      <div className="ax-eps-analysis_section_body">
         {items.length === 0 ? (
           <Typography.Text type="secondary">No constraints in scope.</Typography.Text>
         ) : (
-          <table className="ax-analysis_table">
+          <table className="ax-eps-analysis_table">
             <thead>
               <tr>
                 <th>When</th>

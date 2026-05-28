@@ -9,8 +9,8 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 export const MpsSimulationQuickAnalysis = observer(() => {
   const simulation = useMpsContext().simulation
   return (
-    <div className="ax-simulation_analysis">
-      <div className="ax-simulation_analysis_header">
+    <div className="ax-mps-simulation_analysis">
+      <div className="ax-mps-simulation_analysis_header">
         <span>Quick Analysis</span>
         <Button
           size="small"
@@ -20,15 +20,15 @@ export const MpsSimulationQuickAnalysis = observer(() => {
           onClick={() => simulation.toggleQuickAnalysis()}
         />
       </div>
-      <div className="ax-simulation_analysis_body">
-        <div className="ax-simulation_analysis_grid">
-          <div className="ax-simulation_analysis_col ax-simulation_analysis_col__overall">
+      <div className="ax-mps-simulation_analysis_body">
+        <div className="ax-mps-simulation_analysis_grid">
+          <div className="ax-mps-simulation_analysis_col ax-mps-simulation_analysis_col__overall">
             <MpsSimulationQuickAnalysisOverall />
           </div>
-          <div className="ax-simulation_analysis_col ax-simulation_analysis_col__toolgroup">
+          <div className="ax-mps-simulation_analysis_col ax-mps-simulation_analysis_col__toolgroup">
             <MpsSimulationQuickAnalysisToolGroup />
           </div>
-          <div className="ax-simulation_analysis_col ax-simulation_analysis_col__violations">
+          <div className="ax-mps-simulation_analysis_col ax-mps-simulation_analysis_col__violations">
             <MpsSimulationQuickAnalysisViolations />
           </div>
         </div>

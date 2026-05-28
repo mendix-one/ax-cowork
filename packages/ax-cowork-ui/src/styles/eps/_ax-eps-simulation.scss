@@ -3,7 +3,7 @@
 // The chart body is rendered by @dhx/react-gantt; only the surrounding chrome (filter sidebar, quick analysis) and
 // a few overrides for the DHTMLX skin live here.
 
-.ax-simulation {
+.ax-eps-simulation {
   @apply w-full h-full flex flex-col bg-white;
 
   // ---- toolbar (rendered inside AxDisplayPanel header tools slot) -------------------------------------------------
@@ -25,7 +25,7 @@
   // Filter sidebar wrapper — animates width + opacity so the chart shifts smoothly when toggled.
   // Uses the shell-wide motion tokens (see :root in _ax-shared.scss) for consistent feel.
   // The wrap owns the definite width (animated via `width`, not `max-width`) so that the inner
-  // .ax-simulation_side's percentage width has a stable container to resolve against — otherwise
+  // .ax-eps-simulation_side's percentage width has a stable container to resolve against — otherwise
   // `flex-none` + only `max-width` would let the wrap size to its content, collapsing the inner
   // `w-1/4` down to ~25% of an indeterminate box (≈ 53px in practice).
   &_side_wrap {
@@ -41,7 +41,7 @@
       pointer-events: none;
     }
     &.is-open {
-      width: 16rem; // matches the standalone .ax-simulation_side max-w-64 cap
+      width: 16rem; // matches the standalone .ax-eps-simulation_side max-w-64 cap
       opacity: 1;
     }
 
@@ -50,7 +50,7 @@
     // Vertical fill matters because the wrap is `flex-col`, so the inner side panel is on the main
     // axis and `align-items: stretch` doesn't extend it — without `h-full` it sizes to content,
     // leaving the footer floating above the bottom of the wrap.
-    > .ax-simulation_side {
+    > .ax-eps-simulation_side {
       @apply w-full max-w-full h-full;
     }
   }
@@ -213,8 +213,8 @@
 // === DHTMLX OVERRIDES ================================================================================================
 // Skin the DHTMLX terrace bars by status, give the grid the indigo-50 header, and style the today marker.
 
-// Headers — sidebar grid header + timeline scale. Scoped under .ax-simulation_chart so we don't leak globally.
-.ax-simulation_chart {
+// Headers — sidebar grid header + timeline scale. Scoped under .ax-eps-simulation_chart so we don't leak globally.
+.ax-eps-simulation_chart {
   .gantt_grid_scale,
   .gantt_task_scale {
     @apply bg-stone-100; // Tailwind Stone 100 — gantt header row
@@ -250,7 +250,7 @@
 // Row class follows the dhx-internal "gantt_row" + our schedule-class class added via `task_class` template.
 // Update 3: classification by schedule lineage (fixed / changes / new), not by lot status.
 // Palette is the single source of truth in src/acore/theme/theme.ts (axSchedule) — mirrored to Tailwind config.
-.ax-simulation-row {
+.ax-eps-simulation-row {
   &__fixed .gantt_task_content,
   &__fixed {
     @apply bg-ax-sched-fixed #{!important};
@@ -299,42 +299,42 @@
 }
 
 // === ZEBRA BANDING BY PO GROUP =======================================================================================
-// `task_row_class` + `grid_row_class` apply ax-simulation-poband__a / ax-simulation-poband__b to whole rows (both timeline
+// `task_row_class` + `grid_row_class` apply ax-eps-simulation-poband__a / ax-eps-simulation-poband__b to whole rows (both timeline
 // and the left grid). We tint odd POs a touch warmer so the planner can see at a glance where one Production
 // Order ends and the next begins, without us having to print a divider row.
-.ax-simulation_chart {
-  .gantt_task_row.ax-simulation-poband__a,
-  .gantt_grid_data .gantt_row.ax-simulation-poband__a {
+.ax-eps-simulation_chart {
+  .gantt_task_row.ax-eps-simulation-poband__a,
+  .gantt_grid_data .gantt_row.ax-eps-simulation-poband__a {
     background: #ffffff !important;
   }
-  .gantt_task_row.ax-simulation-poband__b,
-  .gantt_grid_data .gantt_row.ax-simulation-poband__b {
+  .gantt_task_row.ax-eps-simulation-poband__b,
+  .gantt_grid_data .gantt_row.ax-eps-simulation-poband__b {
     background: #f5f7fb !important; // very subtle indigo-tinted band — readable, not noisy
   }
   // The PO header row gets a thicker top accent line — the eye-catch for "new group starts here".
-  .gantt_task_row.ax-simulation-poband-row__po,
-  .gantt_grid_data .gantt_row.ax-simulation-poband-row__po {
+  .gantt_task_row.ax-eps-simulation-poband-row__po,
+  .gantt_grid_data .gantt_row.ax-eps-simulation-poband-row__po {
     border-top: 2px solid theme('colors.neutral.300') !important;
   }
 }
 
 // Grid-cell label chips
-.ax-simulation-po-text {
+.ax-eps-simulation-po-text {
   @apply font-semibold text-neutral-900;
 }
-.ax-simulation-family-text {
+.ax-eps-simulation-family-text {
   @apply font-medium text-neutral-800;
 }
-.ax-simulation-batch-text {
+.ax-eps-simulation-batch-text {
   @apply text-neutral-700;
 }
-.ax-simulation-muted {
+.ax-eps-simulation-muted {
   @apply text-neutral-600 ml-1 font-normal;
   font-size: 11px;
 }
 // Priority chips — driven by axPriority tokens (see src/acore/theme/theme.ts). Pair color with letter so the
 // chip remains legible for color-vision-deficient planners.
-.ax-simulation-chip {
+.ax-eps-simulation-chip {
   @apply inline-block px-1.5 py-0 ml-1 rounded text-xs font-bold;
   border: 1px solid transparent;
   font-size: 10px;
@@ -357,7 +357,7 @@
 // === LEGEND / TOOLBAR CHIPS =========================================================================================
 // Inline schedule-lineage legend embedded in the Gantt toolbar. Each swatch matches its bar fill exactly,
 // so the planner can map any bar on the chart to its meaning without leaving the panel.
-.ax-simulation_legend {
+.ax-eps-simulation_legend {
   @apply inline-flex items-center gap-2 text-xs text-neutral-700;
   &_item {
     @apply inline-flex items-center gap-1.5;
@@ -387,7 +387,7 @@
 
 // Edits indicator — small amber pill that surfaces uncommitted Gantt edits next to undo/redo. Mirrors the
 // global header indicator so the planner has the signal in both places.
-.ax-simulation_edits {
+.ax-eps-simulation_edits {
   @apply inline-flex items-center gap-1 px-2 rounded font-semibold text-xs;
   @apply bg-ax-risk-warning-bg text-ax-pri-p2-text;
   border: 1px solid theme('colors.ax-pri-p2-border');
@@ -399,7 +399,7 @@
 // Bottom-anchored dock under the Gantt chart. Surfaces critical / warning / info constraints + capacity
 // overloads for the current horizon. Each row click jueps to Shop Floor Capacity, pre-selecting the relevant
 // tool group. Header is a button that toggles the strip open/closed so the chart can reclaim vertical space.
-.ax-simulation_risks {
+.ax-eps-simulation_risks {
   @apply flex-none flex flex-col bg-white border-t border-gray-300;
   transition: max-height var(--ax-dur-deliberate) var(--ax-ease-standard);
   will-change: max-height;
@@ -472,35 +472,35 @@
 
     &:hover {
       background: #f5f7fb;
-      .ax-simulation_risks_row_arrow {
+      .ax-eps-simulation_risks_row_arrow {
         opacity: 1;
         transform: translateX(0);
       }
     }
 
     &__critical {
-      .ax-simulation_risks_row_severity {
+      .ax-eps-simulation_risks_row_severity {
         @apply text-ax-risk-critical;
       }
-      .ax-simulation_risks_row_kind {
+      .ax-eps-simulation_risks_row_kind {
         @apply bg-ax-risk-critical-bg text-ax-pri-p1-text;
         border-color: theme('colors.ax-pri-p1-border');
       }
     }
     &__warning {
-      .ax-simulation_risks_row_severity {
+      .ax-eps-simulation_risks_row_severity {
         @apply text-ax-risk-warning;
       }
-      .ax-simulation_risks_row_kind {
+      .ax-eps-simulation_risks_row_kind {
         @apply bg-ax-risk-warning-bg text-ax-pri-p2-text;
         border-color: theme('colors.ax-pri-p2-border');
       }
     }
     &__info {
-      .ax-simulation_risks_row_severity {
+      .ax-eps-simulation_risks_row_severity {
         @apply text-ax-risk-info;
       }
-      .ax-simulation_risks_row_kind {
+      .ax-eps-simulation_risks_row_kind {
         @apply bg-ax-pri-p3-bg text-ax-pri-p3-text;
         border-color: theme('colors.ax-pri-p3-border');
       }
@@ -549,7 +549,7 @@
 
 // Today marker — full-height accent line. Increased width + saturation so it's visible even when overlapping bars.
 // The label rides on top of the timeline scale so it never gets clipped by a bar.
-.gantt_marker.ax-simulation-today-marker {
+.gantt_marker.ax-eps-simulation-today-marker {
   background: theme('colors.ax-tertiary');
   width: 2px;
   opacity: 0.75;
@@ -573,7 +573,7 @@
 
 // Milestone markers (Update 3) — vertical mark lines per PO milestone.
 // State decides the colour: new (cyan), normal (blue), late (orange), cannot (red).
-.gantt_marker.ax-simulation-milestone-marker {
+.gantt_marker.ax-eps-simulation-milestone-marker {
   width: 2px;
   opacity: 0.5;
   cursor: pointer;
@@ -619,54 +619,54 @@
 // both in DHTMLX's internal scroll fakers (.gantt_hor_scroll / .gantt_ver_scroll) and in our own chrome bodies
 // (filter sidebar body, quick-analysis body).
 
-$ax-simulation-track: #f3f4f6; // gray-100
-$ax-simulation-thumb: #9ca3af; // gray-400
-$ax-simulation-thumb-hover: #6b7280; // gray-500
-$ax-simulation-bar-size: 12px;
+$ax-eps-simulation-track: #f3f4f6; // gray-100
+$ax-eps-simulation-thumb: #9ca3af; // gray-400
+$ax-eps-simulation-thumb-hover: #6b7280; // gray-500
+$ax-eps-simulation-bar-size: 12px;
 
 // 1) DHTMLX-internal scroll fakers — these are the bars at the bottom and right edge of the chart.
 //    They are intentionally 0px-thin containers; we re-size them so the classic scrollbar has room to render.
-.ax-simulation_chart {
+.ax-eps-simulation_chart {
   .gantt_layout_cell.gantt_hor_scroll {
-    height: $ax-simulation-bar-size !important;
+    height: $ax-eps-simulation-bar-size !important;
   }
   .gantt_layout_cell.gantt_ver_scroll {
-    width: $ax-simulation-bar-size !important;
+    width: $ax-eps-simulation-bar-size !important;
   }
 }
 
 // 2) Force classic scrollbar appearance + custom skin on every scrollable element inside the gantt panel.
 //    `-webkit-appearance: none` switches the bar from overlay to classic on macOS Safari/Chrome.
-//.ax-simulation,
-//.ax-simulation * {
+//.ax-eps-simulation,
+//.ax-eps-simulation * {
 //  scrollbar-width: auto; // Firefox — auto = "normal" (always visible) width
-//  scrollbar-color: #{$ax-simulation-thumb} #{$ax-simulation-track};
+//  scrollbar-color: #{$ax-eps-simulation-thumb} #{$ax-eps-simulation-track};
 //}
 
-.ax-simulation {
+.ax-eps-simulation {
   .gantt_hor_scroll::-webkit-scrollbar,
   .gantt_ver_scroll::-webkit-scrollbar {
-    width: $ax-simulation-bar-size !important;
-    height: $ax-simulation-bar-size !important;
+    width: $ax-eps-simulation-bar-size !important;
+    height: $ax-eps-simulation-bar-size !important;
     -webkit-appearance: none !important;
-    background: $ax-simulation-track !important;
+    background: $ax-eps-simulation-track !important;
   }
   .gantt_hor_scroll::-webkit-scrollbar-track,
   .gantt_ver_scroll::-webkit-scrollbar-track {
-    background: $ax-simulation-track !important;
+    background: $ax-eps-simulation-track !important;
   }
   .gantt_hor_scroll::-webkit-scrollbar-thumb,
   .gantt_ver_scroll::-webkit-scrollbar-thumb {
-    background: $ax-simulation-thumb !important;
+    background: $ax-eps-simulation-thumb !important;
     border-radius: 6px !important;
-    border: 2px solid $ax-simulation-track !important;
+    border: 2px solid $ax-eps-simulation-track !important;
   }
   .gantt_hor_scroll::-webkit-scrollbar-thumb:hover,
   .gantt_ver_scroll::-webkit-scrollbar-thumb:hover {
-    background: $ax-simulation-thumb-hover !important;
+    background: $ax-eps-simulation-thumb-hover !important;
   }
   .gantt_hor_scroll::-webkit-scrollbar-corner,
   .gantt_ver_scroll::-webkit-scrollbar-corner {
-    background: $ax-simulation-track !important;
+    background: $ax-eps-simulation-track !important;
   }
 }

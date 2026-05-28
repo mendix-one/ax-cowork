@@ -22,16 +22,16 @@ export const EpsSimulationQuickAnalysisViolations = observer(() => {
   rows.sort((a, b) => b.ratio - a.ratio)
 
   return (
-    <div className="ax-simulation_analysis_card ax-simulation_analysis_card__list">
-      <div className="ax-simulation_analysis_card_header">
-        <div className="ax-simulation_analysis_card_header_title">Violations / High-Load</div>
-        <div className="ax-simulation_analysis_card_header_option">
-          <button className="ax-simulation_analysis_card_header_option_button" type="button" title={'Large view'}>
-            <AxMuiIcon icon={'mdiArrowExpandAll'} size="1.15rem" className="ax-simulation_analysis_header_option_button_icon" />
+    <div className="ax-eps-simulation_analysis_card ax-eps-simulation_analysis_card__list">
+      <div className="ax-eps-simulation_analysis_card_header">
+        <div className="ax-eps-simulation_analysis_card_header_title">Violations / High-Load</div>
+        <div className="ax-eps-simulation_analysis_card_header_option">
+          <button className="ax-eps-simulation_analysis_card_header_option_button" type="button" title={'Large view'}>
+            <AxMuiIcon icon={'mdiArrowExpandAll'} size="1.15rem" className="ax-eps-simulation_analysis_header_option_button_icon" />
           </button>
         </div>
       </div>
-      <div className="ax-simulation_analysis_card_list_box">
+      <div className="ax-eps-simulation_analysis_card_list_box">
         {rows.length === 0 ? (
           <Typography.Text type="secondary" style={{ fontSize: 12 }}>
             All tool groups within safe range.
@@ -39,7 +39,7 @@ export const EpsSimulationQuickAnalysisViolations = observer(() => {
         ) : (
           <Space vertical size={6} style={{ width: '100%' }}>
             {rows.map(({ kind, group, ratio }) => (
-              <div key={group.name} className={`ax-simulation_analysis_row ${kind}`}>
+              <div key={group.name} className={`ax-eps-simulation_analysis_row ${kind}`}>
                 <Space size={6}>
                   <Tag color={kind === 'violation' ? 'red' : 'orange'} style={{ margin: 0 }}>
                     {kind === 'violation' ? '⚠ Violation' : '⚠ Highload'}

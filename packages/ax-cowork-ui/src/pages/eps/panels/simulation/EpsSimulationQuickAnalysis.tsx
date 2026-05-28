@@ -9,8 +9,8 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 export const EpsSimulationQuickAnalysis = observer(() => {
   const simulation = useEpsContext().simulation
   return (
-    <div className="ax-simulation_analysis">
-      <div className="ax-simulation_analysis_header">
+    <div className="ax-eps-simulation_analysis">
+      <div className="ax-eps-simulation_analysis_header">
         <span>Quick Analysis</span>
         <Button
           size="small"
@@ -20,15 +20,15 @@ export const EpsSimulationQuickAnalysis = observer(() => {
           onClick={() => simulation.toggleQuickAnalysis()}
         />
       </div>
-      <div className="ax-simulation_analysis_body">
-        <div className="ax-simulation_analysis_grid">
-          <div className="ax-simulation_analysis_col ax-simulation_analysis_col__overall">
+      <div className="ax-eps-simulation_analysis_body">
+        <div className="ax-eps-simulation_analysis_grid">
+          <div className="ax-eps-simulation_analysis_col ax-eps-simulation_analysis_col__overall">
             <EpsSimulationQuickAnalysisOverall />
           </div>
-          <div className="ax-simulation_analysis_col ax-simulation_analysis_col__toolgroup">
+          <div className="ax-eps-simulation_analysis_col ax-eps-simulation_analysis_col__toolgroup">
             <EpsSimulationQuickAnalysisToolGroup />
           </div>
-          <div className="ax-simulation_analysis_col ax-simulation_analysis_col__violations">
+          <div className="ax-eps-simulation_analysis_col ax-eps-simulation_analysis_col__violations">
             <EpsSimulationQuickAnalysisViolations />
           </div>
         </div>

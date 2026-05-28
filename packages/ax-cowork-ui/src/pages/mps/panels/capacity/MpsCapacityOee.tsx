@@ -14,9 +14,9 @@ export const MpsCapacityOee = observer(() => {
   const oeeColor = oee.oee >= 0.85 ? '#4caf50' : oee.oee >= 0.7 ? '#ff9800' : '#f44336'
 
   return (
-    <div className="ax-analysis_section">
-      <div className="ax-analysis_section_header">
-        <div className="ax-analysis_section_header_title">
+    <div className="ax-mps-analysis_section">
+      <div className="ax-mps-analysis_section_header">
+        <div className="ax-mps-analysis_section_header_title">
           <AxMuiIcon icon="mdiSpeedometerMedium" size={18} />
           <span>OEE · {group.name}</span>
         </div>
@@ -24,25 +24,25 @@ export const MpsCapacityOee = observer(() => {
           OEE {Math.round(oee.oee * 100)}%
         </Tag>
       </div>
-      <div className="ax-analysis_section_body ax-capacity_oee_body">
-        <div className="ax-capacity_oee_grid">
-          <div className="ax-capacity_oee_block">
-            <div className="ax-capacity_oee_label">Effective ceiling</div>
-            <div className="ax-capacity_oee_value">{oee.effective.toLocaleString()}</div>
+      <div className="ax-mps-analysis_section_body ax-mps-capacity_oee_body">
+        <div className="ax-mps-capacity_oee_grid">
+          <div className="ax-mps-capacity_oee_block">
+            <div className="ax-mps-capacity_oee_label">Effective ceiling</div>
+            <div className="ax-mps-capacity_oee_value">{oee.effective.toLocaleString()}</div>
             <Typography.Text type="secondary" className="text-sm">
               wafer-moves/day
             </Typography.Text>
           </div>
-          <div className="ax-capacity_oee_block">
-            <div className="ax-capacity_oee_label">Theoretical max</div>
-            <div className="ax-capacity_oee_value">{oee.theoretical.toLocaleString()}</div>
+          <div className="ax-mps-capacity_oee_block">
+            <div className="ax-mps-capacity_oee_label">Theoretical max</div>
+            <div className="ax-mps-capacity_oee_value">{oee.theoretical.toLocaleString()}</div>
             <Typography.Text type="secondary" className="text-sm">
               wafer-moves/day · 24/7 baseline
             </Typography.Text>
           </div>
-          <div className="ax-capacity_oee_block">
-            <div className="ax-capacity_oee_label">Headroom lost</div>
-            <div className="ax-capacity_oee_value" style={{ color: oeeColor }}>
+          <div className="ax-mps-capacity_oee_block">
+            <div className="ax-mps-capacity_oee_label">Headroom lost</div>
+            <div className="ax-mps-capacity_oee_value" style={{ color: oeeColor }}>
               {(oee.theoretical - oee.effective).toLocaleString()}
             </div>
             <Typography.Text type="secondary" className="text-sm">
@@ -50,17 +50,17 @@ export const MpsCapacityOee = observer(() => {
             </Typography.Text>
           </div>
         </div>
-        <div className="ax-capacity_oee_factors">
-          <div className="ax-capacity_oee_factor">
-            <div className="ax-capacity_oee_factor_label">Availability</div>
+        <div className="ax-mps-capacity_oee_factors">
+          <div className="ax-mps-capacity_oee_factor">
+            <div className="ax-mps-capacity_oee_factor_label">Availability</div>
             <Progress percent={Math.round(oee.availability * 100)} size="small" status={oee.availability < 0.9 ? 'exception' : 'active'} />
           </div>
-          <div className="ax-capacity_oee_factor">
-            <div className="ax-capacity_oee_factor_label">Performance</div>
+          <div className="ax-mps-capacity_oee_factor">
+            <div className="ax-mps-capacity_oee_factor_label">Performance</div>
             <Progress percent={Math.round(oee.performance * 100)} size="small" status={oee.performance < 0.92 ? 'exception' : 'active'} />
           </div>
-          <div className="ax-capacity_oee_factor">
-            <div className="ax-capacity_oee_factor_label">Quality</div>
+          <div className="ax-mps-capacity_oee_factor">
+            <div className="ax-mps-capacity_oee_factor_label">Quality</div>
             <Progress percent={Math.round(oee.quality * 100)} size="small" status={oee.quality < 0.97 ? 'exception' : 'active'} />
           </div>
         </div>

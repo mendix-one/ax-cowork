@@ -19,18 +19,18 @@ export const MpsAnalysisMilestones = observer(() => {
   const rows = calcMilestoneRows(orders)
 
   return (
-    <div className="ax-analysis_section">
-      <div className="ax-analysis_section_header">
-        <div className="ax-analysis_section_header_title">
+    <div className="ax-mps-analysis_section">
+      <div className="ax-mps-analysis_section_header">
+        <div className="ax-mps-analysis_section_header_title">
           <AxMuiIcon icon="mdiCalendarCheckOutline" size={18} />
           <span>Shipment milestone analysis ({rows.length})</span>
         </div>
       </div>
-      <div className="ax-analysis_section_body">
+      <div className="ax-mps-analysis_section_body">
         {rows.length === 0 ? (
           <Typography.Text type="secondary">No milestones in the current selection.</Typography.Text>
         ) : (
-          <table className="ax-analysis_table">
+          <table className="ax-mps-analysis_table">
             <thead>
               <tr>
                 <th>Date</th>

@@ -114,15 +114,15 @@ export const EpsAnalysisShopFloorArea = observer(() => {
   )
 
   return (
-    <div className="ax-analysis_section">
-      <div className="ax-analysis_section_header">
-        <div className="ax-analysis_section_header_title">
+    <div className="ax-eps-analysis_section">
+      <div className="ax-eps-analysis_section_header">
+        <div className="ax-eps-analysis_section_header_title">
           <AxMuiIcon icon="mdiChartAreaspline" size={18} />
           <span>Shop floor capacity</span>
         </div>
-        <div className="ax-analysis_section_header_hint">Drag the slider below the chart to pick a detail range for the tool-group view.</div>
+        <div className="ax-eps-analysis_section_header_hint">Drag the slider below the chart to pick a detail range for the tool-group view.</div>
       </div>
-      <div className="ax-analysis_section_body" style={{ height: 280 }}>
+      <div className="ax-eps-analysis_section_body" style={{ height: 280 }}>
         <ReactECharts option={option} onEvents={onEvents} style={{ height: '100%', width: '100%' }} notMerge lazyUpdate />
       </div>
     </div>

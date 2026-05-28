@@ -12,10 +12,10 @@ import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/A
 export const EpsProcessPanel = observer((props: MainPanelControls) => {
   return (
     <AxDisplayPanel type="main" icon="mdiSitemapOutline" title="Processes" tools={<EpsProcessToolbar />} {...props}>
-      <div className="ax-simulation">
-        <div className="ax-simulation_body">
+      <div className="ax-eps-simulation">
+        <div className="ax-eps-simulation_body">
           <EpsProcessTechList />
-          <div className="ax-simulation_body_content ax-analysis_scroll ax-process_scroll">
+          <div className="ax-eps-simulation_body_content ax-eps-analysis_scroll ax-eps-process_scroll">
             <EpsProcessPipeline />
           </div>
         </div>
