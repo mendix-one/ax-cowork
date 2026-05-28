@@ -7,15 +7,15 @@ import { useStore } from '@/acore/store/store.context'
 import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 import { AxMenuBox } from '@/shared/menu-box/AxMenuBox.tsx'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
-import { useMpsContext } from '../stores/mps.context'
+import { useEpsContext } from '../stores/eps.context'
 
-export const MpsLayoutTop = observer(() => {
+export const EpsLayoutTop = observer(() => {
   const { t } = useTranslation('app')
   const { app } = useStore()
-  const sim = useMpsContext()
+  const sim = useEpsContext()
   const navigate = useNavigate()
   const line = sim.activeProductionLine
-  const plan = sim.activeMpsPlan
+  const plan = sim.activeEpsPlan
   const edits = sim.totalUnsavedEdits
   return (
     <Layout.Header className="ax-layout-top">
@@ -38,20 +38,22 @@ export const MpsLayoutTop = observer(() => {
             <AxMenuBox
               icon="mdiDnsOutline"
               label={line.name}
-              title={`Production Line: ${line.name}`}
+              title={`Product Family: ${line.name}`}
               placement="bottom"
               onClick={() => sim.openProductionLineModal()}
             />
             <AxMenuBox
               icon="mdiCardBulletedOutline"
               label={plan.name}
-              title={`Simulation: ${plan.name}`}
+              title={`R&D Plan: ${plan.name}`}
               placement="bottom"
-              onClick={() => sim.openMpsPlanModal()}
+              onClick={() => sim.openEpsPlanModal()}
             />
-            {/* Draft / scenario status pill — for now every Simulation plan is a draft. Wired to plan.status when BE lands. */}
             <Tag color="purple" className="ax-top_chip">
               DRAFT
+            </Tag>
+            <Tag color="geekblue" className="ax-top_chip">
+              EPS
             </Tag>
             {edits > 0 && (
               <Tooltip title={`${edits} unsaved edit${edits === 1 ? '' : 's'} across this simulation — open the Save menu on any panel to commit`}>

@@ -1,0 +1,319 @@
+// === SIMULATION ANALYSIS =============================================================================================
+// Style module for the Analysis panel inside the Simulation page.
+// Re-uses the .ax-simulation / .ax-simulation_body / .ax-simulation_side chrome from _ax-simulation-gantt.scss so the
+// adjustment sidebar lines up exactly with the gantt's filter sidebar.
+//
+// Type scale follows the project convention:
+//   • text-base (14px) — default for labels, table cells, body text
+//   • text-lg   (16px) — important text (section titles, primary card titles)
+//   • text-sm   (12px) — hints / captions / legend annotations only
+
+// Scroll container shared by the Analysis and Process panel main bodies.
+// Layout choices (consistent across both panels):
+//   • Edge-to-edge — no inner padding, no gap between section boxes. Section headers (Stone-100
+//     banded) serve as the visual separator between sections.
+//   • Sticky section headers — each .ax-analysis_section_header is position:sticky top:0 so it
+//     pins to the top of the scroll context while the planner reads its section, and CSS sticky
+//     naturally hands off to the next section's header when the previous one scrolls past.
+.ax-analysis_scroll {
+  @apply flex-1 min-h-0 overflow-auto;
+  @apply flex flex-col;
+  @apply bg-white text-base;
+
+  // Sections inside the scroll: no border, no rounded corners — full-width content blocks.
+  .ax-analysis_section {
+    @apply rounded-none border-0;
+  }
+
+  // Sticky section headers — pin to the scroll context's top as the planner scrolls past each
+  // section. Stone-100 background fully occludes content scrolling underneath; z-index keeps the
+  // pinned header above body content + above the next section while it's still entering view.
+  .ax-analysis_section_header {
+    @apply sticky top-0 z-10;
+  }
+}
+
+// ---- Top summary strip --------------------------------------------------------------------------------------------
+.ax-analysis_summary {
+  @apply w-full;
+  @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3;
+}
+
+.ax-analysis_summary_card {
+  @apply flex flex-col rounded border border-gray-200 bg-white p-3 min-h-0;
+  @apply text-base;
+  transition:
+    border-color 120ms ease,
+    box-shadow 120ms ease;
+
+  &:hover {
+    @apply border-indigo-200;
+    box-shadow: 0 1px 4px rgba(63, 81, 181, 0.08);
+    .ax-analysis_summary_card_open {
+      @apply text-indigo-600;
+    }
+  }
+
+  &_title {
+    @apply flex items-center gap-1 mb-2;
+    @apply text-base font-semibold text-neutral-800;
+  }
+
+  // "Open detail" chevron — sits in the top-right of each KPI card. Subtle by default, accents on card hover.
+  &_open {
+    @apply text-neutral-400;
+    transition:
+      color 120ms ease,
+      background 120ms ease;
+    border-radius: 4px;
+    line-height: 0;
+    &:hover {
+      @apply text-indigo-700 bg-indigo-50;
+    }
+    &:focus-visible {
+      outline: 2px solid theme('colors.ax-primary');
+      outline-offset: 1px;
+    }
+  }
+
+  &_body {
+    @apply flex-1 flex flex-col gap-1;
+    &__row {
+      @apply flex-row items-end justify-between gap-3;
+    }
+    &__list {
+      @apply gap-1;
+    }
+  }
+
+  &_chips {
+    @apply flex items-center gap-1 mt-1 flex-wrap;
+  }
+}
+
+.ax-analysis_stat {
+  @apply flex flex-col items-start;
+
+  &_label {
+    @apply text-base text-neutral-500;
+  }
+
+  &_value {
+    @apply font-semibold text-neutral-900;
+    font-size: 22px;
+    line-height: 1.1;
+  }
+}
+
+// ---- Totals tiles (PO → PF → MB hierarchy) ----------------------------------------------------------------------
+// Three colored tiles separated by chevrons. Each tile is a vertical stack of icon, value, and label —
+// the chevron between them makes the parent→child hierarchy literal rather than implied.
+.ax-analysis_totals {
+  @apply flex items-stretch justify-between gap-1 mb-1;
+}
+
+.ax-analysis_totals_arrow {
+  @apply self-center text-neutral-400 flex-none;
+}
+
+.ax-analysis_totals_tile {
+  @apply flex-1 min-w-0;
+  @apply flex flex-col items-center justify-center gap-1;
+  @apply px-2 py-2 rounded-md;
+  @apply border;
+  // Default palette — overridden by per-type modifiers below.
+  @apply bg-neutral-200 border-neutral-300;
+
+  &_icon {
+    @apply w-9 h-9 rounded-full flex items-center justify-center;
+    @apply bg-white text-neutral-800;
+  }
+
+  &_value {
+    @apply font-semibold leading-none text-neutral-900;
+    font-size: 26px;
+  }
+
+  &_label {
+    @apply text-sm text-neutral-600 text-center leading-tight;
+  }
+
+  // Tile palette is pinned to the schedule-lineage triad (axSchedule.{fixed,changes,new}) so the
+  // PO→PF→MB hierarchy reads in the same color language as the Gantt bars and toolbar legend:
+  //   PO  → Fixed-indigo  (firm commitment — matches axSchedule.fixed.bar #3f51b5)
+  //   PF  → Changes-blue  (matches axSchedule.changes.bar #1565c0)
+  //   MB  → New-teal      (matches axSchedule.new.bar #00897b)
+  // Backgrounds and borders use the Material 50/100 steps of each hue; icon text uses the 800 step
+  // (= axSchedule.*.edge) for AA contrast on the 100-step icon background.
+
+  // PO — Fixed lineage (Indigo)
+  &__po {
+    background-color: #e8eaf6; // Indigo 50
+    border-color: #c5cae9; // Indigo 100
+    .ax-analysis_totals_tile_icon {
+      background-color: #c5cae9; // Indigo 100
+      color: #283593; // axSchedule.fixed.edge (Indigo 800)
+    }
+  }
+  // PF — Changes lineage (Blue)
+  &__pf {
+    background-color: #e3f2fd; // Blue 50
+    border-color: #bbdefb; // Blue 100
+    .ax-analysis_totals_tile_icon {
+      background-color: #bbdefb; // Blue 100
+      color: #0d47a1; // axSchedule.changes.edge (Blue 800)
+    }
+  }
+  // MB — New lineage (Teal)
+  &__mb {
+    background-color: #e0f2f1; // Teal 50
+    border-color: #b2dfdb; // Teal 100
+    .ax-analysis_totals_tile_icon {
+      background-color: #b2dfdb; // Teal 100
+      color: #00695c; // axSchedule.new.edge (Teal 800)
+    }
+  }
+}
+
+.ax-analysis_summary_violation {
+  @apply w-full flex items-center justify-between gap-2 p-1 rounded border border-gray-200;
+  @apply text-base;
+
+  &.violation {
+    @apply bg-red-50 border-red-200;
+  }
+  &.highload {
+    @apply bg-orange-50 border-orange-200;
+  }
+
+  &_label {
+    @apply flex-1 text-neutral-700;
+  }
+}
+
+// ---- Generic section card -----------------------------------------------------------------------------------------
+.ax-analysis_section {
+  @apply flex flex-col rounded border border-gray-200 bg-white;
+
+  &_header {
+    @apply h-10 px-3;
+    @apply flex items-center justify-between gap-3;
+    @apply border-b border-gray-200 bg-stone-100; // Tailwind Stone 100 — section card header
+
+    &_title {
+      @apply flex items-center gap-1;
+      @apply text-lg font-semibold text-neutral-800;
+    }
+
+    &_hint {
+      @apply text-sm text-neutral-500;
+    }
+  }
+
+  &_body {
+    @apply p-3 min-h-0 text-base;
+  }
+}
+
+// ---- Heatmap ------------------------------------------------------------------------------------------------------
+.ax-analysis_heatmap {
+  border-collapse: separate;
+  border-spacing: 0;
+  width: 100%;
+  @apply text-base;
+
+  &_label {
+    padding: 4px 8px;
+    @apply text-base text-neutral-700;
+    white-space: nowrap;
+  }
+
+  &_cell {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 3px;
+  }
+
+  &_legend {
+    @apply flex flex-wrap gap-3 mt-2;
+    @apply text-sm;
+  }
+
+  &_swatch {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    margin-right: 4px;
+    vertical-align: middle;
+  }
+}
+
+// ---- Compare panel (sub-panel, promoted) -------------------------------------------------------------------------
+.ax-compare_root {
+  @apply flex flex-col gap-3 p-3 h-full overflow-auto bg-white text-base;
+}
+
+.ax-compare_selectors {
+  @apply flex items-end gap-2;
+}
+
+.ax-compare_selector {
+  @apply flex-1 flex flex-col gap-1 min-w-0;
+}
+
+.ax-compare_selector_arrow {
+  @apply self-center text-neutral-400 flex-none mb-1;
+}
+
+.ax-compare_kpis {
+  @apply grid grid-cols-2 lg:grid-cols-5 gap-2;
+  @apply rounded border border-gray-200 bg-white p-3;
+}
+
+.ax-compare_kpi {
+  @apply flex flex-col items-start gap-1;
+  &_label {
+    @apply text-sm text-neutral-500;
+  }
+  &_value {
+    @apply font-semibold text-neutral-900;
+    font-size: 22px;
+    line-height: 1.1;
+    &__small {
+      font-size: 16px;
+    }
+  }
+}
+
+// ---- Production Order: planner note editor -----------------------------------------------------------------------
+.ax-order_note_editor {
+  &_header {
+    @apply flex items-center gap-1 mb-1 text-base text-neutral-700;
+  }
+}
+
+// ---- Generic table ------------------------------------------------------------------------------------------------
+.ax-analysis_table {
+  width: 100%;
+  border-collapse: collapse;
+  @apply text-base;
+
+  th {
+    text-align: left;
+    padding: 6px 8px;
+    @apply text-base font-semibold text-neutral-700;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  }
+
+  td {
+    padding: 6px 8px;
+    border-top: 1px solid rgba(0, 0, 0, 0.04);
+    @apply text-base text-neutral-900;
+  }
+
+  tr:hover td {
+    @apply bg-indigo-50;
+  }
+}
