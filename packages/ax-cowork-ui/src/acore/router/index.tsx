@@ -24,7 +24,7 @@ export const index = createBrowserRouter([
             children: [
               {
                 index: true,
-                lazy: async () => ({ Component: (await import('@/pages/simulation/SimulationPage.tsx')).SimulationPage }),
+                lazy: async () => ({ Component: (await import('@/pages/mps/MpsPage.tsx')).MpsPage }),
               },
             ],
           },
