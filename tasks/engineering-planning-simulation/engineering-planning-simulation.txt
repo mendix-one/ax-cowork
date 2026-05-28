@@ -1,0 +1,49 @@
+Engineering Planning Simulation:
+==================== Init 1: Implement UI Concepts =====================================================================
+# Goals:
+- Clone the existing UI concept from mps (manufacturing planning simulation) and change to engineering planning simulation.
+  - Source: packages/ax-cowork-ui/src/pages/mps
+  - Destination: packages/ax-cowork-ui/src/pages/eps
+  - Clone all components and pages, store and also styles (packages/ax-cowork-ui/src/styles/mps > packages/ax-cowork-ui/src/styles/eps)
+
+- Study the functions from IRIS documents - tasks/engineering-planning-simulation/iris
+- Think about the UI concepts for engineering planning simulation:
+  - Main purpose:
+    - Engineering planning simulation provide feature for Samsung Electronics - Devices Solution Research Center (SEC - DS), to generate plan for reseach, design and engineering of new electronic products.
+    - The planner team recieves the production requirement from marketing team (include both idea for new product and flagship enhancement for existing product).
+    - They (SEC - DS) have fixed resoruces of engineers that belong to organization hiearyky strucutre (Dvision > Site > Team > Group) and has skills group for each spefical task of research, design, engieering.
+    - Base on the production requirement, they already define the process of research, design and engineering for each product family (Block > Stage > Function > Action > ...)
+    - Now they need to generate the plan for each product family that optimize the timeline and not exceed the resoruces limit (head count portfolio)
+  - Some expectation:
+    - EPS (Engineering Planning Simulation) provide feature for planner to generate plan
+      - Simulation with gantt view to quick adjust the plan
+      - AI Chatbot to provide suggestion for the plan
+      - AI support generate that plan based on the production requirement, resource limit, validate violations reduce highload
+      - Review the product requirement and engineering processeses
+      - Review the resoureces capacity and head count portfolio
+      - Do tunning for resource allocation and timeline
+      - Do tuning for the engineering process
+    - It also need integration with other system:
+      - N-PLM system to get the production requirement from the customer
+      - SMDM to get the organization structure and skills group and headcount portfolio
+      -......
+
+# Remark:
+- Clone the existing UI concept from mps (manufacturing planning simulation) and change to engineering planning simulation.
+- Keep current design style and layout.
+- Make UI/UX concept that meet with the goals
+- Update the application flows the handle for new features:
+ - Create the home pase to list up the application PPS (Product Planning Simulation), EPS (Engineering Planning Simulation) and MPS (Manufacturing Planning Simulation)
+  - After user login, show the home page, then user select the application to run.
+ - The new application routers:
+  - / home page
+  - / pps (product planning simulation)
+  - / eps (engineering planning simulation)
+  - / mps (manufacturing planning simulation)
+- Write docs to docs/eps/engineering-planning-simulation.md like what you did in mps (docs/mps/manufacuring-planning-simulation.md)
+
+# Note:
+- Verify UI with playwright
+- Try to optimize the UI/UX as much as possible
+- You may need deep research on the internet to understand about the production lifecycle and engineering process and also about samsung electronics
+
