@@ -72,14 +72,14 @@ export const EpsAIChatPanel = observer((props: SubPanelControls) => {
   }
 
   return (
-    <AxDisplayPanel type="sub" icon="mdiCreationOutline" title="AI Assistant" {...props}>
+    <AxDisplayPanel type="sub" icon="mdiCreationOutline" title="AI co-pilot · Samsung AI Services" {...props}>
       <Flex vertical gap="small" className={styles.root}>
         <Space size={6} className={styles.meta} wrap>
           <span>{simulation.activeEpsPlan.name}</span>
           <span>·</span>
           <span>{simulation.activeProductionLine.name}</span>
           <span>·</span>
-          <span>Context: 2 lots selected (PO-119, PO-120)</span>
+          <span>Context: 2 projects selected (HBM4-Dev, NAND-V9)</span>
         </Space>
 
         <div className={styles.messages}>

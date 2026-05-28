@@ -13,11 +13,11 @@ type SubMenuItem = {
 }
 
 const SUB_MENU_ITEMS: SubMenuItem[] = [
-  { id: 'compare', icon: 'mdiBookOpenOutline', title: 'Compare / Split' },
-  { id: 'aiChat', icon: 'mdiCreationOutline', title: 'AI Chatbox' },
-  { id: 'background', icon: 'mdiProgressStarFourPoints', title: 'Background Tasks' },
-  { id: 'history', icon: 'mdiHistory', title: 'Schedule Change History' },
-  { id: 'recommendations', icon: 'mdiLightbulbOnOutline', title: 'Recommendations' },
+  { id: 'compare', icon: 'mdiCompareHorizontal', title: 'Compare versions (V6 ↔ V5)' },
+  { id: 'aiChat', icon: 'mdiCreationOutline', title: 'AI co-pilot' },
+  { id: 'background', icon: 'mdiProgressStarFourPoints', title: 'Sync queue · background jobs' },
+  { id: 'history', icon: 'mdiHistory', title: 'Version history' },
+  { id: 'recommendations', icon: 'mdiLightbulbOnOutline', title: 'AI recommendations' },
 ]
 
 export const EpsLayoutRight = observer(() => {

@@ -19,22 +19,26 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'm1',
     role: 'user',
-    content: 'What if ETC-44 down 6h and we insert hot lot HL-22?',
+    content: 'Can we pull HBM4-Dev tape-out into Q4 2026 without overloading DRAM Design?',
   },
   {
     id: 'm2',
     role: 'assistant',
-    content: 'I found 3 options:',
+    content: 'I evaluated 3 reallocation candidates against your headcount portfolio. None breach Jisoo Park\'s 95% utilization ceiling:',
     scenarios: [
-      { id: 's-a', letter: 'A', title: 'Reroute to ETC-07', detail: '12 lots slip 2h. Cust B M1: on time.' },
-      { id: 's-b', letter: 'B', title: 'Split to ETC-09', detail: 'Yield risk +0.4% on QLC.' },
-      { id: 's-c', letter: 'C', title: 'Hold + pull-fwd 8 wafer-starts', detail: 'M1 slips 18h.' },
+      { id: 's-a', letter: 'A', title: 'Move 5 engineers from NAND-V9 → HBM4-Dev', detail: 'HBM4 timeline -3 months. NAND-V9 util 85% → 92% (within band).' },
+      { id: 's-b', letter: 'B', title: 'Borrow 3 verification engineers from Pyeongtaek', detail: 'HBM4 timeline -6 weeks. Cross-site approval needed (Minho Kim).' },
+      { id: 's-c', letter: 'C', title: 'Defer DDR5-Gen5 by 1 quarter', detail: 'Frees 7 design heads. DDR5 commit slips Q2 → Q3 2027.' },
     ],
-    explainability: ['ETC-07 qualified', 'capacity available', 'no yield impact'],
+    explainability: [
+      'DRAM Design G1/G2 capacity available in Q4',
+      'no conflict with PROMIS-synced approved roadmap V6',
+      'option A also resolves NAND-V9 over-staffing flagged last week',
+    ],
   },
 ]
 
-const QUICK_PROMPTS = ['Insert hot lot', 'Tool down', 'Pull commit', 'Yield drop']
+const QUICK_PROMPTS = ['What if HBM4 +5 engineers', 'Diff V6 vs V5', 'Show DRAM Design utilization', 'Cross-site over-allocations', 'Promote S1-V2 to draft']
 
 export class AIChatStore {
   messages: ChatMessage[] = [...INITIAL_MESSAGES]
@@ -62,7 +66,7 @@ export class AIChatStore {
         {
           id: crypto.randomUUID(),
           role: 'assistant',
-          content: `(mock) Considering your scenario: "${text}". I found 2 candidates ranked by commit impact.`,
+          content: `(mock) Considering "${text}". I found 2 candidates ranked by headcount delta and PROMIS-sync impact. Hook the Samsung AI Services BE to replace this stub.`,
         },
       ]
       this.thinking = false

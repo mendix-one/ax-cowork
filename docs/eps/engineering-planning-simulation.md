@@ -1,6 +1,8 @@
 # Engineering Planning Simulation (EPS)
 
-A workspace for the **R&D Planning Lead** of Samsung Electronics — Device Solution Research (DSR) to build, adjust, validate, and commit the engineering plan for new electronic products across product requirements, engineering processes, organisation skills, and engineer head-count portfolio — without leaving the page.
+> Internal codename: **IRIS — Intelligent Resources Information System**. Customer: **Samsung Electronics — Device Solution Research (DSR)**. Primary persona: **Jisoo Park** (Senior Resource Planner, Memory BU, Hwaseong).
+
+A workspace for the **Senior Resource Planner** (Jisoo Park archetype) of Samsung DSR to build, adjust, validate, and commit the engineering resource plan for new electronic products across product requirements (from N-PLM), engineering processes (Block → Stage → Function → Action), organisation skill groups (Division → Site → Team → Group, from SMDM), and the engineer head-count portfolio (from GHRP / PROMIS) — without leaving the page.
 
 ---
 
@@ -53,11 +55,13 @@ The planner can:
 
 ### 2.2 Main user gains after EPS
 
-- **One workspace, one source of truth.** Same `Plan A (Baseline)` across all panels; the top-bar `N unsaved` chip shows aggregate dirty state.
-- **Shared adjustment model.** Unchecking a Product Requirement in the Adjustment sidebar instantly re-derives headcount bars, milestone risk, family/skill rollups, the Gantt — across every panel.
-- **Per-family bottleneck identification.** The Engineering Processes panel shows the bottleneck step + skill group per engineering process; the Plan Analysis routing matrix shows cross-family contention on shared groups (e.g. DRAM Design, Analog IP, Verification).
-- **Per-requirement notes + activity log.** Notes survive cross-cycle handoff; pre-flight check + scenario branching support safer commits.
-- **AI assist (sub-panel)** for "what if?" suggestions, plan generation from a requirement bundle, and quick-win recommendations.
+- **One workspace, one source of truth.** Same `Roadmap V6 (Approved)` across all panels; the top-bar `N unsaved` chip shows aggregate dirty state. The `IRIS · EPS` badge + active-editor avatar pile remind the planner whose work is mid-flight.
+- **Real-time concurrent editing** (IRIS Concept A). Avatar ring + cell border show co-editors live, eliminating Jisoo's three-hours-of-work-lost incident.
+- **Resource roadmap with version history** (IRIS Concept D — Diff & Delta). Every change is versioned; the Compare sub-panel runs a side-by-side V6↔V5 (or any pair) diff with `green / amber / red` chrome.
+- **Simulation sandbox** (IRIS Concept B). Sandbox variants (`S1-V2 · HBM4 Acceleration`, `S2-V1 · DDR5-Gen5 Pull-in`) stay isolated from approved data until promoted to a draft roadmap version.
+- **Headcount portfolio across sites** (Hwaseong / Pyeongtaek / Austin / Xi'an). Surfaces cross-site over-allocation before the monthly reconciliation meeting.
+- **Delta sync to PROMIS** — only changed allocations sync downstream; eliminates the artifact noise of full sync.
+- **AI co-pilot (Samsung AI Services)** for "what if HBM4 +5 engineers" suggestions, plan generation from a requirement bundle, and over-allocation triage.
 
 ### 2.3 Decision & information gap
 
@@ -146,24 +150,24 @@ Cycle time from concept to tape-out is **12–24 months** for a flagship SoC, **
 ### 3.3 Workspace layout
 
 ```
-┌──────────────────────────────────────────────────────────────────────────────┐
-│  [Avatar] Mobile AP ▾  [Plan A (Baseline) ▾]  DRAFT  EPS  • N unsaved [User]│  ← Top bar (scenario + dirty chip)
-├────┬─────────────────────────────────────────────────────────────────────────┤
-│ G  │  [Panel header: title + toolbar + close]                                 │
-│ A  │ ┌─────────────────────────────────────────────────────────────────────┐ │
-│ PR │ │  [Persistent left sidebar — view-specific (Adjustment / Family list)]│ │
-│ EP │ │ ┌───────────────────────────────────────────────────────────────────┐│ │
-│ HC │ │ │  [Main content — Gantt grid / Analysis sections / Req table / …] ││ │
-│ PT │ │ │                                                                   ││ │
-│ HT │ │ │  [Bottom dock — info panel (Summary or row detail)]              ││ │
-│ NI │ │ └───────────────────────────────────────────────────────────────────┘│ │
-│    │ └─────────────────────────────────────────────────────────────────────┘ │
-├────┴─────────────────────────────────────────────────────────────────────────┤
-│  [Bottom — Compare / AI Assistant / Background / History / Recommendations]  │  ← Sub-panel dock (optional)
-└──────────────────────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────────────────────────┐
+│  [Avatar] Hwaseong · Memory BU ▾  [Roadmap V6 (Approved) ▾]  APPROVED  IRIS·EPS  JP HC  • N unsaved [User]│  ← Top bar
+├────┬───────────────────────────────────────────────────────────────────────────────────┤
+│ G  │  [Panel header: title + toolbar + close]                                            │
+│ A  │ ┌───────────────────────────────────────────────────────────────────────────────┐  │
+│ PJ │ │  [Persistent left sidebar — view-specific (Adjustment / Project list)]        │  │
+│ EP │ │ ┌─────────────────────────────────────────────────────────────────────────────┐│  │
+│ HC │ │ │  [Main content — Gantt grid / Analysis sections / P/M table / …]            ││  │
+│ PT │ │ │                                                                              ││  │
+│ HT │ │ │  [Bottom dock — info panel (Summary or row detail)]                          ││  │
+│ NI │ │ └─────────────────────────────────────────────────────────────────────────────┘│  │
+│    │ └───────────────────────────────────────────────────────────────────────────────┘  │
+├────┴───────────────────────────────────────────────────────────────────────────────────┤
+│  [Bottom — Compare versions / AI co-pilot / Sync queue / Version history / Recs]       │  ← Sub-panel dock
+└────────────────────────────────────────────────────────────────────────────────────────┘
 ```
 
-The left rail (`G A PR EP HC PT HT NI`) switches the main panel between **R&D Simulation**, **Plan Analysis**, **Product Requirements**, **Engineering Processes**, **Headcount Capacity**, **Process Tuning**, **Headcount Tuning**, **N-PLM / SMDM Integration**.
+The left rail (`G A PJ EP HC PT HT NI`) switches the main panel between **Resource Roadmap (Gantt)**, **HR Portfolio Analysis**, **Projects · P/M Planner**, **Engineering Process (Block / Stage)**, **Headcount Portfolio**, **Process Tuning**, **Headcount Tuning**, **N-PLM · SMDM · GHRP · PROMIS Integration**.
 
 ### 3.4 Main panels — function reference
 

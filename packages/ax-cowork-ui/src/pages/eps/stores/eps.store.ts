@@ -82,22 +82,26 @@ const isPersistedShellState = (v: unknown): v is PersistedShellState => {
   return true
 }
 
-// EPS scopes a planning workspace by product family (a research/design/engineering pipeline),
-// not by manufacturing line. The field stays named `ProductionLine` so the rest of the shell
-// (modals, top header chip, store wiring) is identical to MPS — only the seed data and the
-// human label "Product Family" differ.
+// EPS = IRIS Resource Planning workspace. A planning workspace is scoped to a Samsung DSR
+// Business Unit + Site + Fiscal Year (e.g. Hwaseong · Memory BU · FY2026). The field stays
+// named `ProductionLine` so the rest of the shell (modals, top header chip, store wiring)
+// is identical to MPS; only the seed data and human label differ.
 const PRODUCTION_LINES: ProductionLine[] = [
-  { id: 'pf-ap', name: 'Mobile AP', description: 'Application processor — flagship phone SoC family' },
-  { id: 'pf-sensor', name: 'Image Sensor', description: 'CIS / automotive image sensor family' },
-  { id: 'pf-dram', name: 'Mobile DRAM', description: 'LPDDR memory family — low-power roadmap' },
-  { id: 'pf-display', name: 'Display Driver IC', description: 'DDI / OLED driver family' },
+  { id: 'memory-hwaseong', name: 'Hwaseong · Memory BU', description: 'DRAM + NAND development — Hwaseong HQ' },
+  { id: 'lsi-hwaseong', name: 'Hwaseong · System LSI', description: 'Exynos / Mobile AP roadmap — Hwaseong HQ' },
+  { id: 'cis-hwaseong', name: 'Hwaseong · CIS', description: 'ISOCELL image sensor family — Hwaseong HQ' },
+  { id: 'memory-pyeongtaek', name: 'Pyeongtaek · Memory BU', description: 'HBM + advanced packaging — Pyeongtaek' },
 ]
 
+// Roadmap versions + simulation variants. Mirrors IRIS Concept D (Diff & Delta) + Concept B
+// (Simulation Sandbox). V6 is the current approved baseline; S1-V2 is the in-flight HBM4
+// acceleration what-if. V5 is kept so the planner can run a diff against the predecessor.
 const EPS_PLANS: EpsPlan[] = [
-  { id: 'plan-a', name: 'Plan A (Baseline)', description: 'Baseline R&D plan — current headcount portfolio, no risk reserve' },
-  { id: 'plan-b', name: 'Plan B (AI Optimized)', description: 'AI-proposed plan — reroute load off the over-booked design group' },
-  { id: 'plan-c', name: 'Plan C (Aggressive)', description: 'Pull-in timeline by 6 weeks — assumes 5% overtime headcount' },
-  { id: 'published', name: 'Published Plan', description: 'Committed plan currently in execution' },
+  { id: 'v6-approved', name: 'Roadmap V6 (Approved)', description: 'Current approved baseline — last PROMIS-synced 2026-03-15' },
+  { id: 'v7-draft', name: 'Roadmap V7 (Draft)', description: 'Working draft — pending Minho Kim approval' },
+  { id: 's1-v2-hbm4', name: 'S1-V2 · HBM4 Acceleration', description: 'Sandbox — move 5 engineers NAND-V9 → HBM4-Dev from Sep 2026' },
+  { id: 's2-v1-dram', name: 'S2-V1 · DDR5-Gen5 Pull-in', description: 'Sandbox — pull DDR5-Gen5 6 weeks earlier; 5% overtime model' },
+  { id: 'v5-archived', name: 'Roadmap V5 (Archived)', description: 'Previous approved baseline — useful for V6↔V5 diff' },
 ]
 
 export class EpsStore {

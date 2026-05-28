@@ -35,15 +35,16 @@ const APPS: AppCard[] = [
   {
     id: 'eps',
     path: '/eps',
-    code: 'EPS',
+    code: 'EPS · IRIS',
     title: 'Engineering Planning Simulation',
-    subtitle: 'R&D resource and milestone planning',
-    description: 'Simulate research, design and engineering plans for new electronic products. Optimise timeline against the engineer head-count portfolio.',
+    subtitle: 'IRIS — Intelligent Resources Information System',
+    description:
+      "Samsung DSR's resource planning workspace. P/M planner with concurrent editing, version-managed roadmaps, what-if sandbox, and bi-directional sync with N-PLM / SMDM / GHRP / PROMIS.",
     icon: 'mdiBrain',
     accent: '#673AB7',
     status: 'beta',
-    pillar: 'PLAN — R&D',
-    capabilities: ['Gantt simulation', 'AI co-pilot', 'Capacity tuning'],
+    pillar: 'PLAN — R&D · Samsung DSR',
+    capabilities: ['P/M Gantt', 'Roadmap versioning', 'Simulation sandbox', 'AI co-pilot'],
   },
   {
     id: 'mps',
@@ -113,7 +114,7 @@ export const HomePage = observer(() => {
 
           <Typography.Paragraph type="secondary" style={{ maxWidth: 760, marginBottom: 0 }}>
             Pick the simulation that matches your planning horizon. Each workspace shares the same gantt, capacity and AI co-pilot patterns,
-            so switching between portfolio, engineering and manufacturing planning feels familiar.
+            so switching between portfolio, engineering (IRIS) and manufacturing planning feels familiar. Samsung DSR planners start with EPS.
           </Typography.Paragraph>
 
           <Row gutter={[24, 24]}>

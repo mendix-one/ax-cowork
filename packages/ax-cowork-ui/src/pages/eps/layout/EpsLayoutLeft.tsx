@@ -26,11 +26,11 @@ const GROUPS: Group[] = [
   {
     caption: 'Plan',
     items: [
-      { id: 'simulation', icon: 'mdiChartGantt', title: 'R&D Simulation' },
-      { id: 'analysis', icon: 'mdiChartBar', title: 'Plan Analysis' },
-      { id: 'orders', icon: 'mdiClipboardListOutline', title: 'Product Requirements' },
-      { id: 'processes', icon: 'mdiSitemapOutline', title: 'Engineering Processes' },
-      { id: 'capacity', icon: 'mdiAccountGroupOutline', title: 'Headcount Capacity' },
+      { id: 'simulation', icon: 'mdiChartGantt', title: 'Resource Roadmap (Gantt)' },
+      { id: 'analysis', icon: 'mdiChartBar', title: 'HR Portfolio Analysis' },
+      { id: 'orders', icon: 'mdiClipboardTextOutline', title: 'Projects · P/M Planner' },
+      { id: 'processes', icon: 'mdiSitemapOutline', title: 'Engineering Process (Block / Stage)' },
+      { id: 'capacity', icon: 'mdiAccountGroupOutline', title: 'Headcount Portfolio' },
     ],
   },
   {
@@ -42,7 +42,7 @@ const GROUPS: Group[] = [
   },
   {
     caption: 'System',
-    items: [{ id: 'integration', icon: 'mdiTransitConnectionVariant', title: 'N-PLM / SMDM Integration' }],
+    items: [{ id: 'integration', icon: 'mdiTransitConnectionVariant', title: 'N-PLM · SMDM · GHRP · PROMIS' }],
   },
 ]
 

@@ -7,7 +7,7 @@ export const ProductionLineModal = observer(() => {
 
   return (
     <Modal
-      title="Select product family"
+      title="Switch IRIS workspace"
       open={simulation.productionLineModalOpen}
       onCancel={() => simulation.closeProductionLineModal()}
       footer={[
@@ -16,11 +16,11 @@ export const ProductionLineModal = observer(() => {
         </Button>,
       ]}
       destroyOnHidden
-      width={480}
+      width={520}
     >
       <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
-        Pick the product family this R&amp;D plan is scoped to. Headcount portfolio, engineering processes and milestones filter to the selected
-        family.
+        A workspace is scoped to a <strong>Site · Business Unit · Fiscal Year</strong>. Resource roadmaps, headcount portfolio and PROMIS sync are
+        all filtered to the selected workspace.
       </Typography.Paragraph>
       <Radio.Group
         value={simulation.activeProductionLineId}

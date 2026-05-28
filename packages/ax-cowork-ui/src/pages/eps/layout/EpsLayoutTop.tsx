@@ -36,27 +36,37 @@ export const EpsLayoutTop = observer(() => {
               without it, AntD Space defaults to baseline alignment and the chips drift up by 1-2px. */}
           <Space size={8} align="center">
             <AxMenuBox
-              icon="mdiDnsOutline"
+              icon="mdiDomain"
               label={line.name}
-              title={`Product Family: ${line.name}`}
+              title={`Workspace: ${line.name} · FY2026`}
               placement="bottom"
               onClick={() => sim.openProductionLineModal()}
             />
             <AxMenuBox
-              icon="mdiCardBulletedOutline"
+              icon="mdiSourceBranch"
               label={plan.name}
-              title={`R&D Plan: ${plan.name}`}
+              title={`Roadmap version: ${plan.name}`}
               placement="bottom"
               onClick={() => sim.openEpsPlanModal()}
             />
-            <Tag color="purple" className="ax-top_chip">
-              DRAFT
+            <Tag color={plan.id.startsWith('v6') ? 'green' : plan.id.startsWith('s') ? 'cyan' : 'purple'} className="ax-top_chip">
+              {plan.id.startsWith('v6') ? 'APPROVED' : plan.id.startsWith('s') ? 'SANDBOX' : 'DRAFT'}
             </Tag>
             <Tag color="geekblue" className="ax-top_chip">
-              EPS
+              IRIS · EPS
             </Tag>
+            <Tooltip title="2 active editors on this roadmap — Jisoo Park (you) and Hyunwoo Choi">
+              <Avatar.Group size="small" max={{ count: 3, style: { color: '#fff', backgroundColor: '#722ed1', fontSize: 11 } }}>
+                <Avatar size={22} style={{ backgroundColor: '#3F51B5', fontSize: 11 }}>
+                  JP
+                </Avatar>
+                <Avatar size={22} style={{ backgroundColor: '#009688', fontSize: 11 }}>
+                  HC
+                </Avatar>
+              </Avatar.Group>
+            </Tooltip>
             {edits > 0 && (
-              <Tooltip title={`${edits} unsaved edit${edits === 1 ? '' : 's'} across this simulation — open the Save menu on any panel to commit`}>
+              <Tooltip title={`${edits} unsaved edit${edits === 1 ? '' : 's'} on this roadmap version — Save Draft or Submit for Approval`}>
                 <Tag bordered color="warning" icon={<AxMuiIcon icon="mdiCircleMedium" size={11} />} className="ax-top_chip ax-top_chip__unsaved">
                   {edits} unsaved
                 </Tag>

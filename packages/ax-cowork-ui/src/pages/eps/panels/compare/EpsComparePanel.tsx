@@ -36,20 +36,20 @@ export const EpsComparePanel = observer((props: SubPanelControls) => {
   const dEndTone: 'positive' | 'negative' | 'neutral' = endDeltaDays === 0 ? 'neutral' : endDeltaDays < 0 ? 'positive' : 'negative'
 
   return (
-    <AxDisplayPanel type="sub" icon="mdiCompareHorizontal" title="Compare plans" {...props}>
+    <AxDisplayPanel type="sub" icon="mdiCompareHorizontal" title="Compare roadmap versions" {...props}>
       <div className="ax-eps-compare_root">
-        {/* Plan selectors */}
+        {/* Version selectors — IRIS Concept D (Diff & Delta) */}
         <div className="ax-eps-compare_selectors">
           <div className="ax-eps-compare_selector">
             <Typography.Text type="secondary" className="text-sm">
-              Plan A · baseline
+              Baseline (left)
             </Typography.Text>
             <Select size="small" value={compare.leftPlanId} onChange={(v) => compare.setLeftPlan(v)} options={planOptions} style={{ width: '100%' }} />
           </div>
           <AxMuiIcon icon="mdiSwapHorizontalVariant" size={18} className="ax-eps-compare_selector_arrow" />
           <div className="ax-eps-compare_selector">
             <Typography.Text type="secondary" className="text-sm">
-              Plan B · candidate
+              Candidate (right)
             </Typography.Text>
             <Select size="small" value={compare.rightPlanId} onChange={(v) => compare.setRightPlan(v)} options={planOptions} style={{ width: '100%' }} />
           </div>
@@ -67,18 +67,18 @@ export const EpsComparePanel = observer((props: SubPanelControls) => {
             </Tooltip>
           </div>
           <div className="ax-eps-compare_kpi">
-            <div className="ax-eps-compare_kpi_label">Wafers out</div>
+            <div className="ax-eps-compare_kpi_label">Eng-days planned</div>
             <div className="ax-eps-compare_kpi_value">{right.out.toLocaleString()}</div>
-            <Tooltip title={`Plan A: ${left.out.toLocaleString()}`}>
+            <Tooltip title={`Baseline: ${left.out.toLocaleString()}`}>
               <Tag color={TONE_COLOR[dOut.tone]} style={{ margin: 0 }}>
                 {dOut.text}
               </Tag>
             </Tooltip>
           </div>
           <div className="ax-eps-compare_kpi">
-            <div className="ax-eps-compare_kpi_label">At-risk POs</div>
+            <div className="ax-eps-compare_kpi_label">At-risk projects</div>
             <div className="ax-eps-compare_kpi_value">{right.atRiskPoCount}</div>
-            <Tooltip title={`Plan A: ${left.atRiskPoCount}`}>
+            <Tooltip title={`Baseline: ${left.atRiskPoCount}`}>
               <Tag color={TONE_COLOR[dAtRisk.tone]} style={{ margin: 0 }}>
                 {dAtRisk.text}
               </Tag>
