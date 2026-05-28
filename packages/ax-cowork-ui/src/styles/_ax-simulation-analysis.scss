@@ -119,25 +119,39 @@
     @apply text-sm text-neutral-600 text-center leading-tight;
   }
 
-  // PO — indigo (primary brand)
+  // Tile palette is pinned to the schedule-lineage triad (axSchedule.{fixed,changes,new}) so the
+  // PO→PF→MB hierarchy reads in the same color language as the Gantt bars and toolbar legend:
+  //   PO  → Fixed-indigo  (firm commitment — matches axSchedule.fixed.bar #3f51b5)
+  //   PF  → Changes-blue  (matches axSchedule.changes.bar #1565c0)
+  //   MB  → New-teal      (matches axSchedule.new.bar #00897b)
+  // Backgrounds and borders use the Material 50/100 steps of each hue; icon text uses the 800 step
+  // (= axSchedule.*.edge) for AA contrast on the 100-step icon background.
+
+  // PO — Fixed lineage (Indigo)
   &__po {
-    @apply bg-indigo-50 border-indigo-100;
+    background-color: #e8eaf6; // Indigo 50
+    border-color: #c5cae9; // Indigo 100
     .ax-analysis_totals_tile_icon {
-      @apply bg-indigo-100 text-indigo-700;
+      background-color: #c5cae9; // Indigo 100
+      color: #283593; // axSchedule.fixed.edge (Indigo 800)
     }
   }
-  // PF — teal (secondary)
+  // PF — Changes lineage (Blue)
   &__pf {
-    @apply bg-teal-50 border-teal-100;
+    background-color: #e3f2fd; // Blue 50
+    border-color: #bbdefb; // Blue 100
     .ax-analysis_totals_tile_icon {
-      @apply bg-teal-100 text-teal-700;
+      background-color: #bbdefb; // Blue 100
+      color: #0d47a1; // axSchedule.changes.edge (Blue 800)
     }
   }
-  // MB — violet (tertiary)
+  // MB — New lineage (Teal)
   &__mb {
-    @apply bg-violet-50 border-violet-100;
+    background-color: #e0f2f1; // Teal 50
+    border-color: #b2dfdb; // Teal 100
     .ax-analysis_totals_tile_icon {
-      @apply bg-violet-100 text-violet-700;
+      background-color: #b2dfdb; // Teal 100
+      color: #00695c; // axSchedule.new.edge (Teal 800)
     }
   }
 }
@@ -165,7 +179,7 @@
   &_header {
     @apply h-10 px-3;
     @apply flex items-center justify-between gap-3;
-    @apply border-b border-gray-200 bg-indigo-50;
+    @apply border-b border-gray-200 bg-stone-100; // Tailwind Stone 100 — section card header
 
     &_title {
       @apply flex items-center gap-1;

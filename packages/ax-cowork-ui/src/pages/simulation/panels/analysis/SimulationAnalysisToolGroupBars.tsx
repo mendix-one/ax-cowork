@@ -9,11 +9,13 @@ import { DAILY_TOOL_GROUP_USAGE, TOOL_GROUP_CAPACITIES } from '../../data/mock-p
 import { SAFE_THRESHOLD } from './analysis.helpers'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
-// Color tokens — matched against the spec's $ax-* palette (used in the gantt quick-analysis).
-const COLOR_TOTAL = '#673AB7' // capacity
-const COLOR_USED_SAFE = '#00838F' // normal
-const COLOR_USED_WARN = '#EF6C00' // highload
-const COLOR_USED_DANGER = '#C62828' // violation
+// Color tokens — synced with the schedule-lineage palette (axSchedule in theme.ts) so the bar fills
+// share their hue with the Gantt bars and the toolbar legend swatches. Capacity uses Fixed-indigo
+// (firm baseline); safe usage uses New-teal (within bounds). Warn/danger remain semantic risk hues.
+const COLOR_TOTAL = '#3f51b5' // axSchedule.fixed.bar — capacity baseline
+const COLOR_USED_SAFE = '#00897b' // axSchedule.new.bar — normal
+const COLOR_USED_WARN = '#EF6C00' // highload (risk)
+const COLOR_USED_DANGER = '#C62828' // violation (risk)
 
 // Aggregate per-day usage for each tool group across `start..end` (inclusive), averaging across days.
 // The bar chart shows that averaged usage vs each tool group's nominal capacity.

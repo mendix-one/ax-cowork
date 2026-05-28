@@ -1,0 +1,554 @@
+- generic [active] [ref=e1]:
+    - generic [ref=e4]:
+        - banner [ref=e5]:
+            - generic [ref=e6]:
+                - generic [ref=e7]:
+                    - img "avatar" [ref=e12]
+                    - generic [ref=e13]:
+                        - button [ref=e15] [cursor=pointer]:
+                            - img [ref=e16]
+                        - button [ref=e19] [cursor=pointer]:
+                            - img [ref=e20]
+                    - generic [ref=e22]:
+                        - button "M-SOC" [ref=e24] [cursor=pointer]:
+                            - img [ref=e25]
+                            - generic [ref=e27]: M-SOC
+                            - img [ref=e28]
+                        - button "Plan A (Simulation)" [ref=e31] [cursor=pointer]:
+                            - img [ref=e32]
+                            - generic [ref=e34]: Plan A (Simulation)
+                            - img [ref=e35]
+                        - generic [ref=e38]: DRAFT
+                - generic [ref=e39]:
+                    - button [ref=e42] [cursor=pointer]:
+                        - img [ref=e43]
+                    - separator [ref=e45]
+                    - generic [ref=e46]:
+                        - button [ref=e48] [cursor=pointer]:
+                            - img [ref=e49]
+                        - button [ref=e52] [cursor=pointer]:
+                            - img [ref=e53]
+                        - button [ref=e56] [cursor=pointer]:
+                            - img [ref=e57]
+        - generic [ref=e59]:
+            - complementary [ref=e60]:
+                - generic [ref=e63]:
+                    - generic [ref=e65]:
+                        - button [ref=e66] [cursor=pointer]:
+                            - img [ref=e67]
+                        - button [ref=e69] [cursor=pointer]:
+                            - img [ref=e70]
+                        - button [ref=e72] [cursor=pointer]:
+                            - img [ref=e73]
+                        - button [ref=e75] [cursor=pointer]:
+                            - img [ref=e76]
+                        - button [ref=e78] [cursor=pointer]:
+                            - img [ref=e79]
+                    - generic [ref=e83]:
+                        - button [ref=e84] [cursor=pointer]:
+                            - img [ref=e85]
+                        - button [ref=e87] [cursor=pointer]:
+                            - img [ref=e88]
+                    - button [ref=e93] [cursor=pointer]:
+                        - img [ref=e94]
+            - main [ref=e96]:
+                - generic [ref=e98]:
+                    - generic [ref=e101]:
+                        - generic [ref=e102]:
+                            - generic [ref=e103]:
+                                - img [ref=e104]
+                                - paragraph [ref=e106]: Plan A (Simulation)
+                            - generic [ref=e108]:
+                                - generic [ref=e109]:
+                                    - generic [ref=e111]:
+                                        - textbox "Start date" [ref=e113]: 2026-04-01
+                                        - generic "to" [ref=e115]:
+                                            - img "swap-right" [ref=e116]:
+                                                - img [ref=e117]
+                                        - textbox "End date" [ref=e120]: 2027-12-31
+                                        - generic:
+                                            - img "calendar":
+                                                - img
+                                    - separator [ref=e122]
+                                    - radiogroup "segmented control" [ref=e124]:
+                                        - generic [ref=e125]:
+                                            - generic [ref=e126] [cursor=pointer]:
+                                                - radio "Day"
+                                                - generic "Day" [ref=e127]
+                                            - generic [ref=e128] [cursor=pointer]:
+                                                - radio "Week" [checked]
+                                                - generic "Week" [ref=e129]
+                                            - generic [ref=e130] [cursor=pointer]:
+                                                - radio "Month"
+                                                - generic "Month" [ref=e131]
+                                    - separator [ref=e133]
+                                    - generic [ref=e135]:
+                                        - button [ref=e137] [cursor=pointer]:
+                                            - img [ref=e139]
+                                        - button [ref=e142] [cursor=pointer]:
+                                            - img [ref=e144]
+                                    - separator [ref=e147]
+                                    - generic [ref=e149]:
+                                        - button [ref=e151] [cursor=pointer]:
+                                            - img [ref=e153]
+                                        - button [ref=e156] [cursor=pointer]:
+                                            - img [ref=e158]
+                                    - separator [ref=e161]
+                                    - generic "Schedule lineage legend" [ref=e163]:
+                                        - generic [ref=e164]: Fixed
+                                        - generic [ref=e166]: Changes
+                                        - generic [ref=e168]: New
+                                - generic [ref=e170]:
+                                    - button [disabled] [ref=e172]:
+                                        - generic:
+                                            - img
+                                    - button [disabled] [ref=e174]:
+                                        - generic:
+                                            - img
+                                    - button [ref=e176] [cursor=pointer]:
+                                        - img [ref=e178]
+                                    - generic [ref=e181]:
+                                        - button "Save" [ref=e182] [cursor=pointer]:
+                                            - img [ref=e183]
+                                            - generic [ref=e185]: Save
+                                        - button "More save options" [ref=e186] [cursor=pointer]:
+                                            - img [ref=e188]
+                            - button "Restore" [ref=e191] [cursor=pointer]:
+                                - img [ref=e192]
+                        - generic [ref=e196]:
+                            - generic [ref=e198]:
+                                - generic [ref=e199]:
+                                    - generic [ref=e200]: Adjustment
+                                    - button [ref=e201] [cursor=pointer]:
+                                        - img [ref=e203]
+                                - tree [ref=e208]:
+                                    - generic [ref=e211]:
+                                        - treeitem "caret-down PO-2025-118 · Cust A" [checked] [expanded] [ref=e212]:
+                                            - img "caret-down" [ref=e214] [cursor=pointer]:
+                                                - img [ref=e215]
+                                            - checkbox "caret-down PO-2025-118 · Cust A" [checked] [disabled] [ref=e217]
+                                            - generic "PO-2025-118 · Cust A" [ref=e218] [cursor=pointer]
+                                        - treeitem "caret-down V9-QLC-A" [checked] [expanded] [ref=e219]:
+                                            - img "caret-down" [ref=e222] [cursor=pointer]:
+                                                - img [ref=e223]
+                                            - checkbox "caret-down V9-QLC-A" [checked] [disabled] [ref=e225]
+                                            - generic "V9-QLC-A" [ref=e226] [cursor=pointer]
+                                        - treeitem "B-1 · 200 w" [checked] [ref=e227]:
+                                            - checkbox "B-1 · 200 w" [checked] [disabled] [ref=e230]
+                                            - generic "B-1 · 200 w" [ref=e231] [cursor=pointer]
+                                        - treeitem "B-2 · 200 w" [checked] [ref=e232]:
+                                            - checkbox "B-2 · 200 w" [checked] [disabled] [ref=e235]
+                                            - generic "B-2 · 200 w" [ref=e236] [cursor=pointer]
+                                        - treeitem "B-3 · 200 w" [checked] [ref=e237]:
+                                            - checkbox "B-3 · 200 w" [checked] [disabled] [ref=e240]
+                                            - generic "B-3 · 200 w" [ref=e241] [cursor=pointer]
+                                        - treeitem "B-4 · 175 w" [checked] [ref=e242]:
+                                            - checkbox "B-4 · 175 w" [checked] [disabled] [ref=e245]
+                                            - generic "B-4 · 175 w" [ref=e246] [cursor=pointer]
+                                        - treeitem "caret-down PO-2025-119 · Cust B" [checked] [expanded] [ref=e247]:
+                                            - img "caret-down" [ref=e249] [cursor=pointer]:
+                                                - img [ref=e250]
+                                            - checkbox "caret-down PO-2025-119 · Cust B" [checked] [disabled] [ref=e252]
+                                            - generic "PO-2025-119 · Cust B" [ref=e253] [cursor=pointer]
+                                        - treeitem "caret-down V9-TLC-B" [checked] [expanded] [ref=e254]:
+                                            - img "caret-down" [ref=e257] [cursor=pointer]:
+                                                - img [ref=e258]
+                                            - checkbox "caret-down V9-TLC-B" [checked] [disabled] [ref=e260]
+                                            - generic "V9-TLC-B" [ref=e261] [cursor=pointer]
+                                        - treeitem "B-1 · 175 w" [checked] [ref=e262]:
+                                            - checkbox "B-1 · 175 w" [checked] [disabled] [ref=e265]
+                                            - generic "B-1 · 175 w" [ref=e266] [cursor=pointer]
+                                        - treeitem "B-2 · 175 w" [checked] [ref=e267]:
+                                            - checkbox "B-2 · 175 w" [checked] [ref=e270] [cursor=pointer]
+                                            - generic "B-2 · 175 w" [ref=e271] [cursor=pointer]
+                                        - treeitem "B-3 · 150 w" [checked] [ref=e272]:
+                                            - checkbox "B-3 · 150 w" [checked] [ref=e275] [cursor=pointer]
+                                            - generic "B-3 · 150 w" [ref=e276] [cursor=pointer]
+                                        - treeitem "caret-down PO-2025-120 · Cust C" [checked] [expanded] [ref=e277]:
+                                            - img "caret-down" [ref=e279] [cursor=pointer]:
+                                                - img [ref=e280]
+                                            - checkbox "caret-down PO-2025-120 · Cust C" [checked] [disabled] [ref=e282]
+                                            - generic "PO-2025-120 · Cust C" [ref=e283] [cursor=pointer]
+                                        - treeitem "caret-down V9-QLC-A" [checked] [expanded] [ref=e284]:
+                                            - img "caret-down" [ref=e287] [cursor=pointer]:
+                                                - img [ref=e288]
+                                            - checkbox "caret-down V9-QLC-A" [checked] [disabled] [ref=e290]
+                                            - generic "V9-QLC-A" [ref=e291] [cursor=pointer]
+                                        - treeitem "B-1 · 250 w" [checked] [ref=e292]:
+                                            - checkbox "B-1 · 250 w" [checked] [disabled] [ref=e295]
+                                            - generic "B-1 · 250 w" [ref=e296] [cursor=pointer]
+                                        - treeitem "B-2 · 250 w" [checked] [ref=e297]:
+                                            - checkbox "B-2 · 250 w" [checked] [ref=e300] [cursor=pointer]
+                                            - generic "B-2 · 250 w" [ref=e301] [cursor=pointer]
+                                        - treeitem "B-3 · 200 w" [checked] [ref=e302]:
+                                            - checkbox "B-3 · 200 w" [checked] [ref=e305] [cursor=pointer]
+                                            - generic "B-3 · 200 w" [ref=e306] [cursor=pointer]
+                                        - treeitem "caret-down PO-2025-121 · Cust D" [checked] [expanded] [ref=e307]:
+                                            - img "caret-down" [ref=e309] [cursor=pointer]:
+                                                - img [ref=e310]
+                                            - checkbox "caret-down PO-2025-121 · Cust D" [checked] [ref=e312] [cursor=pointer]
+                                            - generic "PO-2025-121 · Cust D" [ref=e313] [cursor=pointer]
+                                        - treeitem "caret-down V9-TLC-C" [checked] [expanded] [ref=e314]:
+                                            - img "caret-down" [ref=e317] [cursor=pointer]:
+                                                - img [ref=e318]
+                                            - checkbox "caret-down V9-TLC-C" [checked] [ref=e320] [cursor=pointer]
+                                            - generic "V9-TLC-C" [ref=e321] [cursor=pointer]
+                                        - treeitem "B-1 · 125 w" [checked] [ref=e322]:
+                                            - checkbox "B-1 · 125 w" [checked] [ref=e325] [cursor=pointer]
+                                            - generic "B-1 · 125 w" [ref=e326] [cursor=pointer]
+                                        - treeitem "B-2 · 125 w" [checked] [ref=e327]:
+                                            - checkbox "B-2 · 125 w" [checked] [ref=e330] [cursor=pointer]
+                                            - generic "B-2 · 125 w" [ref=e331] [cursor=pointer]
+                                - generic [ref=e333]:
+                                    - button "Reset" [ref=e335] [cursor=pointer]:
+                                        - generic [ref=e336]: Reset
+                                    - button "Apply" [disabled] [ref=e338]:
+                                        - generic: Apply
+                            - generic [ref=e339]:
+                                - generic [ref=e342]:
+                                    - generic [ref=e344]:
+                                        - treegrid [ref=e347]:
+                                            - row "Production Order / Family / Batch Start Date End Date" [ref=e348]:
+                                                - columnheader "Production Order / Family / Batch" [ref=e349]
+                                                - columnheader "Start Date" [ref=e350]
+                                                - columnheader "End Date" [ref=e351]
+                                                - columnheader [ref=e352]
+                                            - rowgroup [ref=e354]:
+                                                - row "PO-2025-118 · Cust A 2026-04-29 → 2026-05-12" [expanded] [level=1] [ref=e355]:
+                                                    - gridcell "PO-2025-118 Cust A P1" [ref=e356]:
+                                                        - generic [ref=e357] [cursor=pointer]: 
+                                                        - generic [ref=e358]:
+                                                            - generic [ref=e359]: PO-2025-118
+                                                            - generic [ref=e360]: Cust A
+                                                            - generic [ref=e361]: P1
+                                                    - gridcell "2026-04-29" [ref=e362]:
+                                                        - generic [ref=e363]: 2026-04-29
+                                                    - gridcell "2026-05-12" [ref=e364]:
+                                                        - generic [ref=e365]: 2026-05-12
+                                                - row "V9-QLC-A 2026-04-29 → 2026-05-12" [expanded] [level=2] [ref=e366]:
+                                                    - gridcell "V9-QLC-A T-V9-232L P1" [ref=e367]:
+                                                        - generic [ref=e369] [cursor=pointer]: 
+                                                        - generic [ref=e370]:
+                                                            - generic [ref=e371]: V9-QLC-A
+                                                            - generic [ref=e372]: T-V9-232L
+                                                            - generic [ref=e373]: P1
+                                                    - gridcell "2026-04-29" [ref=e374]:
+                                                        - generic [ref=e375]: 2026-04-29
+                                                    - gridcell "2026-05-12" [ref=e376]:
+                                                        - generic [ref=e377]: 2026-05-12
+                                                - row "B-1 2026-04-29 → 2026-05-03" [level=3] [ref=e378]:
+                                                    - gridcell "B-1 200 wafers" [ref=e379]:
+                                                        - generic [ref=e383]:
+                                                            - generic [ref=e384]: B-1
+                                                            - generic [ref=e385]: 200 wafers
+                                                    - gridcell "2026-04-29" [ref=e386]:
+                                                        - generic [ref=e387]: 2026-04-29
+                                                    - gridcell "2026-05-03" [ref=e388]:
+                                                        - generic [ref=e389]: 2026-05-03
+                                                - row "B-2 2026-05-02 → 2026-05-07" [level=3] [ref=e390]:
+                                                    - gridcell "B-2 200 wafers" [ref=e391]:
+                                                        - generic [ref=e395]:
+                                                            - generic [ref=e396]: B-2
+                                                            - generic [ref=e397]: 200 wafers
+                                                    - gridcell "2026-05-02" [ref=e398]:
+                                                        - generic [ref=e399]: 2026-05-02
+                                                    - gridcell "2026-05-07" [ref=e400]:
+                                                        - generic [ref=e401]: 2026-05-07
+                                                - row "B-3 2026-05-05 → 2026-05-10" [level=3] [ref=e402]:
+                                                    - gridcell "B-3 200 wafers" [ref=e403]:
+                                                        - generic [ref=e407]:
+                                                            - generic [ref=e408]: B-3
+                                                            - generic [ref=e409]: 200 wafers
+                                                    - gridcell "2026-05-05" [ref=e410]:
+                                                        - generic [ref=e411]: 2026-05-05
+                                                    - gridcell "2026-05-10" [ref=e412]:
+                                                        - generic [ref=e413]: 2026-05-10
+                                                - row "B-4 2026-05-07 → 2026-05-12" [level=3] [ref=e414]:
+                                                    - gridcell "B-4 175 wafers" [ref=e415]:
+                                                        - generic [ref=e419]:
+                                                            - generic [ref=e420]: B-4
+                                                            - generic [ref=e421]: 175 wafers
+                                                    - gridcell "2026-05-07" [ref=e422]:
+                                                        - generic [ref=e423]: 2026-05-07
+                                                    - gridcell "2026-05-12" [ref=e424]:
+                                                        - generic [ref=e425]: 2026-05-12
+                                                - row "PO-2025-119 · Cust B 2026-05-02 → 2026-05-12" [expanded] [level=1] [ref=e426]:
+                                                    - gridcell "PO-2025-119 Cust B P2" [ref=e427]:
+                                                        - generic [ref=e428] [cursor=pointer]: 
+                                                        - generic [ref=e429]:
+                                                            - generic [ref=e430]: PO-2025-119
+                                                            - generic [ref=e431]: Cust B
+                                                            - generic [ref=e432]: P2
+                                                    - gridcell "2026-05-02" [ref=e433]:
+                                                        - generic [ref=e434]: 2026-05-02
+                                                    - gridcell "2026-05-12" [ref=e435]:
+                                                        - generic [ref=e436]: 2026-05-12
+                                                - row "V9-TLC-B 2026-05-02 → 2026-05-12" [expanded] [level=2] [ref=e437]:
+                                                    - gridcell "V9-TLC-B T-V9-176L P2" [ref=e438]:
+                                                        - generic [ref=e440] [cursor=pointer]: 
+                                                        - generic [ref=e441]:
+                                                            - generic [ref=e442]: V9-TLC-B
+                                                            - generic [ref=e443]: T-V9-176L
+                                                            - generic [ref=e444]: P2
+                                                    - gridcell "2026-05-02" [ref=e445]:
+                                                        - generic [ref=e446]: 2026-05-02
+                                                    - gridcell "2026-05-12" [ref=e447]:
+                                                        - generic [ref=e448]: 2026-05-12
+                                                - row "B-1 2026-05-02 → 2026-05-06" [level=3] [ref=e449]:
+                                                    - gridcell "B-1 175 wafers" [ref=e450]:
+                                                        - generic [ref=e454]:
+                                                            - generic [ref=e455]: B-1
+                                                            - generic [ref=e456]: 175 wafers
+                                                    - gridcell "2026-05-02" [ref=e457]:
+                                                        - generic [ref=e458]: 2026-05-02
+                                                    - gridcell "2026-05-06" [ref=e459]:
+                                                        - generic [ref=e460]: 2026-05-06
+                                                - row "B-2 2026-05-04 → 2026-05-09" [level=3] [ref=e461]:
+                                                    - gridcell "B-2 175 wafers" [ref=e462]:
+                                                        - generic [ref=e466]:
+                                                            - generic [ref=e467]: B-2
+                                                            - generic [ref=e468]: 175 wafers
+                                                    - gridcell "2026-05-04" [ref=e469]:
+                                                        - generic [ref=e470]: 2026-05-04
+                                                    - gridcell "2026-05-09" [ref=e471]:
+                                                        - generic [ref=e472]: 2026-05-09
+                                                - row "B-3 2026-05-07 → 2026-05-12" [level=3] [ref=e473]:
+                                                    - gridcell "B-3 150 wafers" [ref=e474]:
+                                                        - generic [ref=e478]:
+                                                            - generic [ref=e479]: B-3
+                                                            - generic [ref=e480]: 150 wafers
+                                                    - gridcell "2026-05-07" [ref=e481]:
+                                                        - generic [ref=e482]: 2026-05-07
+                                                    - gridcell "2026-05-12" [ref=e483]:
+                                                        - generic [ref=e484]: 2026-05-12
+                                                - row "PO-2025-120 · Cust C 2026-05-04 → 2026-05-12" [expanded] [level=1] [ref=e485]:
+                                                    - gridcell "PO-2025-120 Cust C P3" [ref=e486]:
+                                                        - generic [ref=e487] [cursor=pointer]: 
+                                                        - generic [ref=e488]:
+                                                            - generic [ref=e489]: PO-2025-120
+                                                            - generic [ref=e490]: Cust C
+                                                            - generic [ref=e491]: P3
+                                                    - gridcell "2026-05-04" [ref=e492]:
+                                                        - generic [ref=e493]: 2026-05-04
+                                                    - gridcell "2026-05-12" [ref=e494]:
+                                                        - generic [ref=e495]: 2026-05-12
+                                                - row "V9-QLC-A 2026-05-04 → 2026-05-12" [expanded] [level=2] [ref=e496]:
+                                                    - gridcell "V9-QLC-A T-V9-232L P3" [ref=e497]:
+                                                        - generic [ref=e499] [cursor=pointer]: 
+                                                        - generic [ref=e500]:
+                                                            - generic [ref=e501]: V9-QLC-A
+                                                            - generic [ref=e502]: T-V9-232L
+                                                            - generic [ref=e503]: P3
+                                                    - gridcell "2026-05-04" [ref=e504]:
+                                                        - generic [ref=e505]: 2026-05-04
+                                                    - gridcell "2026-05-12" [ref=e506]:
+                                                        - generic [ref=e507]: 2026-05-12
+                                                - row "B-1 2026-05-04 → 2026-05-08" [level=3] [ref=e508]:
+                                                    - gridcell "B-1 250 wafers" [ref=e509]:
+                                                        - generic [ref=e513]:
+                                                            - generic [ref=e514]: B-1
+                                                            - generic [ref=e515]: 250 wafers
+                                                    - gridcell "2026-05-04" [ref=e516]:
+                                                        - generic [ref=e517]: 2026-05-04
+                                                    - gridcell "2026-05-08" [ref=e518]:
+                                                        - generic [ref=e519]: 2026-05-08
+                                                - row "B-2 2026-05-06 → 2026-05-11" [level=3] [ref=e520]:
+                                                    - gridcell "B-2 250 wafers" [ref=e521]:
+                                                        - generic [ref=e525]:
+                                                            - generic [ref=e526]: B-2
+                                                            - generic [ref=e527]: 250 wafers
+                                                    - gridcell "2026-05-06" [ref=e528]:
+                                                        - generic [ref=e529]: 2026-05-06
+                                                    - gridcell "2026-05-11" [ref=e530]:
+                                                        - generic [ref=e531]: 2026-05-11
+                                                - row "B-3 2026-05-08 → 2026-05-12" [level=3] [ref=e532]:
+                                                    - gridcell "B-3 200 wafers" [ref=e533]:
+                                                        - generic [ref=e537]:
+                                                            - generic [ref=e538]: B-3
+                                                            - generic [ref=e539]: 200 wafers
+                                                    - gridcell "2026-05-08" [ref=e540]:
+                                                        - generic [ref=e541]: 2026-05-08
+                                                    - gridcell "2026-05-12" [ref=e542]:
+                                                        - generic [ref=e543]: 2026-05-12
+                                                - row "PO-2025-121 · Cust D 2026-05-06 → 2026-05-12" [level=1] [ref=e544]:
+                                                    - gridcell "PO-2025-121 Cust D P3" [ref=e545]:
+                                                        - generic [ref=e546] [cursor=pointer]: 
+                                                        - generic [ref=e547]:
+                                                            - generic [ref=e548]: PO-2025-121
+                                                            - generic [ref=e549]: Cust D
+                                                            - generic [ref=e550]: P3
+                                                    - gridcell "2026-05-06" [ref=e551]:
+                                                        - generic [ref=e552]: 2026-05-06
+                                                    - gridcell "2026-05-12" [ref=e553]:
+                                                        - generic [ref=e554]: 2026-05-12
+                                        - generic [ref=e559]:
+                                            - generic [ref=e560]:
+                                                - generic "April 2026" [ref=e562]
+                                                - generic [ref=e563]:
+                                                    - generic "01" [ref=e564]
+                                                    - generic "02" [ref=e565]
+                                                    - generic "03" [ref=e566]
+                                                    - generic "04" [ref=e567]
+                                                    - generic "05" [ref=e568]
+                                                    - generic "06" [ref=e569]
+                                                    - generic "07" [ref=e570]
+                                                    - generic "08" [ref=e571]
+                                                    - generic "09" [ref=e572]
+                                                    - generic "10" [ref=e573]
+                                                    - generic "11" [ref=e574]
+                                                    - generic "12" [ref=e575]
+                                                    - generic "13" [ref=e576]
+                                                    - generic "14" [ref=e577]
+                                                    - generic "15" [ref=e578]
+                                                    - generic "16" [ref=e579]
+                                                    - generic "17" [ref=e580]
+                                            - generic [ref=e581]:
+                                                - generic:
+                                                    - generic:
+                                                        - generic "Today · 2026-05-04" [ref=e906] [cursor=pointer]:
+                                                            - generic [ref=e907]: TODAY
+                                                        - generic "M1 · 2026-05-12 PO-2025-118 — V9-QLC-A — 1,000 wafers" [ref=e908] [cursor=pointer]:
+                                                            - generic [ref=e909]: PO-2025-118 · M1
+                                                        - generic "M1 · 2026-05-12 PO-2025-119 — V9-TLC-B — 500 wafers Slip +2d · HARC overload" [ref=e910] [cursor=pointer]:
+                                                            - generic [ref=e911]: PO-2025-119 · M1
+                                                        - generic "M1 · 2026-05-11 PO-2025-120 — V9-QLC-A — 1,200 wafers Slip +4d · Probe over-cap" [ref=e912] [cursor=pointer]:
+                                                            - generic [ref=e913]: PO-2025-120 · M1
+                                                        - generic "M1 · 2026-05-12 PO-2025-121 — V9-TLC-C — 800 wafers" [ref=e914] [cursor=pointer]:
+                                                            - generic [ref=e915]: PO-2025-121 · M1
+                                    - iframe [ref=e920]:
+
+                                - generic [ref=e922]:
+                                    - generic [ref=e923]:
+                                        - generic [ref=e924]: Quick Analysis
+                                        - button [ref=e925] [cursor=pointer]:
+                                            - img [ref=e927]
+                                    - generic [ref=e930]:
+                                        - generic [ref=e933]:
+                                            - generic [ref=e934]: Shop floor — overall capacity
+                                            - button "Large view" [ref=e936] [cursor=pointer]:
+                                                - img [ref=e937]
+                                        - generic [ref=e945]:
+                                            - generic [ref=e946]: Tool-group capacities
+                                            - button "Large view" [ref=e948] [cursor=pointer]:
+                                                - img [ref=e949]
+                                        - generic [ref=e956]:
+                                            - generic [ref=e957]:
+                                                - generic [ref=e958]: Violations / High-Load
+                                                - button "Large view" [ref=e960] [cursor=pointer]:
+                                                    - img [ref=e961]
+                                            - generic [ref=e964]:
+                                                - generic [ref=e966] [cursor=pointer]:
+                                                    - generic [ref=e967]:
+                                                        - generic [ref=e969]: ⚠ Violation
+                                                        - generic [ref=e970]: HARC Etch
+                                                    - strong [ref=e972]: 109%
+                                                - generic [ref=e974] [cursor=pointer]:
+                                                    - generic [ref=e975]:
+                                                        - generic [ref=e977]: ⚠ Highload
+                                                        - generic [ref=e978]: Probe
+                                                    - strong [ref=e980]: 89%
+                                                - generic [ref=e982] [cursor=pointer]:
+                                                    - generic [ref=e983]:
+                                                        - generic [ref=e985]: ⚠ Highload
+                                                        - generic [ref=e986]: ONON CVD
+                                                    - strong [ref=e988]: 82%
+                                                - generic [ref=e990] [cursor=pointer]:
+                                                    - generic [ref=e991]:
+                                                        - generic [ref=e993]: ⚠ Highload
+                                                        - generic [ref=e994]: CMP
+                                                    - strong [ref=e996]: 80%
+                    - separator
+                    - generic [ref=e997]:
+                        - generic [ref=e998]:
+                            - img [ref=e999]
+                            - paragraph [ref=e1001]: Recommendations
+                        - button [ref=e1003] [cursor=pointer]:
+                            - img [ref=e1004]
+                    - generic [ref=e1006]:
+                        - generic [ref=e1007]: New (5)
+                        - generic [ref=e1009]:
+                            - generic [ref=e1010]:
+                                - generic [ref=e1012]: HIGH
+                                - generic [ref=e1013]: ★★★★
+                                - strong [ref=e1016]: Hot-lot HL-22
+                            - text: Cust A requested. Insert before 06-01.
+                            - generic [ref=e1017]: 'Impact: +1 lot ripple · 4 commits ok'
+                            - generic [ref=e1018]:
+                                - button [ref=e1020] [cursor=pointer]:
+                                    - generic [ref=e1021]: Preview
+                                - button [ref=e1023] [cursor=pointer]:
+                                    - generic [ref=e1024]: Skip
+                        - generic [ref=e1026]:
+                            - generic [ref=e1027]:
+                                - generic [ref=e1029]: HIGH
+                                - generic [ref=e1030]: ★★★★
+                                - strong [ref=e1033]: Probe over-cap
+                            - text: 'Days 01-03 Probe E-Test 89% (warn). Suggestion: shift Cust C 5 lots −1d.'
+                            - generic [ref=e1034]: 'Impact: −1 commit at risk'
+                            - generic [ref=e1035]:
+                                - button [ref=e1037] [cursor=pointer]:
+                                    - generic [ref=e1038]: Preview
+                                - button [ref=e1040] [cursor=pointer]:
+                                    - generic [ref=e1041]: Skip
+                        - generic [ref=e1043]:
+                            - generic [ref=e1044]:
+                                - generic [ref=e1046]: MED
+                                - generic [ref=e1047]: ★★★
+                                - strong [ref=e1050]: Tune SG-014 HARC R-QLC-CH
+                            - text: −8.2% time · +12h on Cust B M1 commit
+                            - generic [ref=e1051]: 'Impact: +520 wafer-passes/wk'
+                            - generic [ref=e1052]:
+                                - button [ref=e1054] [cursor=pointer]:
+                                    - generic [ref=e1055]: Open
+                                - button [ref=e1057] [cursor=pointer]:
+                                    - generic [ref=e1058]: Skip
+                        - generic [ref=e1060]:
+                            - generic [ref=e1061]:
+                                - generic [ref=e1063]: LOW
+                                - generic [ref=e1064]: ★★
+                                - strong [ref=e1067]: Qual expiry — ETC-44 ch C
+                            - text: R-QLC-CH expires 06-12. Schedule re-qual?
+                            - generic [ref=e1068]: 'Impact: Risk of unqualified route'
+                            - generic [ref=e1069]:
+                                - button [ref=e1071] [cursor=pointer]:
+                                    - generic [ref=e1072]: Open
+                                - button [ref=e1074] [cursor=pointer]:
+                                    - generic [ref=e1075]: Skip
+                        - generic [ref=e1077]:
+                            - generic [ref=e1078]:
+                                - generic [ref=e1080]: LOW
+                                - generic [ref=e1081]: ★
+                                - strong [ref=e1084]: Idle capacity — WL Tungsten
+                            - text: Days 1-5. Pull-fwd candidates?
+                            - generic [ref=e1085]: 'Impact: + headroom'
+                            - generic [ref=e1086]:
+                                - button [ref=e1088] [cursor=pointer]:
+                                    - generic [ref=e1089]: Preview
+                                - button [ref=e1091] [cursor=pointer]:
+                                    - generic [ref=e1092]: Skip
+                        - button [ref=e1093] [cursor=pointer]:
+                            - img [ref=e1095]:
+                                - img [ref=e1096]
+                            - generic [ref=e1098]: Skipped (12)
+            - complementary [ref=e1099]:
+                - generic [ref=e1101]:
+                    - generic [ref=e1103]:
+                        - button [ref=e1105] [cursor=pointer]:
+                            - img [ref=e1106]
+                        - button [ref=e1109] [cursor=pointer]:
+                            - img [ref=e1110]
+                        - button [ref=e1113] [cursor=pointer]:
+                            - img [ref=e1114]
+                        - button [ref=e1117] [cursor=pointer]:
+                            - img [ref=e1118]
+                        - button [ref=e1121] [cursor=pointer]:
+                            - img [ref=e1122]
+                    - generic [ref=e1125]:
+                        - button [ref=e1127] [cursor=pointer]:
+                            - img [ref=e1128]
+                        - button [ref=e1131] [cursor=pointer]:
+                            - img [ref=e1132]
+                        - button [ref=e1135] [cursor=pointer]:
+                            - img [ref=e1136]
+        - contentinfo [ref=e1138]
+    - tooltip "Save · runs a pre-flight validation first" [ref=e1141]

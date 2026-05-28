@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react'
-import { Button, Descriptions, Divider, Empty, Input, InputNumber, Popconfirm, Space, Tag, Typography } from 'antd'
+import { Button, Descriptions, Divider, Input, InputNumber, Popconfirm, Space, Tag, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 import { MilestoneChips, PriorityChip, StatusChip } from './production-order-chips'
+import { SimulationProductionOrderSummary } from './SimulationProductionOrderSummary'
 
 // Free-text planner note editor — drives the shared NotesStore, keyed by the same row key used by the PO table.
 // Auto-trims on save; empty save clears the note.
@@ -77,10 +78,26 @@ export const SimulationProductionOrderInfoPanel = observer(() => {
 
   const isBatchRunning = batch?.scheduleClass === 'fixed'
 
+  // No selection → the body becomes the plan summary; selecting any row swaps to its detail card.
+  // Header label follows the user's spec:
+  //   Summary                                        — no row
+  //   Production Order - {id} + {Customer}           — PO row
+  //   Production Family - {label} + {Tech}           — Family row
+  //   Production Batch - {name} + {Count}            — Batch row (Count = waferCount)
+  let headerLabel = 'Summary'
+  if (row && order) {
+    if (row.kind === 'po') headerLabel = `Production Order - ${order.id} + ${order.customer}`
+    else if (row.kind === 'family' && family) headerLabel = `Production Family - ${family.label} + ${family.tech}`
+    else if (row.kind === 'batch' && batch) headerLabel = `Production Batch - ${batch.name} + ${batch.waferCount.toLocaleString()}`
+  }
+  // Height varies by mode — 12rem for the dense summary, 48rem (capped at 40% of body) for the
+  // taller detail cards. Driven by a modifier class so the SCSS owns the values.
+  const heightClass = row && order ? 'ax-po_info__detail' : 'ax-po_info__summary'
+
   return (
-    <div className="ax-po_info">
+    <div className={`ax-po_info ${heightClass}`}>
       <div className="ax-po_info_header">
-        <span>{row ? `Info · ${row.kind === 'po' ? 'Production Order' : row.kind === 'family' ? 'Production Family' : 'Manufacturing Batch'}` : 'Info'}</span>
+        <span>{headerLabel}</span>
         <Button
           size="small"
           type="text"
@@ -91,7 +108,7 @@ export const SimulationProductionOrderInfoPanel = observer(() => {
       </div>
       <div className="ax-po_info_body">
         {!row || !order ? (
-          <Empty description="Select a row to see its details" />
+          <SimulationProductionOrderSummary />
         ) : row.kind === 'po' ? (
           <div className="ax-po_info_card">
             <Descriptions size="small" column={2} bordered title={`${order.id} · ${order.customer}`}>

@@ -47,6 +47,40 @@ export type FlatRow = {
 // Group-by mode for the table — drives flatRows builder selection.
 export type GroupBy = 'po' | 'customer'
 
+// ---- table tune --------------------------------------------------------------
+// Per-column UI state exposed via the "tune" popover in the table header. The base column DEFINITIONS
+// (renderers, accessors, widths) live in SimulationProductionOrderTable; this store only carries
+// what the planner can flex at runtime — visibility, ordering, sticky pinning, sort/filter enablement.
+export type ColumnSticky = 'left' | 'right' | null
+export type ColumnTune = {
+  key: string
+  label: string // human-readable header text — used in the tune popover row labels
+  visible: boolean
+  sortable: boolean
+  filterable: boolean
+  sticky: ColumnSticky
+}
+
+// Baseline tune state — matches today's table layout. Initialised once and used both for first-load
+// state and for the "Reset" action.
+const PO_COLUMN_BASELINE: ColumnTune[] = [
+  { key: '_select', label: 'Select', visible: true, sortable: false, filterable: false, sticky: 'left' },
+  { key: 'label', label: 'Production Order / Family / Batch', visible: true, sortable: false, filterable: false, sticky: 'left' },
+  { key: 'state', label: 'State', visible: true, sortable: false, filterable: false, sticky: 'left' },
+  { key: 'customer', label: 'Customer', visible: true, sortable: true, filterable: false, sticky: null },
+  { key: 'techSpec', label: 'Tech / Spec', visible: true, sortable: true, filterable: false, sticky: null },
+  { key: 'commitment', label: 'Commitment', visible: true, sortable: true, filterable: false, sticky: null },
+  { key: 'startDate', label: 'Start Date', visible: true, sortable: true, filterable: false, sticky: null },
+  { key: 'endDate', label: 'End Date', visible: true, sortable: true, filterable: false, sticky: null },
+  { key: 'milestones', label: 'Milestones', visible: true, sortable: false, filterable: false, sticky: null },
+  { key: 'status', label: 'Status', visible: true, sortable: true, filterable: false, sticky: null },
+  { key: 'progress', label: 'Progress', visible: true, sortable: false, filterable: false, sticky: null },
+  { key: 'startedWafers', label: 'Started Wafers', visible: true, sortable: true, filterable: false, sticky: null },
+  { key: 'processingWafers', label: 'Processing Wafers', visible: true, sortable: true, filterable: false, sticky: null },
+  { key: 'completedWafers', label: 'Completed Wafers', visible: true, sortable: true, filterable: false, sticky: null },
+  { key: 'remark', label: 'Remark', visible: true, sortable: false, filterable: false, sticky: null },
+]
+
 const uniq = <T>(arr: T[]): T[] => Array.from(new Set(arr))
 
 const ALL_CUSTOMERS = uniq(MOCK_PRODUCTION_ORDERS.map((o) => o.customer))
@@ -69,9 +103,9 @@ export class ProductionOrderStore {
   // Customer-level expand set — populated lazily as the planner expands.
   expandedCustomers = new Set<string>()
 
-  // Panel slots
-  filterSidebarOpen = false
-  infoPanelOpen = false
+  // Panel slots — both open by default so the planner sees filters + the summary/info dock immediately.
+  filterSidebarOpen = true
+  infoPanelOpen = true
 
   // Filter sidebar — pending (in-sidebar) vs applied (drives the table).
   customerFilters: string[] = [...ALL_CUSTOMERS]
@@ -89,8 +123,12 @@ export class ProductionOrderStore {
   expandedOrderIds = new Set<string>(MOCK_PRODUCTION_ORDERS.map((o) => o.id))
   expandedFamilyIds = new Set<string>(MOCK_PRODUCTION_ORDERS.flatMap((o) => o.schedule.map((f) => f.id)))
 
-  // Selected row for the info panel (null = nothing selected).
-  selectedRowKey: string | null = `po::${MOCK_PRODUCTION_ORDERS[0].id}`
+  // Selected row for the info panel (null = nothing selected → info panel shows the plan summary).
+  selectedRowKey: string | null = null
+
+  // Per-column tune state — driven by the table-tune popover in the header. Initialised from the
+  // baseline; the table component reads this to derive the active column list each render.
+  tableTune: ColumnTune[] = PO_COLUMN_BASELINE.map((c) => ({ ...c }))
 
   private historyCount = 0
   private futureCount = 0
@@ -144,8 +182,11 @@ export class ProductionOrderStore {
     this.infoPanelOpen = !this.infoPanelOpen
   }
 
+  // Close button on the info panel — hides the panel AND clears any row selection so reopening the
+  // panel starts on the summary view. (The toolbar toggle stays visibility-only on purpose.)
   closeInfoPanel() {
     this.infoPanelOpen = false
+    this.selectedRowKey = null
   }
 
   // ---- filter sidebar --------------------------------------------------------
@@ -215,7 +256,13 @@ export class ProductionOrderStore {
   }
 
   // ---- selection -------------------------------------------------------------
+  // Click toggles: a click on the already-selected row unselects (info panel stays open in
+  // summary mode); a click on a different row selects it (and reopens the info panel if hidden).
   selectRow(key: string) {
+    if (this.selectedRowKey === key) {
+      this.selectedRowKey = null
+      return
+    }
     this.selectedRowKey = key
     if (!this.infoPanelOpen) this.infoPanelOpen = true
   }
@@ -223,6 +270,49 @@ export class ProductionOrderStore {
   get selectedRow(): FlatRow | null {
     if (!this.selectedRowKey) return null
     return this.flatRows.find((r) => r.key === this.selectedRowKey) ?? null
+  }
+
+  // ---- table tune ------------------------------------------------------------
+  // Mutate-by-replace so MobX picks up the reference change. We also reassign tableTune itself on
+  // moves so observers re-render on order changes.
+  private updateTuneAt(key: string, patch: Partial<ColumnTune>) {
+    this.tableTune = this.tableTune.map((c) => (c.key === key ? { ...c, ...patch } : c))
+  }
+
+  setColumnVisible(key: string, visible: boolean) {
+    this.updateTuneAt(key, { visible })
+  }
+
+  setColumnSticky(key: string, sticky: ColumnSticky) {
+    this.updateTuneAt(key, { sticky })
+  }
+
+  setColumnSortable(key: string, sortable: boolean) {
+    this.updateTuneAt(key, { sortable })
+  }
+
+  setColumnFilterable(key: string, filterable: boolean) {
+    this.updateTuneAt(key, { filterable })
+  }
+
+  moveColumnUp(key: string) {
+    const idx = this.tableTune.findIndex((c) => c.key === key)
+    if (idx <= 0) return
+    const next = [...this.tableTune]
+    ;[next[idx - 1], next[idx]] = [next[idx], next[idx - 1]]
+    this.tableTune = next
+  }
+
+  moveColumnDown(key: string) {
+    const idx = this.tableTune.findIndex((c) => c.key === key)
+    if (idx < 0 || idx >= this.tableTune.length - 1) return
+    const next = [...this.tableTune]
+    ;[next[idx + 1], next[idx]] = [next[idx], next[idx + 1]]
+    this.tableTune = next
+  }
+
+  resetTableTune() {
+    this.tableTune = PO_COLUMN_BASELINE.map((c) => ({ ...c }))
   }
 
   // ---- derived ---------------------------------------------------------------
@@ -366,6 +456,12 @@ export class ProductionOrderStore {
 
   get canRedo() {
     return this.futureCount > 0
+  }
+
+  // Mirrors GanttStore.unsavedEditsCount so SimulationScheduleActions can drive the
+  // "N unsaved" chip + Submit-to-baseline enablement uniformly across panels.
+  get unsavedEditsCount() {
+    return this.historyCount
   }
 
   undo() {

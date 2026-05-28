@@ -386,7 +386,7 @@ p {
     @apply w-full h-10 px-2 rounded-t;
     @apply flex items-center justify-between gap-2;
     @apply border-b border-gray-300;
-    @apply text-neutral-800 bg-neutral-100;
+    @apply text-neutral-800 bg-stone-200; // Tailwind Stone 200 — outer panel chrome (darker than inner box headers)
 
     &_title {
       @apply flex items-center justify-start gap-1;

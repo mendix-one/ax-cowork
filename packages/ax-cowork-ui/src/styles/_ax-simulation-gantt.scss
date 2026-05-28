@@ -86,10 +86,10 @@
     @apply border-r border-gray-300;
 
     &_header {
-      @apply w-full h-8 px-2;
+      @apply w-full h-9 px-2; // 2.25rem ≈ 32px in this project's 14px-base — bumped from h-8 (28px)
       @apply flex-none flex items-center justify-between;
       @apply font-semibold text-neutral-900;
-      @apply bg-indigo-50 border-b border-gray-300;
+      @apply bg-stone-100 border-b border-gray-300; // Tailwind Stone 100
     }
 
     &_body {
@@ -121,10 +121,10 @@
     @apply border-t border-gray-300;
 
     &_header {
-      @apply w-full h-8 px-2;
+      @apply w-full h-9 px-2; // 2.25rem ≈ 32px in this project's 14px-base — bumped from h-8 (28px)
       @apply flex-none flex items-center justify-between;
       @apply font-semibold text-neutral-900;
-      @apply bg-indigo-50 border-b border-gray-300;
+      @apply bg-stone-100 border-b border-gray-300; // Tailwind Stone 100
     }
 
     &_body {
@@ -217,13 +217,13 @@
 .ax-gantt_chart {
   .gantt_grid_scale,
   .gantt_task_scale {
-    @apply bg-indigo-50;
+    @apply bg-stone-100; // Tailwind Stone 100 — gantt header row
     @apply border-b border-gray-300;
   }
   .gantt_grid_scale .gantt_grid_head_cell,
   .gantt_task_scale .gantt_scale_cell,
   .gantt_task_scale .gantt_scale_line {
-    @apply bg-indigo-50;
+    @apply bg-stone-100;
     @apply text-neutral-900 font-semibold;
   }
 
@@ -376,6 +376,12 @@
     &__new {
       @apply bg-ax-sched-new;
     }
+    &__exclude {
+      // axSchedule.ghost.bar — items unchecked in the Adjustment tree (not in current schedule).
+      // Surfaced in the Production Order toolbar legend; gantt/analysis legends stay at 3 swatches
+      // since their charts don't render excluded items.
+      background-color: #cfd8dc;
+    }
   }
 }
 
@@ -409,13 +415,13 @@
   &_header {
     @apply w-full px-2;
     @apply flex items-center gap-2 cursor-pointer;
-    @apply bg-indigo-50 border-none;
+    @apply bg-stone-100 border-none; // Tailwind Stone 100 — risks-strip header
     @apply text-sm font-semibold text-neutral-900;
     text-align: left;
     height: 32px; // align with AxDisplayPanel header height + panel chrome
 
     &:hover {
-      background: #e6e9f7;
+      background: #e7e5e4; // Tailwind Stone 200 — hover stays in the stone family
     }
 
     &_icon {

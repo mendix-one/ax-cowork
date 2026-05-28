@@ -1,5 +1,5 @@
 import { Tag, Tooltip } from 'antd'
-import type { ProductionOrder } from '../../data/mock-plan'
+import type { ProductionOrder, ScheduleClass } from '../../data/mock-plan'
 import type { PoStatus } from '../../data/mock-plan'
 import type { ScheduleMilestone } from '../../data/mock-plan'
 
@@ -47,6 +47,26 @@ export const StatusChip = ({ status }: { status: PoStatus | undefined }) => {
     <Tag color={STATUS_COLOR[status]} style={{ marginInlineEnd: 0, fontWeight: 600 }}>
       {STATUS_LABEL[status]}
     </Tag>
+  )
+}
+
+// Schedule-lineage state chip — colors mirror axSchedule (Indigo/Blue/Teal) so the chip in this column
+// decodes against the toolbar legend, gantt bars, analysis charts. 'exclude' is a PO-table-only state
+// for items the planner has unchecked in the adjustment sidebar — shown as a muted Blue-Grey ghost so it
+// reads as "still in the dataset, not in the current schedule".
+type ScheduleState = ScheduleClass | 'exclude'
+const STATE_STYLE: Record<ScheduleState, { label: string; bg: string; color: string }> = {
+  fixed: { label: 'Fixed', bg: '#3f51b5', color: '#ffffff' }, // axSchedule.fixed.bar
+  changes: { label: 'Changes', bg: '#1565c0', color: '#ffffff' }, // axSchedule.changes.bar
+  new: { label: 'New', bg: '#00897b', color: '#ffffff' }, // axSchedule.new.bar
+  exclude: { label: 'Exclude', bg: '#cfd8dc', color: '#37474f' }, // axSchedule.ghost.bar — neutral
+}
+
+export const StateChip = ({ state }: { state: ScheduleState | undefined }) => {
+  if (!state) return null
+  const style = STATE_STYLE[state]
+  return (
+    <Tag style={{ marginInlineEnd: 0, background: style.bg, color: style.color, border: 'none', fontWeight: 500 }}>{style.label}</Tag>
   )
 }
 

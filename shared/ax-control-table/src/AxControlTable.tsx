@@ -64,6 +64,7 @@ function pickBackground(value: number, b: NumberBucketThresholds, c: NumberBucke
 interface ColumnMeta<T> {
   kind?: ColumnKind
   render?: (value: string | number, row: T) => ReactNode
+  headerRender?: () => ReactNode
   align?: 'left' | 'center' | 'right'
   sticky?: 'left' | 'right'
 }
@@ -119,10 +120,13 @@ export function AxControlTable<T>({
         accessorFn: col.accessor,
         header: col.title,
         enableSorting: col.sortable !== false,
-        enableColumnFilter: showColumnFilter,
+        // Per-column filter enable, gated by the table-level switch. Default `true` so the global
+        // flag turns filters on for every column unless a column explicitly opts out (or the tune
+        // popover does it dynamically).
+        enableColumnFilter: showColumnFilter && col.filterable !== false,
         filterFn: startsWithAnyFilter as FilterFn<T>,
         size: col.width ?? defaultColumnWidth,
-        meta: { kind: col.kind ?? 'string', render: col.render, align: col.align, sticky: col.sticky } satisfies ColumnMeta<T>,
+        meta: { kind: col.kind ?? 'string', render: col.render, headerRender: col.headerRender, align: col.align, sticky: col.sticky } satisfies ColumnMeta<T>,
       })),
     [columns, defaultColumnWidth, showColumnFilter],
   )
@@ -228,9 +232,10 @@ export function AxControlTable<T>({
   )
 
   // ---- tree column helpers ----------------------------------------------------------------------------------------
-  // The "tree-bearing" column is the first leaf column overall (sticky or flow). Cells in that column
-  // get an indent + chevron prefix when `tree` is configured.
-  const treeColumnId = tree ? (leafColumns[0]?.id ?? null) : null
+  // The "tree-bearing" column defaults to the first leaf column (sticky or flow). Callers can override
+  // via `tree.columnId` — useful when col 1 is a selection-icon or row-chrome column that shouldn't
+  // carry the chevron + indent. If the override doesn't match any leaf column, we fall back to the default.
+  const treeColumnId = tree ? (tree.columnId && leafColumns.some((c) => c.id === tree.columnId) ? tree.columnId : (leafColumns[0]?.id ?? null)) : null
   const treeIndent = tree?.indent ?? DEFAULT_TREE_INDENT
 
   // Pre-compute sticky-left column left-offsets (cumulative from chromeLeftW).
@@ -475,6 +480,17 @@ interface HeaderCellProps<T> {
 }
 
 function HeaderCell<T>({ col, table, showColumnFilter, padX, style }: HeaderCellProps<T>) {
+  const meta = col.columnDef.meta as ColumnMeta<T> | undefined
+  // headerRender takes over the cell — the consumer owns whatever's inside (icon button, custom
+  // chrome, etc.). We still keep the cell's outer click handler off so the custom content can be
+  // interactive without flipping the sort.
+  if (meta?.headerRender) {
+    return (
+      <div style={{ ...HEADER_CELL_STYLE, padding: `0 ${padX}px`, cursor: 'default', justifyContent: 'center', ...style }}>
+        {meta.headerRender()}
+      </div>
+    )
+  }
   const sortDir = col.getIsSorted()
   return (
     <div
@@ -499,7 +515,12 @@ function HeaderCell<T>({ col, table, showColumnFilter, padX, style }: HeaderCell
 }
 
 const HEADER_CELL_STYLE: CSSProperties = {
-  display: 'flex',
+  // inline-flex (not flex) + vertical-align:top so adjacent sticky cells flow side-by-side instead
+  // of stacking. Block-level display would force a line break between consecutive sticky headers
+  // (e.g. selection-icon + label), pushing the second header down by one header-height. For
+  // absolutely positioned (flow) headers, inline-flex behaves identically to flex.
+  display: 'inline-flex',
+  verticalAlign: 'top',
   alignItems: 'center',
   justifyContent: 'space-between',
   fontWeight: 500,
@@ -823,7 +844,11 @@ function BodyCell<T>({
         ...(isSticky ? { top: 0 } : null),
         width,
         height,
-        display: 'flex',
+        // inline-flex + vertical-align:top so adjacent sticky-left cells flow side-by-side. With
+        // block `display: flex` a second sticky cell would wrap to a new line one rowHeight below.
+        // Absolute (flow) cells are unaffected by the change.
+        display: 'inline-flex',
+        verticalAlign: 'top',
         alignItems: 'center',
         justifyContent: justify,
         padding: `0 ${padX}px`,

@@ -1,0 +1,460 @@
+- generic [ref=e4]:
+    - banner [ref=e5]:
+        - generic [ref=e6]:
+            - generic [ref=e7]:
+                - img "avatar" [ref=e12]
+                - generic [ref=e13]:
+                    - button [ref=e15] [cursor=pointer]:
+                        - img [ref=e16]
+                    - button [ref=e19] [cursor=pointer]:
+                        - img [ref=e20]
+                - generic [ref=e22]:
+                    - button "M-SOC" [ref=e24] [cursor=pointer]:
+                        - img [ref=e25]
+                        - generic [ref=e27]: M-SOC
+                        - img [ref=e28]
+                    - button "Plan A (Simulation)" [ref=e31] [cursor=pointer]:
+                        - img [ref=e32]
+                        - generic [ref=e34]: Plan A (Simulation)
+                        - img [ref=e35]
+                    - generic [ref=e38]: DRAFT
+            - generic [ref=e39]:
+                - button [ref=e42] [cursor=pointer]:
+                    - img [ref=e43]
+                - separator [ref=e45]
+                - generic [ref=e46]:
+                    - button [ref=e48] [cursor=pointer]:
+                        - img [ref=e49]
+                    - button [ref=e52] [cursor=pointer]:
+                        - img [ref=e53]
+                    - button [ref=e56] [cursor=pointer]:
+                        - img [ref=e57]
+    - generic [ref=e59]:
+        - complementary [ref=e60]:
+            - generic [ref=e63]:
+                - generic [ref=e65]:
+                    - button [ref=e66] [cursor=pointer]:
+                        - img [ref=e67]
+                    - button [ref=e69] [cursor=pointer]:
+                        - img [ref=e70]
+                    - button [ref=e72] [cursor=pointer]:
+                        - img [ref=e73]
+                    - button [ref=e75] [cursor=pointer]:
+                        - img [ref=e76]
+                    - button [ref=e78] [cursor=pointer]:
+                        - img [ref=e79]
+                - generic [ref=e83]:
+                    - button [ref=e84] [cursor=pointer]:
+                        - img [ref=e85]
+                    - button [ref=e87] [cursor=pointer]:
+                        - img [ref=e88]
+                - button [ref=e93] [cursor=pointer]:
+                    - img [ref=e94]
+        - main [ref=e96]:
+            - generic [ref=e98]:
+                - generic [ref=e101]:
+                    - generic [ref=e102]:
+                        - generic [ref=e103]:
+                            - img [ref=e104]
+                            - paragraph [ref=e106]: Production Orders
+                        - generic [ref=e108]:
+                            - generic [ref=e109]:
+                                - generic [ref=e111]:
+                                    - textbox "Start date" [ref=e113]: 2026-04-29
+                                    - generic "to" [ref=e115]:
+                                        - img "swap-right" [ref=e116]:
+                                            - img [ref=e117]
+                                    - textbox "End date" [ref=e120]: 2026-05-12
+                                    - generic:
+                                        - img "calendar":
+                                            - img
+                                - separator [ref=e122]
+                                - generic [ref=e124] [cursor=pointer]:
+                                    - generic "All" [ref=e125]:
+                                        - text: All
+                                        - combobox [ref=e126]
+                                    - img "down" [ref=e128]:
+                                        - img [ref=e129]
+                                - separator [ref=e132]
+                                - radiogroup "segmented control" [ref=e134]:
+                                    - generic [ref=e135]:
+                                        - generic [ref=e136] [cursor=pointer]:
+                                            - radio "By PO" [checked]
+                                            - generic "By PO" [ref=e137]
+                                        - generic [ref=e138] [cursor=pointer]:
+                                            - radio "By Customer"
+                                            - generic "By Customer" [ref=e139]
+                                - separator [ref=e141]
+                                - generic [ref=e143]:
+                                    - button [ref=e145] [cursor=pointer]:
+                                        - img [ref=e147]
+                                    - button [ref=e150] [cursor=pointer]:
+                                        - img [ref=e152]
+                                - separator [ref=e155]
+                                - generic [ref=e157]:
+                                    - button [ref=e159] [cursor=pointer]:
+                                        - img [ref=e161]
+                                    - button [ref=e164] [cursor=pointer]:
+                                        - img [ref=e166]
+                            - generic [ref=e168]:
+                                - button [disabled] [ref=e170]:
+                                    - generic:
+                                        - img
+                                - button [disabled] [ref=e172]:
+                                    - generic:
+                                        - img
+                                - button [ref=e174] [cursor=pointer]:
+                                    - img [ref=e176]
+                                - generic [ref=e179]:
+                                    - button "Save" [active] [ref=e180] [cursor=pointer]:
+                                        - img [ref=e181]
+                                        - generic [ref=e183]: Save
+                                    - button "More save options" [ref=e184] [cursor=pointer]:
+                                        - img [ref=e186]
+                        - button "Restore" [ref=e189] [cursor=pointer]:
+                            - img [ref=e190]
+                    - generic [ref=e195]:
+                        - generic [ref=e196]:
+                            - generic [ref=e197]:
+                                - generic [ref=e198]:
+                                    - img [ref=e199]
+                                    - generic [ref=e201]: Visible orders
+                                - generic [ref=e202]:
+                                    - generic [ref=e204]:
+                                        - generic [ref=e205]: '4'
+                                        - generic [ref=e207]: POs · 12 batches
+                                    - generic [ref=e208]: Running 2 · At-risk 2
+                            - generic [ref=e209]:
+                                - generic [ref=e210]:
+                                    - img [ref=e211]
+                                    - generic [ref=e213]: Committed wafers
+                                - generic [ref=e214]:
+                                    - generic [ref=e216]:
+                                        - generic [ref=e217]: 40,000
+                                        - generic [ref=e218]: wafers
+                                    - generic [ref=e219]: Across 4 production orders
+                            - generic [ref=e220]:
+                                - generic [ref=e221]:
+                                    - img [ref=e222]
+                                    - generic [ref=e224]: Out
+                                - generic [ref=e227]:
+                                    - generic [ref=e228]: 15,600
+                                    - generic [ref=e230]: wafers · 39%
+                            - generic [ref=e233]:
+                                - generic [ref=e234]:
+                                    - img [ref=e235]
+                                    - generic [ref=e237]: Remaining
+                                - generic [ref=e238]:
+                                    - generic [ref=e240]:
+                                        - generic [ref=e241]: 24,400
+                                        - generic [ref=e243]: wafers · 61%
+                                    - generic [ref=e244]: 2 at-risk PO · review priorities
+                        - generic [ref=e248]:
+                            - generic [ref=e249]:
+                                - generic [ref=e251] [cursor=pointer]: Production Order / Family / Batch
+                                - generic [ref=e252] [cursor=pointer]:
+                                    - generic [ref=e253]: Customer
+                                    - img "swap" [ref=e255]:
+                                        - img [ref=e256]
+                                - generic [ref=e258] [cursor=pointer]:
+                                    - generic [ref=e259]: Priority
+                                    - img "swap" [ref=e261]:
+                                        - img [ref=e262]
+                                - generic [ref=e264] [cursor=pointer]:
+                                    - generic [ref=e265]: Commitment
+                                    - img "swap" [ref=e267]:
+                                        - img [ref=e268]
+                                - generic [ref=e270] [cursor=pointer]:
+                                    - generic [ref=e271]: Status
+                                    - img "swap" [ref=e273]:
+                                        - img [ref=e274]
+                                - generic [ref=e277] [cursor=pointer]: Progress
+                                - generic [ref=e278] [cursor=pointer]:
+                                    - generic [ref=e279]: Start Date
+                                    - img "swap" [ref=e281]:
+                                        - img [ref=e282]
+                                - generic [ref=e284] [cursor=pointer]:
+                                    - generic [ref=e285]: End Date
+                                    - img "swap" [ref=e287]:
+                                        - img [ref=e288]
+                                - generic [ref=e291] [cursor=pointer]: Milestones
+                            - generic [ref=e292] [cursor=pointer]:
+                                - generic [ref=e293]:
+                                    - button "caret-down" [ref=e295]:
+                                        - img "caret-down" [ref=e296]:
+                                            - img [ref=e297]
+                                    - generic [ref=e300]:
+                                        - text: PO-2025-118
+                                        - generic [ref=e301]: ★ HOT
+                                - generic [ref=e304]: Cust A
+                                - generic [ref=e307]: P1
+                                - generic [ref=e309]: 12,000
+                                - generic [ref=e312]: RUNNING
+                                - progressbar [ref=e315]:
+                                    - generic "65%" [ref=e319]
+                                - generic [ref=e321]: 2026-04-29
+                                - generic [ref=e323]: 2026-05-12
+                                - generic [ref=e327]: ◆ M1
+                            - generic [ref=e328] [cursor=pointer]:
+                                - generic [ref=e329]:
+                                    - button "caret-down" [ref=e331]:
+                                        - img "caret-down" [ref=e332]:
+                                            - img [ref=e333]
+                                    - generic [ref=e336]: V9-QLC-A
+                                - generic [ref=e340]: P1
+                                - generic [ref=e342]: '775'
+                                - progressbar [ref=e346]:
+                                    - generic "65%" [ref=e350]
+                                - generic [ref=e352]: 2026-04-29
+                                - generic [ref=e354]: 2026-05-12
+                                - generic [ref=e358]: ◆ M1
+                            - generic [ref=e359] [cursor=pointer]:
+                                - generic [ref=e364]: B-1
+                                - generic [ref=e368]: '200'
+                                - generic [ref=e372]: —
+                                - generic [ref=e374]: 2026-04-29
+                                - generic [ref=e376]: 2026-05-03
+                            - generic [ref=e378] [cursor=pointer]:
+                                - generic [ref=e383]: B-2
+                                - generic [ref=e387]: '200'
+                                - generic [ref=e391]: —
+                                - generic [ref=e393]: 2026-05-02
+                                - generic [ref=e395]: 2026-05-07
+                            - generic [ref=e397] [cursor=pointer]:
+                                - generic [ref=e402]: B-3
+                                - generic [ref=e406]: '200'
+                                - generic [ref=e410]: —
+                                - generic [ref=e412]: 2026-05-05
+                                - generic [ref=e414]: 2026-05-10
+                            - generic [ref=e416] [cursor=pointer]:
+                                - generic [ref=e421]: B-4
+                                - generic [ref=e425]: '175'
+                                - generic [ref=e429]: —
+                                - generic [ref=e431]: 2026-05-07
+                                - generic [ref=e433]: 2026-05-12
+                            - generic [ref=e435] [cursor=pointer]:
+                                - generic [ref=e436]:
+                                    - button "caret-down" [ref=e438]:
+                                        - img "caret-down" [ref=e439]:
+                                            - img [ref=e440]
+                                    - generic [ref=e443]: PO-2025-119
+                                - generic [ref=e446]: Cust B
+                                - generic [ref=e449]: P2
+                                - generic [ref=e451]: 8,000
+                                - generic [ref=e454]: RUNNING
+                                - progressbar [ref=e457]:
+                                    - generic "45%" [ref=e461]
+                                - generic [ref=e463]: 2026-05-02
+                                - generic [ref=e465]: 2026-05-12
+                                - generic [ref=e469]: ◆ M1
+                            - generic [ref=e470] [cursor=pointer]:
+                                - generic [ref=e471]:
+                                    - button "caret-down" [ref=e473]:
+                                        - img "caret-down" [ref=e474]:
+                                            - img [ref=e475]
+                                    - generic [ref=e478]: V9-TLC-B
+                                - generic [ref=e482]: P2
+                                - generic [ref=e484]: '500'
+                                - progressbar [ref=e488]:
+                                    - generic "45%" [ref=e492]
+                                - generic [ref=e494]: 2026-05-02
+                                - generic [ref=e496]: 2026-05-12
+                                - generic [ref=e500]: ◆ M1
+                            - generic [ref=e501] [cursor=pointer]:
+                                - generic [ref=e506]: B-1
+                                - generic [ref=e510]: '175'
+                                - generic [ref=e514]: —
+                                - generic [ref=e516]: 2026-05-02
+                                - generic [ref=e518]: 2026-05-06
+                            - generic [ref=e520] [cursor=pointer]:
+                                - generic [ref=e525]: B-2
+                                - generic [ref=e529]: '175'
+                                - generic [ref=e533]: —
+                                - generic [ref=e535]: 2026-05-04
+                                - generic [ref=e537]: 2026-05-09
+                            - generic [ref=e539] [cursor=pointer]:
+                                - generic [ref=e544]: B-3
+                                - generic [ref=e548]: '150'
+                                - generic [ref=e552]: —
+                                - generic [ref=e554]: 2026-05-07
+                                - generic [ref=e556]: 2026-05-12
+                            - generic [ref=e558] [cursor=pointer]:
+                                - generic [ref=e559]:
+                                    - button "caret-down" [ref=e561]:
+                                        - img "caret-down" [ref=e562]:
+                                            - img [ref=e563]
+                                    - generic [ref=e566]: PO-2025-120
+                                - generic [ref=e569]: Cust C
+                                - generic [ref=e572]: P3
+                                - generic [ref=e574]: 15,000
+                                - generic [ref=e577]: ON HOLD
+                                - progressbar [ref=e580]:
+                                    - generic "28%" [ref=e584]
+                                - generic [ref=e586]: 2026-05-04
+                                - generic [ref=e588]: 2026-05-12
+                                - generic [ref=e592]: ◆ M1
+                            - generic [ref=e593] [cursor=pointer]:
+                                - generic [ref=e594]:
+                                    - button "caret-down" [ref=e596]:
+                                        - img "caret-down" [ref=e597]:
+                                            - img [ref=e598]
+                                    - generic [ref=e601]: V9-QLC-A
+                                - generic [ref=e605]: P3
+                                - generic [ref=e607]: '700'
+                                - progressbar [ref=e611]:
+                                    - generic "28%" [ref=e615]
+                                - generic [ref=e617]: 2026-05-04
+                                - generic [ref=e619]: 2026-05-12
+                                - generic [ref=e623]: ◆ M1
+                            - generic [ref=e624] [cursor=pointer]:
+                                - generic [ref=e629]: B-1
+                                - generic [ref=e633]: '250'
+                                - generic [ref=e637]: —
+                                - generic [ref=e639]: 2026-05-04
+                                - generic [ref=e641]: 2026-05-08
+                            - generic [ref=e643] [cursor=pointer]:
+                                - generic [ref=e648]: B-2
+                                - generic [ref=e652]: '250'
+                                - generic [ref=e656]: —
+                                - generic [ref=e658]: 2026-05-06
+                                - generic [ref=e660]: 2026-05-11
+                            - generic [ref=e662] [cursor=pointer]:
+                                - generic [ref=e667]: B-3
+                                - generic [ref=e671]: '200'
+                                - generic [ref=e675]: —
+                                - generic [ref=e677]: 2026-05-08
+                                - generic [ref=e679]: 2026-05-12
+                            - generic [ref=e681] [cursor=pointer]:
+                                - generic [ref=e682]:
+                                    - button "caret-down" [ref=e684]:
+                                        - img "caret-down" [ref=e685]:
+                                            - img [ref=e686]
+                                    - generic [ref=e689]: PO-2025-121
+                                - generic [ref=e692]: Cust D
+                                - generic [ref=e695]: P3
+                                - generic [ref=e697]: 5,000
+                                - generic [ref=e700]: READY
+                                - progressbar [ref=e703]:
+                                    - generic "0%" [ref=e706]
+                                - generic [ref=e708]: 2026-05-06
+                                - generic [ref=e710]: 2026-05-12
+                                - generic [ref=e714]: ◆ M1
+                            - generic [ref=e715] [cursor=pointer]:
+                                - generic [ref=e716]:
+                                    - button "caret-down" [ref=e718]:
+                                        - img "caret-down" [ref=e719]:
+                                            - img [ref=e720]
+                                    - generic [ref=e723]: V9-TLC-C
+                                - generic [ref=e727]: P3
+                                - generic [ref=e729]: '250'
+                                - progressbar [ref=e733]:
+                                    - generic "0%" [ref=e736]
+                                - generic [ref=e738]: 2026-05-06
+                                - generic [ref=e740]: 2026-05-12
+                                - generic [ref=e744]: ◆ M1
+                            - generic [ref=e745] [cursor=pointer]:
+                                - generic [ref=e750]: B-1
+                                - generic [ref=e754]: '125'
+                                - generic [ref=e758]: —
+                                - generic [ref=e760]: 2026-05-06
+                                - generic [ref=e762]: 2026-05-09
+                            - generic [ref=e764] [cursor=pointer]:
+                                - generic [ref=e769]: B-2
+                                - generic [ref=e773]: '125'
+                                - generic [ref=e777]: —
+                                - generic [ref=e779]: 2026-05-08
+                                - generic [ref=e781]: 2026-05-12
+                - separator
+                - generic [ref=e783]:
+                    - generic [ref=e784]:
+                        - img [ref=e785]
+                        - paragraph [ref=e787]: Recommendations
+                    - button [ref=e789] [cursor=pointer]:
+                        - img [ref=e790]
+                - generic [ref=e792]:
+                    - generic [ref=e793]: New (5)
+                    - generic [ref=e795]:
+                        - generic [ref=e796]:
+                            - generic [ref=e798]: HIGH
+                            - generic [ref=e799]: ★★★★
+                            - strong [ref=e802]: Hot-lot HL-22
+                        - text: Cust A requested. Insert before 06-01.
+                        - generic [ref=e803]: 'Impact: +1 lot ripple · 4 commits ok'
+                        - generic [ref=e804]:
+                            - button [ref=e806] [cursor=pointer]:
+                                - generic [ref=e807]: Preview
+                            - button [ref=e809] [cursor=pointer]:
+                                - generic [ref=e810]: Skip
+                    - generic [ref=e812]:
+                        - generic [ref=e813]:
+                            - generic [ref=e815]: HIGH
+                            - generic [ref=e816]: ★★★★
+                            - strong [ref=e819]: Probe over-cap
+                        - text: 'Days 01-03 Probe E-Test 89% (warn). Suggestion: shift Cust C 5 lots −1d.'
+                        - generic [ref=e820]: 'Impact: −1 commit at risk'
+                        - generic [ref=e821]:
+                            - button [ref=e823] [cursor=pointer]:
+                                - generic [ref=e824]: Preview
+                            - button [ref=e826] [cursor=pointer]:
+                                - generic [ref=e827]: Skip
+                    - generic [ref=e829]:
+                        - generic [ref=e830]:
+                            - generic [ref=e832]: MED
+                            - generic [ref=e833]: ★★★
+                            - strong [ref=e836]: Tune SG-014 HARC R-QLC-CH
+                        - text: −8.2% time · +12h on Cust B M1 commit
+                        - generic [ref=e837]: 'Impact: +520 wafer-passes/wk'
+                        - generic [ref=e838]:
+                            - button [ref=e840] [cursor=pointer]:
+                                - generic [ref=e841]: Open
+                            - button [ref=e843] [cursor=pointer]:
+                                - generic [ref=e844]: Skip
+                    - generic [ref=e846]:
+                        - generic [ref=e847]:
+                            - generic [ref=e849]: LOW
+                            - generic [ref=e850]: ★★
+                            - strong [ref=e853]: Qual expiry — ETC-44 ch C
+                        - text: R-QLC-CH expires 06-12. Schedule re-qual?
+                        - generic [ref=e854]: 'Impact: Risk of unqualified route'
+                        - generic [ref=e855]:
+                            - button [ref=e857] [cursor=pointer]:
+                                - generic [ref=e858]: Open
+                            - button [ref=e860] [cursor=pointer]:
+                                - generic [ref=e861]: Skip
+                    - generic [ref=e863]:
+                        - generic [ref=e864]:
+                            - generic [ref=e866]: LOW
+                            - generic [ref=e867]: ★
+                            - strong [ref=e870]: Idle capacity — WL Tungsten
+                        - text: Days 1-5. Pull-fwd candidates?
+                        - generic [ref=e871]: 'Impact: + headroom'
+                        - generic [ref=e872]:
+                            - button [ref=e874] [cursor=pointer]:
+                                - generic [ref=e875]: Preview
+                            - button [ref=e877] [cursor=pointer]:
+                                - generic [ref=e878]: Skip
+                    - button [ref=e879] [cursor=pointer]:
+                        - img [ref=e881]:
+                            - img [ref=e882]
+                        - generic [ref=e884]: Skipped (12)
+        - complementary [ref=e885]:
+            - generic [ref=e887]:
+                - generic [ref=e889]:
+                    - button [ref=e891] [cursor=pointer]:
+                        - img [ref=e892]
+                    - button [ref=e895] [cursor=pointer]:
+                        - img [ref=e896]
+                    - button [ref=e899] [cursor=pointer]:
+                        - img [ref=e900]
+                    - button [ref=e903] [cursor=pointer]:
+                        - img [ref=e904]
+                    - button [ref=e907] [cursor=pointer]:
+                        - img [ref=e908]
+                - generic [ref=e911]:
+                    - button [ref=e913] [cursor=pointer]:
+                        - img [ref=e914]
+                    - button [ref=e917] [cursor=pointer]:
+                        - img [ref=e918]
+                    - button [ref=e921] [cursor=pointer]:
+                        - img [ref=e922]
+    - contentinfo [ref=e924]

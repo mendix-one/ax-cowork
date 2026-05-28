@@ -2,10 +2,13 @@ import { Button, DatePicker, Divider, Flex, Space, Tooltip } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
+import { SimulationScheduleActions } from '../../components/SimulationScheduleActions'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
-// Mirrors the gantt toolbar: a date-range picker on the left and the adjustment toggle on the right of the
-// left group. Save/undo/redo are intentionally omitted — analysis is read-only.
+// Mirrors the gantt toolbar: date-range picker, adjustment toggle, schedule-lineage legend on the left;
+// unsaved chip + undo/redo/reset + save split-button on the right. Edit/save state lives on the gantt
+// store — the right-side actions are sourced from SimulationScheduleActions so both panel toolbars stay
+// in sync automatically when the save flow evolves.
 export const SimulationAnalysisToolbar = observer(() => {
   const analysis = useSimulationContext().analysis
   return (
@@ -29,7 +32,25 @@ export const SimulationAnalysisToolbar = observer(() => {
             onClick={() => analysis.toggleFilterSidebar()}
           />
         </Tooltip>
+        <Divider vertical style={{ margin: 0 }} />
+        {/* Schedule-lineage legend — same swatches as the gantt toolbar so the planner can decode chart
+            colors without switching panels. */}
+        <span className="ax-gantt_legend" aria-label="Schedule lineage legend">
+          <span className="ax-gantt_legend_item">
+            <span className="ax-gantt_legend_swatch ax-gantt_legend_swatch__fixed" />
+            Fixed
+          </span>
+          <span className="ax-gantt_legend_item">
+            <span className="ax-gantt_legend_swatch ax-gantt_legend_swatch__changes" />
+            Changes
+          </span>
+          <span className="ax-gantt_legend_item">
+            <span className="ax-gantt_legend_swatch ax-gantt_legend_swatch__new" />
+            New
+          </span>
+        </span>
       </Space>
+      <SimulationScheduleActions target="gantt" />
     </Flex>
   )
 })

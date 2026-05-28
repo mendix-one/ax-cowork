@@ -3,9 +3,29 @@ import { Empty, Progress, Tooltip } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { AxControlTable, type ControlTableColumn } from '@ax-cowork/control-table'
 import { useSimulationContext } from '../../store/simulation.context'
-import type { ProductionOrder, ScheduleMilestone } from '../../data/mock-plan'
+import type { ProductionOrder, ScheduleClass, ScheduleMilestone } from '../../data/mock-plan'
 import type { FlatRow } from './production-order.store'
-import { MilestoneChips, PriorityChip, StatusChip } from './production-order-chips'
+
+// The gantt store's adjustment tree keys use po::/pf::/mb:: prefixes (one per node type), while the
+// PO table rows use po::/family::/batch:: keys. Convert a PO-table row into its gantt tree key so we
+// can ask `gantt.checkedKeys` whether the row is currently included in the schedule.
+const ganttKeyForRow = (row: FlatRow): string | null => {
+  if (row.kind === 'po') return `po::${row.poId}`
+  if (row.kind === 'family' && row.familyId) return `pf::${row.poId}::${row.familyId}`
+  if (row.kind === 'batch' && row.familyId && row.batchId) return `mb::${row.poId}::${row.familyId}::${row.batchId}`
+  return null
+}
+
+// Effective state: 'exclude' when this row's gantt tree key isn't in checkedKeys; otherwise the row's
+// own scheduleClass. Customer-pivot rows have no own state.
+const stateForRow = (row: FlatRow, checkedSet: Set<string>): ScheduleClass | 'exclude' | undefined => {
+  if (row.kind === 'customer') return undefined
+  const k = ganttKeyForRow(row)
+  if (k && !checkedSet.has(k)) return 'exclude'
+  return row.scheduleClass
+}
+import { MilestoneChips, StateChip, StatusChip } from './production-order-chips'
+import { SimulationProductionOrderTuneButton } from './SimulationProductionOrderTuneButton'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // The notes-store key matches the row's existing key for po/family/batch rows. Customer rows don't carry
@@ -25,19 +45,144 @@ const milestonesFor = (orders: ProductionOrder[], row: FlatRow): ScheduleMilesto
   return po.milestones.filter((m) => m.familyId === row.familyId)
 }
 
+// Tech / Spec for the row: spec at PO level (e.g. "SP-QLC-V9 v3.4"), tech at family/batch level
+// (e.g. "T-V9-232L"). Customer-pivot rows have no recipe identity, so they're blank.
+const techSpec = (orders: ProductionOrder[], row: FlatRow): string => {
+  const order = orders.find((o) => o.id === row.poId)
+  if (!order) return ''
+  if (row.kind === 'po') return order.spec
+  if ((row.kind === 'family' || row.kind === 'batch') && row.familyId) {
+    return order.schedule.find((f) => f.id === row.familyId)?.tech ?? ''
+  }
+  return ''
+}
+
+// Mock wafer-state split. Backend will eventually return started/processing/completed per node;
+// for now we synthesize plausible values from outWafers + scheduleClass so the columns are populated.
+type WaferStates = { started: number; processing: number; completed: number }
+const ZERO: WaferStates = { started: 0, processing: 0, completed: 0 }
+const waferStates = (orders: ProductionOrder[], row: FlatRow): WaferStates => {
+  const order = orders.find((o) => o.id === row.poId)
+  if (!order) return ZERO
+
+  // PO: completed = outWafers. processing = small chunk of remaining when running.
+  if (row.kind === 'po') {
+    const completed = order.outWafers
+    const remaining = Math.max(0, order.qty - completed)
+    const processing = order.poStatus === 'RUNNING' ? Math.min(remaining, Math.round(order.qty * 0.05)) : 0
+    return { started: completed + processing, processing, completed }
+  }
+
+  // Family: proportional split of the PO numbers by family commitment.
+  if (row.kind === 'family' && row.familyId) {
+    const family = order.schedule.find((f) => f.id === row.familyId)
+    if (!family || order.qty === 0) return ZERO
+    const familyCommitment = family.batches.reduce((s, b) => s + b.waferCount, 0)
+    const ratio = familyCommitment / order.qty
+    const poCompleted = order.outWafers
+    const poRemaining = Math.max(0, order.qty - poCompleted)
+    const poProcessing = order.poStatus === 'RUNNING' ? Math.min(poRemaining, Math.round(order.qty * 0.05)) : 0
+    const completed = Math.round(poCompleted * ratio)
+    const processing = Math.round(poProcessing * ratio)
+    return { started: completed + processing, processing, completed }
+  }
+
+  // Batch: scheduleClass decides — fixed (already locked) = half done / half in flight; changes
+  // (edited from baseline) = started but nothing complete; new (just added) = not started.
+  if (row.kind === 'batch' && row.familyId && row.batchId) {
+    const family = order.schedule.find((f) => f.id === row.familyId)
+    const batch = family?.batches.find((b) => b.id === row.batchId)
+    if (!batch) return ZERO
+    if (batch.scheduleClass === 'fixed') {
+      const half = Math.round(batch.waferCount * 0.5)
+      return { started: batch.waferCount, processing: half, completed: batch.waferCount - half }
+    }
+    if (batch.scheduleClass === 'changes') {
+      const half = Math.round(batch.waferCount * 0.5)
+      return { started: half, processing: half, completed: 0 }
+    }
+    return ZERO
+  }
+
+  return ZERO
+}
+
+// Planner-facing free-text remark for the row. Currently driven by hotLot / poStatus heuristics
+// + per-batch note. Once the BE supports per-row remarks this will read from the store directly.
+const remarkFor = (orders: ProductionOrder[], row: FlatRow): string => {
+  if (row.kind === 'po') {
+    const order = orders.find((o) => o.id === row.poId)
+    if (!order) return ''
+    if (order.hotLot) return 'Hot lot — escalated by customer'
+    if (order.poStatus === 'at-risk') return 'At risk — review priorities'
+    if (order.poStatus === 'slipped') return 'Slipped — recovery plan needed'
+    if (order.poStatus === 'ON HOLD') return 'On hold — awaiting customer confirmation'
+    // Mock per-PO operational notes so the column is populated for the concept.
+    if (order.id.endsWith('118')) return 'Tool group HARC Etch high load for this PO'
+    if (order.id.endsWith('119')) return 'Watch CMP utilisation in week 2'
+    return ''
+  }
+  if (row.kind === 'batch' && row.familyId && row.batchId) {
+    const order = orders.find((o) => o.id === row.poId)
+    const family = order?.schedule.find((f) => f.id === row.familyId)
+    return family?.batches.find((b) => b.id === row.batchId)?.note ?? ''
+  }
+  return ''
+}
+
+// Stable PO-band parity so rows of the same PO share a background, alternating PO group-by group.
+// Customer rows in customer-pivot mode pick up their first child's PO parity for a clean visual.
+const buildPoBandIndex = (orders: ProductionOrder[]): Map<string, number> => {
+  const map = new Map<string, number>()
+  orders.forEach((o, i) => map.set(o.id, i))
+  return map
+}
+
 export const SimulationProductionOrderTable = observer(() => {
   const sim = useSimulationContext()
   const po = sim.productionOrder
   const notes = sim.notes
+  const selectedKey = po.selectedRowKey
+  // Set of gantt-tree keys currently INCLUDED in the schedule — anything missing is "Exclude".
+  // Read from sim.gantt so excluding from any view (PO / Gantt / Analysis) drives the same chip.
+  const checkedSet = useMemo(() => new Set(sim.gantt.checkedKeys), [sim.gantt.checkedKeys])
 
   const data = po.flatRows
+  const poBandIndex = useMemo(() => buildPoBandIndex(po.orders), [po.orders])
 
-  const columns = useMemo<ControlTableColumn<FlatRow>[]>(
+  // Base column definitions, keyed by `key`. The active columns array is derived from po.tableTune
+  // (order + visibility + sticky/sortable/filterable overrides) below — so the tune popover can flex
+  // any subset without us re-declaring renderers.
+  const baseColumns = useMemo<ControlTableColumn<FlatRow>[]>(
     () => [
+      // 1 — Selection indicator. Clicking anywhere on the row toggles selection via po.selectRow;
+      // this column is the visual handle. We use mdiDragVertical (a 6-dot vertical glyph) so the
+      // affordance reads as "row handle" — light grey at rest, Deep Purple when the row is selected.
+      // The HEADER uses headerRender to host the mdiTune button — the table-tune entry point.
+      // Tree decoration (chevron + indent) lives on the next column, NOT here — set via tree.columnId.
+      {
+        key: '_select',
+        title: '',
+        width: 32,
+        sortable: false,
+        sticky: 'left',
+        align: 'center',
+        accessor: () => '',
+        headerRender: () => <SimulationProductionOrderTuneButton />,
+        render: (_v, row) => {
+          const isSelected = selectedKey === row.key
+          return (
+            <span className="ax-po_select" title={isSelected ? 'Click row to deselect' : 'Click row to view info'}>
+              <AxMuiIcon icon="mdiDragVertical" size={16} color={isSelected ? '#673AB7' : '#bfbfbf'} />
+            </span>
+          )
+        },
+      },
+      // 2 — Production Order / Family / Batch (sticky-left tree column).
       {
         key: 'label',
         title: 'Production Order / Family / Batch',
-        width: 320,
+        width: 300,
         sortable: false,
         sticky: 'left',
         accessor: (r) => r.label,
@@ -61,6 +206,20 @@ export const SimulationProductionOrderTable = observer(() => {
           )
         },
       },
+      // 3 — State (Fixed / Changes / New / Exclude). Sticky-left so it stays beside the label during
+      // horizontal scroll. Driven by the gantt store's adjustment checkedKeys — un-checking a node
+      // anywhere flips this chip to "Exclude" everywhere.
+      {
+        key: 'state',
+        title: 'State',
+        width: 92,
+        sortable: false,
+        sticky: 'left',
+        align: 'center',
+        accessor: (r) => stateForRow(r, checkedSet) ?? '',
+        render: (_v, row) => <StateChip state={stateForRow(row, checkedSet)} />,
+      },
+      // 4 — Customer (only shown on PO rows; family/batch inherit visually via tree indent).
       {
         key: 'customer',
         title: 'Customer',
@@ -77,21 +236,38 @@ export const SimulationProductionOrderTable = observer(() => {
           )
         },
       },
+      // 4 — Tech / Spec.
       {
-        key: 'priority',
-        title: 'Priority',
-        width: 90,
-        accessor: (r) => r.priority ?? '',
-        render: (_v, row) => <PriorityChip priority={row.priority} />,
+        key: 'techSpec',
+        title: 'Tech / Spec',
+        width: 140,
+        accessor: (r) => techSpec(po.orders, r),
       },
+      // 5 — Commitment.
       {
         key: 'commitment',
         title: 'Commitment',
         kind: 'number',
-        width: 120,
+        width: 110,
         accessor: (r) => r.commitment,
         render: (v) => (typeof v === 'number' ? v.toLocaleString() : String(v)),
       },
+      // 6/7 — Dates.
+      { key: 'startDate', title: 'Start Date', width: 110, accessor: (r) => r.startDate },
+      { key: 'endDate', title: 'End Date', width: 110, accessor: (r) => r.endDate },
+      // 8 — Milestones.
+      {
+        key: 'milestones',
+        title: 'Milestones',
+        width: 200,
+        sortable: false,
+        accessor: () => '',
+        render: (_v, row) => {
+          const milestones = milestonesFor(po.orders, row)
+          return <MilestoneChips milestones={milestones} poId={row.poId} />
+        },
+      },
+      // 9 — Status (PO-level chip).
       {
         key: 'status',
         title: 'Status',
@@ -99,10 +275,11 @@ export const SimulationProductionOrderTable = observer(() => {
         accessor: (r) => r.status ?? '',
         render: (_v, row) => (row.kind === 'po' ? <StatusChip status={row.status} /> : null),
       },
+      // 10 — Progress (PO/Family only; batches show em-dash).
       {
         key: 'progress',
         title: 'Progress',
-        width: 140,
+        width: 130,
         sortable: false,
         accessor: (r) => (r.commitment ? Math.round(((r.outWafers ?? 0) / r.commitment) * 100) : 0),
         render: (_v, row) => {
@@ -111,35 +288,85 @@ export const SimulationProductionOrderTable = observer(() => {
           return <Progress percent={pct} size="small" style={{ marginInlineEnd: 0 }} />
         },
       },
+      // 11/12/13 — Wafer-state breakdown.
       {
-        key: 'startDate',
-        title: 'Start Date',
-        width: 110,
-        accessor: (r) => r.startDate,
+        key: 'startedWafers',
+        title: 'Started Wafers',
+        kind: 'number',
+        width: 120,
+        accessor: (r) => waferStates(po.orders, r).started,
+        render: (v) => (typeof v === 'number' && v > 0 ? v.toLocaleString() : <span style={{ color: '#bfbfbf' }}>—</span>),
       },
       {
-        key: 'endDate',
-        title: 'End Date',
-        width: 110,
-        accessor: (r) => r.endDate,
+        key: 'processingWafers',
+        title: 'Processing Wafers',
+        kind: 'number',
+        width: 140,
+        accessor: (r) => waferStates(po.orders, r).processing,
+        render: (v) => (typeof v === 'number' && v > 0 ? v.toLocaleString() : <span style={{ color: '#bfbfbf' }}>—</span>),
       },
       {
-        key: 'milestones',
-        title: 'Milestones',
-        width: 220,
+        key: 'completedWafers',
+        title: 'Completed Wafers',
+        kind: 'number',
+        width: 140,
+        accessor: (r) => waferStates(po.orders, r).completed,
+        render: (v) => (typeof v === 'number' && v > 0 ? v.toLocaleString() : <span style={{ color: '#bfbfbf' }}>—</span>),
+      },
+      // 14 — Remark.
+      {
+        key: 'remark',
+        title: 'Remark',
+        width: 260,
         sortable: false,
-        accessor: () => '',
+        accessor: (r) => remarkFor(po.orders, r),
         render: (_v, row) => {
-          const milestones = milestonesFor(po.orders, row)
-          return <MilestoneChips milestones={milestones} poId={row.poId} />
+          const text = remarkFor(po.orders, row)
+          if (!text) return <span style={{ color: '#bfbfbf' }}>—</span>
+          return (
+            <Tooltip title={text}>
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', maxWidth: '100%' }}>{text}</span>
+            </Tooltip>
+          )
         },
       },
     ],
-    [po, notes],
+    [po, notes, selectedKey, checkedSet],
   )
 
-  const selectedKey = po.selectedRowKey
+  // Derive the active columns from tune state — apply order, visibility, and sticky/sortable/filterable
+  // overrides on top of the base column definitions. Anything in tune that doesn't match a base column
+  // is dropped silently (defensive in case the baseline and base-columns ever drift apart).
+  const baseByKey = useMemo(() => {
+    const m = new Map<string, ControlTableColumn<FlatRow>>()
+    for (const c of baseColumns) m.set(c.key, c)
+    return m
+  }, [baseColumns])
+  const columns = useMemo<ControlTableColumn<FlatRow>[]>(() => {
+    const out: ControlTableColumn<FlatRow>[] = []
+    for (const tune of po.tableTune) {
+      if (!tune.visible) continue
+      const base = baseByKey.get(tune.key)
+      if (!base) continue
+      out.push({
+        ...base,
+        sticky: tune.sticky ?? undefined,
+        sortable: tune.sortable,
+        filterable: tune.filterable,
+      })
+    }
+    return out
+  }, [po.tableTune, baseByKey])
+
   const selectedKeys = selectedKey ? [selectedKey] : []
+
+  // PO-banded zebra — each row gets a class based on the parity of its PO group index, so all rows
+  // belonging to the same PO share a background. Customer pivot rows have no poId of their own — they
+  // inherit the band of their first child PO, which keeps the visual grouping continuous.
+  const rowClassName = (row: FlatRow): string => {
+    const idx = poBandIndex.get(row.poId) ?? 0
+    return idx % 2 === 0 ? 'ax-po_row__band-a' : 'ax-po_row__band-b'
+  }
 
   return (
     <div className="ax-po_table">
@@ -150,12 +377,16 @@ export const SimulationProductionOrderTable = observer(() => {
         size="small"
         selectionMode="single"
         selectedKeys={selectedKeys}
-        onSelectionChange={(keys) => {
-          const next = keys[keys.length - 1]
-          if (next) po.selectRow(String(next))
-        }}
+        // AxControlTable fires both onSelectionChange AND onRowClick on every row click. Selection
+        // toggle is driven by po.selectRow (click same row = unselect), so we keep selectRow on a
+        // single callsite — onRowClick — and leave onSelectionChange inert. The visual highlight
+        // still reacts because the table derives `rowSelection` from the controlled selectedKeys prop.
+        onSelectionChange={() => {}}
         onRowClick={(row) => po.selectRow(row.key)}
+        rowClassName={rowClassName}
         tree={{
+          // Pin chevron + indent to the label column — col 1 is the selection handle.
+          columnId: 'label',
           depth: (r) => r.depth,
           hasChildren: (r) => !!r.hasChildren,
           isExpanded: (r) => !!r.expanded,
@@ -166,7 +397,9 @@ export const SimulationProductionOrderTable = observer(() => {
           },
         }}
         empty={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No production orders match the current filters" />}
-        showColumnFilter={false}
+        // Globally enable per-column filter so the tune popover's "Enable filter" toggle has effect.
+        // Each base column defaults to filterable=false in the tune baseline; users opt-in per column.
+        showColumnFilter={true}
         showColumnToggle={false}
         showRowNumber={false}
       />

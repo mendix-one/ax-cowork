@@ -3,3 +3,22 @@
     line-height: 1;
   }
 }
+
+// Seam between adjacent primary buttons inside <Space.Compact> (Gantt save-split, etc.).
+// AntD defaults this CSS var to `--ant-btn-bg-color-hover` (= colorPrimaryHover), but our theme
+// only overrides colorPrimary, so the derived hover is still the stock sky-blue #4096ff —
+// which paints a bright blue line between the two indigo buttons. Pin the seam to Indigo 800
+// (mirrors axSchedule.fixed.edge) so the split reads as a recessed notch in one button.
+.ant-btn-primary.ant-btn-compact-item {
+  --ant-btn-compact-connect-border-color: #283593;
+}
+
+// Primary-button hover/active accent — scoped to buttons so the rest of the alias cascade
+// (input focus rings, tab underlines, link hovers, etc.) keeps the indigo brand.
+// Hover = axColors.tertiary (#673AB7, Deep Purple 500); Active = #4527A0 (Deep Purple 800).
+// Two-class selector (.ant-btn.ant-btn-color-primary) raises specificity above AntD's
+// runtime-injected single-class rule, so this wins regardless of injection order.
+.ant-btn.ant-btn-color-primary {
+  --ant-btn-color-hover: #673ab7;
+  --ant-btn-color-active: #4527a0;
+}

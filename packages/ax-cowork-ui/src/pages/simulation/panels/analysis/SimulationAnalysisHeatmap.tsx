@@ -5,11 +5,14 @@ import type { HeatGranularity } from './analysis.store'
 import { calcHeatmap, type HeatBand } from './analysis.helpers'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
+// Band palette is pinned to the tool-group bar chart so both surfaces speak the same color language —
+// teal=running normally, orange=approaching limit, red=over capacity. Idle (<40%) has no bar-chart
+// equivalent, so it uses axSchedule.ghost.bar (neutral blue-grey) to read as "barely loaded".
 const BAND_COLOR: Record<HeatBand, string> = {
-  idle: '#e6f4ff',
-  safe: '#b7eb8f',
-  warning: '#ffd591',
-  overload: '#ff7875',
+  idle: '#cfd8dc', // axSchedule.ghost.bar (Blue Grey 200) — barely-loaded, neutral
+  safe: '#00897b', // matches bar COLOR_USED_SAFE (axSchedule.new.bar, Teal 600)
+  warning: '#EF6C00', // matches bar COLOR_USED_WARN (Orange 800)
+  overload: '#C62828', // matches bar COLOR_USED_DANGER (Red 800)
 }
 const BAND_LABEL: Record<HeatBand, string> = {
   idle: '<40%',

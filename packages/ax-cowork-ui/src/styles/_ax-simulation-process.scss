@@ -23,7 +23,7 @@
 
   &_header {
     @apply h-10 px-3 flex items-center;
-    @apply border-b border-gray-200 bg-indigo-50;
+    @apply border-b border-gray-200 bg-stone-100; // Tailwind Stone 100 — tech-list box header
     @apply text-lg font-semibold text-neutral-800;
   }
 
@@ -179,12 +179,12 @@
 }
 
 // === PRODUCTION ORDER SUMMARY =======================================================================================
-// Top strip above the PO table — mirrors the analysis summary card pattern.
+// Rendered inside the PO info panel body when no row is selected — the panel body provides padding
+// and background, so the summary itself is just a responsive card grid.
 
 .ax-po_summary {
-  @apply w-full p-3;
+  @apply w-full;
   @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3;
-  @apply bg-white border-b border-gray-200;
 }
 
 .ax-po_summary_card {

@@ -1,30 +1,13 @@
-import { Button, DatePicker, Divider, Dropdown, Flex, Segmented, Space, Tooltip } from 'antd'
-import type { MenuProps } from 'antd'
+import { Button, DatePicker, Divider, Flex, Segmented, Space, Tooltip } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
+import { SimulationScheduleActions } from '../../components/SimulationScheduleActions'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 export const SimulationGanttToolbar = observer(() => {
   const sim = useSimulationContext()
   const gantt = sim.gantt
-  const editsCount = gantt.unsavedEditsCount
-
-  // Save menu — drafts vs. scenarios. The default Save still routes through the pre-flight validation;
-  // "Save as new scenario" will spawn a fresh plan (wired to the plan modal until the BE is connected).
-  const saveMenu: MenuProps = {
-    items: [
-      { key: 'draft', label: 'Save draft', icon: <AxMuiIcon icon="mdiContentSaveOutline" size={14} /> },
-      { key: 'scenario', label: 'Save as new scenario…', icon: <AxMuiIcon icon="mdiContentSaveMoveOutline" size={14} /> },
-      { type: 'divider' },
-      { key: 'submit', label: 'Submit to baseline', icon: <AxMuiIcon icon="mdiUpload" size={14} />, disabled: editsCount === 0 },
-    ],
-    onClick: ({ key }) => {
-      if (key === 'draft') sim.openPreflight('gantt')
-      else if (key === 'scenario') sim.openSimulationPlanModal()
-      else if (key === 'submit') sim.openPreflight('gantt')
-    },
-  }
 
   return (
     <Flex align="center" justify="space-between" gap="small" className="ax-gantt_toolbar" style={{ width: '100%' }}>
@@ -97,41 +80,7 @@ export const SimulationGanttToolbar = observer(() => {
           </span>
         </span>
       </Space>
-      <Space size={6}>
-        {editsCount > 0 && (
-          <Tooltip title={`${editsCount} unsaved edit${editsCount === 1 ? '' : 's'} — click Save to commit`}>
-            <span className="ax-gantt_edits">
-              <AxMuiIcon icon="mdiCircleMedium" size={12} />
-              {editsCount} unsaved
-            </span>
-          </Tooltip>
-        )}
-        <Tooltip title="Undo">
-          <Button size="small" disabled={!gantt.canUndo} icon={<AxMuiIcon icon="mdiUndo" size={14} />} onClick={() => gantt.undo()} />
-        </Tooltip>
-        <Tooltip title="Redo">
-          <Button size="small" disabled={!gantt.canRedo} icon={<AxMuiIcon icon="mdiRedo" size={14} />} onClick={() => gantt.redo()} />
-        </Tooltip>
-        <Tooltip title="Discard local changes">
-          <Button size="small" icon={<AxMuiIcon icon="mdiRestore" size={14} />} onClick={() => gantt.reset()} />
-        </Tooltip>
-        <Space.Compact>
-          <Tooltip title="Save · runs a pre-flight validation first">
-            <Button
-              size="small"
-              type="primary"
-              onClick={() => sim.openPreflight('gantt')}
-              style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
-            >
-              <AxMuiIcon icon="mdiContentSaveOutline" size={14} />
-              <span>Save</span>
-            </Button>
-          </Tooltip>
-          <Dropdown menu={saveMenu} placement="bottomRight" trigger={['click']}>
-            <Button size="small" type="primary" aria-label="More save options" icon={<AxMuiIcon icon="mdiChevronDown" size={14} />} />
-          </Dropdown>
-        </Space.Compact>
-      </Space>
+      <SimulationScheduleActions target="gantt" />
     </Flex>
   )
 })

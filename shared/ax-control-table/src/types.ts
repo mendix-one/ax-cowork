@@ -15,9 +15,10 @@ export type SelectionMode = 'none' | 'single' | 'multi'
 /** Predefined size presets — affect default header/row heights and cell padding. */
 export type ControlTableSize = 'small' | 'middle' | 'large'
 
-/** Tree-row options. When passed, the first leaf column gets an indent + chevron prefix
- *  in the cell render slot. Callers control the data model (typically a flattened list);
- *  the table merely calls `isExpanded`/`onToggle` and pads by `depth * indent`. */
+/** Tree-row options. When passed, one column gets an indent + chevron prefix in the cell render
+ *  slot. By default, the prefix attaches to the first leaf column. Pass `columnId` to attach it
+ *  to a specific column instead — useful when the first column is a selection-icon or row-chrome
+ *  column that should NOT carry the tree decoration. */
 export interface TreeOptions<T> {
   /** Depth of the row in the tree (0 = root). */
   depth: (row: T) => number
@@ -29,6 +30,8 @@ export interface TreeOptions<T> {
   onToggle?: (row: T) => void
   /** Pixels per depth level. Defaults to 16. */
   indent?: number
+  /** Override which column the tree chevron + indent attach to. Defaults to the first leaf column. */
+  columnId?: string
 }
 
 /** Column definition for `<AxControlTable>`. */
@@ -41,12 +44,20 @@ export interface ControlTableColumn<T> {
   accessor: (row: T) => string | number
   /** Allow click-to-sort on this column. Defaults to `true`. */
   sortable?: boolean
+  /** Show the per-column filter popover in the header for this column. Only meaningful when the
+   *  table-level `showColumnFilter` is also true. Defaults to `true` (i.e. when the global flag
+   *  is on, every column shows the filter unless explicitly disabled here). */
+  filterable?: boolean
   /** Cell kind. `'number'` triggers color-bucket backgrounds + right-aligned tabular-nums rendering. Defaults to `'string'`. */
   kind?: ColumnKind
   /** Pixel width. Defaults to the table's `defaultColumnWidth` (160). */
   width?: number
   /** Per-column custom render. If set, takes precedence over the table's `renderCell`. */
   render?: (value: string | number, row: T) => ReactNode
+  /** Custom header render. When set, replaces the default title text + sort indicator + filter
+   *  popover in the header cell — the consumer fully owns that cell (useful for a column whose
+   *  header is just an icon button, e.g. a "table tune" trigger on a selection column). */
+  headerRender?: () => ReactNode
   /** Cell text alignment. Defaults to `'left'` for string kind, `'right'` for number kind. */
   align?: 'left' | 'center' | 'right'
   /** Freeze this column to the left or right edge during horizontal scroll.

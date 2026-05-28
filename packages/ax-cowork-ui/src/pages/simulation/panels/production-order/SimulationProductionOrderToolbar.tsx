@@ -2,6 +2,7 @@ import { Button, DatePicker, Divider, Flex, Segmented, Select, Space, Tooltip } 
 import dayjs, { type Dayjs } from 'dayjs'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
+import { SimulationScheduleActions } from '../../components/SimulationScheduleActions'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 import type { GroupBy, StatusFilter } from './production-order.store'
 
@@ -13,8 +14,7 @@ const STATUS_OPTIONS: { label: string; value: StatusFilter }[] = [
 ]
 
 export const SimulationProductionOrderToolbar = observer(() => {
-  const sim = useSimulationContext()
-  const po = sim.productionOrder
+  const po = useSimulationContext().productionOrder
   return (
     <Flex align="center" justify="space-between" gap="small" className="ax-po_toolbar" style={{ width: '100%' }}>
       <Space size={10}>
@@ -52,7 +52,7 @@ export const SimulationProductionOrderToolbar = observer(() => {
         </Space>
         <Divider vertical style={{ margin: 0 }} />
         <Space size={2}>
-          <Tooltip title={po.filterSidebarOpen ? 'Hide filter sidebar' : 'Show filter sidebar'}>
+          <Tooltip title={po.filterSidebarOpen ? 'Hide adjustment sidebar' : 'Show adjustment sidebar'}>
             <Button
               size="small"
               type={po.filterSidebarOpen ? 'primary' : 'default'}
@@ -69,23 +69,30 @@ export const SimulationProductionOrderToolbar = observer(() => {
             />
           </Tooltip>
         </Space>
+        <Divider vertical style={{ margin: 0 }} />
+        {/* Schedule-lineage legend — decoder for the State column chips. Includes Exclude (Blue Grey
+            ghost) which the gantt/analysis legends don't carry, since this is the only view that
+            renders rows for items the planner has unchecked in the Adjustment sidebar. */}
+        <span className="ax-gantt_legend" aria-label="Schedule lineage legend">
+          <span className="ax-gantt_legend_item">
+            <span className="ax-gantt_legend_swatch ax-gantt_legend_swatch__fixed" />
+            Fixed
+          </span>
+          <span className="ax-gantt_legend_item">
+            <span className="ax-gantt_legend_swatch ax-gantt_legend_swatch__changes" />
+            Changes
+          </span>
+          <span className="ax-gantt_legend_item">
+            <span className="ax-gantt_legend_swatch ax-gantt_legend_swatch__new" />
+            New
+          </span>
+          <span className="ax-gantt_legend_item">
+            <span className="ax-gantt_legend_swatch ax-gantt_legend_swatch__exclude" />
+            Exclude
+          </span>
+        </span>
       </Space>
-      <Space size={4}>
-        <Tooltip title="Undo">
-          <Button size="small" disabled={!po.canUndo} icon={<AxMuiIcon icon="mdiUndo" size={14} />} onClick={() => po.undo()} />
-        </Tooltip>
-        <Tooltip title="Redo">
-          <Button size="small" disabled={!po.canRedo} icon={<AxMuiIcon icon="mdiRedo" size={14} />} onClick={() => po.redo()} />
-        </Tooltip>
-        <Tooltip title="Reset">
-          <Button size="small" icon={<AxMuiIcon icon="mdiRestore" size={14} />} onClick={() => po.reset()} />
-        </Tooltip>
-        <Tooltip title="Save · runs a pre-flight validation first">
-          <Button size="small" type="primary" icon={<AxMuiIcon icon="mdiContentSaveOutline" size={14} />} onClick={() => sim.openPreflight('productionOrder')}>
-            Save
-          </Button>
-        </Tooltip>
-      </Space>
+      <SimulationScheduleActions target="productionOrder" />
     </Flex>
   )
 })
