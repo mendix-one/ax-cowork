@@ -388,6 +388,13 @@ export type ProcessStep = {
   qualRequired: boolean // step demands a recipe qualification on the tool
   cycleHours: number // batch cycle time (one wafer slot, full 25-wafer batch)
   expectedYield: number // 0..1 — wafers out / wafers in for this step
+  // Time to physically move the batch from the previous step's tool group to THIS step's tool group.
+  // Small within a stage (sister tools nearby); larger when crossing stages (different bays).
+  // Conventionally 0 on the first step of the routing (nothing to move from).
+  movementHours: number
+  // Queue / idle time before this step can start (waiting for a free tool, recipe qual, batch
+  // consolidation, etc). 0 when there is no wait expected; bottleneck steps usually carry more.
+  waitHours: number
   note?: string
 }
 
@@ -400,40 +407,45 @@ export type TechRouting = {
   steps: ProcessStep[]
 }
 
+// Movement/wait heuristic (applies to all three routings unless overridden):
+//   - movementHours: 0 on step 1, ~1h within a stage (sister tools nearby), ~4h crossing a stage.
+//   - waitHours: 0–2h on free steps; 4–10h on qual-gated / bottleneck steps where queue builds up.
+// Values picked to read as realistic for a 232L QLC line; tweaked per tech to reflect yield/queueing.
+
 // 232L QLC — densest stack, longest HARC etch; HARC is the structural bottleneck for this tech.
 const STEPS_232L: ProcessStep[] = [
-  { id: 's1', order: 1, name: 'FEOL Deposit', stage: 'FEOL', toolGroup: 'FEOL Dep', recipe: 'R-FEOL-V9', qualRequired: false, cycleHours: 18, expectedYield: 0.998 },
-  { id: 's2', order: 2, name: 'ONON Stack', stage: 'FEOL', toolGroup: 'ONON CVD', recipe: 'R-CVD-232L', qualRequired: true, cycleHours: 36, expectedYield: 0.996, note: '232 oxide/nitride pairs' },
-  { id: 's3', order: 3, name: 'HARC Etch', stage: 'FEOL', toolGroup: 'HARC Etch', recipe: 'R-HARC-232L', qualRequired: true, cycleHours: 30, expectedYield: 0.985, note: 'Bottleneck — deep channel etch' },
-  { id: 's4', order: 4, name: 'WL Tungsten Fill', stage: 'MOL', toolGroup: 'WL Fill', recipe: 'R-WL-CVD', qualRequired: false, cycleHours: 24, expectedYield: 0.994 },
-  { id: 's5', order: 5, name: 'CMP', stage: 'MOL', toolGroup: 'CMP', recipe: 'R-CMP-232', qualRequired: false, cycleHours: 12, expectedYield: 0.997 },
-  { id: 's6', order: 6, name: 'BEOL Metal', stage: 'BEOL', toolGroup: 'BEOL', recipe: 'R-BEOL-V9', qualRequired: false, cycleHours: 20, expectedYield: 0.995 },
-  { id: 's7', order: 7, name: 'Wafer Probe', stage: 'Test', toolGroup: 'Probe', recipe: 'R-PRB-QLC-V9', qualRequired: true, cycleHours: 8, expectedYield: 0.93, note: 'QLC sort, 1024-Vt levels' },
-  { id: 's8', order: 8, name: 'Assembly', stage: 'Assembly', toolGroup: 'Asm', recipe: 'R-ASM-eMMC', qualRequired: false, cycleHours: 16, expectedYield: 0.99 },
+  { id: 's1', order: 1, name: 'FEOL Deposit', stage: 'FEOL', toolGroup: 'FEOL Dep', recipe: 'R-FEOL-V9', qualRequired: false, cycleHours: 18, expectedYield: 0.998, movementHours: 0, waitHours: 2 },
+  { id: 's2', order: 2, name: 'ONON Stack', stage: 'FEOL', toolGroup: 'ONON CVD', recipe: 'R-CVD-232L', qualRequired: true, cycleHours: 36, expectedYield: 0.996, movementHours: 1, waitHours: 6, note: '232 oxide/nitride pairs' },
+  { id: 's3', order: 3, name: 'HARC Etch', stage: 'FEOL', toolGroup: 'HARC Etch', recipe: 'R-HARC-232L', qualRequired: true, cycleHours: 30, expectedYield: 0.985, movementHours: 1, waitHours: 10, note: 'Bottleneck — deep channel etch' },
+  { id: 's4', order: 4, name: 'WL Tungsten Fill', stage: 'MOL', toolGroup: 'WL Fill', recipe: 'R-WL-CVD', qualRequired: false, cycleHours: 24, expectedYield: 0.994, movementHours: 4, waitHours: 3 },
+  { id: 's5', order: 5, name: 'CMP', stage: 'MOL', toolGroup: 'CMP', recipe: 'R-CMP-232', qualRequired: false, cycleHours: 12, expectedYield: 0.997, movementHours: 1, waitHours: 2 },
+  { id: 's6', order: 6, name: 'BEOL Metal', stage: 'BEOL', toolGroup: 'BEOL', recipe: 'R-BEOL-V9', qualRequired: false, cycleHours: 20, expectedYield: 0.995, movementHours: 4, waitHours: 3 },
+  { id: 's7', order: 7, name: 'Wafer Probe', stage: 'Test', toolGroup: 'Probe', recipe: 'R-PRB-QLC-V9', qualRequired: true, cycleHours: 8, expectedYield: 0.93, movementHours: 5, waitHours: 6, note: 'QLC sort, 1024-Vt levels' },
+  { id: 's8', order: 8, name: 'Assembly', stage: 'Assembly', toolGroup: 'Asm', recipe: 'R-ASM-eMMC', qualRequired: false, cycleHours: 16, expectedYield: 0.99, movementHours: 8, waitHours: 4 },
 ]
 
-// 176L TLC — mid-density; cycle times shorter, yield higher.
+// 176L TLC — mid-density; cycle times shorter, yield higher, queueing milder.
 const STEPS_176L: ProcessStep[] = [
-  { id: 's1', order: 1, name: 'FEOL Deposit', stage: 'FEOL', toolGroup: 'FEOL Dep', recipe: 'R-FEOL-V9', qualRequired: false, cycleHours: 18, expectedYield: 0.998 },
-  { id: 's2', order: 2, name: 'ONON Stack', stage: 'FEOL', toolGroup: 'ONON CVD', recipe: 'R-CVD-176L', qualRequired: true, cycleHours: 28, expectedYield: 0.997, note: '176 oxide/nitride pairs' },
-  { id: 's3', order: 3, name: 'HARC Etch', stage: 'FEOL', toolGroup: 'HARC Etch', recipe: 'R-HARC-176L', qualRequired: true, cycleHours: 22, expectedYield: 0.99 },
-  { id: 's4', order: 4, name: 'WL Tungsten Fill', stage: 'MOL', toolGroup: 'WL Fill', recipe: 'R-WL-CVD', qualRequired: false, cycleHours: 20, expectedYield: 0.996 },
-  { id: 's5', order: 5, name: 'CMP', stage: 'MOL', toolGroup: 'CMP', recipe: 'R-CMP-176', qualRequired: false, cycleHours: 10, expectedYield: 0.997 },
-  { id: 's6', order: 6, name: 'BEOL Metal', stage: 'BEOL', toolGroup: 'BEOL', recipe: 'R-BEOL-V9', qualRequired: false, cycleHours: 20, expectedYield: 0.996 },
-  { id: 's7', order: 7, name: 'Wafer Probe', stage: 'Test', toolGroup: 'Probe', recipe: 'R-PRB-TLC-V9', qualRequired: true, cycleHours: 6, expectedYield: 0.96 },
-  { id: 's8', order: 8, name: 'Assembly', stage: 'Assembly', toolGroup: 'Asm', recipe: 'R-ASM-eMMC', qualRequired: false, cycleHours: 16, expectedYield: 0.99 },
+  { id: 's1', order: 1, name: 'FEOL Deposit', stage: 'FEOL', toolGroup: 'FEOL Dep', recipe: 'R-FEOL-V9', qualRequired: false, cycleHours: 18, expectedYield: 0.998, movementHours: 0, waitHours: 1 },
+  { id: 's2', order: 2, name: 'ONON Stack', stage: 'FEOL', toolGroup: 'ONON CVD', recipe: 'R-CVD-176L', qualRequired: true, cycleHours: 28, expectedYield: 0.997, movementHours: 1, waitHours: 4, note: '176 oxide/nitride pairs' },
+  { id: 's3', order: 3, name: 'HARC Etch', stage: 'FEOL', toolGroup: 'HARC Etch', recipe: 'R-HARC-176L', qualRequired: true, cycleHours: 22, expectedYield: 0.99, movementHours: 1, waitHours: 6 },
+  { id: 's4', order: 4, name: 'WL Tungsten Fill', stage: 'MOL', toolGroup: 'WL Fill', recipe: 'R-WL-CVD', qualRequired: false, cycleHours: 20, expectedYield: 0.996, movementHours: 4, waitHours: 2 },
+  { id: 's5', order: 5, name: 'CMP', stage: 'MOL', toolGroup: 'CMP', recipe: 'R-CMP-176', qualRequired: false, cycleHours: 10, expectedYield: 0.997, movementHours: 1, waitHours: 1 },
+  { id: 's6', order: 6, name: 'BEOL Metal', stage: 'BEOL', toolGroup: 'BEOL', recipe: 'R-BEOL-V9', qualRequired: false, cycleHours: 20, expectedYield: 0.996, movementHours: 4, waitHours: 2 },
+  { id: 's7', order: 7, name: 'Wafer Probe', stage: 'Test', toolGroup: 'Probe', recipe: 'R-PRB-TLC-V9', qualRequired: true, cycleHours: 6, expectedYield: 0.96, movementHours: 5, waitHours: 3 },
+  { id: 's8', order: 8, name: 'Assembly', stage: 'Assembly', toolGroup: 'Asm', recipe: 'R-ASM-eMMC', qualRequired: false, cycleHours: 16, expectedYield: 0.99, movementHours: 8, waitHours: 3 },
 ]
 
-// 128L TLC — legacy node, fastest cycle, best yield.
+// 128L TLC — legacy node, fastest cycle, best yield, lowest queueing.
 const STEPS_128L: ProcessStep[] = [
-  { id: 's1', order: 1, name: 'FEOL Deposit', stage: 'FEOL', toolGroup: 'FEOL Dep', recipe: 'R-FEOL-V8', qualRequired: false, cycleHours: 14, expectedYield: 0.999 },
-  { id: 's2', order: 2, name: 'ONON Stack', stage: 'FEOL', toolGroup: 'ONON CVD', recipe: 'R-CVD-128L', qualRequired: false, cycleHours: 22, expectedYield: 0.998 },
-  { id: 's3', order: 3, name: 'HARC Etch', stage: 'FEOL', toolGroup: 'HARC Etch', recipe: 'R-HARC-128L', qualRequired: false, cycleHours: 18, expectedYield: 0.993 },
-  { id: 's4', order: 4, name: 'WL Tungsten Fill', stage: 'MOL', toolGroup: 'WL Fill', recipe: 'R-WL-CVD', qualRequired: false, cycleHours: 18, expectedYield: 0.997 },
-  { id: 's5', order: 5, name: 'CMP', stage: 'MOL', toolGroup: 'CMP', recipe: 'R-CMP-128', qualRequired: false, cycleHours: 10, expectedYield: 0.998 },
-  { id: 's6', order: 6, name: 'BEOL Metal', stage: 'BEOL', toolGroup: 'BEOL', recipe: 'R-BEOL-V8', qualRequired: false, cycleHours: 18, expectedYield: 0.996 },
-  { id: 's7', order: 7, name: 'Wafer Probe', stage: 'Test', toolGroup: 'Probe', recipe: 'R-PRB-TLC-V8', qualRequired: false, cycleHours: 6, expectedYield: 0.97 },
-  { id: 's8', order: 8, name: 'Assembly', stage: 'Assembly', toolGroup: 'Asm', recipe: 'R-ASM-eMMC', qualRequired: false, cycleHours: 14, expectedYield: 0.99 },
+  { id: 's1', order: 1, name: 'FEOL Deposit', stage: 'FEOL', toolGroup: 'FEOL Dep', recipe: 'R-FEOL-V8', qualRequired: false, cycleHours: 14, expectedYield: 0.999, movementHours: 0, waitHours: 0 },
+  { id: 's2', order: 2, name: 'ONON Stack', stage: 'FEOL', toolGroup: 'ONON CVD', recipe: 'R-CVD-128L', qualRequired: false, cycleHours: 22, expectedYield: 0.998, movementHours: 1, waitHours: 2 },
+  { id: 's3', order: 3, name: 'HARC Etch', stage: 'FEOL', toolGroup: 'HARC Etch', recipe: 'R-HARC-128L', qualRequired: false, cycleHours: 18, expectedYield: 0.993, movementHours: 1, waitHours: 3 },
+  { id: 's4', order: 4, name: 'WL Tungsten Fill', stage: 'MOL', toolGroup: 'WL Fill', recipe: 'R-WL-CVD', qualRequired: false, cycleHours: 18, expectedYield: 0.997, movementHours: 4, waitHours: 1 },
+  { id: 's5', order: 5, name: 'CMP', stage: 'MOL', toolGroup: 'CMP', recipe: 'R-CMP-128', qualRequired: false, cycleHours: 10, expectedYield: 0.998, movementHours: 1, waitHours: 1 },
+  { id: 's6', order: 6, name: 'BEOL Metal', stage: 'BEOL', toolGroup: 'BEOL', recipe: 'R-BEOL-V8', qualRequired: false, cycleHours: 18, expectedYield: 0.996, movementHours: 4, waitHours: 1 },
+  { id: 's7', order: 7, name: 'Wafer Probe', stage: 'Test', toolGroup: 'Probe', recipe: 'R-PRB-TLC-V8', qualRequired: false, cycleHours: 6, expectedYield: 0.97, movementHours: 5, waitHours: 2 },
+  { id: 's8', order: 8, name: 'Assembly', stage: 'Assembly', toolGroup: 'Asm', recipe: 'R-ASM-eMMC', qualRequired: false, cycleHours: 14, expectedYield: 0.99, movementHours: 8, waitHours: 2 },
 ]
 
 export const TECH_ROUTINGS: TechRouting[] = [

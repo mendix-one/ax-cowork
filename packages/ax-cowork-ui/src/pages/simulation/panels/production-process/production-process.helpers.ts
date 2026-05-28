@@ -1,6 +1,7 @@
-import { TECH_ROUTINGS, TOOL_GROUP_CAPACITIES, type ProductionOrder, type TechRouting } from '../../data/mock-plan'
+import { TECH_ROUTINGS, TOOL_GROUP_CAPACITIES, type ProcessStep, type ProcessStepStage, type ProductionOrder, type TechRouting } from '../../data/mock-plan'
 
-// Per-tech rollup against the currently-checked POs: PO count, total wafers in flight, total cycle time.
+// Per-tech rollup against the currently-checked POs: PO count, total wafers in flight, total cycle time
+// breakdown (processing vs move vs wait), end-to-end yield, and the worst-utilisation step.
 export type TechSummary = {
   tech: string
   family: string
@@ -9,7 +10,10 @@ export type TechSummary = {
   bitDensity: 'TLC' | 'QLC'
   poCount: number
   totalWafers: number
-  totalCycleHours: number
+  totalCycleHours: number // sum of cycleHours (processing only)
+  totalMoveHours: number // sum of movementHours across steps
+  totalWaitHours: number // sum of waitHours across steps
+  totalClockHours: number // cycle + move + wait — end-to-end wall-clock time
   endToEndYield: number
   bottleneckStep: string | null
 }
@@ -46,6 +50,8 @@ export const calcTechSummaries = (orders: ProductionOrder[]): TechSummary[] => {
       }
     }
     const totalCycleHours = routing.steps.reduce((s, st) => s + st.cycleHours, 0)
+    const totalMoveHours = routing.steps.reduce((s, st) => s + st.movementHours, 0)
+    const totalWaitHours = routing.steps.reduce((s, st) => s + st.waitHours, 0)
     const endToEndYield = routing.steps.reduce((y, st) => y * st.expectedYield, 1)
     return {
       tech: routing.tech,
@@ -56,8 +62,43 @@ export const calcTechSummaries = (orders: ProductionOrder[]): TechSummary[] => {
       poCount,
       totalWafers,
       totalCycleHours,
+      totalMoveHours,
+      totalWaitHours,
+      totalClockHours: totalCycleHours + totalMoveHours + totalWaitHours,
       endToEndYield,
       bottleneckStep: findBottleneck(routing),
+    }
+  })
+}
+
+// Per-stage rollup — groups the routing's steps by stage so the Pipeline view can render banners
+// + nested step tiles. Stages are returned in the routing's natural order (first occurrence wins).
+export type StageGroup = {
+  stage: ProcessStepStage
+  steps: ProcessStep[]
+  totalCycleHours: number
+  totalMoveHours: number
+  totalWaitHours: number
+}
+
+export const calcStageGroups = (routing: TechRouting): StageGroup[] => {
+  const map = new Map<ProcessStepStage, ProcessStep[]>()
+  const order: ProcessStepStage[] = []
+  for (const step of routing.steps) {
+    if (!map.has(step.stage)) {
+      map.set(step.stage, [])
+      order.push(step.stage)
+    }
+    map.get(step.stage)!.push(step)
+  }
+  return order.map((stage) => {
+    const steps = map.get(stage)!
+    return {
+      stage,
+      steps,
+      totalCycleHours: steps.reduce((s, st) => s + st.cycleHours, 0),
+      totalMoveHours: steps.reduce((s, st) => s + st.movementHours, 0),
+      totalWaitHours: steps.reduce((s, st) => s + st.waitHours, 0),
     }
   })
 }

@@ -1,25 +1,15 @@
-import { Button, Flex, Space, Tooltip, Typography } from 'antd'
+import { Flex, Space, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
-import { useSimulationContext } from '../../store/simulation.context'
-import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
-// Process view is read-only — no date picker, no save/undo. Just the adjustment toggle so the planner
-// can re-filter what POs are in scope and see the tech rollups respond live.
+// Process view is read-only — no date picker, no save/undo. The Technology Routings list lives in a
+// persistent left sidebar (like the Adjustment sidebar on the other panels), so there's no toggle
+// here either. Toolbar carries just the help text describing what this view is.
 export const SimulationProductionProcessToolbar = observer(() => {
-  const process = useSimulationContext().productionProcess
   return (
     <Flex align="center" justify="space-between" gap="small" className="ax-gantt_toolbar" style={{ width: '100%' }}>
       <Space size={10}>
-        <Tooltip title={process.filterSidebarOpen ? 'Hide adjustment sidebar' : 'Show adjustment sidebar'}>
-          <Button
-            size="small"
-            type={process.filterSidebarOpen ? 'primary' : 'default'}
-            icon={<AxMuiIcon icon="mdiFilterMenuOutline" size={14} />}
-            onClick={() => process.toggleFilterSidebar()}
-          />
-        </Tooltip>
         <Typography.Text type="secondary" className="text-sm">
-          Read-only view of the manufacturing routing per technology.
+          Read-only view of the manufacturing routing per technology — pick a tech on the left to see its pipeline.
         </Typography.Text>
       </Space>
     </Flex>

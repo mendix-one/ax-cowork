@@ -156,9 +156,31 @@
 
     &_header {
       @apply w-full h-9 px-2; // 2.25rem ≈ 32px in this project's 14px-base — bumped from h-8 (28px)
-      @apply flex-none flex items-center justify-between;
+      @apply flex-none flex items-center justify-between gap-2;
       @apply font-semibold text-neutral-900;
       @apply bg-stone-100 border-b border-gray-300; // Tailwind Stone 100
+
+      &_left {
+        @apply flex-1 min-w-0 flex items-center;
+      }
+      &_right {
+        @apply flex-none flex items-center gap-2;
+      }
+
+      // Chip-rich title rendered inside the header for the detail cards (PO / Family / Batch).
+      // Summary mode stays plain text and ignores these.
+      &_title {
+        @apply inline-flex items-center gap-2 min-w-0;
+        &_code {
+          @apply font-semibold text-neutral-900 truncate;
+        }
+        &_sep {
+          @apply text-neutral-400;
+        }
+        &_context {
+          @apply font-normal text-neutral-700 truncate;
+        }
+      }
     }
 
     &_body {
@@ -188,6 +210,73 @@
   &_hotlot {
     @apply inline-block px-1 py-0 ml-1 rounded text-xs font-semibold;
     @apply bg-purple-100 text-purple-700;
+  }
+}
+
+// ---- PO detail card chrome ----------------------------------------------------------------------
+// Section blocks, families list, batches list, and per-entity notes list. The card's TITLE (code ·
+// context · chips + actions) lives in the panel header — see .ax-po_info_header_* below.
+
+.ax-po_info_section {
+  @apply mb-3;
+
+  &_title {
+    @apply text-base font-semibold text-neutral-800 mb-1;
+    @apply flex items-center justify-between gap-2;
+  }
+}
+
+// Families list — clickable buttons styled as cards.
+.ax-po_fams {
+  @apply flex flex-col gap-1;
+
+  &_item {
+    @apply w-full text-left;
+    @apply flex flex-col gap-1 px-2 py-1.5;
+    @apply rounded border border-gray-200 bg-white cursor-pointer;
+    transition:
+      border-color 120ms ease,
+      background 120ms ease;
+    &:hover {
+      @apply border-indigo-200 bg-indigo-50;
+    }
+
+    &_top {
+      @apply flex items-center gap-2;
+    }
+    &_label {
+      @apply font-medium text-neutral-900;
+    }
+    &_meta {
+      @apply text-sm text-neutral-500 flex items-center gap-2 flex-wrap;
+    }
+  }
+}
+
+// PO-scoped notes list.
+.ax-po_pn {
+  @apply w-full;
+
+  &_list {
+    @apply flex flex-col gap-1;
+  }
+
+  &_item {
+    @apply px-2 py-1.5 rounded border border-gray-200 bg-white;
+
+    &_meta {
+      @apply flex items-center gap-1 text-sm text-neutral-500 mb-0.5;
+    }
+    &_del {
+      @apply ms-auto;
+      // Tighten the danger-icon button so the row stays compact.
+      height: 18px;
+      padding: 0 4px;
+    }
+    &_text {
+      @apply text-base text-neutral-800;
+      white-space: pre-wrap;
+    }
   }
 }
 

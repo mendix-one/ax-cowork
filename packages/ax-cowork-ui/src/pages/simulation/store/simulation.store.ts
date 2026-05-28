@@ -161,7 +161,7 @@ export class SimulationStore {
   // Aggregate dirty count across editable panels — drives the header "unsaved edits" chip so the planner has
   // the same signal whether they're on the Gantt, the Production Order table, or any other panel.
   get totalUnsavedEdits(): number {
-    return this.gantt.unsavedEditsCount
+    return this.gantt.unsavedEditsCount + this.productionOrder.unsavedEditsCount
   }
 
   setActiveProductionLine(id: string) {

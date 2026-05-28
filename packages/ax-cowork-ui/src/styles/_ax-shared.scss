@@ -58,6 +58,10 @@ p {
 .ax-top_chip {
   display: inline-flex !important;
   align-items: center;
+  // vertical-align: middle pins the chip's center to the parent line's middle instead of the
+  // text baseline. Without this, bordered chips (e.g. the unsaved tag, +2px from its 1px border)
+  // and non-bordered chips drift apart by ~2px because baseline calc differs between the two.
+  vertical-align: middle;
   gap: 4px;
   height: 22px;
   margin-inline-end: 0;

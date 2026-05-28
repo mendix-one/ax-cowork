@@ -47,7 +47,9 @@ export const SimulationLayoutTop = observer(() => {
             <AxMenuIcon icon="mdiApps" title="Home" placement="bottom" />
             <AxMenuIcon icon="mdiEarth" title="World Map" placement="bottom" />
           </Space>
-          <Space size={8}>
+          {/* align="center" so the chips (22px) sit on the same midline as the AxMenuBox controls (28px) —
+              without it, AntD Space defaults to baseline alignment and the chips drift up by 1-2px. */}
+          <Space size={8} align="center">
             <AxMenuBox
               icon="mdiDnsOutline"
               label={line.name}
@@ -67,7 +69,7 @@ export const SimulationLayoutTop = observer(() => {
               DRAFT
             </Tag>
             {edits > 0 && (
-              <Tooltip title={`${edits} unsaved edit${edits === 1 ? '' : 's'} — open Save menu on the Gantt to commit`}>
+              <Tooltip title={`${edits} unsaved edit${edits === 1 ? '' : 's'} across this simulation — open the Save menu on any panel to commit`}>
                 <Tag bordered color="warning" icon={<AxMuiIcon icon="mdiCircleMedium" size={11} />} className="ax-top_chip ax-top_chip__unsaved">
                   {edits} unsaved
                 </Tag>

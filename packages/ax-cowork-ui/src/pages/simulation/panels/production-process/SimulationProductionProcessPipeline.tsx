@@ -2,12 +2,14 @@ import { Tag, Tooltip, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
 import { TECH_ROUTINGS, TOOL_GROUP_CAPACITIES, type ProcessStep, type ProcessStepStage } from '../../data/mock-plan'
-import { formatCycle, formatYield } from './production-process.helpers'
+import { calcStageGroups, formatCycle, formatYield } from './production-process.helpers'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
-// Pipeline view — horizontal flow of step tiles (FEOL → MOL → BEOL → Test → Assembly).
-// Each tile shows the step name, tool group, recipe, cycle time, yield, and (if applicable) a bottleneck pill.
-// Below the pipeline a step-detail table lists the same info row-by-row for easy comparison and printing.
+// Pipeline view — steps grouped by stage (FEOL → MOL → BEOL → Test → Assembly). Within each stage
+// the steps flow left-to-right with small inter-step chips showing move + wait time. Between stages
+// a larger arrow shows the stage-transition move time (the first step of the next stage's move).
+// Below the pipeline a step-detail table lists every step row-by-row with Cycle / Move / Wait /
+// Yield, easy to compare and print.
 
 const STAGE_TAG_COLOR: Record<ProcessStepStage, string> = {
   FEOL: 'geekblue',
@@ -30,7 +32,7 @@ const utilBadge = (ratio: number) => {
   return { color: 'default', label: 'Idle' }
 }
 
-// Note: `StepTile` was inlined into the body of SimulationProductionProcessPipeline so the file only
+// `StepTile` was inlined into the body of SimulationProductionProcessPipeline so the file only
 // exports React component(s) wrapped in `observer` — react-refresh / fast-refresh requires this in dev.
 const renderStepTile = (step: ProcessStep, isBottleneck: boolean, onDrill: (toolGroup: string) => void) => {
   const ratio = tgUtil(step.toolGroup)
@@ -94,6 +96,30 @@ const renderStepTile = (step: ProcessStep, isBottleneck: boolean, onDrill: (tool
   )
 }
 
+// Inter-step / inter-stage arrow with Move + Wait chips. The `large` variant is used between stage
+// groups so the planner can see at a glance which stage transitions cost the most clock time.
+const renderTransition = (move: number, wait: number, variant: 'inline' | 'large', title: string) => (
+  <Tooltip title={title}>
+    <div className={`ax-process_transition ax-process_transition__${variant}`}>
+      <AxMuiIcon icon="mdiArrowRightThick" size={variant === 'large' ? 22 : 16} className="ax-process_transition_arrow" />
+      <div className="ax-process_transition_chips">
+        {move > 0 && (
+          <span className="ax-process_transition_chip ax-process_transition_chip__move">
+            <AxMuiIcon icon="mdiTransitConnectionVariant" size={11} />
+            {formatCycle(move)} move
+          </span>
+        )}
+        {wait > 0 && (
+          <span className="ax-process_transition_chip ax-process_transition_chip__wait">
+            <AxMuiIcon icon="mdiTimerSandEmpty" size={11} />
+            {formatCycle(wait)} wait
+          </span>
+        )}
+      </div>
+    </div>
+  </Tooltip>
+)
+
 export const SimulationProductionProcessPipeline = observer(() => {
   const sim = useSimulationContext()
   const process = sim.productionProcess
@@ -112,7 +138,11 @@ export const SimulationProductionProcessPipeline = observer(() => {
   }
 
   const totalCycle = routing.steps.reduce((s, st) => s + st.cycleHours, 0)
+  const totalMove = routing.steps.reduce((s, st) => s + st.movementHours, 0)
+  const totalWait = routing.steps.reduce((s, st) => s + st.waitHours, 0)
+  const totalClock = totalCycle + totalMove + totalWait
   const e2eYield = routing.steps.reduce((y, st) => y * st.expectedYield, 1)
+  const stages = calcStageGroups(routing)
 
   return (
     <div className="ax-process_pipeline_wrap">
@@ -123,15 +153,50 @@ export const SimulationProductionProcessPipeline = observer(() => {
             <span>{routing.tech} · {routing.family} pipeline</span>
           </div>
           <Typography.Text type="secondary" className="text-sm">
-            {routing.layers}L {routing.bitDensity} · {routing.steps.length} steps · {formatCycle(totalCycle)} end-to-end · {formatYield(e2eYield)} expected yield
+            {routing.layers}L {routing.bitDensity} · {routing.steps.length} steps · Process {formatCycle(totalCycle)} · Move {formatCycle(totalMove)} · Wait {formatCycle(totalWait)} · End-to-end {formatCycle(totalClock)} · {formatYield(e2eYield)} yield
           </Typography.Text>
         </div>
         <div className="ax-analysis_section_body">
           <div className="ax-process_pipeline">
-            {routing.steps.map((step, idx) => (
-              <div key={step.id} className="ax-process_pipeline_node">
-                {renderStepTile(step, step.id === bottleneckStepId, drill)}
-                {idx < routing.steps.length - 1 && <AxMuiIcon icon="mdiChevronRight" size={20} className="ax-process_pipeline_arrow" />}
+            {stages.map((group, gIdx) => (
+              <div key={group.stage} className="ax-process_pipeline_stage">
+                {/* Stage banner */}
+                <div className="ax-process_stage_banner">
+                  <Tag color={STAGE_TAG_COLOR[group.stage]} style={{ margin: 0 }}>
+                    {group.stage}
+                  </Tag>
+                  <span className="ax-process_stage_banner_meta">
+                    {group.steps.length} step{group.steps.length === 1 ? '' : 's'} · {formatCycle(group.totalCycleHours)} process
+                    {group.totalMoveHours > 0 ? ` · ${formatCycle(group.totalMoveHours)} move` : ''}
+                    {group.totalWaitHours > 0 ? ` · ${formatCycle(group.totalWaitHours)} wait` : ''}
+                  </span>
+                </div>
+                {/* Step tiles + inline inter-step transitions */}
+                <div className="ax-process_pipeline_row">
+                  {group.steps.map((step, sIdx) => (
+                    <div key={step.id} className="ax-process_pipeline_node">
+                      {renderStepTile(step, step.id === bottleneckStepId, drill)}
+                      {sIdx < group.steps.length - 1 &&
+                        renderTransition(
+                          group.steps[sIdx + 1].movementHours,
+                          group.steps[sIdx + 1].waitHours,
+                          'inline',
+                          `Between ${step.name} → ${group.steps[sIdx + 1].name}`,
+                        )}
+                    </div>
+                  ))}
+                </div>
+                {/* Stage-transition arrow (only between stage groups, never after the last stage) */}
+                {gIdx < stages.length - 1 && (
+                  <div className="ax-process_stage_transition">
+                    {renderTransition(
+                      stages[gIdx + 1].steps[0]?.movementHours ?? 0,
+                      stages[gIdx + 1].steps[0]?.waitHours ?? 0,
+                      'large',
+                      `Stage transition: ${group.stage} → ${stages[gIdx + 1].stage}`,
+                    )}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -156,6 +221,8 @@ export const SimulationProductionProcessPipeline = observer(() => {
                 <th>Recipe</th>
                 <th>Qual</th>
                 <th style={{ textAlign: 'right' }}>Cycle</th>
+                <th style={{ textAlign: 'right' }}>Move</th>
+                <th style={{ textAlign: 'right' }}>Wait</th>
                 <th style={{ textAlign: 'right' }}>Yield</th>
                 <th>Note</th>
               </tr>
@@ -181,6 +248,8 @@ export const SimulationProductionProcessPipeline = observer(() => {
                   <td>{step.recipe}</td>
                   <td>{step.qualRequired ? <Tag color="purple">Required</Tag> : <Tag>—</Tag>}</td>
                   <td style={{ textAlign: 'right' }}>{formatCycle(step.cycleHours)}</td>
+                  <td style={{ textAlign: 'right' }}>{step.movementHours > 0 ? formatCycle(step.movementHours) : <span style={{ color: '#bfbfbf' }}>—</span>}</td>
+                  <td style={{ textAlign: 'right' }}>{step.waitHours > 0 ? formatCycle(step.waitHours) : <span style={{ color: '#bfbfbf' }}>—</span>}</td>
                   <td style={{ textAlign: 'right' }}>{formatYield(step.expectedYield)}</td>
                   <td>{step.note ?? '—'}</td>
                 </tr>

@@ -1,13 +1,16 @@
 import { Tag, Tooltip } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { TECH_ROUTINGS, TOOL_GROUP_CAPACITIES } from '../../data/mock-plan'
-import { calcRoutingMatrix, formatCycle } from './production-process.helpers'
+import { calcRoutingMatrix, formatCycle } from '../production-process/production-process.helpers'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // Routing matrix — tech × tool group. Each cell shows total cycle hours of any step on that group,
 // or "—" if the tech doesn't use that group. Helps the planner see flexibility at a glance:
 // fewer empty columns means more techs compete for the same group (sharper contention).
-export const SimulationProductionProcessRouting = observer(() => {
+// Lives in the Analysis view alongside the family/tech rollups since it's a tech-level snapshot of
+// the same data the analysis charts visualise; the Production Process view focuses on the per-tech
+// pipeline rather than the cross-tech contention picture.
+export const SimulationAnalysisRoutingMatrix = observer(() => {
   const matrix = calcRoutingMatrix()
   return (
     <div className="ax-analysis_section">

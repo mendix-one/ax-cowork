@@ -8,6 +8,10 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 // `target` picks which store the edit state and save flow comes from — Gantt/Analysis both target
 // 'gantt' because analysis adjustments propagate through the gantt store; PO targets its own store.
 // Save-as-new-scenario stays plan-level (sim.openSimulationPlanModal) regardless of target.
+//
+// The "N unsaved" chip is intentionally NOT rendered here — the global counter lives in the app
+// top bar (SimulationLayoutTop) so the planner sees the aggregate dirty state regardless of which
+// panel is active. editsCount is still consumed by the Save menu to gate "Submit to baseline".
 export type ScheduleActionTarget = 'gantt' | 'productionOrder'
 
 export const SimulationScheduleActions = observer(({ target }: { target: ScheduleActionTarget }) => {
@@ -33,14 +37,6 @@ export const SimulationScheduleActions = observer(({ target }: { target: Schedul
 
   return (
     <Space size={6}>
-      {editsCount > 0 && (
-        <Tooltip title={`${editsCount} unsaved edit${editsCount === 1 ? '' : 's'} — click Save to commit`}>
-          <span className="ax-gantt_edits">
-            <AxMuiIcon icon="mdiCircleMedium" size={12} />
-            {editsCount} unsaved
-          </span>
-        </Tooltip>
-      )}
       <Tooltip title="Undo">
         <Button size="small" disabled={!store.canUndo} icon={<AxMuiIcon icon="mdiUndo" size={14} />} onClick={() => store.undo()} />
       </Tooltip>

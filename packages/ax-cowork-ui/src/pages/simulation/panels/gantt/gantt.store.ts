@@ -172,6 +172,23 @@ export class GanttStore {
     this.checkedKeys = [...this.pendingCheckedKeys]
   }
 
+  // One-shot include/exclude — bypasses the sidebar's pending/apply flow so quick actions in the
+  // info panel (e.g. the Exclude button on a single PO) take effect immediately. Updates both
+  // arrays so the sidebar stays in sync if it's opened next.
+  setKeyIncluded(key: string, included: boolean) {
+    const applied = new Set(this.checkedKeys)
+    const pending = new Set(this.pendingCheckedKeys)
+    if (included) {
+      applied.add(key)
+      pending.add(key)
+    } else {
+      applied.delete(key)
+      pending.delete(key)
+    }
+    this.checkedKeys = Array.from(applied)
+    this.pendingCheckedKeys = Array.from(pending)
+  }
+
   // Reset — restore the default adjustment (everything selected) in both pending and applied state.
   resetAdjustment() {
     this.pendingCheckedKeys = [...ALL_TREE_KEYS]

@@ -3,27 +3,9 @@ import { Empty, Progress, Tooltip } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { AxControlTable, type ControlTableColumn } from '@ax-cowork/control-table'
 import { useSimulationContext } from '../../store/simulation.context'
-import type { ProductionOrder, ScheduleClass, ScheduleMilestone } from '../../data/mock-plan'
+import type { ProductionOrder, ScheduleMilestone } from '../../data/mock-plan'
 import type { FlatRow } from './production-order.store'
-
-// The gantt store's adjustment tree keys use po::/pf::/mb:: prefixes (one per node type), while the
-// PO table rows use po::/family::/batch:: keys. Convert a PO-table row into its gantt tree key so we
-// can ask `gantt.checkedKeys` whether the row is currently included in the schedule.
-const ganttKeyForRow = (row: FlatRow): string | null => {
-  if (row.kind === 'po') return `po::${row.poId}`
-  if (row.kind === 'family' && row.familyId) return `pf::${row.poId}::${row.familyId}`
-  if (row.kind === 'batch' && row.familyId && row.batchId) return `mb::${row.poId}::${row.familyId}::${row.batchId}`
-  return null
-}
-
-// Effective state: 'exclude' when this row's gantt tree key isn't in checkedKeys; otherwise the row's
-// own scheduleClass. Customer-pivot rows have no own state.
-const stateForRow = (row: FlatRow, checkedSet: Set<string>): ScheduleClass | 'exclude' | undefined => {
-  if (row.kind === 'customer') return undefined
-  const k = ganttKeyForRow(row)
-  if (k && !checkedSet.has(k)) return 'exclude'
-  return row.scheduleClass
-}
+import { remarkForRow, stateForRow, waferStatesForRow } from './production-order.helpers'
 import { MilestoneChips, StateChip, StatusChip } from './production-order-chips'
 import { SimulationProductionOrderTuneButton } from './SimulationProductionOrderTuneButton'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
@@ -53,79 +35,6 @@ const techSpec = (orders: ProductionOrder[], row: FlatRow): string => {
   if (row.kind === 'po') return order.spec
   if ((row.kind === 'family' || row.kind === 'batch') && row.familyId) {
     return order.schedule.find((f) => f.id === row.familyId)?.tech ?? ''
-  }
-  return ''
-}
-
-// Mock wafer-state split. Backend will eventually return started/processing/completed per node;
-// for now we synthesize plausible values from outWafers + scheduleClass so the columns are populated.
-type WaferStates = { started: number; processing: number; completed: number }
-const ZERO: WaferStates = { started: 0, processing: 0, completed: 0 }
-const waferStates = (orders: ProductionOrder[], row: FlatRow): WaferStates => {
-  const order = orders.find((o) => o.id === row.poId)
-  if (!order) return ZERO
-
-  // PO: completed = outWafers. processing = small chunk of remaining when running.
-  if (row.kind === 'po') {
-    const completed = order.outWafers
-    const remaining = Math.max(0, order.qty - completed)
-    const processing = order.poStatus === 'RUNNING' ? Math.min(remaining, Math.round(order.qty * 0.05)) : 0
-    return { started: completed + processing, processing, completed }
-  }
-
-  // Family: proportional split of the PO numbers by family commitment.
-  if (row.kind === 'family' && row.familyId) {
-    const family = order.schedule.find((f) => f.id === row.familyId)
-    if (!family || order.qty === 0) return ZERO
-    const familyCommitment = family.batches.reduce((s, b) => s + b.waferCount, 0)
-    const ratio = familyCommitment / order.qty
-    const poCompleted = order.outWafers
-    const poRemaining = Math.max(0, order.qty - poCompleted)
-    const poProcessing = order.poStatus === 'RUNNING' ? Math.min(poRemaining, Math.round(order.qty * 0.05)) : 0
-    const completed = Math.round(poCompleted * ratio)
-    const processing = Math.round(poProcessing * ratio)
-    return { started: completed + processing, processing, completed }
-  }
-
-  // Batch: scheduleClass decides — fixed (already locked) = half done / half in flight; changes
-  // (edited from baseline) = started but nothing complete; new (just added) = not started.
-  if (row.kind === 'batch' && row.familyId && row.batchId) {
-    const family = order.schedule.find((f) => f.id === row.familyId)
-    const batch = family?.batches.find((b) => b.id === row.batchId)
-    if (!batch) return ZERO
-    if (batch.scheduleClass === 'fixed') {
-      const half = Math.round(batch.waferCount * 0.5)
-      return { started: batch.waferCount, processing: half, completed: batch.waferCount - half }
-    }
-    if (batch.scheduleClass === 'changes') {
-      const half = Math.round(batch.waferCount * 0.5)
-      return { started: half, processing: half, completed: 0 }
-    }
-    return ZERO
-  }
-
-  return ZERO
-}
-
-// Planner-facing free-text remark for the row. Currently driven by hotLot / poStatus heuristics
-// + per-batch note. Once the BE supports per-row remarks this will read from the store directly.
-const remarkFor = (orders: ProductionOrder[], row: FlatRow): string => {
-  if (row.kind === 'po') {
-    const order = orders.find((o) => o.id === row.poId)
-    if (!order) return ''
-    if (order.hotLot) return 'Hot lot — escalated by customer'
-    if (order.poStatus === 'at-risk') return 'At risk — review priorities'
-    if (order.poStatus === 'slipped') return 'Slipped — recovery plan needed'
-    if (order.poStatus === 'ON HOLD') return 'On hold — awaiting customer confirmation'
-    // Mock per-PO operational notes so the column is populated for the concept.
-    if (order.id.endsWith('118')) return 'Tool group HARC Etch high load for this PO'
-    if (order.id.endsWith('119')) return 'Watch CMP utilisation in week 2'
-    return ''
-  }
-  if (row.kind === 'batch' && row.familyId && row.batchId) {
-    const order = orders.find((o) => o.id === row.poId)
-    const family = order?.schedule.find((f) => f.id === row.familyId)
-    return family?.batches.find((b) => b.id === row.batchId)?.note ?? ''
   }
   return ''
 }
@@ -294,7 +203,7 @@ export const SimulationProductionOrderTable = observer(() => {
         title: 'Started Wafers',
         kind: 'number',
         width: 120,
-        accessor: (r) => waferStates(po.orders, r).started,
+        accessor: (r) => waferStatesForRow(po.orders, r).started,
         render: (v) => (typeof v === 'number' && v > 0 ? v.toLocaleString() : <span style={{ color: '#bfbfbf' }}>—</span>),
       },
       {
@@ -302,7 +211,7 @@ export const SimulationProductionOrderTable = observer(() => {
         title: 'Processing Wafers',
         kind: 'number',
         width: 140,
-        accessor: (r) => waferStates(po.orders, r).processing,
+        accessor: (r) => waferStatesForRow(po.orders, r).processing,
         render: (v) => (typeof v === 'number' && v > 0 ? v.toLocaleString() : <span style={{ color: '#bfbfbf' }}>—</span>),
       },
       {
@@ -310,7 +219,7 @@ export const SimulationProductionOrderTable = observer(() => {
         title: 'Completed Wafers',
         kind: 'number',
         width: 140,
-        accessor: (r) => waferStates(po.orders, r).completed,
+        accessor: (r) => waferStatesForRow(po.orders, r).completed,
         render: (v) => (typeof v === 'number' && v > 0 ? v.toLocaleString() : <span style={{ color: '#bfbfbf' }}>—</span>),
       },
       // 14 — Remark.
@@ -319,9 +228,9 @@ export const SimulationProductionOrderTable = observer(() => {
         title: 'Remark',
         width: 260,
         sortable: false,
-        accessor: (r) => remarkFor(po.orders, r),
+        accessor: (r) => remarkForRow(po.orders, r),
         render: (_v, row) => {
-          const text = remarkFor(po.orders, row)
+          const text = remarkForRow(po.orders, row)
           if (!text) return <span style={{ color: '#bfbfbf' }}>—</span>
           return (
             <Tooltip title={text}>

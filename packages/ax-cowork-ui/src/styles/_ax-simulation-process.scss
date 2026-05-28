@@ -2,29 +2,20 @@
 // Style module for the Production Processes panel. Reuses .ax-gantt / .ax-analysis_section chrome from the
 // other panels so the visual language stays consistent.
 
-.ax-process_scroll {
-  // Override the analysis scroll's vertical stack — process needs a 2-col split at the top.
-  padding-bottom: 12px;
-}
-
-.ax-process_split {
-  @apply w-full flex gap-3;
-  @apply min-h-0;
-}
-
-.ax-process_split_right {
-  @apply flex-1 min-w-0 flex flex-col gap-3;
-}
-
-// ---- Left rail: tech list cards -------------------------------------------------------------------------------------
+// ---- Left sidebar: tech list ---------------------------------------------------------------------------------------
+// Mirrors the Adjustment sidebar (.ax-gantt_side) used by gantt/analysis/order panels: full-height
+// flex column docked at the left edge of the panel body, fixed header at the top in Stone 100, scrollable
+// body. No footer — the tech list is a navigation surface, not an editing surface (no Reset/Apply).
 .ax-process_tech_list {
   @apply flex-none w-72;
-  @apply flex flex-col rounded border border-gray-200 bg-white;
+  @apply flex flex-col bg-white;
+  @apply border-r border-gray-300;
 
   &_header {
-    @apply h-10 px-3 flex items-center;
-    @apply border-b border-gray-200 bg-stone-100; // Tailwind Stone 100 — tech-list box header
-    @apply text-lg font-semibold text-neutral-800;
+    @apply w-full h-9 px-2; // 2.25rem ≈ 32px — same chrome height as the adjustment sidebar header
+    @apply flex-none flex items-center justify-between;
+    @apply font-semibold text-neutral-900;
+    @apply bg-stone-100 border-b border-gray-300;
   }
 
   &_body {
@@ -69,26 +60,93 @@
 }
 
 // ---- Pipeline (right top) ------------------------------------------------------------------------------------------
+// Layout is stage-grouped: each .ax-process_pipeline_stage stacks a banner + a horizontal row of step
+// tiles separated by inline move/wait chips. Between stage groups a larger "stage transition" chip
+// surfaces the cross-bay move/wait that the planner usually wants to scrutinise most.
 .ax-process_pipeline_wrap {
   @apply flex flex-col gap-3;
 }
 
 .ax-process_pipeline {
-  @apply flex items-stretch gap-1 overflow-x-auto pb-1;
+  @apply flex flex-col gap-2 overflow-x-auto pb-1;
+}
+
+.ax-process_pipeline_stage {
+  @apply flex flex-col gap-1;
+}
+
+.ax-process_stage_banner {
+  @apply flex items-center gap-2 px-1;
+  @apply text-base text-neutral-700;
+
+  &_meta {
+    @apply text-sm text-neutral-500;
+  }
+}
+
+.ax-process_pipeline_row {
+  @apply flex items-stretch gap-1;
 }
 
 .ax-process_pipeline_node {
   @apply flex items-stretch gap-1;
 }
 
-.ax-process_pipeline_arrow {
-  @apply self-center text-neutral-400 flex-none;
+// Inter-step transition chip: arrow + (Move chip and/or Wait chip). Hidden when both are zero.
+.ax-process_transition {
+  @apply flex items-center gap-1 self-center px-1;
+  @apply text-sm text-neutral-500;
+
+  &_arrow {
+    @apply text-neutral-400;
+  }
+  &_chips {
+    @apply flex flex-col gap-0.5;
+  }
+  &_chip {
+    @apply inline-flex items-center gap-1 px-1.5 py-0 rounded;
+    @apply text-xs font-medium leading-tight;
+    @apply border border-gray-200 bg-white;
+
+    &__move {
+      @apply text-indigo-700 border-indigo-200 bg-indigo-50;
+    }
+    &__wait {
+      @apply text-amber-700 border-amber-200 bg-amber-50;
+    }
+  }
+
+  // Larger variant used between stage groups — same chip palette, bigger arrow + chip padding so
+  // the planner reads stage-transition cost more prominently than intra-stage transitions.
+  &__large {
+    @apply self-start py-2;
+    .ax-process_transition_arrow {
+      @apply text-neutral-500;
+    }
+    .ax-process_transition_chip {
+      @apply text-sm px-2;
+    }
+  }
+}
+
+// Stage-transition arrow row — full-width container so the chip sits flush-left under the stage.
+.ax-process_stage_transition {
+  @apply flex items-center gap-2 pl-2;
 }
 
 .ax-process_step {
   @apply flex-none w-44;
   @apply rounded-md border border-gray-200 bg-white p-2;
   @apply flex flex-col gap-1;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+
+  // Hover affordance matches the PO table's amber-50 hover language so cross-panel interaction
+  // feels consistent: hovering a step in the pipeline highlights it the same way a row hover does.
+  &:hover {
+    @apply border-amber-300 bg-amber-50;
+  }
 
   &.is-bottleneck {
     @apply border-orange-300 bg-orange-50;

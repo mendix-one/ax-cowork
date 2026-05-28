@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx'
 import { MOCK_PRODUCTION_ORDERS, type PoStatus, type ProductionOrder, type ScheduleBatch, type ScheduleClass, type ScheduleFamily } from '../../data/mock-plan'
+import { readJson, writeJson } from '@/acore/storage'
 
 // Local date arithmetic helper — mock-plan exports HORIZON dates but not addDays.
 const addDays = (start: string, days: number): string => {
@@ -46,6 +47,33 @@ export type FlatRow = {
 
 // Group-by mode for the table — drives flatRows builder selection.
 export type GroupBy = 'po' | 'customer'
+
+// ---- entity notes (list model) ------------------------------------------------------------------
+// PO / Family / Batch / etc. each carry an ORDERED list of timestamped notes (vs the single free-text
+// note on the global NotesStore, which is keyed by row and used by other panels). Stored separately
+// so adding or removing notes here doesn't churn the legacy storage. Keys are namespaced:
+//   "po::<poId>"          for production orders
+//   "family::<familyId>"  for production families
+// Bumped to v2 when the API genericized — old v1 data (bare poId keys) is ignored on first load.
+export type PoNote = {
+  id: string
+  text: string
+  createdAt: string // ISO timestamp
+}
+type PersistedEntityNotes = Record<string, PoNote[]>
+const ENTITY_NOTES_STORAGE_KEY = 'ax.simulation.po-notes.v2'
+const isPersistedEntityNotes = (v: unknown): v is PersistedEntityNotes => {
+  if (!v || typeof v !== 'object' || Array.isArray(v)) return false
+  for (const list of Object.values(v as Record<string, unknown>)) {
+    if (!Array.isArray(list)) return false
+    for (const n of list) {
+      const note = n as PoNote
+      if (!note || typeof note !== 'object') return false
+      if (typeof note.id !== 'string' || typeof note.text !== 'string' || typeof note.createdAt !== 'string') return false
+    }
+  }
+  return true
+}
 
 // ---- table tune --------------------------------------------------------------
 // Per-column UI state exposed via the "tune" popover in the table header. The base column DEFINITIONS
@@ -129,6 +157,20 @@ export class ProductionOrderStore {
   // Per-column tune state — driven by the table-tune popover in the header. Initialised from the
   // baseline; the table component reads this to derive the active column list each render.
   tableTune: ColumnTune[] = PO_COLUMN_BASELINE.map((c) => ({ ...c }))
+
+  // Entity notes (list). Persisted to localStorage so cross-shift handoff survives reload. Seeded
+  // with a few example notes so the concept demo shows realistic content out of the box.
+  private entityNotesStore: PersistedEntityNotes = readJson(ENTITY_NOTES_STORAGE_KEY, isPersistedEntityNotes) ?? {
+    'po::PO-2025-118': [
+      { id: 'seed-po-1', text: 'Customer A flagged urgency on M1 — keep buffer on QLC-A.', createdAt: '2026-05-10T08:30:00Z' },
+    ],
+    'family::fam-118-v9-qlc-a': [
+      { id: 'seed-fam-1', text: 'V9-QLC-A tech: watch HARC Etch utilisation, recipe v3.4 runs hot.', createdAt: '2026-05-12T10:00:00Z' },
+    ],
+    'batch::fam-118-v9-qlc-a::b1': [
+      { id: 'seed-batch-1', text: 'B-1 already in production — locked to HARC Etch group, do not reschedule.', createdAt: '2026-05-13T09:15:00Z' },
+    ],
+  }
 
   private historyCount = 0
   private futureCount = 0
@@ -313,6 +355,41 @@ export class ProductionOrderStore {
 
   resetTableTune() {
     this.tableTune = PO_COLUMN_BASELINE.map((c) => ({ ...c }))
+  }
+
+  // ---- entity notes ----------------------------------------------------------
+  // Reassign the underlying object on every mutation so MobX picks up the change. Persistence is
+  // synchronous to localStorage — small payload, no debounce needed for this scope. The `key`
+  // arg is the namespaced entity key ("po::id" / "family::id") so the same store backs both
+  // PO and Family note lists (and any future entity that wants timestamped multi-note support).
+  getNotes(key: string): PoNote[] {
+    return this.entityNotesStore[key] ?? []
+  }
+
+  addNote(key: string, text: string) {
+    const trimmed = text.trim()
+    if (!trimmed) return
+    const note: PoNote = {
+      id: `note-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      text: trimmed,
+      createdAt: new Date().toISOString(),
+    }
+    const list = this.entityNotesStore[key] ?? []
+    this.entityNotesStore = { ...this.entityNotesStore, [key]: [...list, note] }
+    writeJson(ENTITY_NOTES_STORAGE_KEY, this.entityNotesStore)
+  }
+
+  removeNote(key: string, noteId: string) {
+    const list = this.entityNotesStore[key] ?? []
+    const next = list.filter((n) => n.id !== noteId)
+    if (next.length === 0) {
+      const copy = { ...this.entityNotesStore }
+      delete copy[key]
+      this.entityNotesStore = copy
+    } else {
+      this.entityNotesStore = { ...this.entityNotesStore, [key]: next }
+    }
+    writeJson(ENTITY_NOTES_STORAGE_KEY, this.entityNotesStore)
   }
 
   // ---- derived ---------------------------------------------------------------

@@ -8,6 +8,7 @@ import { SimulationAnalysisToolGroupBars } from './SimulationAnalysisToolGroupBa
 import { SimulationAnalysisHeatmap } from './SimulationAnalysisHeatmap'
 import { SimulationAnalysisMilestones } from './SimulationAnalysisMilestones'
 import { SimulationAnalysisFamilyTech } from './SimulationAnalysisFamilyTech'
+import { SimulationAnalysisRoutingMatrix } from './SimulationAnalysisRoutingMatrix'
 import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
 // Mirrors the gantt panel shape: AxDisplayPanel header carries the analysis toolbar (date range + adjustment toggle),
@@ -34,6 +35,7 @@ export const SimulationAnalysisPanel = observer((props: MainPanelControls) => {
             <SimulationAnalysisHeatmap />
             <SimulationAnalysisMilestones />
             <SimulationAnalysisFamilyTech />
+            <SimulationAnalysisRoutingMatrix />
           </div>
         </div>
       </div>

@@ -1,4 +1,4 @@
-import { Tag, Typography } from 'antd'
+import { Tag, Tooltip, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { useSimulationContext } from '../../store/simulation.context'
 import { calcTechSummaries, formatCycle, formatYield } from './production-process.helpers'
@@ -12,7 +12,9 @@ export const SimulationProductionProcessTechList = observer(() => {
 
   return (
     <div className="ax-process_tech_list">
-      <div className="ax-process_tech_list_header">Technology routings</div>
+      <div className="ax-process_tech_list_header">
+        <span>Technology routings</span>
+      </div>
       <div className="ax-process_tech_list_body">
         {summaries.map((s) => {
           const isActive = s.tech === process.selectedTech
@@ -37,8 +39,10 @@ export const SimulationProductionProcessTechList = observer(() => {
                   <div className="ax-process_tech_card_stat_value">{s.totalWafers.toLocaleString()}</div>
                 </div>
                 <div>
-                  <div className="ax-process_tech_card_stat_label">Cycle</div>
-                  <div className="ax-process_tech_card_stat_value">{formatCycle(s.totalCycleHours)}</div>
+                  <Tooltip title={`Processing ${formatCycle(s.totalCycleHours)} · Move ${formatCycle(s.totalMoveHours)} · Wait ${formatCycle(s.totalWaitHours)}`}>
+                    <div className="ax-process_tech_card_stat_label">End-to-end</div>
+                    <div className="ax-process_tech_card_stat_value">{formatCycle(s.totalClockHours)}</div>
+                  </Tooltip>
                 </div>
                 <div>
                   <div className="ax-process_tech_card_stat_label">E2E yield</div>
