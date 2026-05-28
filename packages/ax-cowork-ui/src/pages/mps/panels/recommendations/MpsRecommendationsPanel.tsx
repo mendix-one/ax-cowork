@@ -1,8 +1,8 @@
 import { Button, Card, Collapse, Flex, Space, Tag, Typography } from 'antd'
 import { createStyles } from 'antd-style'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
-import type { Recommendation } from './recommendations.store'
+import { useMpsContext } from '../../stores/mps.context'
+import type { Recommendation } from '../../stores/recommendations.store'
 import { AxDisplayPanel, type SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
 const useStyles = createStyles(({ token }) => ({

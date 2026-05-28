@@ -3,8 +3,8 @@ import { observer } from 'mobx-react-lite'
 import { useStore } from '@/acore/store/store.context'
 import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 import type { MdiIconName } from '@/shared/mui-icon/AxMuiIcon.tsx'
-import { useMpsContext } from '../store/mps.context'
-import type { SubPanelId } from '../store/mps.store'
+import { useMpsContext } from '../stores/mps.context'
+import type { SubPanelId } from '../stores/mps.store'
 
 type SubMenuItem = {
   id: SubPanelId

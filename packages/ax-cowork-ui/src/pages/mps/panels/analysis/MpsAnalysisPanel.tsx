@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
-import { MpsAdjustmentSidebar } from '../../components/MpsAdjustmentSidebar'
+import { useMpsContext } from '../../stores/mps.context'
+import { MpsAdjustmentSidebar } from '../../views/MpsAdjustmentSidebar'
 import { MpsAnalysisToolbar } from './MpsAnalysisToolbar'
 import { MpsAnalysisSummary } from './MpsAnalysisSummary'
 import { MpsAnalysisShopFloorArea } from './MpsAnalysisShopFloorArea'
@@ -11,7 +11,7 @@ import { MpsAnalysisFamilyTech } from './MpsAnalysisFamilyTech'
 import { MpsAnalysisRoutingMatrix } from './MpsAnalysisRoutingMatrix'
 import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
-// Mirrors the gantt panel shape: AxDisplayPanel header carries the analysis toolbar (date range + adjustment toggle),
+// Mirrors the simulation panel shape: AxDisplayPanel header carries the analysis toolbar (date range + adjustment toggle),
 // the body splits into an optional left adjustment sidebar and the main content scroll area on the right.
 // There is no bottom panel — per the spec, analysis has no quick-analysis row of its own.
 export const MpsAnalysisPanel = observer((props: MainPanelControls) => {
@@ -25,10 +25,10 @@ export const MpsAnalysisPanel = observer((props: MainPanelControls) => {
       tools={<MpsAnalysisToolbar />}
       {...props}
     >
-      <div className="ax-gantt">
-        <div className="ax-gantt_body">
+      <div className="ax-simulation">
+        <div className="ax-simulation_body">
           {analysis.filterSidebarOpen && <MpsAdjustmentSidebar onClose={() => analysis.toggleFilterSidebar()} />}
-          <div className="ax-gantt_body_content ax-analysis_scroll">
+          <div className="ax-simulation_body_content ax-analysis_scroll">
             <MpsAnalysisSummary />
             <MpsAnalysisShopFloorArea />
             <MpsAnalysisToolGroupBars />

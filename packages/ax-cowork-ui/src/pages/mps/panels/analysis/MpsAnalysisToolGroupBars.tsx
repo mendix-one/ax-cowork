@@ -4,9 +4,9 @@ import dayjs from 'dayjs'
 import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
+import { useMpsContext } from '../../stores/mps.context'
 import { DAILY_TOOL_GROUP_USAGE, TOOL_GROUP_CAPACITIES } from '../../data/mock-plan'
-import { SAFE_THRESHOLD } from './analysis.helpers'
+import { SAFE_THRESHOLD } from '../../helpers/analysis.helpers'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // Color tokens — synced with the schedule-lineage palette (axSchedule in theme.ts) so the bar fills
@@ -35,8 +35,8 @@ export const MpsAnalysisToolGroupBars = observer(() => {
   const analysis = useMpsContext().analysis
 
   // Effective range: brush from the area chart, otherwise toolbar range.
-  const start = analysis.shopFloorBrush?.start ?? analysis.startDate
-  const end = analysis.shopFloorBrush?.end ?? analysis.endDate
+  const start = analysis.capacityBrush?.start ?? analysis.startDate
+  const end = analysis.capacityBrush?.end ?? analysis.endDate
 
   const groups = useMemo(() => aggregateUsage(start, end), [start, end])
 
@@ -89,7 +89,7 @@ export const MpsAnalysisToolGroupBars = observer(() => {
           <span>Tool-group capacity</span>
         </div>
         <Space size={6} align="center">
-          {analysis.shopFloorBrush && (
+          {analysis.capacityBrush && (
             <Tag color="blue" style={{ margin: 0 }}>
               from shop-floor selection
             </Tag>

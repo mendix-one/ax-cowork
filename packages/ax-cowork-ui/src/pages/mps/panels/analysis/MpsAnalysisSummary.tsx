@@ -1,9 +1,9 @@
 import { Statistic, Tag, Tooltip, Typography } from 'antd'
 import type { ReactNode } from 'react'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
-import type { MpsStore } from '../../store/mps.store'
-import { calcCapacityStats, calcShipmentSummary, calcTotals, calcViolations } from './analysis.helpers'
+import { useMpsContext } from '../../stores/mps.context'
+import type { MpsStore } from '../../stores/mps.store'
+import { calcCapacityStats, calcShipmentSummary, calcTotals, calcViolations } from '../../helpers/analysis.helpers'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // Card title row with an explicit "open detail" chevron — every KPI summary card is a deep-link to the panel
@@ -53,8 +53,8 @@ const renderCardTitle = (args: {
 // guess where it lives → navigate manually" that the original concept forced on the planner.
 export const MpsAnalysisSummary = observer(() => {
   const sim: MpsStore = useMpsContext()
-  const orders = sim.gantt.filteredOrders
-  const today = sim.gantt.today
+  const orders = sim.simulation.filteredOrders
+  const today = sim.simulation.today
   const totals = calcTotals(orders)
   const cap = calcCapacityStats(sim.analysis.startDate, sim.analysis.endDate)
   const ship = calcShipmentSummary(orders, today)
@@ -139,7 +139,7 @@ export const MpsAnalysisSummary = observer(() => {
           icon: 'mdiTruckDeliveryOutline',
           label: <>Shipment &amp; milestone</>,
           openLabel: shipmentTarget ? `Open Production Order — ${shipmentTarget}` : 'Open Production Order panel',
-          onOpen: () => (shipmentTarget ? sim.navigateToProductionOrder(shipmentTarget) : sim.setActiveMainPanel('orders')),
+          onOpen: () => (shipmentTarget ? sim.navigateToOrder(shipmentTarget) : sim.setActiveMainPanel('orders')),
         })}
         <div className="ax-analysis_summary_card_body">
           <Statistic

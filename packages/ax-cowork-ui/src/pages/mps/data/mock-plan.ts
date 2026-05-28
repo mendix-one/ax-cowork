@@ -8,7 +8,7 @@ export type LotStatus = 'on-track' | 'at-risk' | 'slipped' | 'hot-lot'
 // "2 at-risk PO · review priorities" claim in the Production Order summary KPI.
 export type PoStatus = 'READY' | 'RUNNING' | 'COMPLETED' | 'CANCELLED' | 'ON HOLD' | 'at-risk' | 'slipped'
 
-// Update 3 — schedule classification. Drives bar colour on the gantt.
+// Update 3 — schedule classification. Drives bar colour on the simulation.
 //   • fixed   — old schedule, applied and running now
 //   • changes — old schedule but modified in this session
 //   • new     — newly added in this session
@@ -357,7 +357,7 @@ export const SHOP_FLOOR_CAPACITY_LIMIT = TOOL_GROUP_CAPACITIES.reduce((s, g) => 
 export const SHOP_FLOOR_CAPACITY_SAFE = Math.round(SHOP_FLOOR_CAPACITY_LIMIT * 0.8) // 80% threshold
 
 // Daily per-tool-group usage matrix for the stacked area chart.
-// Generated deterministically over HORIZON_DATES so the chart aligns with the gantt timeline.
+// Generated deterministically over HORIZON_DATES so the chart aligns with the simulation timeline.
 const wave = (i: number, base: number, amp: number, period: number) => Math.round(base + amp * Math.sin((i / period) * Math.PI * 2))
 
 export const DAILY_TOOL_GROUP_USAGE: { date: string; usage: Record<string, number> }[] = HORIZON_DATES.map((date, i) => {

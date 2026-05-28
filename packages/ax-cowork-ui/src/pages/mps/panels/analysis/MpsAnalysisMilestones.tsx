@@ -1,7 +1,7 @@
 import { Tag, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
-import { calcMilestoneRows } from './analysis.helpers'
+import { useMpsContext } from '../../stores/mps.context'
+import { calcMilestoneRows } from '../../helpers/analysis.helpers'
 import type { MilestoneState } from '../../data/mock-plan'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
@@ -15,7 +15,7 @@ const STATE_TAG: Record<MilestoneState, { color: string; label: string }> = {
 // Shipment milestone analysis — one row per milestone across all visible POs.
 // Sorted by date so the operator sees the next commitment at the top.
 export const MpsAnalysisMilestones = observer(() => {
-  const orders = useMpsContext().gantt.filteredOrders
+  const orders = useMpsContext().simulation.filteredOrders
   const rows = calcMilestoneRows(orders)
 
   return (

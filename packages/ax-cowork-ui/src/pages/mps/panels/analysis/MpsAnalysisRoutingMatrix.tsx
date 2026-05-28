@@ -1,7 +1,7 @@
 import { Tag, Tooltip } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { TECH_ROUTINGS, TOOL_GROUP_CAPACITIES } from '../../data/mock-plan'
-import { calcRoutingMatrix, formatCycle } from '../processes/production-process.helpers'
+import { calcRoutingMatrix, formatCycle } from '../../helpers/process.helpers'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // Routing matrix — tech × tool group. Each cell shows total cycle hours of any step on that group,

@@ -1,0 +1,504 @@
+// === SIMULATION PRODUCTION PROCESS ===================================================================================
+// Style module for the Production Processes panel. Reuses .ax-simulation / .ax-analysis_section chrome from the
+// other panels so the visual language stays consistent.
+
+// ---- Left sidebar: tech list ---------------------------------------------------------------------------------------
+// Mirrors the Adjustment sidebar (.ax-simulation_side) used by gantt/analysis/order panels: full-height
+// flex column docked at the left edge of the panel body, fixed header at the top in Stone 100, scrollable
+// body. No footer — the tech list is a navigation surface, not an editing surface (no Reset/Apply).
+.ax-process_tech_list {
+  @apply flex-none w-72;
+  @apply flex flex-col bg-white;
+  @apply border-r border-gray-300;
+
+  &_header {
+    @apply w-full h-9 px-2; // 2.25rem ≈ 32px — same chrome height as the adjustment sidebar header
+    @apply flex-none flex items-center justify-between;
+    @apply font-semibold text-neutral-900;
+    @apply bg-stone-100 border-b border-gray-300;
+  }
+
+  &_body {
+    @apply flex-1 min-h-0 overflow-auto p-2;
+    @apply flex flex-col gap-2;
+  }
+}
+
+.ax-process_tech_card {
+  @apply text-left w-full;
+  @apply rounded-md border border-gray-200 bg-white p-2;
+  @apply cursor-pointer transition-colors;
+  @apply flex flex-col gap-1;
+
+  &:hover {
+    @apply bg-indigo-50 border-indigo-200;
+  }
+
+  &.is-active {
+    @apply bg-indigo-100 border-indigo-300;
+  }
+
+  &_top {
+    @apply flex items-center justify-between;
+  }
+
+  &_title {
+    @apply font-semibold text-neutral-900;
+  }
+
+  &_stats {
+    @apply mt-1 grid grid-cols-4 gap-2;
+  }
+
+  &_stat_label {
+    @apply text-sm text-neutral-500;
+  }
+
+  &_stat_value {
+    @apply font-semibold text-neutral-900;
+  }
+}
+
+// ---- Main panel layout (right of tech-list sidebar) ----------------------------------------------------------------
+// 4 vertically-stacked sections (Summary KPIs → Stage overview → Per-stage detail → Step table).
+// Edge-to-edge layout + sticky section headers come from .ax-analysis_scroll (shared with the
+// Analysis panel) — see _ax-simulation-analysis.scss for the base rules.
+
+.ax-process_pipeline_wrap {
+  @apply flex flex-col;
+}
+
+// KPI strip — small bottom gap so it visually separates from the first sticky section header that
+// follows. Other sections stack flush (their Stone-100 headers do the separating).
+.ax-process_kpis {
+  @apply mb-2;
+}
+
+// --- 1. Summary KPI strip ---
+.ax-process_kpis {
+  @apply w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3;
+}
+
+.ax-process_kpi {
+  @apply flex flex-col gap-0.5 rounded border border-gray-200 bg-white p-3 min-h-0;
+
+  &_label {
+    @apply text-sm text-neutral-500;
+  }
+  &_value {
+    @apply font-semibold text-neutral-900;
+    font-size: 22px;
+    line-height: 1.1;
+  }
+  &_sub {
+    @apply text-sm text-neutral-500;
+  }
+
+  // Tone modifiers — keep the card chrome neutral but tint the VALUE so the eye is drawn to bad/good
+  // metrics. Matches the convention used by analysis_stat values.
+  &__warn .ax-process_kpi_value {
+    @apply text-ax-pri-p2-text;
+  }
+  &__good .ax-process_kpi_value {
+    @apply text-ax-risk-ok;
+  }
+}
+
+// --- 2. Stage overview ---
+.ax-process_overview {
+  @apply flex items-stretch gap-2 overflow-x-auto pb-1;
+}
+
+.ax-process_overview_cell {
+  @apply flex items-stretch gap-2;
+}
+
+.ax-process_overview_card {
+  @apply flex-none w-44 flex flex-col gap-1;
+  @apply rounded-md border border-gray-200 bg-white p-2;
+
+  &_top {
+    @apply flex items-center justify-between;
+  }
+  &_steps {
+    @apply text-sm text-neutral-500;
+  }
+  &_clock {
+    @apply font-semibold text-neutral-900;
+    font-size: 18px;
+    line-height: 1.1;
+  }
+}
+
+// Proportion bar — 8px tall, full-width, three horizontal segments coloured per type.
+// Indigo for process (the canonical primary work), Sky for move (transport), Amber for wait
+// (queue/idle — same tone as the wait chips so the planner sees the same colour everywhere).
+.ax-process_overview_bar {
+  @apply w-full h-2 rounded overflow-hidden;
+  @apply bg-neutral-200;
+  @apply flex;
+
+  &_seg {
+    @apply h-full;
+    &__process {
+      background: theme('colors.indigo.400');
+    }
+    &__move {
+      background: theme('colors.sky.400');
+    }
+    &__wait {
+      background: theme('colors.amber.400');
+    }
+  }
+}
+
+// Mini legend underneath the overview cards.
+.ax-process_overview_legend {
+  @apply mt-2 flex flex-wrap items-center gap-3 text-sm text-neutral-600;
+
+  &_item {
+    @apply inline-flex items-center gap-1;
+  }
+  &_swatch {
+    @apply inline-block rounded-sm;
+    width: 10px;
+    height: 10px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08);
+    &__process {
+      background: theme('colors.indigo.400');
+    }
+    &__move {
+      background: theme('colors.sky.400');
+    }
+    &__wait {
+      background: theme('colors.amber.400');
+    }
+  }
+}
+
+// --- 3..N. Per-stage section internals ---
+// The per-stage section reuses the .ax-analysis_section chrome (header sticky, body padded). Inside
+// the body we stack: flow diagram (row of step tiles) → spacing → detail table.
+.ax-process_stage_section_row {
+  @apply flex items-stretch gap-1 overflow-x-auto pb-1;
+}
+.ax-process_stage_section_table {
+  @apply mt-3;
+}
+
+// --- Detail tables — Production-Order table look, shared across Process + Shop Floor ---
+// Scoped to .ax-process_pipeline_wrap (process panel) and .ax-capacity_detail (shop floor panel) so the
+// Analysis panel's tables (Milestones, Family/Tech, Routing matrix) keep their existing lighter
+// visual. The PO-table feel comes from four ingredients:
+//   • Stone-100 header bg + gray-300 bottom separator (same as the AxControlTable header in PO view)
+//   • Alternating white / Neutral-50 zebra rows (no group concept here, simple alternation)
+//   • Amber-50 hover (matches PO non-selected hover)
+//   • Gray-200 cell borders (matches PO grid lines)
+.ax-process_pipeline_wrap,
+.ax-capacity_detail {
+  .ax-analysis_table {
+    thead th {
+      background: #f5f5f4; // Tailwind Stone 100
+      border-bottom: 1px solid #d1d5db; // Tailwind gray-300 — stronger header → body separator
+      border-right: 1px solid #e5e7eb; // gray-200 between header cells
+      &:last-child {
+        border-right: 0;
+      }
+    }
+    tbody tr:nth-child(odd) td {
+      background: #ffffff;
+    }
+    tbody tr:nth-child(even) td {
+      background: #fafafa; // Tailwind Neutral 50
+    }
+    tbody tr:hover td {
+      background: #fffbeb !important; // Tailwind Amber 50 — hover always wins
+    }
+    tbody td {
+      border-top: 0;
+      border-bottom: 1px solid #e5e7eb; // gray-200
+      border-right: 1px solid #e5e7eb;
+      &:last-child {
+        border-right: 0;
+      }
+    }
+  }
+}
+
+// Legacy hooks kept for any external CSS still referencing the old pipeline class names.
+.ax-process_pipeline,
+.ax-process_pipeline_stage,
+.ax-process_pipeline_row,
+.ax-process_stage_banner,
+.ax-process_stage_transition {
+  // intentionally empty — superseded by .ax-process_stages and .ax-process_stage_section_*
+}
+
+.ax-process_pipeline_node {
+  @apply flex items-stretch gap-1;
+}
+
+// Inter-step transition chip: arrow + (Move chip and/or Wait chip). Hidden when both are zero.
+.ax-process_transition {
+  @apply flex items-center gap-1 self-center px-1;
+  @apply text-sm text-neutral-500;
+
+  &_arrow {
+    @apply text-neutral-400;
+  }
+  &_chips {
+    @apply flex flex-col gap-0.5;
+  }
+  &_chip {
+    @apply inline-flex items-center gap-1 px-1.5 py-0 rounded;
+    @apply text-xs font-medium leading-tight;
+    @apply border border-gray-200 bg-white;
+
+    &__move {
+      @apply text-indigo-700 border-indigo-200 bg-indigo-50;
+    }
+    &__wait {
+      @apply text-amber-700 border-amber-200 bg-amber-50;
+    }
+  }
+
+  // Larger variant used between stage groups — same chip palette, bigger arrow + chip padding so
+  // the planner reads stage-transition cost more prominently than intra-stage transitions.
+  &__large {
+    @apply self-start py-2;
+    .ax-process_transition_arrow {
+      @apply text-neutral-500;
+    }
+    .ax-process_transition_chip {
+      @apply text-sm px-2;
+    }
+  }
+}
+
+// Stage-transition arrow row — full-width container so the chip sits flush-left under the stage.
+.ax-process_stage_transition {
+  @apply flex items-center gap-2 pl-2;
+}
+
+.ax-process_step {
+  @apply flex-none w-44;
+  @apply rounded-md border border-gray-200 bg-white p-2;
+  @apply flex flex-col gap-1;
+  transition:
+    border-color 120ms ease,
+    background 120ms ease;
+
+  // Hover affordance matches the PO table's amber-50 hover language so cross-panel interaction
+  // feels consistent: hovering a step in the pipeline highlights it the same way a row hover does.
+  &:hover {
+    @apply border-amber-300 bg-amber-50;
+  }
+
+  &.is-bottleneck {
+    @apply border-orange-300 bg-orange-50;
+  }
+
+  &_top {
+    @apply flex items-center justify-between;
+  }
+
+  &_order {
+    @apply text-sm text-neutral-500 font-mono;
+  }
+
+  &_name {
+    @apply font-semibold text-neutral-900;
+  }
+
+  &_meta {
+    @apply flex flex-col gap-0.5;
+  }
+
+  &_chip {
+    @apply inline-flex items-center gap-1;
+    @apply text-sm text-neutral-600;
+  }
+
+  &_kpis {
+    @apply grid grid-cols-2 gap-2 mt-1;
+  }
+
+  &_kpi_label {
+    @apply text-sm text-neutral-500;
+  }
+
+  &_kpi_value {
+    @apply font-semibold text-neutral-900;
+  }
+
+  &_footer {
+    @apply flex flex-wrap gap-1 mt-1;
+  }
+}
+
+// === SIMULATION SHOP FLOOR ==========================================================================================
+// Shop Floor uses the shared gantt/process chrome: .ax-simulation > .ax-simulation_body > sidebar + .ax-simulation_body_content
+// + .ax-analysis_scroll. That gives it edge-to-edge + sticky-section-header layout for free.
+//
+// The .ax-capacity_detail wrapper class is also kept on the main content so the Process-style table
+// override above (.ax-process_pipeline_wrap, .ax-capacity_detail) picks up the Shop Floor tables.
+
+// ---- Left sidebar: Tool Group Tree ------------------------------------------------------------------
+// Same chrome as .ax-process_tech_list (Production Process tech sidebar) so the two operational
+// navigation surfaces feel identical: full-height column, Stone-100 sticky header, scrollable body.
+.ax-capacity_tree {
+  @apply flex-none w-72;
+  @apply flex flex-col bg-white;
+  @apply border-r border-gray-300;
+
+  &_header {
+    @apply w-full h-9 px-2;
+    @apply flex-none flex items-center justify-between;
+    @apply font-semibold text-neutral-900;
+    @apply bg-stone-100 border-b border-gray-300;
+  }
+
+  &_body {
+    @apply flex-1 min-h-0 overflow-auto p-2;
+    @apply flex flex-col gap-3;
+  }
+
+  // Module banner (FEOL / BEOL / Probe) — small uppercase label, separates groups of tool-group cards.
+  &_module {
+    @apply flex flex-col gap-1;
+
+    &_label {
+      @apply px-1 pb-1;
+      @apply text-sm font-semibold uppercase tracking-wide text-neutral-500;
+    }
+  }
+
+  // Tool-group card — same interaction model as .ax-process_tech_card: cursor pointer, hover indigo-50,
+  // active state indigo-100. Inside: row 1 = name + util%; row 2 = mini util bar (colour matches the
+  // dot/% — green/amber/red for normal/highload/overload).
+  &_card {
+    @apply text-left w-full;
+    @apply rounded-md border border-gray-200 bg-white p-2;
+    @apply cursor-pointer transition-colors;
+    @apply flex flex-col gap-1;
+
+    &:hover {
+      @apply bg-indigo-50 border-indigo-200;
+    }
+
+    &.is-active {
+      @apply bg-indigo-100 border-indigo-300;
+    }
+
+    &_top {
+      @apply flex items-center justify-between gap-2;
+    }
+    &_name {
+      @apply font-medium text-neutral-900 truncate;
+    }
+    &_bar {
+      @apply w-full h-1.5 rounded bg-neutral-200 overflow-hidden;
+      &_fill {
+        @apply h-full;
+      }
+    }
+  }
+}
+
+// ---- Main content KPI strip ---------------------------------------------------------------------
+// Mirrors the Process panel KPI strip — 4-col grid of KPI cards across the top of the main content.
+.ax-capacity_kpis {
+  @apply w-full grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3;
+  @apply mb-2;
+}
+
+.ax-capacity_kpi {
+  @apply flex flex-col gap-0.5 rounded border border-gray-200 bg-white p-3 min-h-0;
+
+  &_label {
+    @apply text-sm text-neutral-500;
+  }
+  &_value {
+    @apply font-semibold text-neutral-900;
+    font-size: 22px;
+    line-height: 1.1;
+  }
+  &_sub {
+    @apply text-sm text-neutral-500;
+  }
+
+  &__warn .ax-capacity_kpi_value {
+    @apply text-ax-pri-p2-text;
+  }
+  &__good .ax-capacity_kpi_value {
+    @apply text-ax-risk-ok;
+  }
+}
+
+.ax-capacity_oee_body {
+  @apply flex flex-col gap-3;
+}
+
+.ax-capacity_oee_grid {
+  @apply grid grid-cols-1 sm:grid-cols-3 gap-3;
+}
+
+.ax-capacity_oee_block {
+  @apply rounded border border-gray-200 bg-white p-3;
+  @apply flex flex-col gap-0.5;
+}
+
+.ax-capacity_oee_label {
+  @apply text-sm text-neutral-500;
+}
+
+.ax-capacity_oee_value {
+  @apply font-semibold text-neutral-900;
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.ax-capacity_oee_factors {
+  @apply grid grid-cols-1 md:grid-cols-3 gap-3;
+}
+
+.ax-capacity_oee_factor {
+  @apply flex flex-col gap-1;
+}
+
+.ax-capacity_oee_factor_label {
+  @apply text-base font-medium text-neutral-700;
+}
+
+// === PRODUCTION ORDER SUMMARY =======================================================================================
+// Rendered inside the PO info panel body when no row is selected — the panel body provides padding
+// and background, so the summary itself is just a responsive card grid.
+
+.ax-order_summary {
+  @apply w-full;
+  @apply grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-3;
+}
+
+.ax-order_summary_card {
+  @apply flex flex-col rounded border border-gray-200 bg-white p-3 min-h-0;
+
+  &_title {
+    @apply flex items-center gap-1 mb-2;
+    @apply text-base font-semibold text-neutral-800;
+  }
+
+  &_body {
+    @apply flex-1 flex flex-col gap-1;
+  }
+}
+
+.ax-order_summary_bar {
+  @apply w-full h-2 rounded bg-neutral-200 overflow-hidden mt-1;
+
+  &_fill {
+    @apply h-full;
+    &__done {
+      @apply bg-green-500;
+    }
+  }
+}

@@ -2,7 +2,7 @@ import { type KeyboardEventHandler } from 'react'
 import { Avatar, Button, Card, Flex, Input, Space, Spin, Tag, Typography } from 'antd'
 import { createStyles } from 'antd-style'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
+import { useMpsContext } from '../../stores/mps.context'
 import { AxDisplayPanel, type SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 

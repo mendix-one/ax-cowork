@@ -2,8 +2,8 @@ import { type ComponentType, type ReactNode } from 'react'
 import { Layout } from 'antd'
 import { createStyles } from 'antd-style'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../store/mps.context'
-import type { MainPanelId, SubPanelId } from '../store/mps.store'
+import { useMpsContext } from '../stores/mps.context'
+import type { MainPanelId, SubPanelId } from '../stores/mps.store'
 
 import { MpsLayoutTop } from './MpsLayoutTop.tsx'
 import { MpsLayoutLeft } from './MpsLayoutLeft.tsx'
@@ -13,14 +13,14 @@ import { MpsLayoutBottom } from './MpsLayoutBottom.tsx'
 import { AxSplitPane } from '@/shared/split-pane/AxSplitPane.tsx'
 import type { MainPanelControls, SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
-import { MpsGanttPanel } from '@/pages/mps/panels/simulation/MpsGanttPanel.tsx'
+import { MpsSimulationPanel } from '@/pages/mps/panels/simulation/MpsSimulationPanel.tsx'
 import { MpsAnalysisPanel } from '@/pages/mps/panels/analysis/MpsAnalysisPanel.tsx'
-import { MpsProductionOrderPanel } from '@/pages/mps/panels/orders/MpsProductionOrderPanel.tsx'
-import { MpsProductionProcessPanel } from '@/pages/mps/panels/processes/MpsProductionProcessPanel.tsx'
-import { MpsShopFloorPanel } from '@/pages/mps/panels/capacity/MpsShopFloorPanel.tsx'
+import { MpsOrderPanel } from '@/pages/mps/panels/orders/MpsOrderPanel.tsx'
+import { MpsProcessPanel } from '@/pages/mps/panels/processes/MpsProcessPanel.tsx'
+import { MpsCapacityPanel } from '@/pages/mps/panels/capacity/MpsCapacityPanel.tsx'
 import { MpsProcessTuningPanel } from '@/pages/mps/panels/process-tuning/MpsProcessTuningPanel.tsx'
 import { MpsCapacityTuningPanel } from '@/pages/mps/panels/capacity-tuning/MpsCapacityTuningPanel.tsx'
-import { MpsDataIntegrationPanel } from '@/pages/mps/panels/integration/MpsDataIntegrationPanel.tsx'
+import { MpsIntegrationPanel } from '@/pages/mps/panels/integration/MpsIntegrationPanel.tsx'
 
 import { MpsComparePanel } from '@/pages/mps/panels/compare/MpsComparePanel.tsx'
 import { MpsAIChatPanel } from '@/pages/mps/panels/ai-chat/MpsAIChatPanel.tsx'
@@ -29,14 +29,14 @@ import { MpsHistoryPanel } from '@/pages/mps/panels/history/MpsHistoryPanel.tsx'
 import { MpsRecommendationsPanel } from '@/pages/mps/panels/recommendations/MpsRecommendationsPanel.tsx'
 
 const MAIN_PANELS: Record<MainPanelId, ComponentType<MainPanelControls>> = {
-  simulation: MpsGanttPanel,
+  simulation: MpsSimulationPanel,
   analysis: MpsAnalysisPanel,
-  orders: MpsProductionOrderPanel,
-  processes: MpsProductionProcessPanel,
-  capacity: MpsShopFloorPanel,
+  orders: MpsOrderPanel,
+  processes: MpsProcessPanel,
+  capacity: MpsCapacityPanel,
   processTuning: MpsProcessTuningPanel,
   capacityTuning: MpsCapacityTuningPanel,
-  integration: MpsDataIntegrationPanel,
+  integration: MpsIntegrationPanel,
 }
 
 const SUB_PANELS: Record<SubPanelId, ComponentType<SubPanelControls>> = {

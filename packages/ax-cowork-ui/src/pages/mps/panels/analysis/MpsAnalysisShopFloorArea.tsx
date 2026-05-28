@@ -2,7 +2,7 @@ import { useMemo, useRef } from 'react'
 import ReactECharts from 'echarts-for-react'
 import type { EChartsOption } from 'echarts'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
+import { useMpsContext } from '../../stores/mps.context'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 import { DAILY_TOOL_GROUP_USAGE, SHOP_FLOOR_CAPACITY_LIMIT, SHOP_FLOOR_CAPACITY_SAFE, TOOL_GROUP_CAPACITIES } from '../../data/mock-plan'
 

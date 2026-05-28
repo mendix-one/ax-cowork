@@ -1,8 +1,8 @@
 import { Button, Descriptions, Flex, Progress, Segmented, Space, Tag, Typography } from 'antd'
 import { createStyles } from 'antd-style'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
-import type { TuneSuggestion } from './process-tuning.store'
+import { useMpsContext } from '../../stores/mps.context'
+import type { TuneSuggestion } from '../../stores/process-tuning.store'
 import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 

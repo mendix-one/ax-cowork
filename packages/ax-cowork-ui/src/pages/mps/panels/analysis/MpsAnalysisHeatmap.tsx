@@ -1,8 +1,8 @@
 import { Segmented, Tooltip, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
-import type { HeatGranularity } from './analysis.store'
-import { calcHeatmap, type HeatBand } from './analysis.helpers'
+import { useMpsContext } from '../../stores/mps.context'
+import type { HeatGranularity } from '../../stores/analysis.store'
+import { calcHeatmap, type HeatBand } from '../../helpers/analysis.helpers'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // Band palette is pinned to the tool-group bar chart so both surfaces speak the same color language —

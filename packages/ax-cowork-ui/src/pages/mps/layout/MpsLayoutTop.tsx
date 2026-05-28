@@ -6,32 +6,15 @@ import { useStore } from '@/acore/store/store.context'
 import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 import { AxMenuBox } from '@/shared/menu-box/AxMenuBox.tsx'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
-import { useMpsContext } from '../store/mps.context'
-
-// Compact day-count between two ISO-date strings (inclusive). Used by the header horizon chip so the planner
-// always knows the working window without leaving for the Gantt toolbar.
-const formatHorizon = (start: string, end: string): string => {
-  const s = new Date(start)
-  const e = new Date(end)
-  const days = Math.max(1, Math.round((e.getTime() - s.getTime()) / (24 * 60 * 60 * 1000)) + 1)
-  if (days % 7 === 0) return `${days / 7} week${days === 7 ? '' : 's'}`
-  return `${days} day${days === 1 ? '' : 's'}`
-}
-
-const formatShortDate = (iso: string): string => {
-  const d = new Date(iso)
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })
-}
+import { useMpsContext } from '../stores/mps.context'
 
 export const MpsLayoutTop = observer(() => {
   const { t } = useTranslation('app')
   const { app } = useStore()
-  const simulation = useMpsContext()
-  const line = simulation.activeProductionLine
-  const plan = simulation.activeMpsPlan
-  const edits = simulation.totalUnsavedEdits
-  const horizonStart = simulation.gantt.startDate
-  const horizonEnd = simulation.gantt.endDate
+  const sim = useMpsContext()
+  const line = sim.activeProductionLine
+  const plan = sim.activeMpsPlan
+  const edits = sim.totalUnsavedEdits
   return (
     <Layout.Header className="ax-layout-top">
       <Flex align="center" justify="space-between" gap="small" style={{ height: '100%' }}>
@@ -55,14 +38,14 @@ export const MpsLayoutTop = observer(() => {
               label={line.name}
               title={`Production Line: ${line.name}`}
               placement="bottom"
-              onClick={() => simulation.openProductionLineModal()}
+              onClick={() => sim.openProductionLineModal()}
             />
             <AxMenuBox
               icon="mdiCardBulletedOutline"
               label={plan.name}
               title={`Simulation: ${plan.name}`}
               placement="bottom"
-              onClick={() => simulation.openMpsPlanModal()}
+              onClick={() => sim.openMpsPlanModal()}
             />
             {/* Draft / scenario status pill — for now every Simulation plan is a draft. Wired to plan.status when BE lands. */}
             <Tag color="purple" className="ax-top_chip">

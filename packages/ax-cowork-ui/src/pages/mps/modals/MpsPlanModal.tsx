@@ -1,7 +1,7 @@
 import { Button, List, Modal, Radio, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { useTranslation } from 'react-i18next'
-import { useMpsContext } from '../store/mps.context'
+import { useMpsContext } from '../stores/mps.context'
 
 export const MpsPlanModal = observer(() => {
   const simulation = useMpsContext()

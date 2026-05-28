@@ -2,8 +2,8 @@ import { Layout } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 import { type MdiIconName } from '@/shared/mui-icon/AxMuiIcon.tsx'
-import { useMpsContext } from '../store/mps.context'
-import type { MainPanelId } from '../store/mps.store'
+import { useMpsContext } from '../stores/mps.context'
+import type { MainPanelId } from '../stores/mps.store'
 
 // Fixed-width icon rail (2.65rem) — pixel-tight default for FHD planner sessions. Tooltip-on-hover gives
 // each panel its label; group dividers separate Plan / Tuning / System sections.

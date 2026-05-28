@@ -1,8 +1,8 @@
 import { Button, Card, Flex, Progress, Space, Tag, Typography } from 'antd'
 import { createStyles } from 'antd-style'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
-import type { BackgroundTask } from './background.store'
+import { useMpsContext } from '../../stores/mps.context'
+import type { BackgroundTask } from '../../stores/background.store'
 import { AxDisplayPanel, type SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
 const useStyles = createStyles(({ token }) => ({

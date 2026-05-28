@@ -1,14 +1,14 @@
 import { Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
-import { useMpsContext } from '../../store/mps.context'
-import { calcFamilyTechRows } from './analysis.helpers'
+import { useMpsContext } from '../../stores/mps.context'
+import { calcFamilyTechRows } from '../../helpers/analysis.helpers'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 // Production Family × Spec/Tech analysis. The mock data only carries `tech` per family — we surface it
 // alongside the family code as a (tech, family) row and aggregate PO count, batch count, and wafer total.
 // Useful as a "what is currently planned to be built, grouped by recipe" rollup.
 export const MpsAnalysisFamilyTech = observer(() => {
-  const orders = useMpsContext().gantt.filteredOrders
+  const orders = useMpsContext().simulation.filteredOrders
   const rows = calcFamilyTechRows(orders)
 
   return (
