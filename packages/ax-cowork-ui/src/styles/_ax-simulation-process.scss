@@ -186,6 +186,44 @@
   @apply mt-3;
 }
 
+// --- Process detail tables — match the Production Order table look ---
+// Scoped to the process panel so the Analysis panel's tables (Milestones, Family/Tech, Routing matrix)
+// keep their existing lighter visual. The PO-table feel comes from four ingredients:
+//   • Stone-100 header bg + gray-300 bottom separator (same as the AxControlTable header in the PO view)
+//   • Alternating white / Neutral-50 zebra rows (zebra is per-row here — the process tables don't have
+//     a meaningful "group" concept like POs do, so simple alternation is the right read)
+//   • Amber-50 hover (matches PO non-selected hover)
+//   • Gray-200 cell borders (matches PO grid lines)
+.ax-process_pipeline_wrap {
+  .ax-analysis_table {
+    thead th {
+      background: #f5f5f4; // Tailwind Stone 100
+      border-bottom: 1px solid #d1d5db; // Tailwind gray-300 — stronger header → body separator
+      border-right: 1px solid #e5e7eb; // gray-200 between header cells
+      &:last-child {
+        border-right: 0;
+      }
+    }
+    tbody tr:nth-child(odd) td {
+      background: #ffffff;
+    }
+    tbody tr:nth-child(even) td {
+      background: #fafafa; // Tailwind Neutral 50
+    }
+    tbody tr:hover td {
+      background: #fffbeb !important; // Tailwind Amber 50 — hover always wins
+    }
+    tbody td {
+      border-top: 0;
+      border-bottom: 1px solid #e5e7eb; // gray-200
+      border-right: 1px solid #e5e7eb;
+      &:last-child {
+        border-right: 0;
+      }
+    }
+  }
+}
+
 // Legacy hooks kept for any external CSS still referencing the old pipeline class names.
 .ax-process_pipeline,
 .ax-process_pipeline_stage,
