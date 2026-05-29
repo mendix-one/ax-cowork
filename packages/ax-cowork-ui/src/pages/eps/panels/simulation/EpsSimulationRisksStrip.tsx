@@ -1,29 +1,19 @@
 import { Tooltip } from 'antd'
 import { observer } from 'mobx-react-lite'
-import { TOOLING_CONSTRAINTS, TOOL_GROUP_CAPACITIES } from '../../data/mock-plan'
+import { MOCK_ORG_DEMAND_BY_TEAM, type OrgDemandRow } from '../../data/mock-plan'
 import { useEpsContext } from '../../stores/eps.context'
 import { AxMuiIcon, type MdiIconName } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
-// Risks strip — a low-profile dock under the Gantt that lists the most pressing constraints and overloads
-// affecting the current planning horizon. Every entry is clickable and routes the planner straight to the
-// owning detail panel (Shop Floor Capacity with the right tool group selected), so chasing "where does this
-// come from?" stops being a navigation puzzle.
-//
-// Source of truth:
-//   • TOOLING_CONSTRAINTS — pm windows, downtime, qual expiries, ramp-ups (severity provided by the data)
-//   • TOOL_GROUP_CAPACITIES — derived overloads when used > total
-//
-// Sort order: critical first, then warning, then info. Capacity overloads slot into "critical" since they
-// already break the plan.
+// Risks strip — under the Gantt, lists the most pressing org-node violations and high-load warnings.
+// Each entry routes the planner to the Headcount Portfolio panel for that org node.
 
 type RiskRow = {
   key: string
   severity: 'critical' | 'warning' | 'info'
   title: string
   detail: string
-  toolGroup: string
+  org: OrgDemandRow
   kind: string
-  window?: string
 }
 
 const SEVERITY_RANK: Record<RiskRow['severity'], number> = { critical: 0, warning: 1, info: 2 }
@@ -33,49 +23,34 @@ const SEVERITY_ICON: Record<RiskRow['severity'], MdiIconName> = {
   info: 'mdiInformationOutline',
 }
 
-const formatWindow = (start: string, end: string): string => {
-  if (start === end) return start.slice(5) // MM-DD
-  return `${start.slice(5)} → ${end.slice(5)}`
-}
+const SAFE_THRESHOLD = 0.8
 
-const collectRisks = (horizonStart: string, horizonEnd: string): RiskRow[] => {
+const collectRisks = (): RiskRow[] => {
   const out: RiskRow[] = []
-
-  // Capacity overloads — show whenever any tool group consumes more than its total over the horizon.
-  for (const g of TOOL_GROUP_CAPACITIES) {
-    if (g.used <= g.total) continue
-    const pct = Math.round((g.used / g.total) * 100)
-    out.push({
-      key: `overload::${g.name}`,
-      severity: 'critical',
-      kind: 'Overload',
-      toolGroup: g.name,
-      title: `${g.name} · ${pct}% utilization`,
-      detail: `Demand ${g.used.toLocaleString()} exceeds capacity ${g.total.toLocaleString()} wafer-moves.`,
-    })
+  for (const o of MOCK_ORG_DEMAND_BY_TEAM) {
+    if (o.headcount === 0) continue
+    const ratio = o.demand / o.headcount
+    if (o.demand > o.headcount) {
+      const pct = Math.round(ratio * 100)
+      out.push({
+        key: `overload::${o.label}`,
+        severity: 'critical',
+        kind: 'Violation',
+        org: o,
+        title: `${o.label} · ${pct}% planned`,
+        detail: `Demand ${o.demand} P/M exceeds headcount ${o.headcount} P/M.`,
+      })
+    } else if (ratio >= SAFE_THRESHOLD) {
+      out.push({
+        key: `highload::${o.label}`,
+        severity: 'warning',
+        kind: 'High-load',
+        org: o,
+        title: `${o.label} · ${Math.round(ratio * 100)}% planned`,
+        detail: `Demand ${o.demand} P/M is at or above the 80% safety threshold.`,
+      })
+    }
   }
-
-  // Constraints (PM, downtime, qual expiry, ramp-up) that touch the horizon.
-  const horizonStartMs = new Date(horizonStart).getTime()
-  const horizonEndMs = new Date(horizonEnd).getTime()
-  for (const c of TOOLING_CONSTRAINTS) {
-    const cStart = new Date(c.start).getTime()
-    const cEnd = new Date(c.end).getTime()
-    // Skip constraints that fall entirely outside the planning horizon (with a 14d grace before/after so
-    // imminent items still surface).
-    const GRACE = 14 * 24 * 60 * 60 * 1000
-    if (cEnd < horizonStartMs - GRACE || cStart > horizonEndMs + GRACE) continue
-    out.push({
-      key: c.id,
-      severity: c.severity,
-      kind: c.kind === 'pm' ? 'PM' : c.kind === 'qual-expiry' ? 'Qual' : c.kind === 'downtime' ? 'Down' : c.kind === 'ramp-up' ? 'Ramp' : c.kind,
-      toolGroup: c.toolGroup,
-      title: c.title,
-      detail: c.detail,
-      window: formatWindow(c.start, c.end),
-    })
-  }
-
   out.sort((a, b) => SEVERITY_RANK[a.severity] - SEVERITY_RANK[b.severity])
   return out
 }
@@ -83,7 +58,7 @@ const collectRisks = (horizonStart: string, horizonEnd: string): RiskRow[] => {
 export const EpsSimulationRisksStrip = observer(() => {
   const sim = useEpsContext()
   const open = sim.simulation.risksStripOpen
-  const risks = collectRisks(sim.simulation.startDate, sim.simulation.endDate)
+  const risks = collectRisks()
   const criticalCount = risks.filter((r) => r.severity === 'critical').length
 
   return (
@@ -96,26 +71,25 @@ export const EpsSimulationRisksStrip = observer(() => {
           {risks.length} total
           {criticalCount > 0 && <span className="ax-eps-simulation_risks_header_critical"> · {criticalCount} critical</span>}
         </span>
-        <span className="ax-eps-simulation_risks_header_hint">Click an item to open it in Shop Floor Capacity</span>
+        <span className="ax-eps-simulation_risks_header_hint">Click an item to open it in Headcount Portfolio</span>
       </button>
       {open && (
         <div className="ax-eps-simulation_risks_list">
           {risks.length === 0 ? (
-            <div className="ax-eps-simulation_risks_empty">No active risks in this horizon — the plan is clean.</div>
+            <div className="ax-eps-simulation_risks_empty">No active risks — the plan is clean.</div>
           ) : (
             risks.map((r) => (
               <Tooltip key={r.key} title={r.detail} mouseEnterDelay={0.35}>
                 <button
                   type="button"
                   className={`ax-eps-simulation_risks_row ax-eps-simulation_risks_row__${r.severity}`}
-                  onClick={() => sim.navigateToToolGroup(r.toolGroup)}
-                  aria-label={`${r.kind} on ${r.toolGroup}: ${r.title}`}
+                  onClick={() => sim.navigateToOrgNode(r.org.ref.teamId ?? r.org.ref.divisionId)}
+                  aria-label={`${r.kind} on ${r.org.label}: ${r.title}`}
                 >
                   <AxMuiIcon icon={SEVERITY_ICON[r.severity]} size={14} className="ax-eps-simulation_risks_row_severity" />
                   <span className="ax-eps-simulation_risks_row_kind">{r.kind}</span>
-                  <span className="ax-eps-simulation_risks_row_group">{r.toolGroup}</span>
+                  <span className="ax-eps-simulation_risks_row_group">{r.org.label}</span>
                   <span className="ax-eps-simulation_risks_row_title">{r.title}</span>
-                  {r.window && <span className="ax-eps-simulation_risks_row_window">{r.window}</span>}
                   <AxMuiIcon icon="mdiArrowTopRight" size={12} className="ax-eps-simulation_risks_row_arrow" />
                 </button>
               </Tooltip>

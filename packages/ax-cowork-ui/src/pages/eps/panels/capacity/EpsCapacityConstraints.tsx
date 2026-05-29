@@ -1,112 +1,55 @@
-import { Segmented, Tag, Typography } from 'antd'
+import { Empty, Segmented, Tag, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { useEpsContext } from '../../stores/eps.context'
-import type { ConstraintKind, ConstraintSeverity } from '../../data/mock-plan'
-import { allConstraints, constraintsFor } from '../../helpers/capacity.helpers'
-import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
+import { allConstraints, constraintsForCell } from '../../helpers/capacity.helpers'
+import { AxMuiIcon, type MdiIconName } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
-const KIND_LABEL: Record<ConstraintKind, string> = {
-  pm: 'PM',
-  'qual-expiry': 'Qual',
-  downtime: 'Down',
-  'ramp-up': 'Ramp',
-  'recipe-lock': 'Lock',
-}
-
-const SEVERITY_COLOR: Record<ConstraintSeverity, string> = {
-  info: 'blue',
-  warning: 'orange',
+const SEV_COLOR: Record<'critical' | 'warning' | 'info', string> = {
   critical: 'red',
+  warning: 'orange',
+  info: 'blue',
+}
+const SEV_ICON: Record<'critical' | 'warning' | 'info', MdiIconName> = {
+  critical: 'mdiAlertOctagonOutline',
+  warning: 'mdiAlertOutline',
+  info: 'mdiInformationOutline',
 }
 
-const KIND_ICON: Record<ConstraintKind, string> = {
-  pm: 'mdiWrenchOutline',
-  'qual-expiry': 'mdiShieldAlertOutline',
-  downtime: 'mdiAlertOctagonOutline',
-  'ramp-up': 'mdiTrendingUp',
-  'recipe-lock': 'mdiLockOutline',
-}
-
-// Constraints panel — surfaces PM windows, qual expirations, downtime, ramp-ups, recipe locks that
-// affect the plan. Scope toggle: "Selected group" (default — focuses the planner on what's relevant
-// to the tool they're looking at) vs "All shop" (the cross-floor view).
 export const EpsCapacityConstraints = observer(() => {
   const store = useEpsContext().capacity
-  const group = store.selectedGroup
-  const scopedToGroup = store.constraintsScope === 'group'
-  const items = scopedToGroup && group ? constraintsFor(group.name) : allConstraints()
+  const entry = store.selectedCellEntry
+  const rows = store.constraintsScope === 'all' ? allConstraints() : entry ? constraintsForCell(entry.cell.id) : []
 
   return (
-    <div className="ax-eps-analysis_section">
-      <div className="ax-eps-analysis_section_header">
-        <div className="ax-eps-analysis_section_header_title">
-          <AxMuiIcon icon="mdiAlertOctagonOutline" size={18} />
-          <span>Constraints ({items.length})</span>
-        </div>
+    <div className="ax-eps-capacity_constraints">
+      <div className="ax-eps-capacity_constraints_header">
+        <Typography.Text strong>Resource constraints</Typography.Text>
         <Segmented
           size="small"
           value={store.constraintsScope}
-          onChange={(v) => store.setConstraintsScope(v as 'group' | 'all')}
+          onChange={(v) => store.setConstraintsScope(v as 'node' | 'all')}
           options={[
-            { label: 'Selected group', value: 'group' },
-            { label: 'All shop', value: 'all' },
+            { label: 'Selected', value: 'node' },
+            { label: 'All org', value: 'all' },
           ]}
         />
       </div>
-      <div className="ax-eps-analysis_section_body">
-        {items.length === 0 ? (
-          <Typography.Text type="secondary">No constraints in scope.</Typography.Text>
+      <div className="ax-eps-capacity_constraints_body">
+        {rows.length === 0 ? (
+          <Empty description="No active resource constraints" image={Empty.PRESENTED_IMAGE_SIMPLE} />
         ) : (
-          <table className="ax-eps-analysis_table">
-            <thead>
-              <tr>
-                <th>When</th>
-                <th>Kind</th>
-                <th>Tool group</th>
-                <th>Tool</th>
-                <th>Title</th>
-                <th>Detail</th>
-                <th style={{ textAlign: 'right' }}>Impact</th>
-                <th>Severity</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((c) => {
-                const dateLabel = c.start === c.end ? c.start : `${c.start} → ${c.end}`
-                const impactPct = Math.round(c.impactRatio * 100)
-                return (
-                  <tr key={c.id}>
-                    <td>{dateLabel}</td>
-                    <td>
-                      <Tag color={SEVERITY_COLOR[c.severity]} style={{ margin: 0 }}>
-                        <AxMuiIcon icon={KIND_ICON[c.kind] as never} size={12} /> {KIND_LABEL[c.kind]}
-                      </Tag>
-                    </td>
-                    <td>{c.toolGroup}</td>
-                    <td>{c.toolId ?? '—'}</td>
-                    <td>
-                      <b>{c.title}</b>
-                    </td>
-                    <td>{c.detail}</td>
-                    <td style={{ textAlign: 'right' }}>
-                      {c.impactRatio === 0 ? (
-                        <span style={{ color: 'rgba(0,0,0,0.35)' }}>—</span>
-                      ) : c.impactRatio < 0 ? (
-                        <span style={{ color: '#52c41a' }}>+{Math.abs(impactPct)}%</span>
-                      ) : (
-                        <span style={{ color: '#f44336' }}>-{impactPct}%</span>
-                      )}
-                    </td>
-                    <td>
-                      <Tag color={SEVERITY_COLOR[c.severity]} style={{ margin: 0 }}>
-                        {c.severity}
-                      </Tag>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          rows.map((c) => (
+            <div key={c.id} className={`ax-eps-capacity_constraint ax-eps-capacity_constraint__${c.severity}`}>
+              <AxMuiIcon icon={SEV_ICON[c.severity]} size={14} />
+              <Tag color={SEV_COLOR[c.severity]} style={{ margin: 0 }}>
+                {c.severity.toUpperCase()}
+              </Tag>
+              <span className="ax-eps-capacity_constraint_cell">{c.cellName}</span>
+              <span className="ax-eps-capacity_constraint_skill">{c.skill}</span>
+              <span className="ax-eps-capacity_constraint_title">{c.title}</span>
+              <span className="ax-eps-capacity_constraint_detail">{c.detail}</span>
+            </div>
+          ))
         )}
       </div>
     </div>

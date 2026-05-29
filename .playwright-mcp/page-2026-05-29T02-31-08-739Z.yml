@@ -1,0 +1,418 @@
+- generic [ref=e1]:
+    - generic [ref=e4]:
+        - banner [ref=e5]:
+            - generic [ref=e6]:
+                - generic [ref=e7]:
+                    - img "avatar" [ref=e12]
+                    - generic [ref=e13]:
+                        - button [ref=e15] [cursor=pointer]:
+                            - img [ref=e16]
+                        - button [ref=e19] [cursor=pointer]:
+                            - img [ref=e20]
+                    - generic [ref=e22]:
+                        - button "Hwaseong · Memory BU" [ref=e24] [cursor=pointer]:
+                            - img [ref=e25]
+                            - generic [ref=e27]: Hwaseong · Memory BU
+                            - img [ref=e28]
+                        - button "Roadmap V6 (Approved)" [ref=e31] [cursor=pointer]:
+                            - img [ref=e32]
+                            - generic [ref=e34]: Roadmap V6 (Approved)
+                            - img [ref=e35]
+                        - generic [ref=e38]: APPROVED
+                        - generic [ref=e40]: IRIS · EPS
+                        - generic [ref=e42]:
+                            - generic [ref=e44]: JP
+                            - generic [ref=e46]: HC
+                - generic [ref=e47]:
+                    - button [ref=e50] [cursor=pointer]:
+                        - img [ref=e51]
+                    - separator [ref=e53]
+                    - generic [ref=e54]:
+                        - button [ref=e56] [cursor=pointer]:
+                            - img [ref=e57]
+                        - button [ref=e60] [cursor=pointer]:
+                            - img [ref=e61]
+                        - button [ref=e64] [cursor=pointer]:
+                            - img [ref=e65]
+        - generic [ref=e67]:
+            - complementary [ref=e68]:
+                - generic [ref=e71]:
+                    - generic [ref=e73]:
+                        - button [ref=e74] [cursor=pointer]:
+                            - img [ref=e75]
+                        - button [ref=e77] [cursor=pointer]:
+                            - img [ref=e78]
+                        - button [ref=e80] [cursor=pointer]:
+                            - img [ref=e81]
+                        - button [active] [ref=e83] [cursor=pointer]:
+                            - img [ref=e84]
+                        - button [ref=e86] [cursor=pointer]:
+                            - img [ref=e87]
+                    - generic [ref=e91]:
+                        - button [ref=e92] [cursor=pointer]:
+                            - img [ref=e93]
+                        - button [ref=e95] [cursor=pointer]:
+                            - img [ref=e96]
+                    - button [ref=e101] [cursor=pointer]:
+                        - img [ref=e102]
+            - main [ref=e104]:
+                - generic [ref=e106]:
+                    - generic [ref=e2388]:
+                        - generic [ref=e2389]:
+                            - generic [ref=e2390]:
+                                - img [ref=e2391]
+                                - paragraph [ref=e2393]: Engineering Process
+                            - generic [ref=e2397]: Read-only view of the Engineering Process catalog — pick a node on the left (Stage / Block / Function / Activity) to see its pipeline.
+                            - button "Restore" [ref=e2399] [cursor=pointer]:
+                                - img [ref=e2400]
+                        - generic [ref=e2404]:
+                            - generic [ref=e2405]:
+                                - generic [ref=e2407]: Process catalog
+                                - generic [ref=e2408]:
+                                    - generic [ref=e2409]:
+                                        - button "SOC stage SOC · 225 P/M baseline" [ref=e2410] [cursor=pointer]:
+                                            - generic [ref=e2411]:
+                                                - generic [ref=e2412]: SOC
+                                                - generic [ref=e2413]: stage
+                                            - generic [ref=e2414]: SOC · 225 P/M baseline
+                                        - generic [ref=e2415]:
+                                            - button "SOC EVT0 stage EVT0 · 225 P/M baseline" [ref=e2416] [cursor=pointer]:
+                                                - generic [ref=e2417]:
+                                                    - generic [ref=e2418]: SOC EVT0
+                                                    - generic [ref=e2419]: stage
+                                                - generic [ref=e2420]: EVT0 · 225 P/M baseline
+                                            - generic [ref=e2421]:
+                                                - button "Mega IP block MEGA_IP · 199 P/M baseline" [ref=e2422] [cursor=pointer]:
+                                                    - generic [ref=e2423]:
+                                                        - generic [ref=e2424]: Mega IP
+                                                        - generic [ref=e2425]: block
+                                                    - generic [ref=e2426]: MEGA_IP · 199 P/M baseline
+                                                - generic [ref=e2427]:
+                                                    - button "NPU block NPU · 107 P/M baseline" [ref=e2428] [cursor=pointer]:
+                                                        - generic [ref=e2429]:
+                                                            - generic [ref=e2430]: NPU
+                                                            - generic [ref=e2431]: block
+                                                        - generic [ref=e2432]: NPU · 107 P/M baseline
+                                                    - generic [ref=e2433]:
+                                                        - button "RTL / IP Design function RTL · 66 P/M baseline" [ref=e2434] [cursor=pointer]:
+                                                            - generic [ref=e2435]:
+                                                                - generic [ref=e2436]: RTL / IP Design
+                                                                - generic [ref=e2437]: function
+                                                            - generic [ref=e2438]: RTL · 66 P/M baseline
+                                                        - button "H/W Design activity HW_DES · 24 P/M baseline" [ref=e2440] [cursor=pointer]:
+                                                            - generic [ref=e2441]:
+                                                                - generic [ref=e2442]: H/W Design
+                                                                - generic [ref=e2443]: activity
+                                                            - generic [ref=e2444]: HW_DES · 24 P/M baseline
+                                                        - button "Architecture activity ARCH · 12 P/M baseline" [ref=e2446] [cursor=pointer]:
+                                                            - generic [ref=e2447]:
+                                                                - generic [ref=e2448]: Architecture
+                                                                - generic [ref=e2449]: activity
+                                                            - generic [ref=e2450]: ARCH · 12 P/M baseline
+                                                        - button "Design Verification activity DV · 30 P/M baseline" [ref=e2452] [cursor=pointer]:
+                                                            - generic [ref=e2453]:
+                                                                - generic [ref=e2454]: Design Verification
+                                                                - generic [ref=e2455]: activity
+                                                            - generic [ref=e2456]: DV · 30 P/M baseline
+                                                    - generic [ref=e2457]:
+                                                        - button "Power function POWER · 18 P/M baseline" [ref=e2458] [cursor=pointer]:
+                                                            - generic [ref=e2459]:
+                                                                - generic [ref=e2460]: Power
+                                                                - generic [ref=e2461]: function
+                                                            - generic [ref=e2462]: POWER · 18 P/M baseline
+                                                        - button "Power Intent activity PWR_INT · 8 P/M baseline" [ref=e2464] [cursor=pointer]:
+                                                            - generic [ref=e2465]:
+                                                                - generic [ref=e2466]: Power Intent
+                                                                - generic [ref=e2467]: activity
+                                                            - generic [ref=e2468]: PWR_INT · 8 P/M baseline
+                                                        - button "Power Analysis activity PWR_ANL · 10 P/M baseline" [ref=e2470] [cursor=pointer]:
+                                                            - generic [ref=e2471]:
+                                                                - generic [ref=e2472]: Power Analysis
+                                                                - generic [ref=e2473]: activity
+                                                            - generic [ref=e2474]: PWR_ANL · 10 P/M baseline
+                                                    - generic [ref=e2475]:
+                                                        - button "Place & Route function PNR · 23 P/M baseline" [ref=e2476] [cursor=pointer]:
+                                                            - generic [ref=e2477]:
+                                                                - generic [ref=e2478]: Place & Route
+                                                                - generic [ref=e2479]: function
+                                                            - generic [ref=e2480]: PNR · 23 P/M baseline
+                                                        - button "Floorplan activity FLOOR · 9 P/M baseline" [ref=e2482] [cursor=pointer]:
+                                                            - generic [ref=e2483]:
+                                                                - generic [ref=e2484]: Floorplan
+                                                                - generic [ref=e2485]: activity
+                                                            - generic [ref=e2486]: FLOOR · 9 P/M baseline
+                                                        - button "Routing & Timing activity ROUTE · 14 P/M baseline" [ref=e2488] [cursor=pointer]:
+                                                            - generic [ref=e2489]:
+                                                                - generic [ref=e2490]: Routing & Timing
+                                                                - generic [ref=e2491]: activity
+                                                            - generic [ref=e2492]: ROUTE · 14 P/M baseline
+                                                - generic [ref=e2493]:
+                                                    - button "CPU block CPU · 44 P/M baseline" [ref=e2494] [cursor=pointer]:
+                                                        - generic [ref=e2495]:
+                                                            - generic [ref=e2496]: CPU
+                                                            - generic [ref=e2497]: block
+                                                        - generic [ref=e2498]: CPU · 44 P/M baseline
+                                                    - generic [ref=e2499]:
+                                                        - button "CPU RTL function CPU_RTL · 44 P/M baseline" [ref=e2500] [cursor=pointer]:
+                                                            - generic [ref=e2501]:
+                                                                - generic [ref=e2502]: CPU RTL
+                                                                - generic [ref=e2503]: function
+                                                            - generic [ref=e2504]: CPU_RTL · 44 P/M baseline
+                                                        - button "CPU Design activity CPU_DES · 20 P/M baseline" [ref=e2506] [cursor=pointer]:
+                                                            - generic [ref=e2507]:
+                                                                - generic [ref=e2508]: CPU Design
+                                                                - generic [ref=e2509]: activity
+                                                            - generic [ref=e2510]: CPU_DES · 20 P/M baseline
+                                                        - button "CPU Verification activity CPU_DV · 24 P/M baseline" [ref=e2512] [cursor=pointer]:
+                                                            - generic [ref=e2513]:
+                                                                - generic [ref=e2514]: CPU Verification
+                                                                - generic [ref=e2515]: activity
+                                                            - generic [ref=e2516]: CPU_DV · 24 P/M baseline
+                                                - generic [ref=e2517]:
+                                                    - button "GPU block GPU · 48 P/M baseline" [ref=e2518] [cursor=pointer]:
+                                                        - generic [ref=e2519]:
+                                                            - generic [ref=e2520]: GPU
+                                                            - generic [ref=e2521]: block
+                                                        - generic [ref=e2522]: GPU · 48 P/M baseline
+                                                    - generic [ref=e2523]:
+                                                        - button "GPU RTL function GPU_RTL · 48 P/M baseline" [ref=e2524] [cursor=pointer]:
+                                                            - generic [ref=e2525]:
+                                                                - generic [ref=e2526]: GPU RTL
+                                                                - generic [ref=e2527]: function
+                                                            - generic [ref=e2528]: GPU_RTL · 48 P/M baseline
+                                                        - button "GPU Design activity GPU_DES · 22 P/M baseline" [ref=e2530] [cursor=pointer]:
+                                                            - generic [ref=e2531]:
+                                                                - generic [ref=e2532]: GPU Design
+                                                                - generic [ref=e2533]: activity
+                                                            - generic [ref=e2534]: GPU_DES · 22 P/M baseline
+                                                        - button "GPU Verification activity GPU_DV · 26 P/M baseline" [ref=e2536] [cursor=pointer]:
+                                                            - generic [ref=e2537]:
+                                                                - generic [ref=e2538]: GPU Verification
+                                                                - generic [ref=e2539]: activity
+                                                            - generic [ref=e2540]: GPU_DV · 26 P/M baseline
+                                            - generic [ref=e2541]:
+                                                - button "System IP block SYSIP · 26 P/M baseline" [ref=e2542] [cursor=pointer]:
+                                                    - generic [ref=e2543]:
+                                                        - generic [ref=e2544]: System IP
+                                                        - generic [ref=e2545]: block
+                                                    - generic [ref=e2546]: SYSIP · 26 P/M baseline
+                                                - generic [ref=e2547]:
+                                                    - button "Interconnect function INTC · 26 P/M baseline" [ref=e2548] [cursor=pointer]:
+                                                        - generic [ref=e2549]:
+                                                            - generic [ref=e2550]: Interconnect
+                                                            - generic [ref=e2551]: function
+                                                        - generic [ref=e2552]: INTC · 26 P/M baseline
+                                                    - button "Interconnect RTL activity INTC_RTL · 14 P/M baseline" [ref=e2554] [cursor=pointer]:
+                                                        - generic [ref=e2555]:
+                                                            - generic [ref=e2556]: Interconnect RTL
+                                                            - generic [ref=e2557]: activity
+                                                        - generic [ref=e2558]: INTC_RTL · 14 P/M baseline
+                                                    - button "Interconnect DV activity INTC_DV · 12 P/M baseline" [ref=e2560] [cursor=pointer]:
+                                                        - generic [ref=e2561]:
+                                                            - generic [ref=e2562]: Interconnect DV
+                                                            - generic [ref=e2563]: activity
+                                                        - generic [ref=e2564]: INTC_DV · 12 P/M baseline
+                                    - generic [ref=e2565]:
+                                        - button "Test stage TEST · 18 P/M baseline" [ref=e2566] [cursor=pointer]:
+                                            - generic [ref=e2567]:
+                                                - generic [ref=e2568]: Test
+                                                - generic [ref=e2569]: stage
+                                            - generic [ref=e2570]: TEST · 18 P/M baseline
+                                        - generic [ref=e2571]:
+                                            - button "Post-Silicon block POSTSI · 18 P/M baseline" [ref=e2572] [cursor=pointer]:
+                                                - generic [ref=e2573]:
+                                                    - generic [ref=e2574]: Post-Silicon
+                                                    - generic [ref=e2575]: block
+                                                - generic [ref=e2576]: POSTSI · 18 P/M baseline
+                                            - generic [ref=e2577]:
+                                                - button "Validation function PSV · 18 P/M baseline" [ref=e2578] [cursor=pointer]:
+                                                    - generic [ref=e2579]:
+                                                        - generic [ref=e2580]: Validation
+                                                        - generic [ref=e2581]: function
+                                                    - generic [ref=e2582]: PSV · 18 P/M baseline
+                                                - button "Functional Check activity PSV_FC · 8 P/M baseline" [ref=e2584] [cursor=pointer]:
+                                                    - generic [ref=e2585]:
+                                                        - generic [ref=e2586]: Functional Check
+                                                        - generic [ref=e2587]: activity
+                                                    - generic [ref=e2588]: PSV_FC · 8 P/M baseline
+                                                - button "Performance activity PSV_PF · 10 P/M baseline" [ref=e2590] [cursor=pointer]:
+                                                    - generic [ref=e2591]:
+                                                        - generic [ref=e2592]: Performance
+                                                        - generic [ref=e2593]: activity
+                                                    - generic [ref=e2594]: PSV_PF · 10 P/M baseline
+                            - generic [ref=e2596]:
+                                - generic [ref=e2597]:
+                                    - generic [ref=e2598]:
+                                        - generic [ref=e2599]: stage
+                                        - text: SOC
+                                    - generic [ref=e2600]: 225 P/M baseline
+                                - button "SOC EVT0 stage 225 P/M" [ref=e2602] [cursor=pointer]:
+                                    - generic [ref=e2603]:
+                                        - text: SOC EVT0
+                                        - generic [ref=e2604]: stage
+                                    - generic [ref=e2605]: 225 P/M
+                                - generic [ref=e2606]:
+                                    - generic [ref=e2607]: Activities in subtree (13)
+                                    - table [ref=e2614]:
+                                        - rowgroup [ref=e2620]:
+                                            - row "Code Name Path SPM baseline Note" [ref=e2621]:
+                                                - columnheader "Code" [ref=e2622]
+                                                - columnheader "Name" [ref=e2623]
+                                                - columnheader "Path" [ref=e2624]
+                                                - columnheader "SPM baseline" [ref=e2625]
+                                                - columnheader "Note" [ref=e2626]
+                                        - rowgroup [ref=e2627]:
+                                            - row "INTC_RTL Interconnect RTL SOC › SOC EVT0 › System IP › Interconnect › Interconnect RTL 14 P/M" [ref=e2628]:
+                                                - cell "INTC_RTL" [ref=e2629]
+                                                - cell "Interconnect RTL" [ref=e2630]
+                                                - cell "SOC › SOC EVT0 › System IP › Interconnect › Interconnect RTL" [ref=e2631]
+                                                - cell "14 P/M" [ref=e2632]
+                                                - cell [ref=e2633]
+                                            - row "INTC_DV Interconnect DV SOC › SOC EVT0 › System IP › Interconnect › Interconnect DV 12 P/M" [ref=e2634]:
+                                                - cell "INTC_DV" [ref=e2635]
+                                                - cell "Interconnect DV" [ref=e2636]
+                                                - cell "SOC › SOC EVT0 › System IP › Interconnect › Interconnect DV" [ref=e2637]
+                                                - cell "12 P/M" [ref=e2638]
+                                                - cell [ref=e2639]
+                                            - row "GPU_DES GPU Design SOC › SOC EVT0 › Mega IP › GPU › GPU RTL › GPU Design 22 P/M" [ref=e2640]:
+                                                - cell "GPU_DES" [ref=e2641]
+                                                - cell "GPU Design" [ref=e2642]
+                                                - cell "SOC › SOC EVT0 › Mega IP › GPU › GPU RTL › GPU Design" [ref=e2643]
+                                                - cell "22 P/M" [ref=e2644]
+                                                - cell [ref=e2645]
+                                            - row "GPU_DV GPU Verification SOC › SOC EVT0 › Mega IP › GPU › GPU RTL › GPU Verification 26 P/M" [ref=e2646]:
+                                                - cell "GPU_DV" [ref=e2647]
+                                                - cell "GPU Verification" [ref=e2648]
+                                                - cell "SOC › SOC EVT0 › Mega IP › GPU › GPU RTL › GPU Verification" [ref=e2649]
+                                                - cell "26 P/M" [ref=e2650]
+                                                - cell [ref=e2651]
+                                            - row "CPU_DES CPU Design SOC › SOC EVT0 › Mega IP › CPU › CPU RTL › CPU Design 20 P/M" [ref=e2652]:
+                                                - cell "CPU_DES" [ref=e2653]
+                                                - cell "CPU Design" [ref=e2654]
+                                                - cell "SOC › SOC EVT0 › Mega IP › CPU › CPU RTL › CPU Design" [ref=e2655]
+                                                - cell "20 P/M" [ref=e2656]
+                                                - cell [ref=e2657]
+                                            - row "CPU_DV CPU Verification SOC › SOC EVT0 › Mega IP › CPU › CPU RTL › CPU Verification 24 P/M" [ref=e2658]:
+                                                - cell "CPU_DV" [ref=e2659]
+                                                - cell "CPU Verification" [ref=e2660]
+                                                - cell "SOC › SOC EVT0 › Mega IP › CPU › CPU RTL › CPU Verification" [ref=e2661]
+                                                - cell "24 P/M" [ref=e2662]
+                                                - cell [ref=e2663]
+                                            - row "FLOOR Floorplan SOC › SOC EVT0 › Mega IP › NPU › Place & Route › Floorplan 9 P/M" [ref=e2664]:
+                                                - cell "FLOOR" [ref=e2665]
+                                                - cell "Floorplan" [ref=e2666]
+                                                - cell "SOC › SOC EVT0 › Mega IP › NPU › Place & Route › Floorplan" [ref=e2667]
+                                                - cell "9 P/M" [ref=e2668]
+                                                - cell [ref=e2669]
+                                            - row "ROUTE Routing & Timing SOC › SOC EVT0 › Mega IP › NPU › Place & Route › Routing & Timing 14 P/M" [ref=e2670]:
+                                                - cell "ROUTE" [ref=e2671]
+                                                - cell "Routing & Timing" [ref=e2672]
+                                                - cell "SOC › SOC EVT0 › Mega IP › NPU › Place & Route › Routing & Timing" [ref=e2673]
+                                                - cell "14 P/M" [ref=e2674]
+                                                - cell [ref=e2675]
+                                            - row "PWR_INT Power Intent SOC › SOC EVT0 › Mega IP › NPU › Power › Power Intent 8 P/M" [ref=e2676]:
+                                                - cell "PWR_INT" [ref=e2677]
+                                                - cell "Power Intent" [ref=e2678]
+                                                - cell "SOC › SOC EVT0 › Mega IP › NPU › Power › Power Intent" [ref=e2679]
+                                                - cell "8 P/M" [ref=e2680]
+                                                - cell [ref=e2681]
+                                            - row "PWR_ANL Power Analysis SOC › SOC EVT0 › Mega IP › NPU › Power › Power Analysis 10 P/M" [ref=e2682]:
+                                                - cell "PWR_ANL" [ref=e2683]
+                                                - cell "Power Analysis" [ref=e2684]
+                                                - cell "SOC › SOC EVT0 › Mega IP › NPU › Power › Power Analysis" [ref=e2685]
+                                                - cell "10 P/M" [ref=e2686]
+                                                - cell [ref=e2687]
+                                            - row "HW_DES H/W Design SOC › SOC EVT0 › Mega IP › NPU › RTL / IP Design › H/W Design 24 P/M" [ref=e2688]:
+                                                - cell "HW_DES" [ref=e2689]
+                                                - cell "H/W Design" [ref=e2690]
+                                                - cell "SOC › SOC EVT0 › Mega IP › NPU › RTL / IP Design › H/W Design" [ref=e2691]
+                                                - cell "24 P/M" [ref=e2692]
+                                                - cell [ref=e2693]
+                                            - row "ARCH Architecture SOC › SOC EVT0 › Mega IP › NPU › RTL / IP Design › Architecture 12 P/M SOC Architecture" [ref=e2694]:
+                                                - cell "ARCH" [ref=e2695]
+                                                - cell "Architecture" [ref=e2696]
+                                                - cell "SOC › SOC EVT0 › Mega IP › NPU › RTL / IP Design › Architecture" [ref=e2697]
+                                                - cell "12 P/M" [ref=e2698]
+                                                - cell "SOC Architecture" [ref=e2699]
+                                            - row "DV Design Verification SOC › SOC EVT0 › Mega IP › NPU › RTL / IP Design › Design Verification 30 P/M" [ref=e2700]:
+                                                - cell "DV" [ref=e2701]
+                                                - cell "Design Verification" [ref=e2702]
+                                                - cell "SOC › SOC EVT0 › Mega IP › NPU › RTL / IP Design › Design Verification" [ref=e2703]
+                                                - cell "30 P/M" [ref=e2704]
+                                                - cell [ref=e2705]
+                                - generic [ref=e2706]:
+                                    - generic [ref=e2707]: Used by Production Families (3)
+                                    - generic [ref=e2708]:
+                                        - generic [ref=e2709]: FLG-MODAP-1 · Flagship Modap 1st
+                                        - generic [ref=e2710]: SLM-MODAP-1 · Slim Modem 1st
+                                        - generic [ref=e2711]: PDDI-FLG-1 · pDDI Flagship Refresh
+                    - separator
+                    - generic [ref=e1038]:
+                        - generic [ref=e1039]:
+                            - img [ref=e1040]
+                            - paragraph [ref=e1042]: AI co-pilot · Samsung AI Services
+                        - button [ref=e1044] [cursor=pointer]:
+                            - img [ref=e1045]
+                    - generic [ref=e1047]:
+                        - generic [ref=e1048]: Roadmap V6 (Approved)
+                        - generic [ref=e1049]: ·
+                        - generic [ref=e1050]: Hwaseong · Memory BU
+                        - generic [ref=e1051]: ·
+                        - generic [ref=e1052]: 'Context: 2 projects selected (HBM4-Dev, NAND-V9)'
+                        - generic [ref=e1053]: Can we pull HBM4-Dev tape-out into Q4 2026 without overloading DRAM Design?
+                        - img [ref=e1055]
+                        - img [ref=e1058]
+                        - generic [ref=e1060]:
+                            - text: "I evaluated 3 reallocation candidates against your headcount portfolio. None breach Jisoo Park's 95% utilization ceiling:"
+                            - generic [ref=e1061]:
+                                - strong [ref=e1063]: '▶ A: Move 5 engineers from NAND-V9 → HBM4-Dev'
+                                - button [ref=e1064] [cursor=pointer]:
+                                    - generic [ref=e1065]: Preview
+                                - text: HBM4 timeline -3 months. NAND-V9 util 85% → 92% (within band).
+                            - generic [ref=e1066]:
+                                - strong [ref=e1068]: '▶ B: Borrow 3 verification engineers from Pyeongtaek'
+                                - button [ref=e1069] [cursor=pointer]:
+                                    - generic [ref=e1070]: Preview
+                                - text: HBM4 timeline -6 weeks. Cross-site approval needed (Minho Kim).
+                            - generic [ref=e1071]:
+                                - strong [ref=e1073]: '▶ C: Defer DDR5-Gen5 by 1 quarter'
+                                - button [ref=e1074] [cursor=pointer]:
+                                    - generic [ref=e1075]: Preview
+                                - text: Frees 7 design heads. DDR5 commit slips Q2 → Q3 2027.
+                            - text: Why A first?
+                            - list [ref=e1076]: DRAM Design G1/G2 capacity available in Q4 no conflict with PROMIS-synced approved roadmap V6 option A also resolves NAND-V9 over-staffing flagged last week
+                        - generic [ref=e1078]:
+                            - text: Quick prompts
+                            - generic [ref=e1079]:
+                                - generic [ref=e1081] [cursor=pointer]: What if HBM4 +5 engineers
+                                - generic [ref=e1083] [cursor=pointer]: Diff V6 vs V5
+                                - generic [ref=e1085] [cursor=pointer]: Show DRAM Design utilization
+                                - generic [ref=e1087] [cursor=pointer]: Cross-site over-allocations
+                                - generic [ref=e1089] [cursor=pointer]: Promote S1-V2 to draft
+                        - textbox [ref=e1090]:
+                            - /placeholder: Ask AI Assistant…
+                        - button [disabled] [ref=e1091]:
+                            - generic:
+                                - img
+            - complementary [ref=e1092]:
+                - generic [ref=e1094]:
+                    - generic [ref=e1096]:
+                        - button [ref=e1098] [cursor=pointer]:
+                            - img [ref=e1099]
+                        - button [ref=e1102] [cursor=pointer]:
+                            - img [ref=e1103]
+                        - button [ref=e1106] [cursor=pointer]:
+                            - img [ref=e1107]
+                        - button [ref=e1110] [cursor=pointer]:
+                            - img [ref=e1111]
+                        - button [ref=e1114] [cursor=pointer]:
+                            - img [ref=e1115]
+                    - generic [ref=e1118]:
+                        - button [ref=e1120] [cursor=pointer]:
+                            - img [ref=e1121]
+                        - button [ref=e1124] [cursor=pointer]:
+                            - img [ref=e1125]
+                        - button [ref=e1128] [cursor=pointer]:
+                            - img [ref=e1129]
+        - contentinfo [ref=e1131]
+    - tooltip "Engineering Process" [ref=e2713]

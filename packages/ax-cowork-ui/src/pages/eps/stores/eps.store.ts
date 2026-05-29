@@ -252,38 +252,30 @@ export class EpsStore {
   }
 
   // ---- Cross-view drill-through helpers --------------------------------------
-  // These switch the active main panel *and* set the relevant sub-store selection in one call so any
-  // place in the UI can do `simulation.navigateToToolGroup('HARC Etch')` without knowing the target store.
-  navigateToToolGroup(toolGroupName: string) {
-    const group = this.capacity.groups.find((g) => g.name === toolGroupName)
-    if (group) this.capacity.selectGroup(group.id)
+  // Jump to Headcount Portfolio with the org node (cell/team/site/division) pre-selected.
+  navigateToOrgNode(nodeId: string) {
+    this.capacity.selectNode(nodeId)
     this.setActiveMainPanel('capacity')
   }
 
-  navigateToConstraint(constraintId: string) {
-    // Constraints are scoped per tool group on the Shop Floor view; pick the group that owns the constraint.
-    // The data lives in mock-plan but we don't want to import it here — the helpers expose enough.
-    // Caller usually knows the tool group; fall through to Shop Floor either way.
-    void constraintId
-    this.setActiveMainPanel('capacity')
-    this.capacity.setConstraintsScope('all')
-  }
-
-  navigateToTechRouting(tech: string) {
-    this.process.selectTech(tech)
+  // Jump to Engineering Process with the catalog node pre-selected.
+  navigateToProcessNode(nodeId: string) {
+    this.process.selectNode(nodeId)
     this.setActiveMainPanel('processes')
   }
 
-  navigateToOrder(poId: string, opts?: { openInfo?: boolean }) {
-    this.order.selectRow(`po::${poId}`)
+  // Jump to Production Requirements with the PF pre-selected.
+  navigateToProductionFamily(pfId: string, opts?: { openInfo?: boolean }) {
+    this.order.selectRow(`pf::${pfId}`)
     if (opts?.openInfo !== false) this.order.infoPanelOpen = true
     this.setActiveMainPanel('orders')
   }
 
-  navigateToBatch(poId: string, familyId: string, batchId: string) {
-    this.order.selectRow(`batch::${familyId}::${batchId}`)
-    this.order.expandedOrderIds.add(poId)
-    this.order.expandedFamilyIds.add(familyId)
+  // Jump to Production Requirements with a sub-task pre-selected.
+  navigateToSubTask(pfId: string, taskId: string, subId: string) {
+    this.order.selectRow(`sub::${taskId}::${subId}`)
+    this.order.expandedPfIds.add(pfId)
+    this.order.expandedTaskIds.add(taskId)
     this.order.infoPanelOpen = true
     this.setActiveMainPanel('orders')
   }

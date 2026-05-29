@@ -9,7 +9,7 @@ export const EpsProcessToolbar = observer(() => {
     <Flex align="center" justify="space-between" gap="small" className="ax-eps-simulation_toolbar" style={{ width: '100%' }}>
       <Space size={10}>
         <Typography.Text type="secondary" className="text-sm">
-          Read-only view of the manufacturing routing per technology — pick a tech on the left to see its pipeline.
+          Read-only view of the Engineering Process catalog — pick a node on the left (Stage / Block / Function / Activity) to see its pipeline.
         </Typography.Text>
       </Space>
     </Flex>

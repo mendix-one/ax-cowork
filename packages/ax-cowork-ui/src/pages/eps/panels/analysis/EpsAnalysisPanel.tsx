@@ -21,7 +21,7 @@ export const EpsAnalysisPanel = observer((props: MainPanelControls) => {
     <AxDisplayPanel
       type="main"
       icon="mdiChartBar"
-      title={`Analysis · ${sim.activeEpsPlan.name}`}
+      title={`Resource Analysis · ${sim.activeEpsPlan.name}`}
       tools={<EpsAnalysisToolbar />}
       {...props}
     >

@@ -11,7 +11,7 @@ import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/A
 // other tech-level rollups — the Process panel now focuses on the selected tech's pipeline only.
 export const EpsProcessPanel = observer((props: MainPanelControls) => {
   return (
-    <AxDisplayPanel type="main" icon="mdiSitemapOutline" title="Processes" tools={<EpsProcessToolbar />} {...props}>
+    <AxDisplayPanel type="main" icon="mdiSitemapOutline" title="Engineering Process" tools={<EpsProcessToolbar />} {...props}>
       <div className="ax-eps-simulation">
         <div className="ax-eps-simulation_body">
           <EpsProcessTechList />

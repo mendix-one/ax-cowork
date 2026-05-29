@@ -4,14 +4,27 @@ import {
   HORIZON_LABELS,
   HORIZON_MONTH_GROUPS,
   HORIZON_TODAY,
-  MOCK_PRODUCTION_ORDERS,
-  WORKLOAD_STRIP,
+  MOCK_FAMILIES_BY_PFG,
+  MOCK_PRODUCTION_FAMILIES,
+  milestonesForFamily,
+  type EngineeringSubTask,
+  type EngineeringTask,
   type MilestoneState,
-  type ProductionOrder,
+  type MtoMilestone,
+  type ProductionFamily,
+  type ProductionFamilyGroup,
   type ScheduleClass,
-  type ScheduleMilestone,
 } from '../data/mock-plan'
 import { SCHEDULE_COLOR } from '../helpers/simulation-styles'
+
+// ============================================================================================
+// dhx-react-gantt row & marker shapes
+// ============================================================================================
+
+// rowKind drives both the SCSS class and whether a bar should render.
+// Per Update-2 spec: level 1 (pfg) and level 2 (pf) are summary rows — NO bar in the timeline.
+// Bars are only drawn for level 3 (task) and level 4 (subtask).
+export type SimulationRowKind = 'pfg' | 'pf' | 'task' | 'subtask'
 
 export type SimulationTaskRow = {
   id: string
@@ -24,30 +37,33 @@ export type SimulationTaskRow = {
   open?: boolean
   color?: string
   progress?: number
-  // custom metadata for column / bar templates
-  rowKind: 'po' | 'family' | 'batch'
-  customerShort?: string
-  techCode?: string
-  priority?: string
-  waferCount?: number
-  note?: string
+  rowKind: SimulationRowKind
   scheduleClass: ScheduleClass
-  // Drag-to-reschedule: dhx respects `readonly: true` to lock a task from drag/resize.
-  // PO and family rows roll up children, batches that are already running are locked.
+  // dhx respects `readonly: true` to lock a task from drag/resize. PFG/PF rollups and `fixed`
+  // (already running) sub-tasks are locked.
   readonly?: boolean
-  // Index of the PO this row belongs to within the filtered list (0, 1, 2 …) — used by the bar template to
-  // attach an alternating `ax-eps-simulation-poband__{a|b}` class so the SCSS can zebra-band by PO group.
-  poIndex: number
+  // The "Standard MTO Milestone" column (Col 2 in the spec). Only PF rows carry a string value;
+  // task / sub-task / pfg rows leave it blank.
+  mto?: string
+  // Index of the Production Family inside the filtered set — drives PO-band zebra striping.
+  pfIndex: number
+  // Extra fields surfaced to the bar / tooltip templates.
+  pfgGroup?: ProductionFamilyGroup
+  bizTeamCode?: string
+  processPathLabel?: string
+  subTaskKind?: EngineeringSubTask['kind']
+  spm?: number
+  ownerCellIds?: string[]
+  note?: string
 }
 
-// Marker payload for the dhx-react-gantt `markers` prop — Today + per-PO milestones.
+// Marker payload — Today + per-PF MTO milestones.
 export type SimulationMarker = {
   id: string
   start_date: Date
   css: string
   text: string
   title: string
-  // additional metadata if downstream needs it
   state?: MilestoneState
 }
 
@@ -62,69 +78,82 @@ export type AdjustmentTreeNode = {
 
 const scheduleColor = (cls: ScheduleClass) => SCHEDULE_COLOR[cls]
 
-// Build a multi-line tooltip string for a milestone marker.
-// `title` on dhx Marker becomes the HTML title attribute — newlines render as line breaks in the browser tooltip.
-const buildMilestoneTooltip = (m: ScheduleMilestone): string => {
-  const header = `${m.label} · ${m.date}`
-  const commitments = (m.commitments ?? []).map((c) => `${c.po} — ${c.pf} — ${c.wafers.toLocaleString()} wafers`)
-  const slipNote = m.slipDays ? `Slip +${m.slipDays}d${m.cause ? ` · ${m.cause}` : ''}` : null
-  return [header, '', ...commitments, slipNote].filter(Boolean).join('\n')
+// MTO milestone summary for a PF — rendered in the Gantt sidebar Col 2.
+const buildMtoColumnLabel = (pf: ProductionFamily): string => {
+  const m = milestonesForFamily(pf.id).find((x) => x.offset === 0)
+  if (!m) return ''
+  return `MTO(0) · ${m.date.slice(0, 7)}`
+}
+
+// Multi-line tooltip for a MTO milestone marker.
+const buildMilestoneTooltip = (pf: ProductionFamily, m: MtoMilestone): string => {
+  const parts = [`${pf.code} — ${m.label}`, `Date · ${m.date}`]
+  if (m.cause) parts.push(`Cause · ${m.cause}`)
+  if (m.slipDays) parts.push(`Slip · +${m.slipDays}d`)
+  return parts.join('\n')
 }
 
 export type SimulationHorizon = 'day' | 'week' | 'month'
 
-// Tree key conventions — `::` separators keep parsing trivial if we ever need it.
-const poKey = (orderId: string) => `po::${orderId}`
-const pfKey = (orderId: string, familyId: string) => `pf::${orderId}::${familyId}`
-const mbKey = (orderId: string, familyId: string, batchId: string) => `mb::${orderId}::${familyId}::${batchId}`
+// Tree key conventions — `::` separators keep parsing trivial.
+const pfgKey = (group: ProductionFamilyGroup) => `pfg::${group}`
+const pfKey = (group: ProductionFamilyGroup, pfId: string) => `pf::${group}::${pfId}`
+const tskKey = (group: ProductionFamilyGroup, pfId: string, taskId: string) => `task::${group}::${pfId}::${taskId}`
+const subKey = (group: ProductionFamilyGroup, pfId: string, taskId: string, subId: string) =>
+  `sub::${group}::${pfId}::${taskId}::${subId}`
 
-// A batch is "running" once it is part of the locked-in / executing schedule (scheduleClass === 'fixed').
-// A family/PO is "running" if any of its descendants is running. The Adjustment tree uses these flags to
-// decide which checkboxes are disabled (running nodes cannot be unchecked).
-const isBatchRunning = (cls: ScheduleClass) => cls === 'fixed'
+// "Running" = part of the locked-in / executing schedule.
+const isSubRunning = (cls: ScheduleClass) => cls === 'fixed'
 
-const collectAllKeys = (orders: ProductionOrder[]): string[] => {
+const collectAllKeys = (families: ProductionFamily[]): string[] => {
   const keys: string[] = []
-  for (const order of orders) {
-    keys.push(poKey(order.id))
-    for (const family of order.schedule) {
-      keys.push(pfKey(order.id, family.id))
-      for (const batch of family.batches) {
-        keys.push(mbKey(order.id, family.id, batch.id))
+  // We walk through the PFG-grouped families so the keys match what the adjustment tree emits.
+  for (const { group, families: list } of MOCK_FAMILIES_BY_PFG) {
+    keys.push(pfgKey(group))
+    for (const pf of list) {
+      keys.push(pfKey(group, pf.id))
+      for (const t of pf.tasks) {
+        keys.push(tskKey(group, pf.id, t.id))
+        for (const s of t.subTasks) {
+          keys.push(subKey(group, pf.id, t.id, s.id))
+        }
       }
     }
   }
+  // (`families` arg is the canonical set so the unused param check is satisfied)
+  void families
   return keys
 }
 
-const ALL_TREE_KEYS = collectAllKeys(MOCK_PRODUCTION_ORDERS)
+const ALL_TREE_KEYS = collectAllKeys(MOCK_PRODUCTION_FAMILIES)
 
 export class SimulationStore {
-  horizon: SimulationHorizon = 'week'
-  startDate = '2026-04-01'
-  endDate = '2027-12-31'
+  horizon: SimulationHorizon = 'month'
+  // Default horizon — wide enough to cover the standard MTO-24 → MTO+18 window for the seeded PFs,
+  // but tight enough that 1 month ≈ ~40px in a 1600px viewport. Older history (MTO-60) stays accessible
+  // via scroll; the planner can also widen here when needed.
+  startDate = '2025-01-01'
+  endDate = '2029-06-30'
 
   filterSidebarOpen = true
   quickAnalysisOpen = true
-  // Risks strip — collapsed by default so the chart owns the most vertical space; the planner expands to see
-  // the prioritized list of constraints + overloaded tool groups that affect the current horizon.
   risksStripOpen = true
 
-  // Applied adjustment — list of checked tree keys (PO + PF + MB). Drives `filteredOrders` and the chart.
+  // Applied adjustment — drives `filtered…` and the chart.
   checkedKeys: string[] = [...ALL_TREE_KEYS]
-
   // Pending adjustment — what the user is currently selecting in the sidebar.
-  // Stays separate from the applied state until the user clicks Apply.
   pendingCheckedKeys: string[] = [...ALL_TREE_KEYS]
 
-  orders: ProductionOrder[] = MOCK_PRODUCTION_ORDERS
+  families: ProductionFamily[] = MOCK_PRODUCTION_FAMILIES
   horizonLabels: string[] = HORIZON_LABELS
   horizonDates: string[] = HORIZON_DATES
   horizonMonthGroups = HORIZON_MONTH_GROUPS
   today: string = HORIZON_TODAY
-  workloadStrip = WORKLOAD_STRIP
-  expandedOrderIds = new Set<string>([MOCK_PRODUCTION_ORDERS[0].id, MOCK_PRODUCTION_ORDERS[1].id, MOCK_PRODUCTION_ORDERS[2].id])
-  expandedFamilyIds = new Set<string>(MOCK_PRODUCTION_ORDERS.flatMap((o) => o.schedule.map((f) => f.id)))
+
+  // Expansion sets — every PFG / PF / Task open by default so the planner sees the full tree.
+  expandedPfgKeys = new Set<string>(MOCK_FAMILIES_BY_PFG.map((g) => pfgKey(g.group)))
+  expandedPfIds = new Set<string>(MOCK_PRODUCTION_FAMILIES.map((p) => p.id))
+  expandedTaskIds = new Set<string>(MOCK_PRODUCTION_FAMILIES.flatMap((p) => p.tasks.map((t) => t.id)))
 
   private historyCount = 0
   private futureCount = 0
@@ -148,8 +177,6 @@ export class SimulationStore {
   toggleFilterSidebar() {
     this.filterSidebarOpen = !this.filterSidebarOpen
     if (this.filterSidebarOpen) {
-      // Sync the sidebar's pending state with what is currently applied, so the user always sees
-      // the live adjustment when they re-open the panel.
       this.pendingCheckedKeys = [...this.checkedKeys]
     }
   }
@@ -162,19 +189,15 @@ export class SimulationStore {
     this.risksStripOpen = !this.risksStripOpen
   }
 
-  // Tree onCheck handler — replaces the pending selection wholesale.
   setPendingCheckedKeys(keys: string[]) {
     this.pendingCheckedKeys = keys
   }
 
-  // Apply — commit the pending selection to the applied state. Only after this does the chart re-filter.
   applyAdjustment() {
     this.checkedKeys = [...this.pendingCheckedKeys]
   }
 
-  // One-shot include/exclude — bypasses the sidebar's pending/apply flow so quick actions in the
-  // info panel (e.g. the Exclude button on a single PO) take effect immediately. Updates both
-  // arrays so the sidebar stays in sync if it's opened next.
+  // One-shot include/exclude — used by quick actions outside the sidebar.
   setKeyIncluded(key: string, included: boolean) {
     const applied = new Set(this.checkedKeys)
     const pending = new Set(this.pendingCheckedKeys)
@@ -189,143 +212,180 @@ export class SimulationStore {
     this.pendingCheckedKeys = Array.from(pending)
   }
 
-  // Reset — restore the default adjustment (everything selected) in both pending and applied state.
   resetAdjustment() {
     this.pendingCheckedKeys = [...ALL_TREE_KEYS]
     this.checkedKeys = [...ALL_TREE_KEYS]
   }
 
-  // True when the pending selection differs from what is currently applied — used to enable the Apply button.
   get hasPendingAdjustmentChanges(): boolean {
     if (this.pendingCheckedKeys.length !== this.checkedKeys.length) return true
     const applied = new Set(this.checkedKeys)
     return this.pendingCheckedKeys.some((k) => !applied.has(k))
   }
 
-  // Running-state helpers — exposed so the sidebar can show distinct labels if needed.
-  isOrderRunning(orderId: string): boolean {
-    const order = this.orders.find((o) => o.id === orderId)
-    return order?.schedule.some((f) => f.batches.some((b) => isBatchRunning(b.scheduleClass))) ?? false
+  // ---- Running-state helpers ----
+  // A node is "running" if its OWN scheduleClass is 'fixed'. We deliberately do NOT cascade
+  // from children — a PF in 'changes' state still has editable children that the planner needs
+  // to be able to uncheck, even if one of its tasks is already locked in.
+  isTaskRunning(taskId: string): boolean {
+    for (const pf of this.families) {
+      const t = pf.tasks.find((x) => x.id === taskId)
+      if (!t) continue
+      return t.scheduleClass === 'fixed'
+    }
+    return false
   }
 
-  isFamilyRunning(orderId: string, familyId: string): boolean {
-    const family = this.orders.find((o) => o.id === orderId)?.schedule.find((f) => f.id === familyId)
-    return family?.batches.some((b) => isBatchRunning(b.scheduleClass)) ?? false
+  isFamilyRunning(pfId: string): boolean {
+    return this.families.find((p) => p.id === pfId)?.scheduleClass === 'fixed'
   }
 
-  // Tree data fed to AntD <Tree treeData={...} />. Disabled checkboxes encode the business rule:
-  //   • running MB     → cannot be unchecked (already in flight)
-  //   • running PF/PO  → cannot be unchecked directly; children that aren't running can still toggle
+  // ---- Adjustment tree -------------------------------------------------------
+  // 4 levels: Production Family Group → Production Family → Task → Sub-Task.
+  // Per-spec the PFG row is a non-checkable grouping header (disableCheckbox=true) so the planner
+  // can collapse a whole group but cannot mass-exclude. PF/Task/SubTask are checkable, with running
+  // nodes disabled (their scheduleClass is 'fixed').
   get adjustmentTreeData(): AdjustmentTreeNode[] {
-    return this.orders.map((order) => {
-      const orderRunning = this.isOrderRunning(order.id)
-      return {
-        key: poKey(order.id),
-        title: `${order.id} · ${order.customerShort}`,
-        disableCheckbox: orderRunning,
-        children: order.schedule.map((family) => {
-          const familyRunning = this.isFamilyRunning(order.id, family.id)
-          return {
-            key: pfKey(order.id, family.id),
-            title: family.label,
-            disableCheckbox: familyRunning,
-            children: family.batches.map((batch) => ({
-              key: mbKey(order.id, family.id, batch.id),
-              title: `${batch.name} · ${batch.waferCount.toLocaleString()} w`,
-              disableCheckbox: isBatchRunning(batch.scheduleClass),
-              isLeaf: true,
-            })),
-          }
-        }),
-      }
-    })
+    return MOCK_FAMILIES_BY_PFG.map(({ group, families }) => ({
+      key: pfgKey(group),
+      title: `${group} Production Family Group`,
+      // PFG itself is a header — checkbox stays disabled.
+      disableCheckbox: true,
+      children: families.map((pf) => ({
+        key: pfKey(group, pf.id),
+        title: `${pf.code} · ${pf.name}`,
+        disableCheckbox: this.isFamilyRunning(pf.id),
+        children: pf.tasks.map((t) => ({
+          key: tskKey(group, pf.id, t.id),
+          title: `${t.code} · ${t.name}`,
+          disableCheckbox: this.isTaskRunning(t.id),
+          children: t.subTasks.map((s) => ({
+            key: subKey(group, pf.id, t.id, s.id),
+            title: `${s.kind} · ${s.name}`,
+            disableCheckbox: isSubRunning(s.scheduleClass),
+            isLeaf: true,
+          })),
+        })),
+      })),
+    }))
   }
 
-  // Visibility is derived purely from checked batch keys: a family appears if any of its batches is checked,
-  // a PO appears if any of its families is visible. This works regardless of the PF/PO key's checked state,
-  // which is how a running-but-partially-unchecked PF stays visible with only its remaining batches.
-  get filteredOrders(): ProductionOrder[] {
+  // ---- Filtered production families -----------------------------------------
+  // A SubTask appears if its sub key is in checkedKeys.
+  // A Task appears if any of its sub-tasks appears (and its task key is in checkedKeys).
+  // A PF appears if any of its tasks appears.
+  get filteredFamiliesByPfg(): { group: ProductionFamilyGroup; families: ProductionFamily[] }[] {
     const checked = new Set(this.checkedKeys)
-    const out: ProductionOrder[] = []
-    for (const order of this.orders) {
-      const visibleFamilies = []
-      for (const family of order.schedule) {
-        const visibleBatches = family.batches.filter((b) => checked.has(mbKey(order.id, family.id, b.id)))
-        if (visibleBatches.length === 0) continue
-        visibleFamilies.push({ ...family, batches: visibleBatches })
+    const out: { group: ProductionFamilyGroup; families: ProductionFamily[] }[] = []
+    for (const { group, families } of MOCK_FAMILIES_BY_PFG) {
+      const visibleFams: ProductionFamily[] = []
+      for (const pf of families) {
+        if (!checked.has(pfKey(group, pf.id))) continue
+        const visibleTasks: EngineeringTask[] = []
+        for (const t of pf.tasks) {
+          if (!checked.has(tskKey(group, pf.id, t.id))) continue
+          const visibleSubs = t.subTasks.filter((s) => checked.has(subKey(group, pf.id, t.id, s.id)))
+          // Task remains visible even when it has no checked sub-tasks (the Task itself is the planning unit).
+          visibleTasks.push({ ...t, subTasks: visibleSubs })
+        }
+        if (visibleTasks.length === 0) continue
+        visibleFams.push({ ...pf, tasks: visibleTasks })
       }
-      if (visibleFamilies.length === 0) continue
-      out.push({ ...order, schedule: visibleFamilies })
+      if (visibleFams.length > 0) out.push({ group, families: visibleFams })
     }
     return out
   }
 
-  // Flat dhx tasks array (PO → Family → Batch) for the @dhx/react-gantt component.
-  // Milestones are NOT tasks anymore — they render as vertical marker lines (see `dhxMarkers`).
+  get filteredFamilies(): ProductionFamily[] {
+    return this.filteredFamiliesByPfg.flatMap((g) => g.families)
+  }
+
+  // ---- dhx flat task list (PFG → PF → Task → SubTask) ------------------------
   get dhxTasks(): SimulationTaskRow[] {
     const out: SimulationTaskRow[] = []
-    let poIndex = 0
-    for (const order of this.filteredOrders) {
+    let pfIndex = 0
+    for (const { group, families } of this.filteredFamiliesByPfg) {
+      const pfgRowKey = pfgKey(group)
+      // PFG header row — no bar, just structure.
       out.push({
-        id: order.id,
-        text: `${order.id} · ${order.customerShort}`,
-        start_date: order.waferStart,
-        end_date: order.end,
+        id: pfgRowKey,
+        text: `${group} Production Family Group`,
+        start_date: this.startDate,
+        end_date: this.endDate,
         type: 'project',
-        open: this.expandedOrderIds.has(order.id),
-        rowKind: 'po',
-        customerShort: order.customerShort,
-        priority: order.priority,
-        scheduleClass: order.scheduleClass,
-        color: scheduleColor(order.scheduleClass),
-        // Project rows are always readonly — their span is computed from children, not draggable.
+        open: this.expandedPfgKeys.has(pfgRowKey),
+        rowKind: 'pfg',
+        scheduleClass: 'fixed',
         readonly: true,
-        poIndex,
+        pfgGroup: group,
+        pfIndex,
       })
-      for (const family of order.schedule) {
+      for (const pf of families) {
+        // PF summary row — no bar; carries the MTO column value.
         out.push({
-          id: family.id,
-          text: family.label,
-          start_date: family.start,
-          end_date: family.end,
+          id: pf.id,
+          text: `${pf.code} · ${pf.name}`,
+          start_date: pf.tasks[0]?.start ?? this.startDate,
+          end_date: pf.tasks[pf.tasks.length - 1]?.end ?? this.endDate,
           type: 'project',
-          parent: order.id,
-          open: this.expandedFamilyIds.has(family.id),
-          rowKind: 'family',
-          techCode: family.tech,
-          priority: family.priority,
-          scheduleClass: family.scheduleClass,
-          color: scheduleColor(family.scheduleClass),
+          parent: pfgRowKey,
+          open: this.expandedPfIds.has(pf.id),
+          rowKind: 'pf',
+          scheduleClass: pf.scheduleClass,
+          color: scheduleColor(pf.scheduleClass),
           readonly: true,
-          poIndex,
+          mto: buildMtoColumnLabel(pf),
+          pfgGroup: group,
+          bizTeamCode: pf.bizTeamId,
+          pfIndex,
         })
-        for (const batch of family.batches) {
+        for (const t of pf.tasks) {
           out.push({
-            id: `${family.id}::${batch.id}`,
-            text: batch.name,
-            start_date: batch.start,
-            end_date: batch.end,
-            duration: batch.durationDays,
-            type: 'task',
-            parent: family.id,
-            rowKind: 'batch',
-            waferCount: batch.waferCount,
-            note: batch.note,
-            scheduleClass: batch.scheduleClass,
-            color: scheduleColor(batch.scheduleClass),
-            // Running (fixed) batches are locked — already executing on the floor.
-            readonly: batch.scheduleClass === 'fixed',
-            poIndex,
+            id: t.id,
+            text: `${t.code} · ${t.name}`,
+            start_date: t.start,
+            end_date: t.end,
+            duration: t.durationDays,
+            type: 'project',
+            parent: pf.id,
+            open: this.expandedTaskIds.has(t.id),
+            rowKind: 'task',
+            scheduleClass: t.scheduleClass,
+            color: scheduleColor(t.scheduleClass),
+            readonly: t.scheduleClass === 'fixed',
+            spm: t.spm,
+            ownerCellIds: t.ownerCellIds,
+            processPathLabel: t.processPath.join(' / '),
+            pfIndex,
           })
+          for (const s of t.subTasks) {
+            out.push({
+              id: `${t.id}::${s.id}`,
+              text: `${s.kind} · ${s.name}`,
+              start_date: s.start,
+              end_date: s.end,
+              duration: s.durationDays,
+              type: 'task',
+              parent: t.id,
+              rowKind: 'subtask',
+              scheduleClass: s.scheduleClass,
+              color: scheduleColor(s.scheduleClass),
+              readonly: s.scheduleClass === 'fixed',
+              subTaskKind: s.kind,
+              spm: s.spm,
+              ownerCellIds: s.ownerCellIds,
+              note: s.note,
+              pfIndex,
+            })
+          }
         }
+        pfIndex += 1
       }
-      poIndex += 1
     }
     return out
   }
 
-  // Markers for dhx-react-gantt — the Today line plus one vertical line per milestone.
-  // Each marker carries a rich `title` tooltip (name + date + PO/PF/wafer commitment list).
+  // Today + MTO milestone markers (per filtered PF, at every standard offset).
   get dhxMarkers(): SimulationMarker[] {
     const out: SimulationMarker[] = [
       {
@@ -336,14 +396,14 @@ export class SimulationStore {
         title: `Today · ${this.today}`,
       },
     ]
-    for (const order of this.filteredOrders) {
-      for (const m of order.milestones) {
+    for (const pf of this.filteredFamilies) {
+      for (const m of milestonesForFamily(pf.id)) {
         out.push({
-          id: `milestone::${order.id}::${m.id}`,
+          id: m.id,
           start_date: new Date(m.date),
           css: `ax-eps-simulation-milestone-marker ax-eps-simulation-milestone-marker__${m.state}`,
-          text: `${order.id} · ${m.label}`,
-          title: buildMilestoneTooltip(m),
+          text: `${pf.code} · ${m.label}`,
+          title: buildMilestoneTooltip(pf, m),
           state: m.state,
         })
       }
@@ -351,111 +411,112 @@ export class SimulationStore {
     return out
   }
 
-  isExpanded(id: string) {
-    return this.expandedOrderIds.has(id)
+  // ---- Expand / collapse helpers --------------------------------------------
+  isPfgExpanded(key: string) {
+    return this.expandedPfgKeys.has(key)
   }
-
-  toggleExpanded(id: string) {
-    if (this.expandedOrderIds.has(id)) this.expandedOrderIds.delete(id)
-    else this.expandedOrderIds.add(id)
+  togglePfgExpanded(key: string) {
+    if (this.expandedPfgKeys.has(key)) this.expandedPfgKeys.delete(key)
+    else this.expandedPfgKeys.add(key)
   }
-
-  isFamilyExpanded(id: string) {
-    return this.expandedFamilyIds.has(id)
+  isPfExpanded(id: string) {
+    return this.expandedPfIds.has(id)
   }
-
-  toggleFamilyExpanded(id: string) {
-    if (this.expandedFamilyIds.has(id)) this.expandedFamilyIds.delete(id)
-    else this.expandedFamilyIds.add(id)
+  togglePfExpanded(id: string) {
+    if (this.expandedPfIds.has(id)) this.expandedPfIds.delete(id)
+    else this.expandedPfIds.add(id)
   }
-
+  isTaskExpanded(id: string) {
+    return this.expandedTaskIds.has(id)
+  }
+  toggleTaskExpanded(id: string) {
+    if (this.expandedTaskIds.has(id)) this.expandedTaskIds.delete(id)
+    else this.expandedTaskIds.add(id)
+  }
   collapseAll() {
-    this.expandedOrderIds = new Set()
-    this.expandedFamilyIds = new Set()
+    this.expandedPfgKeys = new Set()
+    this.expandedPfIds = new Set()
+    this.expandedTaskIds = new Set()
   }
-
   expandAll() {
-    this.expandedOrderIds = new Set(this.orders.map((o) => o.id))
-    this.expandedFamilyIds = new Set(this.orders.flatMap((o) => o.schedule.map((f) => f.id)))
+    this.expandedPfgKeys = new Set(MOCK_FAMILIES_BY_PFG.map((g) => pfgKey(g.group)))
+    this.expandedPfIds = new Set(this.families.map((p) => p.id))
+    this.expandedTaskIds = new Set(this.families.flatMap((p) => p.tasks.map((t) => t.id)))
   }
 
+  // ---- Undo / redo / save (mock) --------------------------------------------
   get canUndo() {
     return this.historyCount > 0
   }
-
   get canRedo() {
     return this.futureCount > 0
   }
-
-  // Number of unsaved edits since the last save — drives the header chip + the toolbar dirty indicator.
   get unsavedEditsCount() {
     return this.historyCount
   }
-
   undo() {
     if (this.historyCount > 0) {
       this.historyCount -= 1
       this.futureCount += 1
     }
   }
-
   redo() {
     if (this.futureCount > 0) {
       this.futureCount -= 1
       this.historyCount += 1
     }
   }
-
-  // Mock helpers so the toolbar buttons reflect dirty state.
   markEdited() {
     this.historyCount += 1
     this.futureCount = 0
   }
-
   reset() {
     this.historyCount = 0
     this.futureCount = 0
     this.resetAdjustment()
-    this.horizon = 'week'
+    this.horizon = 'month'
   }
-
   save() {
-    // Mock save — in a real flow this would push to the back-end.
     this.historyCount = 0
     this.futureCount = 0
   }
 
-  // ---- Drag-to-reschedule cascade ---------------------------------------------
-  // The dhx simulation batchSave callback hands us batch task ids in the form `${familyId}::${batchId}` together
-  // with their new start/end dates. We persist into the underlying mock-plan structure and cascade the
-  // window up to the family and PO.
-  rescheduleBatch(familyTaskId: string, batchId: string, start: Date, end: Date) {
-    const [familyId] = familyTaskId.split('::')
-    const order = this.orders.find((o) => o.schedule.some((f) => f.id === familyId))
-    if (!order) return
-    const family = order.schedule.find((f) => f.id === familyId)
-    if (!family) return
-    const batch = family.batches.find((b) => b.id === batchId)
-    if (!batch || batch.scheduleClass === 'fixed') return // running batches are readonly — extra guard
-
+  // ---- Drag-to-reschedule cascade (Task / Sub-Task) -------------------------
+  // dhx hands us batch task ids:
+  //   • SubTask rows have id format `${taskId}::${subId}` — we resolve both and update the SubTask + cascade
+  //     the parent Task window.
+  //   • Task rows have id == task.id — we update the task window only when it isn't 'fixed'.
+  rescheduleTaskOrSub(taskRowId: string, start: Date, end: Date) {
     const startStr = start.toISOString().slice(0, 10)
     const endStr = end.toISOString().slice(0, 10)
-    batch.start = startStr
-    batch.end = endStr
-    batch.durationDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)))
-    // Any move converts a previously-"new" batch into the "changes" class so the planner sees the modification.
-    if (batch.scheduleClass !== 'new') batch.scheduleClass = 'changes'
-
-    // Cascade — recompute family span from its batches and PO span from its families.
-    family.start = family.batches.reduce((a, b) => (b.start < a ? b.start : a), family.batches[0].start)
-    family.end = family.batches.reduce((a, b) => (b.end > a ? b.end : a), family.batches[0].end)
-    family.durationDays = Math.max(1, Math.round((new Date(family.end).getTime() - new Date(family.start).getTime()) / (24 * 60 * 60 * 1000)))
-    if (family.scheduleClass !== 'new') family.scheduleClass = 'changes'
-
-    order.waferStart = order.schedule.reduce((a, f) => (f.start < a ? f.start : a), order.schedule[0].start)
-    order.end = order.schedule.reduce((a, f) => (f.end > a ? f.end : a), order.schedule[0].end)
-    if (order.scheduleClass !== 'new') order.scheduleClass = 'changes'
-
+    const isSub = taskRowId.includes('::')
+    if (isSub) {
+      const [taskId, subId] = taskRowId.split('::')
+      const pf = this.families.find((p) => p.tasks.some((t) => t.id === taskId))
+      const task = pf?.tasks.find((t) => t.id === taskId)
+      const sub = task?.subTasks.find((s) => s.id === subId)
+      if (!task || !sub || sub.scheduleClass === 'fixed') return
+      sub.start = startStr
+      sub.end = endStr
+      sub.durationDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)))
+      if (sub.scheduleClass !== 'new') sub.scheduleClass = 'changes'
+      // Cascade — task window may need to extend to wrap the sub.
+      task.start = task.subTasks.reduce((a, s) => (s.start < a ? s.start : a), task.start)
+      task.end = task.subTasks.reduce((a, s) => (s.end > a ? s.end : a), task.end)
+      task.durationDays = Math.max(
+        1,
+        Math.round((new Date(task.end).getTime() - new Date(task.start).getTime()) / (24 * 60 * 60 * 1000)),
+      )
+      if (task.scheduleClass !== 'new') task.scheduleClass = 'changes'
+    } else {
+      const pf = this.families.find((p) => p.tasks.some((t) => t.id === taskRowId))
+      const task = pf?.tasks.find((t) => t.id === taskRowId)
+      if (!task || task.scheduleClass === 'fixed') return
+      task.start = startStr
+      task.end = endStr
+      task.durationDays = Math.max(1, Math.round((end.getTime() - start.getTime()) / (24 * 60 * 60 * 1000)))
+      if (task.scheduleClass !== 'new') task.scheduleClass = 'changes'
+    }
     this.markEdited()
   }
 }

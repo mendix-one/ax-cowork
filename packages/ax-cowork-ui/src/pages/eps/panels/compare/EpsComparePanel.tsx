@@ -26,11 +26,11 @@ export const EpsComparePanel = observer((props: SubPanelControls) => {
   const left = compare.leftSnapshot
   const right = compare.rightSnapshot
 
-  // Diff cards: committed (lower=better when cost is constraint, but planner usually wants higher),
-  // out (higher better), at-risk count (lower better), end date (lower better).
-  const dCommitted = fmtDelta(left.committed, right.committed, 'higher')
-  const dOut = fmtDelta(left.out, right.out, 'higher')
-  const dAtRisk = fmtDelta(left.atRiskPoCount, right.atRiskPoCount, 'lower')
+  // Diff cards: total SPM demand (higher = more work), task count (informational),
+  // at-risk PF count (lower better), end date (lower better).
+  const dCommitted = fmtDelta(left.totalSpm, right.totalSpm, 'higher')
+  const dOut = fmtDelta(left.taskCount, right.taskCount, 'higher')
+  const dAtRisk = fmtDelta(left.atRiskPfCount, right.atRiskPfCount, 'lower')
   // End-date delta in days, computed from ISO strings.
   const endDeltaDays = Math.round((new Date(right.endDate).getTime() - new Date(left.endDate).getTime()) / (24 * 60 * 60 * 1000))
   const dEndTone: 'positive' | 'negative' | 'neutral' = endDeltaDays === 0 ? 'neutral' : endDeltaDays < 0 ? 'positive' : 'negative'
@@ -58,27 +58,27 @@ export const EpsComparePanel = observer((props: SubPanelControls) => {
         {/* Diff KPI strip */}
         <div className="ax-eps-compare_kpis">
           <div className="ax-eps-compare_kpi">
-            <div className="ax-eps-compare_kpi_label">Committed</div>
-            <div className="ax-eps-compare_kpi_value">{right.committed.toLocaleString()}</div>
-            <Tooltip title={`Plan A: ${left.committed.toLocaleString()}`}>
+            <div className="ax-eps-compare_kpi_label">Total SPM</div>
+            <div className="ax-eps-compare_kpi_value">{right.totalSpm.toLocaleString()}</div>
+            <Tooltip title={`Plan A: ${left.totalSpm.toLocaleString()}`}>
               <Tag color={TONE_COLOR[dCommitted.tone]} style={{ margin: 0 }}>
                 {dCommitted.text}
               </Tag>
             </Tooltip>
           </div>
           <div className="ax-eps-compare_kpi">
-            <div className="ax-eps-compare_kpi_label">Eng-days planned</div>
-            <div className="ax-eps-compare_kpi_value">{right.out.toLocaleString()}</div>
-            <Tooltip title={`Baseline: ${left.out.toLocaleString()}`}>
+            <div className="ax-eps-compare_kpi_label">Engineering tasks</div>
+            <div className="ax-eps-compare_kpi_value">{right.taskCount.toLocaleString()}</div>
+            <Tooltip title={`Baseline: ${left.taskCount.toLocaleString()}`}>
               <Tag color={TONE_COLOR[dOut.tone]} style={{ margin: 0 }}>
                 {dOut.text}
               </Tag>
             </Tooltip>
           </div>
           <div className="ax-eps-compare_kpi">
-            <div className="ax-eps-compare_kpi_label">At-risk projects</div>
-            <div className="ax-eps-compare_kpi_value">{right.atRiskPoCount}</div>
-            <Tooltip title={`Baseline: ${left.atRiskPoCount}`}>
+            <div className="ax-eps-compare_kpi_label">At-risk families</div>
+            <div className="ax-eps-compare_kpi_value">{right.atRiskPfCount}</div>
+            <Tooltip title={`Baseline: ${left.atRiskPfCount}`}>
               <Tag color={TONE_COLOR[dAtRisk.tone]} style={{ margin: 0 }}>
                 {dAtRisk.text}
               </Tag>
@@ -95,9 +95,9 @@ export const EpsComparePanel = observer((props: SubPanelControls) => {
           </div>
           <div className="ax-eps-compare_kpi">
             <div className="ax-eps-compare_kpi_label">Bottleneck</div>
-            <div className="ax-eps-compare_kpi_value ax-eps-compare_kpi_value__small">{right.bottleneckGroup}</div>
-            <Tag color={right.bottleneckGroup === left.bottleneckGroup ? 'default' : 'blue'} style={{ margin: 0 }}>
-              {right.bottleneckGroup === left.bottleneckGroup ? 'unchanged' : `was ${left.bottleneckGroup}`}
+            <div className="ax-eps-compare_kpi_value ax-eps-compare_kpi_value__small">{right.bottleneckOrg}</div>
+            <Tag color={right.bottleneckOrg === left.bottleneckOrg ? 'default' : 'blue'} style={{ margin: 0 }}>
+              {right.bottleneckOrg === left.bottleneckOrg ? 'unchanged' : `was ${left.bottleneckOrg}`}
             </Tag>
           </div>
         </div>

@@ -1,9 +1,7 @@
 import { Tag, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
-import { useEpsContext } from '../../stores/eps.context'
 import { calcMilestoneRows } from '../../helpers/analysis.helpers'
 import type { MilestoneState } from '../../data/mock-plan'
-import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
 const STATE_TAG: Record<MilestoneState, { color: string; label: string }> = {
   new: { color: 'cyan', label: 'New' },
@@ -12,70 +10,28 @@ const STATE_TAG: Record<MilestoneState, { color: string; label: string }> = {
   cannot: { color: 'red', label: 'Cannot' },
 }
 
-// Shipment milestone analysis — one row per milestone across all visible POs.
-// Sorted by date so the operator sees the next commitment at the top.
+// MTO milestone log — one row per (Production Family × standard offset), sorted by date.
 export const EpsAnalysisMilestones = observer(() => {
-  const orders = useEpsContext().simulation.filteredOrders
-  const rows = calcMilestoneRows(orders)
-
+  const rows = calcMilestoneRows()
   return (
     <div className="ax-eps-analysis_section">
-      <div className="ax-eps-analysis_section_header">
-        <div className="ax-eps-analysis_section_header_title">
-          <AxMuiIcon icon="mdiCalendarCheckOutline" size={18} />
-          <span>Shipment milestone analysis ({rows.length})</span>
+      <div className="ax-eps-analysis_section_title">MTO milestone log</div>
+      {rows.length === 0 ? (
+        <Typography.Text type="secondary">No MTO milestones in scope.</Typography.Text>
+      ) : (
+        <div className="ax-eps-analysis_milestone_list">
+          {rows.map((r) => (
+            <div key={`${r.pfId}::${r.label}`} className={`ax-eps-analysis_milestone_row ax-eps-analysis_milestone_row__${r.state}`}>
+              <Tag color={STATE_TAG[r.state].color} style={{ margin: 0 }}>{STATE_TAG[r.state].label}</Tag>
+              <Typography.Text strong>{r.pfCode}</Typography.Text>
+              <Typography.Text>{r.label}</Typography.Text>
+              <Typography.Text type="secondary" style={{ marginLeft: 'auto' }}>{r.date}</Typography.Text>
+              {r.slipDays > 0 && <Typography.Text type="danger">+{r.slipDays}d</Typography.Text>}
+              {r.cause && <Typography.Text type="secondary">· {r.cause}</Typography.Text>}
+            </div>
+          ))}
         </div>
-      </div>
-      <div className="ax-eps-analysis_section_body">
-        {rows.length === 0 ? (
-          <Typography.Text type="secondary">No milestones in the current selection.</Typography.Text>
-        ) : (
-          <table className="ax-eps-analysis_table">
-            <thead>
-              <tr>
-                <th>Date</th>
-                <th>PO</th>
-                <th>Cust</th>
-                <th>Milestone</th>
-                <th>PF</th>
-                <th style={{ textAlign: 'right' }}>Wafers</th>
-                <th>State</th>
-                <th>Slip</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={`${r.poId}::${r.label}::${r.date}`}>
-                  <td>{r.date}</td>
-                  <td>
-                    <b>{r.poId}</b>
-                  </td>
-                  <td>{r.customerShort}</td>
-                  <td>{r.label}</td>
-                  <td>{r.pfList.join(', ') || '—'}</td>
-                  <td style={{ textAlign: 'right' }}>{r.wafers.toLocaleString()}</td>
-                  <td>
-                    <Tag color={STATE_TAG[r.state].color} style={{ margin: 0 }}>
-                      {STATE_TAG[r.state].label}
-                    </Tag>
-                  </td>
-                  <td>
-                    {r.slipDays > 0 ? (
-                      <Tag color={r.slipDays > 2 ? 'red' : 'orange'} style={{ margin: 0 }}>
-                        +{r.slipDays}d{r.cause ? ` · ${r.cause}` : ''}
-                      </Tag>
-                    ) : (
-                      <Tag color="green" style={{ margin: 0 }}>
-                        ok
-                      </Tag>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      )}
     </div>
   )
 })

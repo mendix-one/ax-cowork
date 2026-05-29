@@ -1,89 +1,54 @@
-import { Segmented, Tooltip, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
-import { useEpsContext } from '../../stores/eps.context'
-import type { HeatGranularity } from '../../stores/analysis.store'
+import { Typography } from 'antd'
 import { calcHeatmap, type HeatBand } from '../../helpers/analysis.helpers'
-import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
-// Band palette is pinned to the tool-group bar chart so both surfaces speak the same color language —
-// teal=running normally, orange=approaching limit, red=over capacity. Idle (<40%) has no bar-chart
-// equivalent, so it uses axSchedule.ghost.bar (neutral blue-grey) to read as "barely loaded".
 const BAND_COLOR: Record<HeatBand, string> = {
-  idle: '#cfd8dc', // axSchedule.ghost.bar (Blue Grey 200) — barely-loaded, neutral
-  safe: '#00897b', // matches bar COLOR_USED_SAFE (axSchedule.new.bar, Teal 600)
-  warning: '#EF6C00', // matches bar COLOR_USED_WARN (Orange 800)
-  overload: '#C62828', // matches bar COLOR_USED_DANGER (Red 800)
-}
-const BAND_LABEL: Record<HeatBand, string> = {
-  idle: '<40%',
-  safe: '40–85%',
-  warning: '85–100%',
-  overload: '>100%',
+  idle: '#ECEFF1',
+  safe: '#0277BD',
+  warning: '#EF6C00',
+  overload: '#C62828',
 }
 
-// Workload heatmap — tool group × time bucket. Granularity is chosen via a Segmented control,
-// which the store keeps so other parts of the view could also react if needed.
+// Org × MTO month-offset heatmap. Each cell tinted by the demand / headcount ratio band.
 export const EpsAnalysisHeatmap = observer(() => {
-  const analysis = useEpsContext().analysis
-  const rows = calcHeatmap(analysis.heatGranularity)
-  const buckets = rows[0]?.cells.map((c) => c.bucket) ?? []
-
+  const rows = calcHeatmap()
+  if (rows.length === 0 || rows[0].cells.length === 0) {
+    return (
+      <div className="ax-eps-analysis_section">
+        <div className="ax-eps-analysis_section_title">Org demand heatmap (MTO offsets)</div>
+        <Typography.Text type="secondary">No demand data.</Typography.Text>
+      </div>
+    )
+  }
+  const buckets = rows[0].cells.map((c) => c.bucket)
   return (
     <div className="ax-eps-analysis_section">
-      <div className="ax-eps-analysis_section_header">
-        <div className="ax-eps-analysis_section_header_title">
-          <AxMuiIcon icon="mdiViewGridOutline" size={18} />
-          <span>Workload heatmap · Tool group × {analysis.heatGranularity}</span>
-        </div>
-        <Segmented
-          size="small"
-          value={analysis.heatGranularity}
-          onChange={(v) => analysis.setHeatGranularity(v as HeatGranularity)}
-          options={[
-            { label: 'Day', value: 'day' },
-            { label: 'Month', value: 'month' },
-            { label: 'Quarter', value: 'quarter' },
-            { label: 'Year', value: 'year' },
-          ]}
-        />
-      </div>
-      <div className="ax-eps-analysis_section_body" style={{ overflowX: 'auto' }}>
-        <table className="ax-eps-analysis_heatmap">
+      <div className="ax-eps-analysis_section_title">Org demand heatmap (MTO offsets)</div>
+      <div className="ax-eps-analysis_heatmap" style={{ overflowX: 'auto' }}>
+        <table className="ax-eps-analysis_heatmap_table" style={{ borderCollapse: 'collapse' }}>
           <thead>
             <tr>
-              <th className="ax-eps-analysis_heatmap_label" style={{ textAlign: 'left' }}>
-                Tool Group
-              </th>
+              <th style={{ textAlign: 'left', padding: '4px 8px', fontSize: 11 }}>Org node</th>
               {buckets.map((b) => (
-                <th key={b} className="ax-eps-analysis_heatmap_label" style={{ textAlign: 'center' }}>
-                  {b.length > 7 ? b.slice(5) : b}
+                <th key={b} style={{ padding: '4px 8px', fontSize: 11, textAlign: 'center' }}>
+                  {b}
                 </th>
               ))}
             </tr>
           </thead>
           <tbody>
-            {rows.map((row) => (
-              <tr key={row.toolGroup}>
-                <td className="ax-eps-analysis_heatmap_label">{row.toolGroup}</td>
-                {row.cells.map((cell) => (
-                  <td key={cell.bucket} style={{ textAlign: 'center' }}>
-                    <Tooltip title={`${row.toolGroup} · ${cell.bucket} · ${BAND_LABEL[cell.band]} (${Math.round(cell.ratio * 100)}%)`}>
-                      <span className="ax-eps-analysis_heatmap_cell" style={{ background: BAND_COLOR[cell.band] }} />
-                    </Tooltip>
+            {rows.map((r) => (
+              <tr key={r.org}>
+                <td style={{ padding: '4px 8px', fontSize: 11, whiteSpace: 'nowrap' }}>{r.org}</td>
+                {r.cells.map((c) => (
+                  <td key={c.bucket} title={`${c.bucket} · ${(c.ratio * 100).toFixed(0)}%`} style={{ background: BAND_COLOR[c.band], width: 36, height: 22, color: c.band === 'idle' ? '#37474F' : '#ffffff', fontSize: 10, textAlign: 'center' }}>
+                    {(c.ratio * 100).toFixed(0)}
                   </td>
                 ))}
               </tr>
             ))}
           </tbody>
         </table>
-        <div className="ax-eps-analysis_heatmap_legend">
-          {(['idle', 'safe', 'warning', 'overload'] as HeatBand[]).map((b) => (
-            <Typography.Text key={b} type="secondary">
-              <span className="ax-eps-analysis_heatmap_swatch" style={{ background: BAND_COLOR[b] }} />
-              {b} {BAND_LABEL[b]}
-            </Typography.Text>
-          ))}
-        </div>
       </div>
     </div>
   )

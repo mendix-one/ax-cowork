@@ -14,7 +14,7 @@ import { AxDisplayPanel, type MainPanelControls } from '@/shared/display-panel/A
 export const EpsOrderPanel = observer((props: MainPanelControls) => {
   const po = useEpsContext().order
   return (
-    <AxDisplayPanel type="main" icon="mdiClipboardListOutline" title="Orders" tools={<EpsOrderToolbar />} {...props}>
+    <AxDisplayPanel type="main" icon="mdiClipboardListOutline" title="Production Requirements" tools={<EpsOrderToolbar />} {...props}>
       <div className="ax-eps-order">
         <div className="ax-eps-order_body">
           {po.filterSidebarOpen && <EpsAdjustmentSidebar onClose={() => po.toggleFilterSidebar()} />}

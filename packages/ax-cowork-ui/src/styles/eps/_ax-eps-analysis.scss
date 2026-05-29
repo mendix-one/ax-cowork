@@ -213,6 +213,55 @@
   &_body {
     @apply p-3 min-h-0 text-base;
   }
+
+  // Lightweight title — used by sections that don't need a full _header bar. Mirrors the same Stone-100
+  // chrome so panels feel consistent whether they use the rich header or the simple title.
+  &_title {
+    @apply h-10 px-3 flex items-center justify-between gap-3;
+    @apply border-b border-gray-200 bg-stone-100;
+    @apply text-base font-semibold text-neutral-800;
+  }
+}
+
+// Chart wrapper inside an analysis section — gives the ECharts container internal padding so axis
+// labels + reference lines aren't flush against the section border.
+.ax-eps-analysis_chart {
+  @apply p-3;
+}
+
+// Org × MTO heatmap surrounds — gives the table its own padding so columns can scroll horizontally.
+.ax-eps-analysis_heatmap {
+  @apply p-3;
+
+  &_table {
+    th,
+    td {
+      border: 1px solid theme('colors.gray.200');
+    }
+    thead th {
+      @apply bg-stone-50;
+    }
+  }
+}
+
+// MTO milestone log
+.ax-eps-analysis_milestone_list {
+  @apply p-3 flex flex-col gap-1;
+}
+.ax-eps-analysis_milestone_row {
+  @apply flex items-center gap-2 px-2 py-1 rounded-sm;
+  font-size: 12px;
+  @apply bg-stone-50 border border-gray-200;
+
+  &__late {
+    @apply bg-orange-50 border-orange-200;
+  }
+  &__cannot {
+    @apply bg-red-50 border-red-200;
+  }
+  &__new {
+    @apply bg-cyan-50 border-cyan-200;
+  }
 }
 
 // ---- Heatmap ------------------------------------------------------------------------------------------------------

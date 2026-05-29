@@ -1,49 +1,27 @@
 import { useMemo } from 'react'
-import { Empty, Progress, Tooltip } from 'antd'
+import { Empty, Tooltip } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { AxControlTable, type ControlTableColumn } from '@ax-cowork/control-table'
 import { useEpsContext } from '../../stores/eps.context'
-import type { ProductionOrder, ScheduleMilestone } from '../../data/mock-plan'
+import { processPathLabel } from '../../data/mock-plan'
 import type { FlatRow } from '../../stores/order.store'
-import { remarkForRow, stateForRow, waferStatesForRow } from '../../helpers/order.helpers'
-import { MilestoneChips, StateChip, StatusChip } from './order-chips'
+import { formatMtoAnchor, stateForRow } from '../../helpers/order.helpers'
+import { StateChip, SubTaskKindChip } from './order-chips'
 import { EpsOrderTuneButton } from './EpsOrderTuneButton'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
-// The notes-store key matches the row's existing key for po/family/batch rows. Customer rows don't carry
-// a planner note in this iteration (customers aren't editable nodes).
-const noteKeyFor = (row: FlatRow): string | null => {
-  if (row.kind === 'po') return `po::${row.poId}`
-  if (row.kind === 'family' && row.familyId) return `family::${row.familyId}`
-  if (row.kind === 'batch' && row.familyId && row.batchId) return `batch::${row.familyId}::${row.batchId}`
-  return null
-}
-
-const milestonesFor = (orders: ProductionOrder[], row: FlatRow): ScheduleMilestone[] => {
-  if (row.kind === 'batch') return []
-  const po = orders.find((o) => o.id === row.poId)
-  if (!po) return []
-  if (row.kind === 'po') return po.milestones
-  return po.milestones.filter((m) => m.familyId === row.familyId)
-}
-
-// Tech / Spec for the row: spec at PO level (e.g. "SP-QLC-V9 v3.4"), tech at family/batch level
-// (e.g. "T-V9-232L"). Customer-pivot rows have no recipe identity, so they're blank.
-const techSpec = (orders: ProductionOrder[], row: FlatRow): string => {
-  const order = orders.find((o) => o.id === row.poId)
-  if (!order) return ''
-  if (row.kind === 'po') return order.spec
-  if ((row.kind === 'family' || row.kind === 'batch') && row.familyId) {
-    return order.schedule.find((f) => f.id === row.familyId)?.tech ?? ''
-  }
-  return ''
-}
-
-// Stable PO-band parity so rows of the same PO share a background, alternating PO group-by group.
-// Customer rows in customer-pivot mode pick up their first child's PO parity for a clean visual.
-const buildPoBandIndex = (orders: ProductionOrder[]): Map<string, number> => {
+// Build a stable "PF band" parity so rows belonging to the same Production Family share a tint —
+// makes the multi-level tree easier to scan.
+const buildPfBandIndex = (rows: FlatRow[]): Map<string, number> => {
   const map = new Map<string, number>()
-  orders.forEach((o, i) => map.set(o.id, i))
+  let idx = 0
+  for (const r of rows) {
+    if (r.kind !== 'pf') continue
+    if (r.pfId && !map.has(r.pfId)) {
+      map.set(r.pfId, idx)
+      idx += 1
+    }
+  }
   return map
 }
 
@@ -52,23 +30,13 @@ export const EpsOrderTable = observer(() => {
   const po = sim.order
   const notes = sim.notes
   const selectedKey = po.selectedRowKey
-  // Set of simulation-tree keys currently INCLUDED in the schedule — anything missing is "Exclude".
-  // Read from sim.simulation so excluding from any view (PO / Gantt / Analysis) drives the same chip.
-  const checkedSet = useMemo(() => new Set(sim.simulation.checkedKeys), [sim.simulation.checkedKeys])
 
   const data = po.flatRows
-  const poBandIndex = useMemo(() => buildPoBandIndex(po.orders), [po.orders])
+  const pfBandIndex = useMemo(() => buildPfBandIndex(data), [data])
 
-  // Base column definitions, keyed by `key`. The active columns array is derived from po.tableTune
-  // (order + visibility + sticky/sortable/filterable overrides) below — so the tune popover can flex
-  // any subset without us re-declaring renderers.
   const baseColumns = useMemo<ControlTableColumn<FlatRow>[]>(
     () => [
-      // 1 — Selection indicator. Clicking anywhere on the row toggles selection via po.selectRow;
-      // this column is the visual handle. We use mdiDragVertical (a 6-dot vertical glyph) so the
-      // affordance reads as "row handle" — light grey at rest, Deep Purple when the row is selected.
-      // The HEADER uses headerRender to host the mdiTune button — the table-tune entry point.
-      // Tree decoration (chevron + indent) lives on the next column, NOT here — set via tree.columnId.
+      // 1 — Selection indicator + table tune button in the header.
       {
         key: '_select',
         title: '',
@@ -87,25 +55,28 @@ export const EpsOrderTable = observer(() => {
           )
         },
       },
-      // 2 — Production Order / Family / Batch (sticky-left tree column).
+      // 2 — IA label tree (sticky-left).
       {
         key: 'label',
-        title: 'Production Order / Family / Batch',
-        width: 300,
+        title: 'Biz Group / Team / PFG / Family / Task / Sub-Task',
+        width: 360,
         sortable: false,
         sticky: 'left',
         accessor: (r) => r.label,
         render: (_v, row) => {
-          const nk = noteKeyFor(row)
+          const nk =
+            row.kind === 'pf'
+              ? `pf::${row.pfId}`
+              : row.kind === 'task'
+                ? `task::${row.taskId}`
+                : row.kind === 'subTask' && row.taskId && row.subTaskId
+                  ? `sub::${row.taskId}::${row.subTaskId}`
+                  : null
           const noteText = nk ? notes.get(nk) : ''
           return (
             <span className={`ax-eps-order_label ax-eps-order_label__${row.kind}`} style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
               {row.label}
-              {row.kind === 'po' && row.hotLot && (
-                <Tooltip title="Hot lot">
-                  <span className="ax-eps-order_hotlot">★ HOT</span>
-                </Tooltip>
-              )}
+              {row.kind === 'subTask' && <SubTaskKindChip kind={row.subTaskKind} />}
               {nk && notes.has(nk) && (
                 <Tooltip title={noteText}>
                   <AxMuiIcon icon="mdiNoteText" size={14} color="#faad14" />
@@ -115,9 +86,7 @@ export const EpsOrderTable = observer(() => {
           )
         },
       },
-      // 3 — State (Fixed / Changes / New / Exclude). Sticky-left so it stays beside the label during
-      // horizontal scroll. Driven by the simulation store's adjustment checkedKeys — un-checking a node
-      // anywhere flips this chip to "Exclude" everywhere.
+      // 3 — State chip (sticky-left).
       {
         key: 'state',
         title: 'State',
@@ -125,192 +94,99 @@ export const EpsOrderTable = observer(() => {
         sortable: false,
         sticky: 'left',
         align: 'center',
-        accessor: (r) => stateForRow(r, checkedSet) ?? '',
-        render: (_v, row) => <StateChip state={stateForRow(row, checkedSet)} />,
-      },
-      // 4 — Customer (only shown on PO rows; family/batch inherit visually via tree indent).
-      {
-        key: 'customer',
-        title: 'Customer',
-        width: 110,
-        accessor: (r) => r.customerShort ?? '',
-        render: (_v, row) => {
-          if (row.kind !== 'po') return null
-          const order = po.orders.find((o) => o.id === row.poId)
-          if (!order) return row.customerShort ?? ''
-          return (
-            <Tooltip title={order.customer}>
-              <span>{order.customerShort}</span>
-            </Tooltip>
-          )
-        },
-      },
-      // 4 — Tech / Spec.
-      {
-        key: 'techSpec',
-        title: 'Tech / Spec',
-        width: 140,
-        accessor: (r) => techSpec(po.orders, r),
-      },
-      // 5 — Commitment.
-      {
-        key: 'commitment',
-        title: 'Commitment',
-        kind: 'number',
-        width: 110,
-        accessor: (r) => r.commitment,
-        render: (v) => (typeof v === 'number' ? v.toLocaleString() : String(v)),
-      },
-      // 6/7 — Dates.
-      { key: 'startDate', title: 'Start Date', width: 110, accessor: (r) => r.startDate },
-      { key: 'endDate', title: 'End Date', width: 110, accessor: (r) => r.endDate },
-      // 8 — Milestones.
-      {
-        key: 'milestones',
-        title: 'Milestones',
-        width: 200,
-        sortable: false,
-        accessor: () => '',
-        render: (_v, row) => {
-          const milestones = milestonesFor(po.orders, row)
-          return <MilestoneChips milestones={milestones} poId={row.poId} />
-        },
-      },
-      // 9 — Status (PO-level chip).
-      {
-        key: 'status',
-        title: 'Status',
-        width: 110,
-        accessor: (r) => r.status ?? '',
-        render: (_v, row) => (row.kind === 'po' ? <StatusChip status={row.status} /> : null),
-      },
-      // 10 — Progress (PO/Family only; batches show em-dash).
-      {
-        key: 'progress',
-        title: 'Progress',
-        width: 130,
-        sortable: false,
-        accessor: (r) => (r.commitment ? Math.round(((r.outWafers ?? 0) / r.commitment) * 100) : 0),
-        render: (_v, row) => {
-          if (row.kind === 'batch' || row.outWafers === undefined) return <span style={{ color: '#bfbfbf' }}>—</span>
-          const pct = row.commitment ? Math.round((row.outWafers / row.commitment) * 100) : 0
-          return <Progress percent={pct} size="small" style={{ marginInlineEnd: 0 }} />
-        },
-      },
-      // 11/12/13 — Wafer-state breakdown.
-      {
-        key: 'startedWafers',
-        title: 'Started Wafers',
-        kind: 'number',
-        width: 120,
-        accessor: (r) => waferStatesForRow(po.orders, r).started,
-        render: (v) => (typeof v === 'number' && v > 0 ? v.toLocaleString() : <span style={{ color: '#bfbfbf' }}>—</span>),
+        accessor: (r) => stateForRow(r) ?? '',
+        render: (_v, row) => <StateChip state={stateForRow(row)} />,
       },
       {
-        key: 'processingWafers',
-        title: 'Processing Wafers',
-        kind: 'number',
-        width: 140,
-        accessor: (r) => waferStatesForRow(po.orders, r).processing,
-        render: (v) => (typeof v === 'number' && v > 0 ? v.toLocaleString() : <span style={{ color: '#bfbfbf' }}>—</span>),
+        key: 'bizTeam',
+        title: 'Biz Team',
+        width: 160,
+        sortable: true,
+        accessor: (r) => r.bizTeamName ?? '',
       },
       {
-        key: 'completedWafers',
-        title: 'Completed Wafers',
-        kind: 'number',
-        width: 140,
-        accessor: (r) => waferStatesForRow(po.orders, r).completed,
-        render: (v) => (typeof v === 'number' && v > 0 ? v.toLocaleString() : <span style={{ color: '#bfbfbf' }}>—</span>),
-      },
-      // 14 — Remark.
-      {
-        key: 'remark',
-        title: 'Remark',
+        key: 'processPath',
+        title: 'Process Path',
         width: 260,
         sortable: false,
-        accessor: (r) => remarkForRow(po.orders, r),
-        render: (_v, row) => {
-          const text = remarkForRow(po.orders, row)
-          if (!text) return <span style={{ color: '#bfbfbf' }}>—</span>
-          return (
-            <Tooltip title={text}>
-              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'inline-block', maxWidth: '100%' }}>{text}</span>
-            </Tooltip>
-          )
-        },
+        accessor: (r) => (r.processPathLabel ? processPathLabel(r.processPathLabel.split(' / ')) : ''),
+      },
+      {
+        key: 'spm',
+        title: 'SPM (P/M)',
+        width: 90,
+        sortable: true,
+        align: 'right',
+        accessor: (r) => r.spm,
+        render: (v) => <span style={{ fontVariantNumeric: 'tabular-nums' }}>{Number(v).toLocaleString()}</span>,
+      },
+      {
+        key: 'startDate',
+        title: 'Start Date',
+        width: 110,
+        sortable: true,
+        accessor: (r) => r.startDate ?? '',
+      },
+      {
+        key: 'endDate',
+        title: 'End Date',
+        width: 110,
+        sortable: true,
+        accessor: (r) => r.endDate ?? '',
+      },
+      {
+        key: 'mto',
+        title: 'MTO Anchor',
+        width: 110,
+        sortable: true,
+        accessor: (r) => r.pfMtoAnchor ?? '',
+        render: (_v, row) => formatMtoAnchor(row.pfMtoAnchor),
       },
     ],
-    [po, notes, selectedKey, checkedSet],
+    [selectedKey, notes],
   )
 
-  // Derive the active columns from tune state — apply order, visibility, and sticky/sortable/filterable
-  // overrides on top of the base column definitions. Anything in tune that doesn't match a base column
-  // is dropped silently (defensive in case the baseline and base-columns ever drift apart).
-  const baseByKey = useMemo(() => {
-    const m = new Map<string, ControlTableColumn<FlatRow>>()
-    for (const c of baseColumns) m.set(c.key, c)
-    return m
-  }, [baseColumns])
-  const columns = useMemo<ControlTableColumn<FlatRow>[]>(() => {
+  // Filter + reorder columns per the tune state.
+  const activeColumns = useMemo<ControlTableColumn<FlatRow>[]>(() => {
+    const byKey = new Map(baseColumns.map((c) => [c.key, c]))
     const out: ControlTableColumn<FlatRow>[] = []
-    for (const tune of po.tableTune) {
-      if (!tune.visible) continue
-      const base = baseByKey.get(tune.key)
+    for (const t of po.tableTune) {
+      if (!t.visible) continue
+      const base = byKey.get(t.key)
       if (!base) continue
-      out.push({
-        ...base,
-        sticky: tune.sticky ?? undefined,
-        sortable: tune.sortable,
-        filterable: tune.filterable,
-      })
+      out.push({ ...base, sortable: t.sortable, sticky: (t.sticky ?? base.sticky) ?? undefined })
     }
     return out
-  }, [po.tableTune, baseByKey])
+  }, [baseColumns, po.tableTune])
 
-  const selectedKeys = selectedKey ? [selectedKey] : []
-
-  // PO-banded zebra — each row gets a class based on the parity of its PO group index, so all rows
-  // belonging to the same PO share a background. Customer pivot rows have no poId of their own — they
-  // inherit the band of their first child PO, which keeps the visual grouping continuous.
-  const rowClassName = (row: FlatRow): string => {
-    const idx = poBandIndex.get(row.poId) ?? 0
-    return idx % 2 === 0 ? 'ax-eps-order_row__band-a' : 'ax-eps-order_row__band-b'
-  }
+  if (data.length === 0) return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No production requirements" />
 
   return (
     <div className="ax-eps-order_table">
       <AxControlTable<FlatRow>
-        data={data}
-        columns={columns}
         rowKey={(r) => r.key}
-        size="small"
-        selectionMode="single"
-        selectedKeys={selectedKeys}
-        // AxControlTable fires both onSelectionChange AND onRowClick on every row click. Selection
-        // toggle is driven by po.selectRow (click same row = unselect), so we keep selectRow on a
-        // single callsite — onRowClick — and leave onSelectionChange inert. The visual highlight
-        // still reacts because the table derives `rowSelection` from the controlled selectedKeys prop.
-        onSelectionChange={() => {}}
-        onRowClick={(row) => po.selectRow(row.key)}
-        rowClassName={rowClassName}
+        data={data}
+        columns={activeColumns}
         tree={{
-          // Pin chevron + indent to the label column — col 1 is the selection handle.
           columnId: 'label',
           depth: (r) => r.depth,
-          hasChildren: (r) => !!r.hasChildren,
-          isExpanded: (r) => !!r.expanded,
+          isExpanded: (r) => r.expanded ?? false,
+          hasChildren: (r) => r.hasChildren ?? false,
           onToggle: (r) => {
-            if (r.kind === 'customer' && r.customer) po.toggleCustomerExpanded(r.customer)
-            else if (r.kind === 'po') po.toggleOrderExpanded(r.poId)
-            else if (r.kind === 'family' && r.familyId) po.toggleFamilyExpanded(r.familyId)
+            if (r.kind === 'bizGroup') po.toggleBizGroupExpanded(r.key)
+            else if (r.kind === 'bizTeam') po.toggleBizTeamExpanded(r.key)
+            else if (r.kind === 'pfg') po.togglePfgExpanded(r.key)
+            else if (r.kind === 'pf' && r.pfId) po.togglePfExpanded(r.pfId)
+            else if (r.kind === 'task' && r.taskId) po.toggleTaskExpanded(r.taskId)
           },
         }}
-        empty={<Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description="No production orders match the current filters" />}
-        // Globally enable per-column filter so the tune popover's "Enable filter" toggle has effect.
-        // Each base column defaults to filterable=false in the tune baseline; users opt-in per column.
-        showColumnFilter={true}
-        showColumnToggle={false}
-        showRowNumber={false}
+        selectionMode="single"
+        selectedKeys={po.selectedRowKey ? [po.selectedRowKey] : []}
+        onRowClick={(r) => po.selectRow(r.key)}
+        rowClassName={(r) => {
+          const band = r.pfId ? `ax-eps-order_pfband__${(pfBandIndex.get(r.pfId) ?? 0) % 2 === 0 ? 'a' : 'b'}` : ''
+          return `ax-eps-order_row ax-eps-order_row__${r.kind} ${band}`
+        }}
       />
     </div>
   )

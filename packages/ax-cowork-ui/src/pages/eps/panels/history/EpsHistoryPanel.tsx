@@ -49,7 +49,7 @@ const Entry = observer(({ e }: { e: HistoryEntry }) => {
             {e.summary}
           </Typography.Text>
         </div>
-        <Space direction="vertical" size={4} align="end">
+        <Space orientation="vertical" size={4} align="end">
           <Button size="small">Diff</Button>
           {e.canRevert && <Button size="small">Revert</Button>}
         </Space>

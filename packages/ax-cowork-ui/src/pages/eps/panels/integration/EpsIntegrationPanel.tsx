@@ -83,9 +83,9 @@ export const EpsIntegrationPanel = observer((props: MainPanelControls) => {
               <Descriptions.Item label="Schema version">v2.3 — validated 2026-05-20</Descriptions.Item>
               <Descriptions.Item label="Recent issues">None</Descriptions.Item>
               <Descriptions.Item label="Field mapping" span={2}>
-                <code>PRD_ORD.PO_NO → ProductionOrder.id</code>
+                <code>PRD_REQ.PFG_CODE → ProductionFamily.familyGroup</code>
                 <br />
-                <code>PRD_ORD.PROD_FAM → ProductionOrder.family</code>
+                <code>PRD_REQ.PF_CODE → ProductionFamily.code</code>
                 <br />
                 <Typography.Text type="secondary" style={{ fontSize: 12 }}>
                   … 87 more mappings · <a>View all</a>
@@ -122,7 +122,7 @@ export const EpsIntegrationPanel = observer((props: MainPanelControls) => {
           </Col>
           <Col xs={12} md={6}>
             <Card size="small">
-              <Statistic title="Probe yield" value="16-min lag" valueStyle={{ color: '#faad14' }} />
+              <Statistic title="Probe yield" value="16-min lag" styles={{ content: { color: '#faad14' } }} />
             </Card>
           </Col>
         </Row>

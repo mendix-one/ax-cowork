@@ -37,7 +37,7 @@ const RecCard = observer(({ r }: { r: Recommendation }) => {
             Impact: {r.impact}
           </Typography.Text>
         </div>
-        <Space direction="vertical" size={4} align="end">
+        <Space orientation="vertical" size={4} align="end">
           {r.action === 'preview' && <Button size="small">Preview</Button>}
           {r.action === 'open' && <Button size="small">Open</Button>}
           <Button size="small" type="text">

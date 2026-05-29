@@ -12,26 +12,33 @@
   @apply border-r border-gray-300;
 
   &_header {
-    @apply w-full h-9 px-2; // 2.25rem ≈ 32px — same chrome height as the adjustment sidebar header
+    @apply w-full h-9 px-3; // matches the adjustment sidebar header height
     @apply flex-none flex items-center justify-between;
     @apply font-semibold text-neutral-900;
     @apply bg-stone-100 border-b border-gray-300;
   }
 
   &_body {
-    @apply flex-1 min-h-0 overflow-auto p-2;
-    @apply flex flex-col gap-2;
+    @apply flex-1 min-h-0 overflow-auto p-1;
+    @apply flex flex-col;
   }
+}
+
+// Catalog tree node wrapper — provides indentation for recursive nesting.
+.ax-eps-process_tech_card_wrap {
+  @apply flex flex-col;
 }
 
 .ax-eps-process_tech_card {
   @apply text-left w-full;
-  @apply rounded-md border border-gray-200 bg-white p-2;
+  @apply rounded-sm bg-white px-2 py-1;
   @apply cursor-pointer transition-colors;
-  @apply flex flex-col gap-1;
+  @apply flex flex-col gap-0.5;
+  border: 1px solid transparent;
+  font-size: 12px;
 
   &:hover {
-    @apply bg-indigo-50 border-indigo-200;
+    @apply bg-indigo-50 border-indigo-100;
   }
 
   &.is-active {
@@ -39,23 +46,68 @@
   }
 
   &_top {
-    @apply flex items-center justify-between;
+    @apply flex items-center justify-between gap-2;
   }
 
   &_title {
-    @apply font-semibold text-neutral-900;
+    @apply font-medium text-neutral-900 truncate;
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+// === ENGINEERING PROCESS RIGHT PANE ================================================================
+.ax-eps-process_pipeline {
+  @apply flex flex-col gap-3 p-3 bg-white;
+
+  // Breadcrumb header — Stage › Block › Function › Activity. Right-aligned baseline tag.
+  &_header {
+    @apply flex items-center flex-wrap gap-1.5;
+    @apply px-3 py-2 rounded border border-gray-200 bg-stone-50;
+  }
+  &_crumb {
+    @apply inline-flex items-center gap-1;
+    @apply text-base text-neutral-800;
+
+    &_sep {
+      @apply text-neutral-400 mx-1;
+    }
   }
 
-  &_stats {
-    @apply mt-1 grid grid-cols-4 gap-2;
+  // Children pipeline — horizontal scroll of clickable step tiles.
+  &_stages {
+    @apply flex flex-wrap gap-2;
+  }
+  &_step {
+    @apply text-left rounded border border-gray-200 bg-white px-3 py-2;
+    @apply cursor-pointer transition-colors;
+    @apply flex flex-col gap-1;
+    min-width: 160px;
+
+    &:hover {
+      @apply bg-indigo-50 border-indigo-200;
+    }
+    &_top {
+      @apply flex items-center justify-between gap-2;
+    }
+    &_name {
+      @apply font-medium text-neutral-900;
+    }
   }
 
-  &_stat_label {
-    @apply text-sm text-neutral-500;
+  // Section wrappers — same Stone-100 header chrome as the analysis sections.
+  &_section {
+    @apply flex flex-col rounded border border-gray-200 bg-white;
+
+    &_title {
+      @apply h-10 px-3 flex items-center justify-between gap-3;
+      @apply border-b border-gray-200 bg-stone-100;
+      @apply text-base font-semibold text-neutral-800;
+    }
   }
 
-  &_stat_value {
-    @apply font-semibold text-neutral-900;
+  &_usage {
+    @apply flex flex-wrap gap-2 p-3;
   }
 }
 
@@ -468,6 +520,163 @@
 
 .ax-eps-capacity_oee_factor_label {
   @apply text-base font-medium text-neutral-700;
+}
+
+// === HEADCOUNT PORTFOLIO (Update 2 — Org Hierarchy) ================================================
+// Layout: persistent left organisation tree + main content (capacity chart + skill composition + constraints).
+// Replaces the legacy ToolGroup chrome.
+
+.ax-eps-capacity {
+  @apply w-full h-full flex flex-col bg-white;
+
+  &_body {
+    @apply flex-1 min-h-0 flex overflow-hidden;
+  }
+
+  &_main {
+    @apply flex-1 min-w-0 flex flex-col overflow-hidden;
+  }
+
+  // Recursive org tree — Division → Site → Team → Group → Part → Cell.
+  // Indentation is purely descendant-based: every level nested inside another adds 10px of left padding,
+  // so the tree depth reads at a glance without needing per-level CSS hacks.
+  &_tree_node {
+    @apply flex flex-col;
+
+    // Nested nodes get a soft left border + indent so the hierarchy is visible.
+    .ax-eps-capacity_tree_node {
+      padding-left: 10px;
+      border-left: 1px dashed theme('colors.neutral.200');
+      margin-left: 6px;
+    }
+
+    &__division > .ax-eps-capacity_tree_label {
+      @apply font-semibold text-neutral-900 bg-stone-100;
+      @apply uppercase tracking-wide;
+      font-size: 11px;
+    }
+    &__site > .ax-eps-capacity_tree_label {
+      @apply font-medium text-neutral-800;
+    }
+    &__team > .ax-eps-capacity_tree_label {
+      @apply text-neutral-800;
+    }
+    &__group > .ax-eps-capacity_tree_label {
+      @apply text-neutral-700;
+    }
+    &__part > .ax-eps-capacity_tree_label {
+      @apply text-neutral-700;
+    }
+    &__cell > .ax-eps-capacity_tree_label {
+      @apply text-neutral-600;
+    }
+  }
+
+  &_tree_label {
+    @apply w-full flex items-center justify-between gap-2;
+    @apply px-2 py-1 rounded-sm;
+    @apply text-sm leading-tight;
+    @apply cursor-pointer transition-colors;
+    background: transparent;
+    border: 1px solid transparent;
+    text-align: left;
+
+    &:hover {
+      @apply bg-indigo-50 border-indigo-100;
+    }
+    &.is-active {
+      @apply bg-indigo-100 border-indigo-300 text-neutral-900;
+    }
+
+    &_text {
+      @apply truncate min-w-0;
+      flex: 1 1 auto;
+    }
+    &_hc {
+      @apply text-sm font-medium text-neutral-500;
+      flex: 0 0 auto;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
+// Capacity chart card chrome — same look as the analysis section cards.
+.ax-eps-capacity_chart {
+  @apply rounded border border-gray-200 bg-white;
+}
+
+// Headcount Composition (skill breakdown)
+.ax-eps-capacity_oee {
+  @apply rounded border border-gray-200 bg-white p-3;
+  @apply flex flex-col gap-2;
+
+  &_header {
+    @apply flex items-center justify-between;
+  }
+
+  &_row {
+    @apply flex items-center gap-2;
+    font-size: 12px;
+
+    &_skill {
+      @apply text-neutral-700;
+      flex: 0 0 8.5rem;
+    }
+    &_bar {
+      @apply flex-1 h-2 rounded bg-neutral-100 overflow-hidden;
+      &_fill {
+        @apply h-full bg-indigo-500;
+      }
+    }
+    &_count {
+      @apply text-neutral-900 font-medium;
+      flex: 0 0 2.5rem;
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+  }
+}
+
+// Resource Constraints list
+.ax-eps-capacity_constraints {
+  @apply rounded border border-gray-200 bg-white;
+
+  &_header {
+    @apply flex items-center justify-between gap-2 px-3 py-2 border-b border-gray-200;
+  }
+  &_body {
+    @apply flex flex-col gap-2 p-3;
+  }
+}
+
+.ax-eps-capacity_constraint {
+  @apply flex items-center gap-2;
+  @apply px-2 py-1.5 rounded-sm bg-stone-50 border border-gray-200;
+  font-size: 12px;
+
+  &__critical {
+    @apply bg-red-50 border-red-200;
+  }
+  &__warning {
+    @apply bg-orange-50 border-orange-200;
+  }
+  &__info {
+    @apply bg-blue-50 border-blue-200;
+  }
+
+  &_cell {
+    @apply font-medium text-neutral-800;
+  }
+  &_skill {
+    @apply text-neutral-600;
+  }
+  &_title {
+    @apply text-neutral-800 ml-1;
+    flex: 1 1 auto;
+  }
+  &_detail {
+    @apply text-neutral-500 text-sm;
+  }
 }
 
 // === PRODUCTION ORDER SUMMARY =======================================================================================

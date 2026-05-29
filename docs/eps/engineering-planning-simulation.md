@@ -266,6 +266,41 @@ The Engineering Plan is the **assignment** of Demand against Supply respecting t
 
 ---
 
+## Update 2 — Information Architecture (May 2026)
+
+Update 2 in `tasks/engineering-planning-simulation/engineering-planning-simulation.txt` redefines the EPS data model around three orthogonal hierarchies and one cross-cutting unit of measure:
+
+- **Organization Hierarchy** — `Division → Site → Team → Group → Part → Cell`. Only the bottom Cell carries headcount + per-skill counts (`SkillGroup ∈ Architecture / RTL / DV / PNR / Power / Analog / DFT / SI / PostSi / SW / Certification / RF`); parent levels roll up.
+- **Business Development** — `BizGroup (SOC / Sensor / LSI) → BizTeam (Production Line: M-SOC / A-SOC / mDDI / …) → ProductionFamilyGroup (Basic / Leading / Derivatives) → ProductionFamily (Production Type)`. Each Production Family is the planning unit and anchors an MTO(0) calendar month.
+- **Engineering Process** — `Stage → Block → Function → Activity`. Each Activity leaf carries a baseline Standard Personal Monthly (SPM) footprint.
+- **Standard Personal Monthly (SPM)** — `(Org dimension × Process dimension × month offset from MTO(0))`. Person-months is the single unit of measure used everywhere; the standard MTO timeline runs from `MTO-60` through `MTO(0)` to `MTO+36`.
+
+The data model lives in `packages/ax-cowork-ui/src/pages/eps/data/mock-plan.ts` and replaces the old wafer / PO / tool-group model entirely.
+
+### Panel-by-panel changes
+
+| Panel                                        | Before                                      | After                                                                                                                                                                                                                                                      |
+| -------------------------------------------- | ------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Simulation (Gantt)**                       | PO → Family → Batch tree; tool-group bars   | 4-level IA tree (PFG → PF → Task → SubTask) with a dedicated "Standard MTO Milestone" sidebar column. **Only Task (L3) and SubTask (L4) draw bars** — PFG and PF rows are summary lines. Per-PF MTO milestones become marker lines on the timeline.        |
+| **Adjustment sidebar**                       | PO / PF / Batch checkboxes                  | PFG (header, non-checkable) / PF / Task / SubTask checkboxes; `scheduleClass==='fixed'` nodes locked.                                                                                                                                                      |
+| **Quick Analysis (Gantt)**                   | Tool-group stacked area + bars + violations | **Overall Resource Capacity** (SPM demand stacked by Engineering Stage, with `Limit` = total headcount portfolio + `Safe` = 80% reference) · **Organization Resources** (per-Team headcount vs planned SPM) · **Violations & Highload** (org-node alerts). |
+| **Production Requirements** (`orders` panel) | PO → Family → Batch flat table              | 6-level table: BizGroup ▸ BizTeam ▸ PFG ▸ PF ▸ Task ▸ SubTask. Info panel shows PF meta + tasks · Task process path + sub-tasks · SubTask kind + SPM.                                                                                                      |
+| **Resource Analysis** (`analysis` panel)     | Wafer-out / shop-floor / tech rollups       | Total SPM demand + at-risk PFs · Resource demand by Engineering Stage (MTO timeline) · Organization Resources headcount vs demand · Org × MTO heatmap · MTO milestone log · Family × Process Stage matrix · Family × Activity routing matrix.              |
+| **Headcount Portfolio** (`capacity` panel)   | Tool-group tree + OEE + tooling constraints | Organization Hierarchy tree (Division → … → Cell) · Headcount vs planned demand chart over the MTO timeline · Per-Cell skill composition card · Resource-constraint list (skill-shortfall flags).                                                          |
+| **Engineering Process** (`processes` panel)  | Tech routing list + FEOL/MOL/BEOL pipeline  | Process catalog tree (Stage → Block → Function → Activity) · Breadcrumb path · Children pipeline · Activity detail table with baseline SPM · "Used by Production Families" reverse index.                                                                  |
+
+### Cross-panel wiring
+
+- Left rail tooltips renamed to **Simulation · Resource Analysis · Production Requirements · Engineering Process · Headcount Portfolio**.
+- `EpsStore` navigate helpers: `navigateToOrgNode(cellId)`, `navigateToProcessNode(nodeId)`, `navigateToProductionFamily(pfId)`, `navigateToSubTask(pfId, taskId, subId)`.
+
+### Verification
+
+- `pnpm --filter ax-cowork-ui exec tsc -b` passes for `src/pages/eps/**`. (Pre-existing MPS error in `src/pages/mps/panels/orders/MpsOrderInfoPanel.tsx:442` is unrelated to this update.)
+- Smoke-check via Playwright: Simulation Gantt renders 4-level tree, MTO column populates per PF, bars present only on L3/L4. Adjustment sidebar applies/resets cleanly. Quick Analysis cards render with the new SPM / Org series. Production Requirements table opens through all 6 levels. Headcount Portfolio left tree drills Division → Cell with chart + skill composition + constraints. Engineering Process tree navigates Stage → Activity with reverse index.
+
+---
+
 ## 5. Open questions / not yet covered
 
 - **AI plan generation** — given a requirement bundle + portfolio constraints, generate a Plan B candidate. UI hook exists in the AI Chat sub-panel; prompt design pending.

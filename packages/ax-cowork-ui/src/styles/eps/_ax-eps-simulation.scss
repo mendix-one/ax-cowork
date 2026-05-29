@@ -41,7 +41,7 @@
       pointer-events: none;
     }
     &.is-open {
-      width: 16rem; // matches the standalone .ax-eps-simulation_side max-w-64 cap
+      width: 19rem; // wider than the legacy 16rem so the 4-level IA tree text doesn't wrap to 3-4 lines
       opacity: 1;
     }
 
@@ -81,7 +81,7 @@
 
   // ---- filter side panel ------------------------------------------------------------------------------------------
   &_side {
-    @apply w-1/4 max-w-64;
+    @apply w-1/4 max-w-80;
     @apply flex flex-col bg-white;
     @apply border-r border-gray-300;
 
@@ -94,6 +94,20 @@
 
     &_body {
       @apply flex-1 min-h-0 overflow-auto py-2;
+
+      // Tighten the AntD Tree so the 4-level IA tree fits without each label wrapping to multiple lines.
+      .ant-tree {
+        font-size: 12px;
+      }
+      .ant-tree-node-content-wrapper {
+        white-space: normal;
+        line-height: 1.3;
+      }
+      // Disabled rows are still readable — opacity 0.55 instead of the default 0.25 so the planner
+      // can see what's locked, not just guess.
+      .ant-tree-checkbox-disabled + .ant-tree-node-content-wrapper {
+        color: theme('colors.neutral.500');
+      }
     }
 
     &_footer {
@@ -270,24 +284,30 @@
     color: #ffffff !important;
   }
 
-  // Visual differentiation by row kind. PO and family rows are thinner ribbons sitting above their batches;
-  // batches stay solid. This lets the eye treat the parent ribbon as a "span indicator" rather than competing
-  // with the batch bars below it for attention.
-  &__po .gantt_task_line {
-    @apply rounded-sm;
-    opacity: 0.85;
-    height: 12px !important;
-    margin-top: 6px;
+  // Visual differentiation by row kind. Per Update-2 spec the PFG (level 1) and PF (level 2) rows are
+  // summary-only — NO bar in the timeline. Tasks (level 3) are medium ribbons; Sub-Tasks (level 4) sit
+  // immediately under their task as solid pills.
+  //
+  // The `__no-bar` class is applied directly to the gantt_task_line (dhx puts everything our
+  // task_class returns on that node), so we hide it visibility:hidden — display:none would also
+  // collapse the row container in some dhx configs.
+  &__no-bar.gantt_task_line,
+  &__no-bar .gantt_task_content {
+    visibility: hidden !important;
+    background: transparent !important;
+    border-color: transparent !important;
   }
-  &__family .gantt_task_line {
+  &__task.gantt_task_line {
     @apply rounded-sm;
     opacity: 0.95;
-    height: 14px !important;
-    margin-top: 5px;
+    height: 16px !important;
+    margin-top: 4px;
   }
-  &__batch .gantt_task_line {
+  &__subtask.gantt_task_line {
     @apply rounded;
     opacity: 1;
+    height: 14px !important;
+    margin-top: 5px;
   }
 
   // Bar text — tighten typography for FHD.
@@ -311,21 +331,33 @@
   .gantt_grid_data .gantt_row.ax-eps-simulation-poband__b {
     background: #f5f7fb !important; // very subtle indigo-tinted band — readable, not noisy
   }
-  // The PO header row gets a thicker top accent line — the eye-catch for "new group starts here".
-  .gantt_task_row.ax-eps-simulation-poband-row__po,
-  .gantt_grid_data .gantt_row.ax-eps-simulation-poband-row__po {
+  // The PFG header row gets a thicker top accent line — the eye-catch for "new group starts here".
+  .gantt_task_row.ax-eps-simulation-poband-row__pfg,
+  .gantt_grid_data .gantt_row.ax-eps-simulation-poband-row__pfg {
     border-top: 2px solid theme('colors.neutral.300') !important;
+    background: theme('colors.neutral.50') !important;
+    font-weight: 600 !important;
+  }
+  // PF rows get a soft tint so they read as the family summary line.
+  .gantt_task_row.ax-eps-simulation-poband-row__pf,
+  .gantt_grid_data .gantt_row.ax-eps-simulation-poband-row__pf {
+    background: #fbfcfe !important;
   }
 }
 
-// Grid-cell label chips
-.ax-eps-simulation-po-text {
+// Grid-cell label chips for the new 4-level IA tree.
+.ax-eps-simulation-pfg-text {
+  @apply font-semibold text-neutral-900 uppercase;
+  letter-spacing: 0.04em;
+  font-size: 11px;
+}
+.ax-eps-simulation-pf-text {
   @apply font-semibold text-neutral-900;
 }
-.ax-eps-simulation-family-text {
+.ax-eps-simulation-task-text {
   @apply font-medium text-neutral-800;
 }
-.ax-eps-simulation-batch-text {
+.ax-eps-simulation-subtask-text {
   @apply text-neutral-700;
 }
 .ax-eps-simulation-muted {
@@ -351,6 +383,21 @@
   }
   &__pri-p-npi {
     @apply bg-ax-pri-npi-bg text-ax-pri-npi-text border-ax-pri-npi-border;
+  }
+
+  // Sub-task kind chips — Certification / RF / Other. Distinct from priority chips so the planner
+  // immediately recognises "Extra Engineering Request" rows.
+  &__sub-certification {
+    @apply bg-purple-50 text-purple-700;
+    border-color: theme('colors.purple.200');
+  }
+  &__sub-rf {
+    @apply bg-teal-50 text-teal-700;
+    border-color: theme('colors.teal.200');
+  }
+  &__sub-other {
+    @apply bg-neutral-100 text-neutral-700;
+    border-color: theme('colors.neutral.300');
   }
 }
 

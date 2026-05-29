@@ -26,10 +26,10 @@ const GROUPS: Group[] = [
   {
     caption: 'Plan',
     items: [
-      { id: 'simulation', icon: 'mdiChartGantt', title: 'Resource Roadmap (Gantt)' },
-      { id: 'analysis', icon: 'mdiChartBar', title: 'HR Portfolio Analysis' },
-      { id: 'orders', icon: 'mdiClipboardTextOutline', title: 'Projects · P/M Planner' },
-      { id: 'processes', icon: 'mdiSitemapOutline', title: 'Engineering Process (Block / Stage)' },
+      { id: 'simulation', icon: 'mdiChartGantt', title: 'Simulation (Gantt)' },
+      { id: 'analysis', icon: 'mdiChartBar', title: 'Resource Analysis' },
+      { id: 'orders', icon: 'mdiClipboardTextOutline', title: 'Production Requirements' },
+      { id: 'processes', icon: 'mdiSitemapOutline', title: 'Engineering Process' },
       { id: 'capacity', icon: 'mdiAccountGroupOutline', title: 'Headcount Portfolio' },
     ],
   },

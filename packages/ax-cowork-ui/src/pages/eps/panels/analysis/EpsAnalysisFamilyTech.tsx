@@ -1,58 +1,39 @@
-import { Typography } from 'antd'
+import { Table, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
-import { useEpsContext } from '../../stores/eps.context'
-import { calcFamilyTechRows } from '../../helpers/analysis.helpers'
-import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
+import { calcFamilyProcessRows } from '../../helpers/analysis.helpers'
+import { MOCK_PROCESS_INDEX } from '../../data/mock-plan'
 
-// Production Family × Spec/Tech analysis. The mock data only carries `tech` per family — we surface it
-// alongside the family code as a (tech, family) row and aggregate PO count, batch count, and wafer total.
-// Useful as a "what is currently planned to be built, grouped by recipe" rollup.
+// Production Family × Engineering Stage matrix. Each row is a PF; columns are stages with the SPM demand
+// contributed by tasks routed through that stage.
 export const EpsAnalysisFamilyTech = observer(() => {
-  const orders = useEpsContext().simulation.filteredOrders
-  const rows = calcFamilyTechRows(orders)
+  const rows = calcFamilyProcessRows()
+  // Build column set — union of all stages across families.
+  const stages = Array.from(new Set(rows.flatMap((r) => r.stages.map((s) => s.stage)))).sort()
 
   return (
     <div className="ax-eps-analysis_section">
-      <div className="ax-eps-analysis_section_header">
-        <div className="ax-eps-analysis_section_header_title">
-          <AxMuiIcon icon="mdiFamilyTree" size={18} />
-          <span>Production Family · Spec / Tech analysis</span>
-        </div>
-      </div>
-      <div className="ax-eps-analysis_section_body">
-        {rows.length === 0 ? (
-          <Typography.Text type="secondary">No families in the current selection.</Typography.Text>
-        ) : (
-          <table className="ax-eps-analysis_table">
-            <thead>
-              <tr>
-                <th>Tech</th>
-                <th>Family</th>
-                <th style={{ textAlign: 'right' }}>POs</th>
-                <th style={{ textAlign: 'right' }}>Batches</th>
-                <th style={{ textAlign: 'right' }}>Wafers</th>
-                <th>From</th>
-                <th>To</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((r) => (
-                <tr key={`${r.tech}::${r.family}`}>
-                  <td>
-                    <b>{r.tech}</b>
-                  </td>
-                  <td>{r.family}</td>
-                  <td style={{ textAlign: 'right' }}>{r.poCount}</td>
-                  <td style={{ textAlign: 'right' }}>{r.batchCount}</td>
-                  <td style={{ textAlign: 'right' }}>{r.totalWafers.toLocaleString()}</td>
-                  <td>{r.earliestStart}</td>
-                  <td>{r.latestEnd}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        )}
-      </div>
+      <div className="ax-eps-analysis_section_title">Family × Process Stage matrix</div>
+      <Table
+        rowKey="pfId"
+        size="small"
+        pagination={false}
+        dataSource={rows}
+        columns={[
+          { title: 'PF', dataIndex: 'pfCode', width: 140 },
+          { title: 'Name', dataIndex: 'pfName' },
+          ...stages.map((s) => ({
+            title: MOCK_PROCESS_INDEX[s]?.code ?? s,
+            key: s,
+            align: 'right' as const,
+            width: 110,
+            render: (_v: unknown, row: typeof rows[number]) => {
+              const found = row.stages.find((x) => x.stage === s)
+              return found ? <Typography.Text strong>{found.spm}</Typography.Text> : '—'
+            },
+          })),
+          { title: 'Total SPM', dataIndex: 'totalSpm', align: 'right' as const, width: 120, render: (v: number) => <Typography.Text strong>{v}</Typography.Text> },
+        ]}
+      />
     </div>
   )
 })

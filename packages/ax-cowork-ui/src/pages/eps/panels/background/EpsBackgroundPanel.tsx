@@ -27,7 +27,7 @@ function statusTag(s: BackgroundTask['status']) {
 const Item = observer(({ t }: { t: BackgroundTask }) => (
   <Card size="small" style={{ marginBottom: 8 }}>
     <Flex justify="space-between" align="center" wrap>
-      <Space direction="vertical" size={0}>
+      <Space orientation="vertical" size={0}>
         <Space size={6}>
           <Typography.Text strong>{t.label}</Typography.Text>
           {statusTag(t.status)}
@@ -43,7 +43,7 @@ const Item = observer(({ t }: { t: BackgroundTask }) => (
         </Typography.Text>
         {t.result && <Typography.Text style={{ fontSize: 12 }}>Result: {t.result}</Typography.Text>}
       </Space>
-      <Space direction="vertical" align="end">
+      <Space orientation="vertical" align="end">
         {t.status === 'running' && t.progress !== undefined && (
           <>
             <Progress percent={t.progress} size="small" style={{ width: 100 }} />

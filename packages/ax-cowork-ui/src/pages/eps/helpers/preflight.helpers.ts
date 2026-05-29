@@ -1,13 +1,6 @@
-import { DAILY_TOOL_GROUP_USAGE, TOOL_GROUP_CAPACITIES, TOOLING_CONSTRAINTS, type ProductionOrder, type ToolingConstraint } from '../data/mock-plan'
+import { MOCK_ORG_DEMAND_BY_TEAM, MOCK_PRODUCTION_FAMILIES, type ProductionFamily } from '../data/mock-plan'
 
-// A pre-flight check evaluates the current plan against constraints + capacity. The result feeds the
-// "Save" confirmation modal so the planner can spot issues before persisting.
-//
-// Severity ladder:
-//   • pass     — green, informational only
-//   • warning  — orange, planner should look but can proceed
-//   • critical — red, planner *probably* shouldn't proceed; Save-anyway still allowed (concept-level)
-
+// Pre-flight check — runs before Save. Surfaces capacity overloads + empty production families.
 export type PreflightSeverity = 'pass' | 'warning' | 'critical'
 
 export type PreflightFinding = {
@@ -16,88 +9,51 @@ export type PreflightFinding = {
   category: 'capacity' | 'constraint' | 'shape'
   title: string
   detail: string
-  // Optional pointer for a "Fix" affordance — caller maps it to navigateTo* on the simulation store.
-  drillTarget?:
-    | { kind: 'toolGroup'; name: string }
-    | { kind: 'order'; id: string }
+  drillTarget?: { kind: 'orgNode'; id: string } | { kind: 'pf'; id: string }
 }
-
-const overlaps = (aStart: string, aEnd: string, bStart: string, bEnd: string) => aStart <= bEnd && bStart <= aEnd
 
 export type PreflightArgs = {
-  orders: ProductionOrder[]
+  families?: ProductionFamily[]
 }
 
-export const runPreflight = ({ orders }: PreflightArgs): PreflightFinding[] => {
+export const runPreflight = ({ families = MOCK_PRODUCTION_FAMILIES }: PreflightArgs = {}): PreflightFinding[] => {
   const out: PreflightFinding[] = []
 
-  // 1. Capacity overload — per tool group, peak daily demand vs total capacity.
-  for (const tg of TOOL_GROUP_CAPACITIES) {
-    let peak = 0
-    let peakDate = ''
-    for (const day of DAILY_TOOL_GROUP_USAGE) {
-      const v = day.usage[tg.name] ?? 0
-      if (v > peak) {
-        peak = v
-        peakDate = day.date
-      }
-    }
-    if (peak > tg.total) {
+  // 1. Org node overload — planned SPM > available headcount.
+  for (const o of MOCK_ORG_DEMAND_BY_TEAM) {
+    if (o.headcount === 0) continue
+    const ratio = o.demand / o.headcount
+    if (o.demand > o.headcount) {
       out.push({
-        id: `cap-${tg.name}`,
+        id: `cap-${o.label}`,
         severity: 'critical',
         category: 'capacity',
-        title: `${tg.name} overloaded`,
-        detail: `Peak demand ${peak} on ${peakDate} exceeds capacity ${tg.total}.`,
-        drillTarget: { kind: 'toolGroup', name: tg.name },
+        title: `${o.label} overloaded`,
+        detail: `Demand ${o.demand} P/M exceeds headcount ${o.headcount} P/M.`,
+        drillTarget: { kind: 'orgNode', id: o.ref.teamId ?? o.ref.divisionId },
       })
-    } else if (peak / tg.total >= 0.95) {
+    } else if (ratio >= 0.95) {
       out.push({
-        id: `cap-near-${tg.name}`,
+        id: `cap-near-${o.label}`,
         severity: 'warning',
         category: 'capacity',
-        title: `${tg.name} near limit`,
-        detail: `Peak demand ${peak} on ${peakDate} is within 5% of capacity ${tg.total}.`,
-        drillTarget: { kind: 'toolGroup', name: tg.name },
+        title: `${o.label} near limit`,
+        detail: `Demand ${o.demand} P/M is within 5% of headcount ${o.headcount} P/M.`,
+        drillTarget: { kind: 'orgNode', id: o.ref.teamId ?? o.ref.divisionId },
       })
     }
   }
 
-  // 2. Constraint overlap — every new/changed batch checked against PM windows / downtime / recipe lock.
-  const blockingKinds: ToolingConstraint['kind'][] = ['pm', 'downtime', 'recipe-lock']
-  for (const order of orders) {
-    for (const family of order.schedule) {
-      for (const batch of family.batches) {
-        if (batch.scheduleClass === 'fixed') continue
-        const stepGroup = batch.toolGroup ?? null
-        // Match constraints whose tool group plausibly affects this family/batch. Without a per-step tool
-        // mapping in the mock, we conservatively check tool groups that match the family's tech namespace.
-        const candidates = TOOLING_CONSTRAINTS.filter((c) => blockingKinds.includes(c.kind) && (stepGroup ? c.toolGroup === stepGroup : true) && overlaps(batch.start, batch.end, c.start, c.end))
-        for (const c of candidates) {
-          out.push({
-            id: `cons-${order.id}-${family.id}-${batch.id}-${c.id}`,
-            severity: c.severity === 'critical' ? 'critical' : 'warning',
-            category: 'constraint',
-            title: `${order.id} / ${family.label} / ${batch.name} overlaps ${c.title}`,
-            detail: `Batch window ${batch.start} → ${batch.end} overlaps ${c.kind.toUpperCase()} on ${c.toolGroup} (${c.start} → ${c.end}).`,
-            drillTarget: { kind: 'order', id: order.id },
-          })
-        }
-      }
-    }
-  }
-
-  // 3. Shape check — every PO must have at least one family with batches.
-  for (const order of orders) {
-    const hasBatches = order.schedule.some((f) => f.batches.length > 0)
-    if (!hasBatches) {
+  // 2. Shape check — every PF must have at least one Task.
+  for (const pf of families) {
+    if (pf.tasks.length === 0) {
       out.push({
-        id: `shape-${order.id}-empty`,
+        id: `shape-${pf.id}`,
         severity: 'warning',
         category: 'shape',
-        title: `${order.id} has no batches`,
-        detail: 'After current edits this PO has no scheduled batches. Save will publish an empty PO.',
-        drillTarget: { kind: 'order', id: order.id },
+        title: `${pf.code} has no tasks`,
+        detail: 'After current edits this Production Family has no engineering tasks.',
+        drillTarget: { kind: 'pf', id: pf.id },
       })
     }
   }

@@ -1,69 +1,35 @@
-import { Progress, Tag, Typography } from 'antd'
+import { Empty, Tag, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { useEpsContext } from '../../stores/eps.context'
-import { calcOee } from '../../helpers/capacity.helpers'
-import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
+import { calcHeadcountComposition } from '../../helpers/capacity.helpers'
 
-// OEE breakdown card — Theoretical vs Effective ceilings plus the Availability × Performance × Quality factors.
-// Helps the planner answer "why can't this group run faster?" without diving into MES.
+// Headcount Composition card — for the selected Cell, the skill-group breakdown + shares.
+// (For non-cell selections we show an em-dash placeholder.)
 export const EpsCapacityOee = observer(() => {
   const store = useEpsContext().capacity
-  const group = store.selectedGroup
-  if (!group) return null
-  const oee = calcOee(group.name)
-  const oeeColor = oee.oee >= 0.85 ? '#4caf50' : oee.oee >= 0.7 ? '#ff9800' : '#f44336'
-
+  const entry = store.selectedCellEntry
+  if (!entry) {
+    return <Empty description="Select a Cell to inspect skill composition" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+  }
+  const comp = calcHeadcountComposition(entry.cell)
   return (
-    <div className="ax-eps-analysis_section">
-      <div className="ax-eps-analysis_section_header">
-        <div className="ax-eps-analysis_section_header_title">
-          <AxMuiIcon icon="mdiSpeedometerMedium" size={18} />
-          <span>OEE · {group.name}</span>
-        </div>
-        <Tag color={oee.oee >= 0.85 ? 'green' : oee.oee >= 0.7 ? 'orange' : 'red'} style={{ margin: 0 }}>
-          OEE {Math.round(oee.oee * 100)}%
+    <div className="ax-eps-capacity_oee">
+      <div className="ax-eps-capacity_oee_header">
+        <Typography.Text strong>{entry.cell.name}</Typography.Text>
+        <Tag color="blue" style={{ margin: 0 }}>
+          {comp.totalHeadcount} HC
         </Tag>
       </div>
-      <div className="ax-eps-analysis_section_body ax-eps-capacity_oee_body">
-        <div className="ax-eps-capacity_oee_grid">
-          <div className="ax-eps-capacity_oee_block">
-            <div className="ax-eps-capacity_oee_label">Effective ceiling</div>
-            <div className="ax-eps-capacity_oee_value">{oee.effective.toLocaleString()}</div>
-            <Typography.Text type="secondary" className="text-sm">
-              wafer-moves/day
-            </Typography.Text>
-          </div>
-          <div className="ax-eps-capacity_oee_block">
-            <div className="ax-eps-capacity_oee_label">Theoretical max</div>
-            <div className="ax-eps-capacity_oee_value">{oee.theoretical.toLocaleString()}</div>
-            <Typography.Text type="secondary" className="text-sm">
-              wafer-moves/day · 24/7 baseline
-            </Typography.Text>
-          </div>
-          <div className="ax-eps-capacity_oee_block">
-            <div className="ax-eps-capacity_oee_label">Headroom lost</div>
-            <div className="ax-eps-capacity_oee_value" style={{ color: oeeColor }}>
-              {(oee.theoretical - oee.effective).toLocaleString()}
+      <div className="ax-eps-capacity_oee_body">
+        {comp.skills.map((s) => (
+          <div key={s.skill} className="ax-eps-capacity_oee_row">
+            <span className="ax-eps-capacity_oee_row_skill">{s.skill}</span>
+            <div className="ax-eps-capacity_oee_row_bar">
+              <div className="ax-eps-capacity_oee_row_bar_fill" style={{ width: `${Math.round(s.share * 100)}%` }} />
             </div>
-            <Typography.Text type="secondary" className="text-sm">
-              to availability + drift
-            </Typography.Text>
+            <span className="ax-eps-capacity_oee_row_count">{s.count}</span>
           </div>
-        </div>
-        <div className="ax-eps-capacity_oee_factors">
-          <div className="ax-eps-capacity_oee_factor">
-            <div className="ax-eps-capacity_oee_factor_label">Availability</div>
-            <Progress percent={Math.round(oee.availability * 100)} size="small" status={oee.availability < 0.9 ? 'exception' : 'active'} />
-          </div>
-          <div className="ax-eps-capacity_oee_factor">
-            <div className="ax-eps-capacity_oee_factor_label">Performance</div>
-            <Progress percent={Math.round(oee.performance * 100)} size="small" status={oee.performance < 0.92 ? 'exception' : 'active'} />
-          </div>
-          <div className="ax-eps-capacity_oee_factor">
-            <div className="ax-eps-capacity_oee_factor_label">Quality</div>
-            <Progress percent={Math.round(oee.quality * 100)} size="small" status={oee.quality < 0.97 ? 'exception' : 'active'} />
-          </div>
-        </div>
+        ))}
       </div>
     </div>
   )

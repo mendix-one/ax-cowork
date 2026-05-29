@@ -1,66 +1,132 @@
-import { DAILY_TOOL_GROUP_USAGE, TOOL_GROUP_CAPACITIES, TOOLING_CONSTRAINTS, type ToolingConstraint } from '../data/mock-plan'
+import {
+  MOCK_FLAT_CELLS,
+  MOCK_PRODUCTION_FAMILIES,
+  MTO_OFFSETS_STANDARD,
+  mtoLabel,
+  type Cell,
+} from '../data/mock-plan'
 
-// Per-tool-group OEE breakdown — illustrative numbers tuned per group's nominal utilisation.
-// In a real wire-up these come from MES; here they shape the "Effective vs Theoretical" card.
-export type OeeBreakdown = {
-  theoretical: number // wafer-moves/day if everything ran 24/7
-  effective: number // wafer-moves/day given availability × performance × quality
-  availability: number // 0..1
-  performance: number // 0..1
-  quality: number // 0..1
-  oee: number // availability * performance * quality
+// === Headcount composition for a Cell =============================================================
+// Each Cell carries `skills: { skill, count }[]`. The composition card shows utilisation per skill
+// — utilisation here is mocked as count vs total to keep the chart focused on shape.
+
+export type HeadcountComposition = {
+  totalHeadcount: number
+  skills: { skill: string; count: number; share: number }[]
 }
 
-export const calcOee = (toolGroup: string): OeeBreakdown => {
-  const cap = TOOL_GROUP_CAPACITIES.find((g) => g.name === toolGroup)
-  const theoretical = cap ? Math.round(cap.total * 1.35) : 0
-  // Tuned per group: HARC and Probe run hotter on PM/qual loss, BEOL/CMP run cleaner.
-  const profile: Record<string, { a: number; p: number; q: number }> = {
-    'HARC Etch': { a: 0.88, p: 0.92, q: 0.97 },
-    'ONON CVD': { a: 0.92, p: 0.95, q: 0.98 },
-    'FEOL Dep': { a: 0.94, p: 0.96, q: 0.99 },
-    'WL Fill': { a: 0.95, p: 0.95, q: 0.99 },
-    CMP: { a: 0.96, p: 0.97, q: 0.99 },
-    BEOL: { a: 0.95, p: 0.97, q: 0.99 },
-    Probe: { a: 0.89, p: 0.93, q: 0.96 },
-    Asm: { a: 0.93, p: 0.96, q: 0.98 },
-  }
-  const def = profile[toolGroup] ?? { a: 0.9, p: 0.95, q: 0.97 }
-  const oee = def.a * def.p * def.q
+export const calcHeadcountComposition = (cell: Cell): HeadcountComposition => {
+  const total = cell.headcount
   return {
-    theoretical,
-    effective: cap?.total ?? Math.round(theoretical * oee),
-    availability: def.a,
-    performance: def.p,
-    quality: def.q,
-    oee,
+    totalHeadcount: total,
+    skills: cell.skills.map((s) => ({ skill: s.skill, count: s.count, share: total > 0 ? s.count / total : 0 })),
   }
 }
 
-// Capacity vs demand timeline for a selected tool group.
-// Capacity = effective daily ceiling (TOOL_GROUP_CAPACITIES.total).
-// Demand = the deterministic daily usage curve from DAILY_TOOL_GROUP_USAGE.
-// `over` flags whether demand crossed capacity that day — drives a red point overlay in the chart.
+// === Per-org-node demand timeline (MTO offsets) ==================================================
+// For the selected org node (by cellId), aggregate planned SPM demand bucketed by month-offset
+// from each PF's own MTO(0). The result is a per-offset { capacity, demand, over } point set.
+
 export type CapacityDemandPoint = {
-  date: string
+  offset: number
+  label: string
   capacity: number
   demand: number
   over: boolean
 }
 
-export const calcCapacityVsDemand = (toolGroup: string): CapacityDemandPoint[] => {
-  const cap = TOOL_GROUP_CAPACITIES.find((g) => g.name === toolGroup)
-  const capacity = cap?.total ?? 0
-  return DAILY_TOOL_GROUP_USAGE.map((d) => {
-    const demand = d.usage[toolGroup] ?? 0
-    return { date: d.date, capacity, demand, over: demand > capacity }
+const offsetCovered = (anchorYearMonth: string, startIso: string, endIso: string): number[] => {
+  const [aY, aM] = anchorYearMonth.split('-').map(Number)
+  const anchorIdx = aY * 12 + (aM - 1)
+  const startD = new Date(startIso)
+  const endD = new Date(endIso)
+  const startIdx = startD.getUTCFullYear() * 12 + startD.getUTCMonth()
+  const endIdx = endD.getUTCFullYear() * 12 + endD.getUTCMonth()
+  const out: number[] = []
+  for (let i = startIdx; i <= endIdx; i++) out.push(i - anchorIdx)
+  return out
+}
+
+// Build a set of cell-ids that fall under the given org node (by partial OrgRef).
+const cellsUnder = (node: { divisionId?: string; siteId?: string; teamId?: string; groupId?: string; partId?: string; cellId?: string }): Set<string> => {
+  const out = new Set<string>()
+  for (const e of MOCK_FLAT_CELLS) {
+    if (node.cellId && e.ref.cellId !== node.cellId) continue
+    if (node.partId && e.ref.partId !== node.partId) continue
+    if (node.groupId && e.ref.groupId !== node.groupId) continue
+    if (node.teamId && e.ref.teamId !== node.teamId) continue
+    if (node.siteId && e.ref.siteId !== node.siteId) continue
+    if (node.divisionId && e.ref.divisionId !== node.divisionId) continue
+    out.add(e.cell.id)
+  }
+  return out
+}
+
+// Compute capacity vs demand curve over the standard MTO offsets for a given org-node target.
+// `nodeRef` is interpreted as a *partial* org ref (e.g. only divisionId, or division+team).
+export const calcCapacityVsDemand = (nodeRef: { divisionId?: string; siteId?: string; teamId?: string; groupId?: string; partId?: string; cellId?: string }): CapacityDemandPoint[] => {
+  const ids = cellsUnder(nodeRef)
+  const headcount = MOCK_FLAT_CELLS.filter((e) => ids.has(e.cell.id)).reduce((s, e) => s + e.cell.headcount, 0)
+
+  // Bucket demand by offset across every Task / SubTask whose owner falls in the set.
+  const byOffset = new Map<number, number>()
+  for (const pf of MOCK_PRODUCTION_FAMILIES) {
+    for (const t of pf.tasks) {
+      if (t.ownerCellIds.some((id) => ids.has(id))) {
+        const offs = offsetCovered(pf.mtoAnchor, t.start, t.end)
+        const per = offs.length ? t.spm / offs.length : 0
+        for (const o of offs) byOffset.set(o, (byOffset.get(o) ?? 0) + per)
+      }
+      for (const s of t.subTasks) {
+        if (s.ownerCellIds.some((id) => ids.has(id))) {
+          const offs = offsetCovered(pf.mtoAnchor, s.start, s.end)
+          const per = offs.length ? s.spm / offs.length : 0
+          for (const o of offs) byOffset.set(o, (byOffset.get(o) ?? 0) + per)
+        }
+      }
+    }
+  }
+  // Use the standard MTO offsets as the axis so every node has the same x-range.
+  return MTO_OFFSETS_STANDARD.map((offset) => {
+    const demand = Math.round((byOffset.get(offset) ?? 0) * 10) / 10
+    return { offset, label: mtoLabel(offset), capacity: headcount, demand, over: demand > headcount }
   })
 }
 
-// Pull constraints that overlap a tool group, sorted by start date for chronological reading.
-export const constraintsFor = (toolGroup: string): ToolingConstraint[] => {
-  return TOOLING_CONSTRAINTS.filter((c) => c.toolGroup === toolGroup).sort((a, b) => a.start.localeCompare(b.start))
+// === Constraints ==================================================================================
+// "Resource constraints" — list of skill-group shortfalls (demand exceeds headcount on a skill basis).
+// Mock: declare a constraint when a Cell's `Certification` or `RF` capacity is below the demand from
+// SubTasks of that kind.
+
+export type ResourceConstraint = {
+  id: string
+  severity: 'critical' | 'warning' | 'info'
+  cellId: string
+  cellName: string
+  skill: string
+  title: string
+  detail: string
 }
 
-// All constraints, sorted — used by the "all-shop" constraint pane when no tool group filter is applied.
-export const allConstraints = (): ToolingConstraint[] => [...TOOLING_CONSTRAINTS].sort((a, b) => a.start.localeCompare(b.start))
+export const constraintsForCell = (cellId: string): ResourceConstraint[] => {
+  const e = MOCK_FLAT_CELLS.find((x) => x.cell.id === cellId)
+  if (!e) return []
+  const out: ResourceConstraint[] = []
+  for (const s of e.cell.skills) {
+    if (s.count >= 5) continue
+    out.push({
+      id: `${cellId}::${s.skill}`,
+      severity: s.count <= 2 ? 'critical' : 'warning',
+      cellId,
+      cellName: e.cell.name,
+      skill: s.skill,
+      title: `${s.skill} thin headcount (${s.count} people)`,
+      detail: `Cell ${e.cell.name} carries only ${s.count} ${s.skill} engineers — verify planned coverage on incoming tasks.`,
+    })
+  }
+  return out
+}
+
+export const allConstraints = (): ResourceConstraint[] => {
+  return MOCK_FLAT_CELLS.flatMap((e) => constraintsForCell(e.cell.id))
+}

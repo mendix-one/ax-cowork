@@ -1,68 +1,75 @@
 import { Statistic, Tag, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { useEpsContext } from '../../stores/eps.context'
-import type { ProductionOrder } from '../../data/mock-plan'
+import type { ProductionFamily } from '../../data/mock-plan'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
-// Planner roll-up over the *currently visible* POs (after toolbar filter + sidebar filter).
-// Surfaces commitment / out / remaining wafer totals and an at-risk count so the planner can see
-// the impact of any in-session edit immediately, without scrolling through the table.
-const calcSummary = (orders: ProductionOrder[]) => {
-  let totalCommitted = 0
-  let totalOut = 0
+const calcSummary = (families: ProductionFamily[]) => {
+  let pfCount = families.length
+  let taskCount = 0
+  let subTaskCount = 0
+  let totalSpm = 0
   let atRiskCount = 0
-  let runningCount = 0
-  let batchCount = 0
-  for (const o of orders) {
-    totalCommitted += o.qty
-    totalOut += o.outWafers
-    if (o.status === 'at-risk' || o.status === 'slipped') atRiskCount += 1
-    if (o.poStatus === 'RUNNING') runningCount += 1
-    for (const f of o.schedule) batchCount += f.batches.length
+  for (const pf of families) {
+    if (pf.scheduleClass === 'changes') atRiskCount += 1
+    for (const t of pf.tasks) {
+      taskCount += 1
+      totalSpm += t.spm
+      for (const s of t.subTasks) {
+        subTaskCount += 1
+        totalSpm += s.spm
+      }
+    }
   }
-  return {
-    totalCommitted,
-    totalOut,
-    totalRemaining: Math.max(0, totalCommitted - totalOut),
-    atRiskCount,
-    runningCount,
-    poCount: orders.length,
-    batchCount,
-  }
+  return { pfCount, taskCount, subTaskCount, totalSpm, atRiskCount }
 }
-
-const safePct = (numerator: number, denominator: number) => (denominator > 0 ? Math.round((numerator / denominator) * 100) : 0)
 
 export const EpsOrderSummary = observer(() => {
   const po = useEpsContext().order
-  const s = calcSummary(po.filteredOrders)
-  const outPct = safePct(s.totalOut, s.totalCommitted)
-  const remainingPct = 100 - outPct
+  const s = calcSummary(po.filteredFamilies)
 
   return (
     <div className="ax-eps-order_summary">
       <div className="ax-eps-order_summary_card">
         <div className="ax-eps-order_summary_card_title">
           <AxMuiIcon icon="mdiClipboardListOutline" size={16} />
-          <span>Visible orders</span>
+          <span>Production families</span>
         </div>
         <div className="ax-eps-order_summary_card_body">
-          <Statistic value={s.poCount} suffix={<Typography.Text type="secondary" className="text-sm"> POs · {s.batchCount} batches</Typography.Text>} valueStyle={{ fontSize: 22, color: '#2196f3' }} />
+          <Statistic
+            value={s.pfCount}
+            suffix={
+              <Typography.Text type="secondary" className="text-sm">
+                {' '}
+                PFs · {s.taskCount} tasks
+              </Typography.Text>
+            }
+            styles={{ content: { fontSize: 22, color: '#2196f3' } }}
+          />
           <Typography.Text type="secondary" className="text-sm">
-            Running {s.runningCount} · At-risk {s.atRiskCount}
+            Sub-tasks {s.subTaskCount} · At-risk {s.atRiskCount}
           </Typography.Text>
         </div>
       </div>
 
       <div className="ax-eps-order_summary_card">
         <div className="ax-eps-order_summary_card_title">
-          <AxMuiIcon icon="mdiPackageVariantClosed" size={16} />
-          <span>Committed wafers</span>
+          <AxMuiIcon icon="mdiAccountClockOutline" size={16} />
+          <span>Total SPM demand</span>
         </div>
         <div className="ax-eps-order_summary_card_body">
-          <Statistic value={s.totalCommitted} suffix={<Typography.Text type="secondary" className="text-sm"> wafers</Typography.Text>} valueStyle={{ fontSize: 22, color: '#3F51B5' }} />
+          <Statistic
+            value={s.totalSpm}
+            suffix={
+              <Typography.Text type="secondary" className="text-sm">
+                {' '}
+                P/M
+              </Typography.Text>
+            }
+            styles={{ content: { fontSize: 22, color: '#3F51B5' } }}
+          />
           <Typography.Text type="secondary" className="text-sm">
-            Across {s.poCount} production orders
+            Across {s.pfCount} production families
           </Typography.Text>
         </div>
       </div>
@@ -70,34 +77,16 @@ export const EpsOrderSummary = observer(() => {
       <div className="ax-eps-order_summary_card">
         <div className="ax-eps-order_summary_card_title">
           <AxMuiIcon icon="mdiCheckCircleOutline" size={16} />
-          <span>Out</span>
+          <span>At-risk families</span>
         </div>
         <div className="ax-eps-order_summary_card_body">
-          <Statistic value={s.totalOut} suffix={<Typography.Text type="secondary" className="text-sm"> wafers · {outPct}%</Typography.Text>} valueStyle={{ fontSize: 22, color: '#4caf50' }} />
-          <div className="ax-eps-order_summary_bar">
-            <div className="ax-eps-order_summary_bar_fill ax-eps-order_summary_bar_fill__done" style={{ width: `${outPct}%` }} />
-          </div>
-        </div>
-      </div>
-
-      <div className="ax-eps-order_summary_card">
-        <div className="ax-eps-order_summary_card_title">
-          <AxMuiIcon icon="mdiClockOutline" size={16} />
-          <span>Remaining</span>
-        </div>
-        <div className="ax-eps-order_summary_card_body">
-          <Statistic
-            value={s.totalRemaining}
-            suffix={<Typography.Text type="secondary" className="text-sm"> wafers · {remainingPct}%</Typography.Text>}
-            valueStyle={{ fontSize: 22, color: s.atRiskCount > 0 ? '#ff9800' : '#2196f3' }}
-          />
           {s.atRiskCount > 0 ? (
             <Tag color="orange" style={{ margin: 0, alignSelf: 'flex-start' }}>
-              {s.atRiskCount} at-risk PO · review priorities
+              {s.atRiskCount} at-risk PF · review priorities
             </Tag>
           ) : (
             <Typography.Text type="secondary" className="text-sm">
-              All visible POs on track.
+              All visible PFs on track.
             </Typography.Text>
           )}
         </div>

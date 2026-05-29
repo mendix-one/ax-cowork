@@ -47,3 +47,82 @@ Engineering Planning Simulation:
 - Try to optimize the UI/UX as much as possible
 - You may need deep research on the internet to understand about the production lifecycle and engineering process and also about samsung electronics
 
+
+========================== UPDATE 2: Information Architecture & Screen Function =======================================================================================
+
+# Information Architecture (IA)
+
+- Organization Hierarchical:
+ - Dvision/Department:
+  - Site
+    - Team
+      - Group
+        - Part
+          - Cell
+Ex:
+  - DSK (Department/base) > AP Sw kebalttim (S.LSI)(Team) > Mulimedia Solution (Gorup) > Mulimedia AnV (Part)
+  - SARC > SOC IP KeBalTTim > GPU > GPU Design 1
+  - SARC > SOC IP KebalTTim (S.LSI) > System IP > Interconnect IP
+
+
+- Business Development:
+  - Biz Group: SOC; Sensor; LSI
+    - Biz Team (Production Line): SOC - M-SOC, A-SOC, C-SOC; Sensor - Sensor; LSI - mDDI, pDDI, TCON, PMIC, Security, RCD
+      Production Family Group:  Basic, Leading, Derivatives/Commercial
+      - Production Family (Production Type): Flagship (Modap) 1st; Slim Modem 1st
+
+
+- Engineering processeses
+  - Stage 1: SOC
+    - Stage 2: SOC (EVT0)
+  - Block 1: Mega IP
+    - BLock 2: NPU
+    - Function 1: RTL/IP Design; Power
+      - Function 2:....
+        - Activity 1: H/W Design
+          - Activity 2: Architecture
+            - Note: SOC Architecture
+
+# Standard Personal Monthly:
+  - Organization Dimension
+  - Process Dimension
+  - Timeline & Peronsal Monthly Standard:
+    - Timeline: from MTO-60 > MTO (0) > MTO+36
+    - Match each MTO with Dimension > Personal Monthly number
+
+
+================ Update EPS > Simulation View ==========================
+
+# Gantt Chart:
+- Side bar:
+  - Col 1:
+    - Level 1: Production Family Group
+      - Level 2:  Production Family (Production Type)
+        - Level 3: Tasks (Engineering Task/Project)
+          - Level 4: Sub-Tasks (Extra Engineering Requqest)  - Certification
+          - Level 4: Sub-Tasks (Extra Engineering Request) - RF
+  - Col 2: Standard MTO Milestone
+- Content:
+  - Show Tasks Bar & Sub-Tasks Bar (Both Certification and RF)
+  - Note show bar for Level 1, Level 2, just show for level 3 and level 4
+
+# Adjustment: The tree like with gantt chart side bar
+- Level 1: Production Family Group
+  - Level 2: Production Family (Production Type)
+    - Level 3: Tasks (Engineering Task/Project)
+      - Level 4: Sub-Tasks - Certification
+      - Level 4: Sub-Task - RF
+
+- Quick Analysis:
+  - Overall Resource capacity
+    - Compare the resource by match standard personal monthly (Engineering Process & Standard Personal Monthly) vs Headcount portfolio (Organization Hierarchical & Resources)
+
+  - Organization Resources capacity usage/plan
+    - Compare headcount of each Department > Site > Team > Group > part with plan
+
+  - violations and highload
+    - violations: Plan over the resource headcount of organization (Department > Site > Team > Group > Part)
+    - highload: Over the safe threadsold
+
+
+================== UPDATE 3: Somthing

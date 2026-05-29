@@ -26,13 +26,13 @@ export const EpsPreflightModal = observer((props: EpsPreflightModalProps) => {
   const sim = useEpsContext()
   // Modal only renders when `open` flips true; computing findings each render is fine. The memo keeps it
   // stable when the user is just hovering the modal (the orders array reference is observable via MobX).
-  const findings = useMemo(() => runPreflight({ orders: sim.simulation.orders }), [sim.simulation.orders])
+  const findings = useMemo(() => runPreflight({ families: sim.simulation.families }), [sim.simulation.families])
   const summary = summarize(findings)
 
   const drill = (f: PreflightFinding) => {
     if (!f.drillTarget) return
-    if (f.drillTarget.kind === 'toolGroup') sim.navigateToToolGroup(f.drillTarget.name)
-    else sim.navigateToOrder(f.drillTarget.id)
+    if (f.drillTarget.kind === 'orgNode') sim.navigateToOrgNode(f.drillTarget.id)
+    else sim.navigateToProductionFamily(f.drillTarget.id)
     props.onCancel()
   }
 
