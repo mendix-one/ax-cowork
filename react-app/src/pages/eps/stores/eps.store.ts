@@ -1,5 +1,6 @@
 import { makeAutoObservable } from 'mobx'
 import { readJson, writeJson } from '@/acore/storage'
+import { PRODUCTION_LINES, type ProductionLine } from '@/acore/store/production-line.store'
 import { NotesStore } from './notes.store'
 import { SimulationStore } from './simulation.store'
 import { AnalysisStore } from './analysis.store'
@@ -21,12 +22,6 @@ export type PanelStates = Record<PanelId, PanelState>
 
 export type MainPanelId = 'simulation' | 'analysis' | 'orders' | 'processes' | 'capacity' | 'processTuning' | 'capacityTuning' | 'integration'
 export type SubPanelId = 'compare' | 'aiChat' | 'background' | 'history' | 'recommendations'
-
-export type ProductionLine = {
-  id: string
-  name: string
-  description?: string
-}
 
 export type EpsPlan = {
   id: string
@@ -73,16 +68,10 @@ const isPersistedShellState = (v: unknown): v is PersistedShellState => {
   return true
 }
 
-// EPS = IRIS Resource Planning workspace. A planning workspace is scoped to a Samsung DSR
-// Business Unit + Site + Fiscal Year (e.g. Hwaseong · Memory BU · FY2026). The field stays
-// named `ProductionLine` so the rest of the shell (modals, top header chip, store wiring)
-// is identical to MPS; only the seed data and human label differ.
-const PRODUCTION_LINES: ProductionLine[] = [
-  { id: 'memory-hwaseong', name: 'Hwaseong · Memory BU', description: 'DRAM + NAND development — Hwaseong HQ' },
-  { id: 'lsi-hwaseong', name: 'Hwaseong · System LSI', description: 'Exynos / Mobile AP roadmap — Hwaseong HQ' },
-  { id: 'cis-hwaseong', name: 'Hwaseong · CIS', description: 'ISOCELL image sensor family — Hwaseong HQ' },
-  { id: 'memory-pyeongtaek', name: 'Pyeongtaek · Memory BU', description: 'HBM + advanced packaging — Pyeongtaek' },
-]
+// EPS = IRIS Resource Planning workspace. The workspace is scoped to a production line
+// (Samsung DSR Business Team — SOC / Sensor / LSI) picked on the HomePage. The catalog is shared
+// via the acore production-line store so the header chip, AI-chat label and switch modal all
+// read the same line the user selected before navigating here.
 
 // Roadmap versions + simulation variants. Mirrors IRIS Concept D (Diff & Delta) + Concept B
 // (Simulation Sandbox). V6 is the current approved baseline; S1-V2 is the in-flight HBM4

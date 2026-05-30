@@ -1,13 +1,22 @@
-import { Button, List, Modal, Radio, Typography } from 'antd'
+import { Button, List, Modal, Radio, Tag, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
+import { useStore } from '@/acore/store/store.context'
 import { useEpsContext } from '../stores/eps.context'
 
 export const ProductionLineModal = observer(() => {
   const simulation = useEpsContext()
+  const { productionLine } = useStore()
+
+  // Switching the line inside EPS also updates the shared selection so HomePage and a later
+  // reload stay scoped to the same line.
+  const selectLine = (id: string) => {
+    simulation.setActiveProductionLine(id)
+    productionLine.setSelected(id)
+  }
 
   return (
     <Modal
-      title="Switch IRIS workspace"
+      title="Switch production line"
       open={simulation.productionLineModalOpen}
       onCancel={() => simulation.closeProductionLineModal()}
       footer={[
@@ -19,21 +28,24 @@ export const ProductionLineModal = observer(() => {
       width={520}
     >
       <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
-        A workspace is scoped to a <strong>Site · Business Unit · Fiscal Year</strong>. Resource roadmaps, headcount portfolio and PROMIS sync are all filtered
-        to the selected workspace.
+        The workspace is scoped to a <strong>production line</strong> (Business Team). Resource roadmaps, headcount portfolio and PROMIS sync are all filtered to
+        the selected line.
       </Typography.Paragraph>
-      <Radio.Group
-        value={simulation.activeProductionLineId}
-        onChange={(e) => simulation.setActiveProductionLine(e.target.value as string)}
-        style={{ width: '100%' }}
-      >
+      <Radio.Group value={simulation.activeProductionLineId} onChange={(e) => selectLine(e.target.value as string)} style={{ width: '100%' }}>
         <List
           size="small"
           dataSource={simulation.productionLines}
           renderItem={(line) => (
-            <List.Item onClick={() => simulation.setActiveProductionLine(line.id)} style={{ cursor: 'pointer' }}>
+            <List.Item onClick={() => selectLine(line.id)} style={{ cursor: 'pointer' }}>
               <Radio value={line.id} style={{ marginRight: 12 }} />
-              <List.Item.Meta title={line.name} description={line.description} />
+              <List.Item.Meta
+                title={
+                  <>
+                    {line.name} <Tag style={{ marginInlineStart: 4 }}>{line.code}</Tag>
+                  </>
+                }
+                description={line.description}
+              />
             </List.Item>
           )}
         />

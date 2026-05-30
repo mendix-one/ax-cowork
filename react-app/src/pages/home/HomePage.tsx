@@ -2,80 +2,27 @@ import { Card, Col, Flex, Layout, Row, Space, Tag, Tooltip, Typography, theme } 
 import { useNavigate } from 'react-router-dom'
 import { observer } from 'mobx-react-lite'
 import logoLight from '@/assets/aplanner-light.png'
+import { useStore } from '@/acore/store/store.context'
+import type { ProductionLineGroupId } from '@/acore/store/production-line.store'
 import { AxMuiIcon, type MdiIconName } from '@/shared/mui-icon/AxMuiIcon.tsx'
 
-type AppCard = {
-  id: 'pps' | 'eps' | 'mps'
-  path: string
-  code: string
-  title: string
-  subtitle: string
-  description: string
-  icon: MdiIconName
-  accent: string
-  status: 'live' | 'beta' | 'preview'
-  pillar: string
-  capabilities: string[]
-}
-
-const APPS: AppCard[] = [
-  {
-    id: 'pps',
-    path: '/pps',
-    code: 'PPS',
-    title: 'Product Planning Simulation',
-    subtitle: 'Portfolio and roadmap planning',
-    description: 'Shape the product portfolio: align market demand, business cases, and platform investments before engineering and manufacturing commit.',
-    icon: 'mdiViewDashboardOutline',
-    accent: '#3F51B5',
-    status: 'preview',
-    pillar: 'PLAN — Portfolio',
-    capabilities: ['Demand forecast', 'Portfolio mix', 'Business case'],
-  },
-  {
-    id: 'eps',
-    path: '/eps',
-    code: 'EPS · IRIS',
-    title: 'Engineering Planning Simulation',
-    subtitle: 'IRIS — Intelligent Resources Information System',
-    description:
-      "Samsung DSR's resource planning workspace. P/M planner with concurrent editing, version-managed roadmaps, what-if sandbox, and bi-directional sync with N-PLM / SMDM / GHRP / PROMIS.",
-    icon: 'mdiBrain',
-    accent: '#673AB7',
-    status: 'beta',
-    pillar: 'PLAN — R&D · Samsung DSR',
-    capabilities: ['P/M Gantt', 'Roadmap versioning', 'Simulation sandbox', 'AI co-pilot'],
-  },
-  {
-    id: 'mps',
-    path: '/mps',
-    code: 'MPS',
-    title: 'Manufacturing Planning Simulation',
-    subtitle: 'Fab capacity and order scheduling',
-    description: 'Plan production orders against fab capacity. Run what-if simulations, resolve tool group violations and publish a viable shop-floor plan.',
-    icon: 'mdiFactory',
-    accent: '#009688',
-    status: 'live',
-    pillar: 'PLAN — Fab',
-    capabilities: ['Order schedule', 'Tool group OEE', 'Compare plans'],
-  },
-]
-
-const STATUS_COLOR: Record<AppCard['status'], string> = {
-  live: 'green',
-  beta: 'purple',
-  preview: 'default',
-}
-
-const STATUS_LABEL: Record<AppCard['status'], string> = {
-  live: 'LIVE',
-  beta: 'BETA',
-  preview: 'PREVIEW',
+// Visual identity per BizGroup — accent + icon. Colors mirror the AntD brand tokens
+// (primary / secondary / tertiary) defined in acore/theme.
+const GROUP_STYLE: Record<ProductionLineGroupId, { accent: string; icon: MdiIconName }> = {
+  SOC: { accent: '#3F51B5', icon: 'mdiChip' },
+  Sensor: { accent: '#009688', icon: 'mdiCameraIris' },
+  LSI: { accent: '#673AB7', icon: 'mdiMemory' },
 }
 
 export const HomePage = observer(() => {
   const { token } = theme.useToken()
   const navigate = useNavigate()
+  const { productionLine } = useStore()
+
+  const openLine = (id: string) => {
+    productionLine.setSelected(id)
+    navigate('/eps')
+  }
 
   return (
     <Layout className="ax-layout">
@@ -96,7 +43,7 @@ export const HomePage = observer(() => {
                   ax-cowork · planning suite
                 </Typography.Text>
                 <Typography.Title level={3} style={{ margin: 0 }}>
-                  Choose a planning workspace
+                  Select a production line
                 </Typography.Title>
               </Flex>
             </Flex>
@@ -113,78 +60,82 @@ export const HomePage = observer(() => {
           </Flex>
 
           <Typography.Paragraph type="secondary" style={{ maxWidth: 760, marginBottom: 0 }}>
-            Pick the simulation that matches your planning horizon. Each workspace shares the same gantt, capacity and AI co-pilot patterns, so switching
-            between portfolio, engineering (IRIS) and manufacturing planning feels familiar. Samsung DSR planners start with EPS.
+            Pick the production line to plan. The EPS · IRIS workspace — roadmap versions, headcount portfolio and PROMIS sync — opens scoped to the line you
+            choose. You can switch lines later from the workspace header.
           </Typography.Paragraph>
 
-          <Row gutter={[24, 24]}>
-            {APPS.map((app) => (
-              <Col key={app.id} xs={24} md={12} xl={8}>
-                <Card
-                  hoverable
-                  onClick={() => navigate(app.path)}
-                  style={{
-                    height: '100%',
-                    borderRadius: 16,
-                    borderColor: token.colorBorderSecondary,
-                    boxShadow: '0 6px 24px rgba(15, 23, 42, 0.06)',
-                    cursor: 'pointer',
-                    overflow: 'hidden',
-                  }}
-                  styles={{ body: { padding: 24, height: '100%', display: 'flex', flexDirection: 'column', gap: 16 } }}
-                >
-                  <Flex align="center" justify="space-between">
-                    <Flex
-                      align="center"
-                      justify="center"
-                      style={{
-                        width: 48,
-                        height: 48,
-                        borderRadius: 12,
-                        background: `${app.accent}1A`,
-                        color: app.accent,
-                      }}
-                    >
-                      <AxMuiIcon icon={app.icon} size="1.75rem" />
-                    </Flex>
-                    <Tag color={STATUS_COLOR[app.status]} style={{ borderRadius: 999 }}>
-                      {STATUS_LABEL[app.status]}
-                    </Tag>
+          {productionLine.groups.map((group) => {
+            const lines = productionLine.linesByGroup(group.id)
+            const style = GROUP_STYLE[group.id]
+            return (
+              <Flex key={group.id} vertical gap={16}>
+                <Flex align="center" gap={12}>
+                  <Flex
+                    align="center"
+                    justify="center"
+                    style={{ width: 36, height: 36, borderRadius: 10, background: `${style.accent}1A`, color: style.accent }}
+                  >
+                    <AxMuiIcon icon={style.icon} size="1.4rem" />
                   </Flex>
-
-                  <Flex vertical gap={4}>
-                    <Typography.Text type="secondary" style={{ fontSize: 12, letterSpacing: 1.2, textTransform: 'uppercase' }}>
-                      {app.code} · {app.pillar}
-                    </Typography.Text>
-                    <Typography.Title level={4} style={{ margin: 0 }}>
-                      {app.title}
+                  <Flex vertical>
+                    <Typography.Title level={5} style={{ margin: 0 }}>
+                      {group.label}
                     </Typography.Title>
-                    <Typography.Text type="secondary">{app.subtitle}</Typography.Text>
+                    <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+                      {group.description}
+                    </Typography.Text>
                   </Flex>
+                </Flex>
 
-                  <Typography.Paragraph style={{ marginBottom: 0, color: token.colorTextSecondary }}>{app.description}</Typography.Paragraph>
+                <Row gutter={[20, 20]}>
+                  {lines.map((line) => (
+                    <Col key={line.id} xs={24} sm={12} xl={8}>
+                      <Card
+                        hoverable
+                        onClick={() => openLine(line.id)}
+                        style={{
+                          height: '100%',
+                          borderRadius: 14,
+                          borderColor: productionLine.selectedId === line.id ? style.accent : token.colorBorderSecondary,
+                          boxShadow: '0 4px 18px rgba(15, 23, 42, 0.05)',
+                          cursor: 'pointer',
+                        }}
+                        styles={{ body: { padding: 20, height: '100%', display: 'flex', flexDirection: 'column', gap: 12 } }}
+                      >
+                        <Flex align="center" justify="space-between">
+                          <Tag color="default" style={{ borderRadius: 999, fontWeight: 600, color: style.accent, borderColor: `${style.accent}55` }}>
+                            {line.code}
+                          </Tag>
+                          {productionLine.selectedId === line.id && (
+                            <Tag color="processing" style={{ borderRadius: 999 }}>
+                              LAST USED
+                            </Tag>
+                          )}
+                        </Flex>
 
-                  <Flex wrap="wrap" gap={8} style={{ marginTop: 'auto' }}>
-                    {app.capabilities.map((c) => (
-                      <Tag key={c} style={{ borderRadius: 999 }}>
-                        {c}
-                      </Tag>
-                    ))}
-                  </Flex>
+                        <Flex vertical gap={2}>
+                          <Typography.Title level={5} style={{ margin: 0 }}>
+                            {line.name}
+                          </Typography.Title>
+                          <Typography.Text type="secondary">{line.description}</Typography.Text>
+                        </Flex>
 
-                  <Flex align="center" justify="space-between" style={{ paddingTop: 8 }}>
-                    <Typography.Text style={{ color: app.accent, fontWeight: 500 }}>Open workspace</Typography.Text>
-                    <AxMuiIcon icon="mdiArrowRight" size="1.2rem" color={app.accent} />
-                  </Flex>
-                </Card>
-              </Col>
-            ))}
-          </Row>
+                        <Flex align="center" justify="space-between" style={{ marginTop: 'auto', paddingTop: 8 }}>
+                          <Typography.Text style={{ color: style.accent, fontWeight: 500 }}>Open in EPS</Typography.Text>
+                          <AxMuiIcon icon="mdiArrowRight" size="1.2rem" color={style.accent} />
+                        </Flex>
+                      </Card>
+                    </Col>
+                  ))}
+                </Row>
+              </Flex>
+            )
+          })}
 
           <Flex align="center" gap={12} style={{ paddingTop: 12, color: token.colorTextTertiary }}>
             <AxMuiIcon icon="mdiInformationOutline" size="1rem" />
             <Typography.Text type="secondary">
-              EPS and MPS share data flow patterns. Plans created in one workspace can be referenced from the others as upstream/downstream context.
+              The selected production line scopes the EPS workspace. Plans created here can be referenced from PPS / MPS as upstream / downstream context.
             </Typography.Text>
           </Flex>
         </Flex>
