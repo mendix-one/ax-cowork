@@ -1,0 +1,43 @@
+import { Fragment, JSX, ReactElement, useId } from "react";
+
+import { HTMLElementContainerProps } from "../typings/HTMLElementProps";
+import {
+    createAttributeResolver,
+    createEventResolver,
+    prepareAttributes,
+    prepareChildren,
+    prepareEvents,
+    prepareHtml,
+    prepareTag
+} from "./utils/props-utils";
+import { HTMLTag } from "./components/HTMLTag";
+
+export function HTMLElement(props: HTMLElementContainerProps): ReactElement | null {
+    const tag = prepareTag(props.tagName, props.tagNameCustom);
+    const items = props.tagUseRepeat ? props.tagContentRepeatDataSource?.items : [undefined];
+
+    const id = useId();
+
+    if (!items?.length) {
+        return null;
+    }
+
+    return (
+        <Fragment>
+            {items.map((item, index) => (
+                <HTMLTag
+                    key={`${id}_${item?.id || index}`}
+                    tagName={tag as keyof JSX.IntrinsicElements}
+                    attributes={{
+                        ...prepareAttributes(createAttributeResolver(item), props.attributes, props.class, props.style),
+                        ...prepareEvents(createEventResolver(item), props.events)
+                    }}
+                    unsafeHTML={prepareHtml(props, item)}
+                    sanitizationConfig={props.sanitizationConfigFull}
+                >
+                    {prepareChildren(props, item)}
+                </HTMLTag>
+            ))}
+        </Fragment>
+    );
+}

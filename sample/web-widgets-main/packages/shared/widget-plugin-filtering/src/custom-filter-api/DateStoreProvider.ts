@@ -1,0 +1,22 @@
+import { FilterAPI } from "../context";
+import { BaseStoreProvider } from "./BaseStoreProvider";
+import { FilterSpec } from "./typings";
+import { DateInputFilterStore } from "../stores/input/DateInputFilterStore";
+import { Date_InputFilterInterface } from "../typings/InputFilterInterface";
+
+export class DateStoreProvider extends BaseStoreProvider<DateInputFilterStore> {
+    protected _store: DateInputFilterStore;
+    protected filterAPI: FilterAPI;
+    readonly dataKey: string;
+
+    constructor(filterAPI: FilterAPI, spec: FilterSpec<Date>) {
+        super();
+        this.filterAPI = filterAPI;
+        this.dataKey = spec.dataKey;
+        this._store = new DateInputFilterStore(spec.attributes, null);
+    }
+
+    get store(): Date_InputFilterInterface {
+        return this._store;
+    }
+}

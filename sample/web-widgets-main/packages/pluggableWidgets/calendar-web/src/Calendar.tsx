@@ -1,0 +1,41 @@
+import { Fragment, ReactElement, useMemo } from "react";
+import classNames from "classnames";
+import { CalendarContainerProps } from "../typings/CalendarProps";
+import { CalendarPropsBuilder } from "./helpers/CalendarPropsBuilder";
+import { DnDCalendar } from "./utils/calendar-utils";
+import { constructWrapperStyle } from "./utils/style-utils";
+import "./ui/Calendar.scss";
+import { useCalendarEvents } from "./helpers/useCalendarEvents";
+import { useLocalizer } from "./helpers/useLocalizer";
+
+export default function MxCalendar(props: CalendarContainerProps): ReactElement {
+    // useMemo with empty dependency array is used
+    // because style and calendar controller needs to be created only once
+    // and not on every re-render
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const wrapperStyle = useMemo(() => constructWrapperStyle(props), []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const calendarController = useMemo(() => new CalendarPropsBuilder(props), []);
+
+    // Get locale-aware localizer
+    const { localizer, culture } = useLocalizer();
+
+    const calendarProps = useMemo(() => {
+        calendarController.updateProps(props);
+        return calendarController.build(localizer, culture);
+    }, [props, calendarController, localizer, culture]);
+
+    const calendarEvents = useCalendarEvents(props);
+
+    return (
+        <Fragment>
+            {props.startDateAttribute?.status === "loading" ? (
+                <progress className="widget-calendar-loading-bar" />
+            ) : (
+                <div className={classNames("widget-calendar", props.class)} style={wrapperStyle}>
+                    <DnDCalendar {...calendarProps} {...calendarEvents} />
+                </div>
+            )}
+        </Fragment>
+    );
+}

@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="com.mendix.widget.web.calendar.Calendar" pluginWidget="true" offlineCapable="true" supportedPlatform="Web" xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd">
+    <name>Calendar</name>
+    <description>Calendar</description>
+    <studioProCategory>Display</studioProCategory>
+    <studioCategory>Display</studioCategory>
+    <helpUrl>https://docs.mendix.com/appstore/widgets/calendar</helpUrl>
+    <properties>
+        <propertyGroup caption="General">
+            <!-- OPTIONS SOURCE -->
+            <propertyGroup caption="Data source">
+                <property key="databaseDataSource" type="datasource" isList="true" required="false">
+                    <caption>Events</caption>
+                    <description />
+                </property>
+                <property key="titleType" type="enumeration" defaultValue="attribute">
+                    <caption>Title type</caption>
+                    <description>Choose between an attribute or an expression for the title</description>
+                    <enumerationValues>
+                        <enumerationValue key="attribute">Attribute</enumerationValue>
+                        <enumerationValue key="expression">Expression</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="titleAttribute" type="attribute" dataSource="databaseDataSource" required="false">
+                    <caption>Title attribute</caption>
+                    <description>Select an attribute that contains the event title</description>
+                    <attributeTypes>
+                        <attributeType name="String" />
+                    </attributeTypes>
+                </property>
+                <property key="titleExpression" type="expression" dataSource="databaseDataSource" required="false">
+                    <caption>Title expression</caption>
+                    <description>Expression that results in the event title</description>
+                    <returnType type="String" />
+                </property>
+                <property key="allDayAttribute" type="attribute" dataSource="databaseDataSource" required="false">
+                    <caption>All day attribute</caption>
+                    <description />
+                    <attributeTypes>
+                        <attributeType name="Boolean" />
+                    </attributeTypes>
+                </property>
+                <property key="startAttribute" type="attribute" dataSource="databaseDataSource" required="false">
+                    <caption>Start attribute</caption>
+                    <description />
+                    <attributeTypes>
+                        <attributeType name="DateTime" />
+                    </attributeTypes>
+                </property>
+                <property key="endAttribute" type="attribute" dataSource="databaseDataSource" required="false">
+                    <caption>End attribute</caption>
+                    <description />
+                    <attributeTypes>
+                        <attributeType name="DateTime" />
+                    </attributeTypes>
+                </property>
+                <property key="eventColor" type="attribute" dataSource="databaseDataSource" required="false">
+                    <caption>Color attribute</caption>
+                    <description>Attribute containing a valid HTML color eg: red #FF0000 rgb(250,10,20) rgba(10,10,10, 0.5)</description>
+                    <attributeTypes>
+                        <attributeType name="Enum" />
+                        <attributeType name="String" />
+                    </attributeTypes>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+        <propertyGroup caption="View">
+            <propertyGroup caption="Options">
+                <property key="editable" type="expression" defaultValue="true">
+                    <caption>Editable</caption>
+                    <description />
+                    <returnType type="Boolean" />
+                </property>
+                <property key="view" type="enumeration" defaultValue="standard">
+                    <caption>View</caption>
+                    <description>Standard has day, week and month</description>
+                    <enumerationValues>
+                        <enumerationValue key="standard">Standard</enumerationValue>
+                        <enumerationValue key="custom">Custom</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="defaultViewStandard" type="enumeration" defaultValue="month">
+                    <caption>Initial selected view</caption>
+                    <description>The default view showed when the calendar is loaded</description>
+                    <enumerationValues>
+                        <enumerationValue key="day">Day</enumerationValue>
+                        <enumerationValue key="week">Week</enumerationValue>
+                        <enumerationValue key="month">Month</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="defaultViewCustom" type="enumeration" defaultValue="month">
+                    <caption>Initial selected view</caption>
+                    <description>The default view showed when the calendar is loaded</description>
+                    <enumerationValues>
+                        <enumerationValue key="day">Day</enumerationValue>
+                        <enumerationValue key="week">Week</enumerationValue>
+                        <enumerationValue key="month">Month</enumerationValue>
+                        <enumerationValue key="work_week">Work week</enumerationValue>
+                        <enumerationValue key="agenda">Agenda</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="showEventDate" type="expression" defaultValue="true">
+                    <caption>Show event date range</caption>
+                    <description>Show the start and end date of the event</description>
+                    <returnType type="Boolean" />
+                </property>
+                <property key="timeFormat" type="textTemplate" required="false">
+                    <caption>Time format</caption>
+                    <description>Default time format is "hh:mm a"</description>
+                </property>
+                <property key="topBarDateFormat" type="textTemplate" required="false">
+                    <caption>Top bar date format</caption>
+                    <description>Format used for the title in the toolbar across views. Defaults to a locale-aware format.</description>
+                </property>
+                <property key="minHour" type="integer" defaultValue="0">
+                    <caption>Day start hour</caption>
+                    <description>The hour at which the day view starts (0–23)</description>
+                </property>
+                <property key="maxHour" type="integer" defaultValue="24">
+                    <caption>Day end hour</caption>
+                    <description>The hour at which the day view ends (1–24)</description>
+                </property>
+                <property key="showAllEvents" type="boolean" defaultValue="true">
+                    <caption>Show all events</caption>
+                    <description>Auto-adjust calendar height to display all events without "more" links</description>
+                </property>
+                <property key="step" type="integer" defaultValue="30">
+                    <caption>Step</caption>
+                    <description>Determines the selectable time increments in week and day views</description>
+                </property>
+                <property key="timeslots" type="integer" defaultValue="1">
+                    <caption>Time slots</caption>
+                    <description>The number of slots per "section" in the time grid views. Adjust with step to change the default of 1 hour long groups, with 30 minute slots</description>
+                </property>
+                <property key="startDateAttribute" type="attribute" required="false">
+                    <caption>Start date attribute</caption>
+                    <description>The DateTime attribute used on initial load</description>
+                    <attributeTypes>
+                        <attributeType name="DateTime" />
+                    </attributeTypes>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+        <propertyGroup caption="Custom view">
+            <propertyGroup caption="Toolbar">
+                <property key="toolbarItems" type="object" isList="true" required="false">
+                    <caption>Custom top bar views</caption>
+                    <description>Configure items displayed in the calendar toolbar.</description>
+                    <properties>
+                        <property key="itemType" type="enumeration" defaultValue="month">
+                            <caption>Item</caption>
+                            <category>Appearance</category>
+                            <description>Select which item to render on the toolbar.</description>
+                            <enumerationValues>
+                                <enumerationValue key="day">Day view button</enumerationValue>
+                                <enumerationValue key="month">Month view button</enumerationValue>
+                                <enumerationValue key="agenda">Agenda view button</enumerationValue>
+                                <enumerationValue key="week">Week view button</enumerationValue>
+                                <enumerationValue key="work_week">Work week view button</enumerationValue>
+                                <enumerationValue key="title">Title date text</enumerationValue>
+                                <enumerationValue key="previous">Previous button</enumerationValue>
+                                <enumerationValue key="next">Next button</enumerationValue>
+                                <enumerationValue key="today">Today button</enumerationValue>
+                            </enumerationValues>
+                        </property>
+                        <property key="position" type="enumeration" defaultValue="left">
+                            <caption>Position</caption>
+                            <category>Appearance</category>
+                            <description>Align the item within the toolbar.</description>
+                            <enumerationValues>
+                                <enumerationValue key="left">Left</enumerationValue>
+                                <enumerationValue key="center">Center</enumerationValue>
+                                <enumerationValue key="right">Right</enumerationValue>
+                            </enumerationValues>
+                        </property>
+                        <property key="caption" type="textTemplate" required="false">
+                            <caption>Caption</caption>
+                            <category>Appearance</category>
+                            <description>Optional text for the button or title. If empty, a default localized label is used.</description>
+                        </property>
+                        <property key="renderMode" type="enumeration" defaultValue="button">
+                            <caption>Render mode</caption>
+                            <category>Appearance</category>
+                            <description>Choose how the item is rendered.</description>
+                            <enumerationValues>
+                                <enumerationValue key="button">Button</enumerationValue>
+                                <enumerationValue key="link">Link</enumerationValue>
+                            </enumerationValues>
+                        </property>
+                        <property key="buttonTooltip" type="textTemplate" required="false">
+                            <caption>Button tooltip</caption>
+                            <category>Appearance</category>
+                            <description>Tooltip for the button.</description>
+                        </property>
+                        <property key="buttonStyle" type="enumeration" defaultValue="default">
+                            <caption>Button style</caption>
+                            <category>Appearance</category>
+                            <description>Style of the button.</description>
+                            <enumerationValues>
+                                <enumerationValue key="default">Default</enumerationValue>
+                                <enumerationValue key="primary">Primary</enumerationValue>
+                                <enumerationValue key="success">Success</enumerationValue>
+                                <enumerationValue key="info">Info</enumerationValue>
+                                <enumerationValue key="warning">Warning</enumerationValue>
+                                <enumerationValue key="danger">Danger</enumerationValue>
+                            </enumerationValues>
+                        </property>
+                        <property key="customViewHeaderDayFormat" type="textTemplate" required="false">
+                            <caption>Header day format</caption>
+                            <category>Custom formats</category>
+                            <description>Format of date(s) in the header above the day, week, month, custom or Agenda view.</description>
+                        </property>
+                        <property key="customViewCellDateFormat" type="textTemplate" required="false">
+                            <caption>Cell date format</caption>
+                            <category>Custom formats</category>
+                            <description>Date shown in the month cells.</description>
+                        </property>
+                        <property key="customViewGutterTimeFormat" type="textTemplate" required="false">
+                            <caption>Time gutter format</caption>
+                            <category>Custom formats</category>
+                            <description>Time shown as the first column in the week, day and agenda view.</description>
+                        </property>
+                        <property key="customViewGutterDateFormat" type="textTemplate" required="false">
+                            <caption>Date gutter format</caption>
+                            <category>Custom formats</category>
+                            <description>Date shown as the first column in the agenda view.</description>
+                        </property>
+                        <property key="customViewAllDayText" type="textTemplate" required="false">
+                            <caption>All day text</caption>
+                            <category>Text</category>
+                            <description>Text shown in the all day column.</description>
+                        </property>
+                        <property key="customViewTextHeaderDate" type="textTemplate" required="false">
+                            <caption>Text header date</caption>
+                            <category>Text</category>
+                            <description>Text showing in the agenda view to header in the column date.</description>
+                        </property>
+                        <property key="customViewTextHeaderTime" type="textTemplate" required="false">
+                            <caption>Text header time</caption>
+                            <category>Text</category>
+                            <description>Text showing in the agenda view to header in the column time.</description>
+                        </property>
+                        <property key="customViewTextHeaderEvent" type="textTemplate" required="false">
+                            <caption>Text header event</caption>
+                            <category>Text</category>
+                            <description>Text showing in the agenda view to header in the column event.</description>
+                        </property>
+                    </properties>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Custom view visible days">
+                <property key="customViewShowMonday" type="boolean" defaultValue="true">
+                    <caption>Monday</caption>
+                    <description>Show Monday in the custom week view</description>
+                </property>
+                <property key="customViewShowTuesday" type="boolean" defaultValue="true">
+                    <caption>Tuesday</caption>
+                    <description>Show Tuesday in the custom week view</description>
+                </property>
+                <property key="customViewShowWednesday" type="boolean" defaultValue="true">
+                    <caption>Wednesday</caption>
+                    <description>Show Wednesday in the custom week view</description>
+                </property>
+                <property key="customViewShowThursday" type="boolean" defaultValue="true">
+                    <caption>Thursday</caption>
+                    <description>Show Thursday in the custom week view</description>
+                </property>
+                <property key="customViewShowFriday" type="boolean" defaultValue="true">
+                    <caption>Friday</caption>
+                    <description>Show Friday in the custom week view</description>
+                </property>
+                <property key="customViewShowSaturday" type="boolean" defaultValue="false">
+                    <caption>Saturday</caption>
+                    <description>Show Saturday in the custom week view</description>
+                </property>
+                <property key="customViewShowSunday" type="boolean" defaultValue="false">
+                    <caption>Sunday</caption>
+                    <description>Show Sunday in the custom week view</description>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+        <propertyGroup caption="Events">
+            <property key="onEditEvent" type="action" required="false" dataSource="databaseDataSource">
+                <caption>On edit</caption>
+                <description />
+            </property>
+            <property key="onCreateEvent" type="action" required="false">
+                <caption>On create</caption>
+                <description>The create event is triggered when a time slot is selected, and the 'Enable create' property is set to 'true'</description>
+                <actionVariables>
+                    <actionVariable key="startDate" type="DateTime" caption="New event start date" />
+                    <actionVariable key="endDate" type="DateTime" caption="New event end date" />
+                    <actionVariable key="allDay" type="Boolean" caption="New event all day" />
+                </actionVariables>
+            </property>
+            <property key="onDragDropResize" type="action" required="false" dataSource="databaseDataSource">
+                <caption>On drag/drop/resize</caption>
+                <description>The change event is triggered on moving/dragging an item or changing the start or end time of by resizing an item</description>
+                <actionVariables>
+                    <actionVariable key="oldStart" type="DateTime" caption="Old start date" />
+                    <actionVariable key="oldEnd" type="DateTime" caption="Old end date" />
+                    <actionVariable key="newStart" type="DateTime" caption="New start date" />
+                    <actionVariable key="newEnd" type="DateTime" caption="New end date" />
+                </actionVariables>
+            </property>
+            <property key="onViewRangeChange" type="action" required="false">
+                <caption>On view range change</caption>
+                <description>Triggered when the calendar view range (start/end) changes</description>
+                <actionVariables>
+                    <actionVariable key="rangeStart" type="DateTime" caption="View range start" />
+                    <actionVariable key="rangeEnd" type="DateTime" caption="View range end" />
+                    <actionVariable key="currentView" type="String" caption="Current view" />
+                </actionVariables>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Dimensions">
+            <property key="widthUnit" type="enumeration" defaultValue="percentage">
+                <caption>Width unit</caption>
+                <description />
+                <enumerationValues>
+                    <enumerationValue key="pixels">Pixels</enumerationValue>
+                    <enumerationValue key="percentage">Percentage</enumerationValue>
+                </enumerationValues>
+            </property>
+            <property key="width" type="integer" defaultValue="100">
+                <caption>Width</caption>
+                <description />
+            </property>
+            <property key="heightUnit" type="enumeration" defaultValue="pixels">
+                <caption>Height unit</caption>
+                <description />
+                <enumerationValues>
+                    <enumerationValue key="percentageOfWidth">Auto</enumerationValue>
+                    <enumerationValue key="pixels">Pixels</enumerationValue>
+                    <enumerationValue key="percentageOfParent">Percentage</enumerationValue>
+                    <enumerationValue key="percentageOfView">Viewport</enumerationValue>
+                </enumerationValues>
+            </property>
+            <property key="height" type="integer" defaultValue="580">
+                <caption>Height</caption>
+                <description />
+            </property>
+            <property key="minHeightUnit" type="enumeration" defaultValue="pixels">
+                <caption>Minimum height unit</caption>
+                <description />
+                <enumerationValues>
+                    <enumerationValue key="none">None</enumerationValue>
+                    <enumerationValue key="pixels">Pixels</enumerationValue>
+                    <enumerationValue key="percentageOfParent">Percentage</enumerationValue>
+                    <enumerationValue key="percentageOfView">Viewport</enumerationValue>
+                </enumerationValues>
+            </property>
+            <property key="minHeight" type="integer" defaultValue="250">
+                <caption>Minimum height</caption>
+                <description />
+            </property>
+            <property key="maxHeightUnit" type="enumeration" defaultValue="none">
+                <caption>Maximum height unit</caption>
+                <description />
+                <enumerationValues>
+                    <enumerationValue key="none">None</enumerationValue>
+                    <enumerationValue key="pixels">Pixels</enumerationValue>
+                    <enumerationValue key="percentageOfParent">Percentage</enumerationValue>
+                    <enumerationValue key="percentageOfView">Viewport</enumerationValue>
+                </enumerationValues>
+            </property>
+            <property key="maxHeight" type="integer" defaultValue="250">
+                <caption>Maximum height</caption>
+                <description />
+            </property>
+            <property key="overflowY" type="enumeration" defaultValue="auto">
+                <caption>Vertical overflow</caption>
+                <description />
+                <enumerationValues>
+                    <enumerationValue key="auto">Auto</enumerationValue>
+                    <enumerationValue key="scroll">Scroll</enumerationValue>
+                    <enumerationValue key="hidden">Hidden</enumerationValue>
+                </enumerationValues>
+            </property>
+        </propertyGroup>
+    </properties>
+</widget>

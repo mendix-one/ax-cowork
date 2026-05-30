@@ -1,0 +1,200 @@
+import { expect, test } from "@mendix/run-e2e/fixtures";
+import { waitForMendixApp } from "@mendix/run-e2e/mendix-helpers";
+import AxeBuilder from "@axe-core/playwright";
+
+test.describe("datagrid-dropdown-filter-web", () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto("/");
+        await waitForMendixApp(page);
+    });
+
+    test.describe("visual testing:", () => {
+        test("compares with a screenshot baseline and checks if all datagrid and filter elements are rendered as expected", async ({
+            page
+        }) => {
+            const dataGrid = await page.locator(".mx-name-datagrid1");
+            await expect(dataGrid).toBeVisible();
+            await expect(page).toHaveScreenshot(`dataGridDropDownFilter-${process.env.BROWSER_NAME}.png`);
+        });
+    });
+
+    test.describe("using enumeration as attribute", () => {
+        test("shows the expected result", async ({ page }) => {
+            await page.locator(".mx-name-datagrid1 .mx-name-dataGridDrop_downFilter1").click({ delay: 100 });
+            await page.waitForSelector(".widget-dropdown-filter-menu-slot > ul > li:nth-child(1)");
+            await page.locator(".widget-dropdown-filter-menu-slot > ul > li:nth-child(1)").click({ delay: 100 });
+            await expect(page.locator(".mx-name-datagrid1 .widget-datagrid-grid-body .tr")).toHaveCount(1);
+            await page.locator('.mx-name-datagrid1 .th[title="Age"]').click({ delay: 100 });
+            const cells = await page.$$eval(".mx-name-datagrid1 .td", elements =>
+                elements.map(element => element.textContent)
+            );
+            await expect(cells).toEqual(["10", "test", "test", "Yes", ""]);
+        });
+
+        test("shows the expected result with multiple selected items", async ({ page }) => {
+            await page.locator(".mx-name-datagrid1 .mx-name-dataGridDrop_downFilter1").click({ delay: 100 });
+            await page.waitForSelector(".widget-dropdown-filter-menu-slot > ul > li:nth-child(1)");
+            await page.locator(".widget-dropdown-filter-menu-slot > ul > li:nth-child(1)").click({ delay: 100 });
+            await page.waitForSelector(".widget-dropdown-filter-menu-slot > ul > li:nth-child(2)");
+            await page.locator(".widget-dropdown-filter-menu-slot > ul > li:nth-child(2)").click({ delay: 100 });
+            await expect(page.locator(".mx-name-datagrid1 .widget-datagrid-grid-body .tr")).toHaveCount(2);
+            await page.locator('.mx-name-datagrid1 .th[title="Age"]').click({ delay: 100 });
+            const cells = await page.$$eval(".mx-name-datagrid1 .td", elements =>
+                elements.map(element => element.textContent)
+            );
+            expect(cells).toEqual(["10", "test", "test", "Yes", "", "20", "test2", "test2", "Yes", ""]);
+        });
+    });
+
+    test.describe("using boolean as attribute", () => {
+        test("shows the expected result", async ({ page }) => {
+            await page.getByRole("combobox", { name: "Active column filter" }).click({ delay: 100 });
+            const dropdownItem = await page.locator(".widget-dropdown-filter-menu-slot > ul > li:nth-child(3)");
+            await expect(dropdownItem).toHaveText("No");
+            await dropdownItem.click({ delay: 100 });
+            await page.locator('.mx-name-datagrid1 .th[title="First Name"]').click({ delay: 100 });
+            const cells = await page.locator(".mx-name-datagrid1 .tr");
+            expect(cells).toHaveCount(1);
+        });
+
+        test("shows no results when no items selected", async ({ page }) => {
+            await page.getByRole("combobox", { name: "Active column filter" }).click({ delay: 100 });
+            const dropdownItem = await page.locator(".widget-dropdown-filter-menu-slot > ul > li:nth-child(1)"); // the first item means none selected
+            await dropdownItem.click({ delay: 100 });
+            await page.locator('.mx-name-datagrid1 .th[title="Age"]').click({ delay: 100 });
+            const cells = await page.locator(".mx-name-datagrid1 .tr");
+            expect(cells).toHaveCount(4);
+        });
+    });
+});
+
+test.describe("with Default value", () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto("/p/filter_init_condition");
+        await waitForMendixApp(page);
+    });
+
+    test("in single mode, set init condition for boolean", async ({ page }) => {
+        const expected = [
+            "First namePets (boolean)",
+            "LorettaYes",
+            "ChadYes",
+            "JosieYes",
+            "ChesterYes",
+            "CoreyYes",
+            "BryanYes",
+            "DonYes",
+            "FloydYes",
+            "CeceliaYes",
+            "OpheliaYes"
+        ];
+
+        const rows = page.locator(".mx-name-dataGrid21 [role=row]");
+        for (let i = 0; i < rows.length; i++) {
+            await expect(rows[i]).toHaveText(expected[i]);
+        }
+
+        const pagingStatus = page.locator(".mx-name-dataGrid21").getByText("to 10 of 27").nth(1);
+        await expect(pagingStatus).toHaveText("1 to 10 of 27");
+    });
+
+    test("in single mode, set init condition for enum", async ({ page }) => {
+        const expected = [
+            "First nameColor (enum)",
+            "ChesterCyan",
+            "DeliaCyan",
+            "LizzieCyan",
+            "DeanCyan",
+            "MitchellCyan"
+        ];
+
+        const rows = page.locator(".mx-name-dataGrid22 [role=row]");
+        for (let i = 0; i < rows.length; i++) {
+            await expect(rows[i]).toHaveText(expected[i]);
+        }
+
+        const pagingStatus = page.locator(".mx-name-dataGrid22").getByText("to 5 of 5").nth(1);
+        await expect(pagingStatus).toHaveText("1 to 5 of 5");
+    });
+
+    test("in multi mode, set init condition for boolean", async ({ page }) => {
+        const expected = [
+            "First namePets (boolean)",
+            "LorettaYes",
+            "ChadYes",
+            "JosieYes",
+            "ChesterYes",
+            "CoreyYes",
+            "BryanYes",
+            "DonYes",
+            "FloydYes",
+            "CeceliaYes",
+            "OpheliaYes"
+        ];
+
+        const rows = page.locator(".mx-name-dataGrid23 [role=row]");
+        for (let i = 0; i < rows.length; i++) {
+            await expect(rows[i]).toHaveText(expected[i]);
+        }
+
+        const pagingStatus = page.locator(".mx-name-dataGrid23").getByText("to 10 of 27").nth(1);
+        await expect(pagingStatus).toHaveText("1 to 10 of 27");
+    });
+
+    test("in multi mode, set init condition for enum", async ({ page }) => {
+        const expected = [
+            "First nameColor (enum)",
+            "ChesterCyan",
+            "DeliaCyan",
+            "LizzieCyan",
+            "DeanCyan",
+            "MitchellCyan"
+        ];
+
+        const rows = page.locator(".mx-name-dataGrid24 [role=row]");
+        for (let i = 0; i < rows.length; i++) {
+            await expect(rows[i]).toHaveText(expected[i]);
+        }
+
+        const pagingStatus = page.locator(".mx-name-dataGrid24").getByText("to 5 of 5").nth(1);
+        await expect(pagingStatus).toHaveText("1 to 5 of 5");
+    });
+
+    test("in multi mode, with multiple default values, set init condition for enum", async ({ page }) => {
+        const expected = [
+            "First nameColor (enum)",
+            "ChadRed",
+            "JosieRed",
+            "ChesterCyan",
+            "DeliaCyan",
+            "CoreyBlue",
+            "BryanBlue",
+            "LuellaBlue",
+            "LizzieCyan",
+            "DollieRed",
+            "HesterRed"
+        ];
+
+        const rows = page.locator(".mx-name-dataGrid25 [role=row]");
+        for (let i = 0; i < rows.length; i++) {
+            await expect(rows[i]).toHaveText(expected[i]);
+        }
+
+        const pagingStatus = page.locator(".mx-name-dataGrid25").getByText("to 10 of 19").nth(1);
+        await expect(pagingStatus).toHaveText("1 to 10 of 19");
+    });
+});
+
+test.describe("a11y testing:", () => {
+    test("checks accessibility violations", async ({ page }) => {
+        await page.goto("/");
+        await waitForMendixApp(page);
+
+        const accessibilityScanResults = await new AxeBuilder({ page })
+            .withTags(["wcag21aa"])
+            .exclude(".mx-name-navigationTree3")
+            .analyze();
+
+        expect(accessibilityScanResults.violations).toEqual([]);
+    });
+});

@@ -1,0 +1,5 @@
+packages:
+  - "packages/*/*"
+  - "automation/*"
+catalog:
+  rollup: "3.29"

@@ -1,0 +1,63 @@
+# Changelog
+
+All notable changes to this widget will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/), and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+## [Unreleased]
+
+## [2.3.2] - 2026-04-13
+
+### Changed
+
+- We updated underlying dependencies to mitigate potential security vulnerabilities.
+
+## [2.3.1] - 2026-02-12
+
+### Fixed
+
+- Added focus indicator and background to navigation buttons of carousel, removed autoplay by default
+
+## [2.3.0] - 2025-08-19
+
+### Changed
+
+- We update swiper library dependency from v9 to v11.
+
+## [2.2.1] - 2023-09-27
+
+### Fixed
+
+- We removed redundant code to improve widget load time in the browser.
+
+## [2.2.0] - 2023-06-29
+
+### Changed
+
+- We updated swiper package version to 9.4
+
+- DOM changes from <div> wrapper to <ul> and <li>
+
+### Fixed
+
+- We fixed accessibility issue with carousel
+
+## [2.1.0] - 2023-06-05
+
+### Changed
+
+- We updated the light and dark icons and tiles for the widget.
+
+## [2.0.0] - 2022-03-07
+
+### Added
+
+- We added new properties such as _autoplay_, _animation_, _pagination_, _navigation_, _infinite loop_, _delay_.
+
+### Changed
+
+- We changed the widget to a pluggable widget.
+
+- We changed the library for Carousel widget to use Swiper.
+
+- We changed the data source selection, now you can put your preferred widget inside carousel content.

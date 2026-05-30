@@ -1,0 +1,51 @@
+import { Locale } from "date-fns";
+import { useEffect, useMemo, useState } from "react";
+import { Date_InputFilterInterface } from "@mendix/widget-plugin-filtering/typings/InputFilterInterface";
+import { generateUUID } from "@mendix/widget-plugin-platform/framework/generate-uuid";
+import { FilterTypeEnum } from "./base-types";
+import { DatePickerController } from "../helpers/DatePickerController";
+import { getLocale, pickerDateFormat, setupLocales } from "../utils/date-utils";
+
+interface SetupProps {
+    filterStore: Date_InputFilterInterface;
+    defaultFilter: FilterTypeEnum;
+    adjustableFilterFunction: boolean;
+    defaultValue?: Date;
+    defaultStartValue?: Date;
+    defaultEndValue?: Date;
+}
+
+type SetupResult = {
+    calendarStartDay: number;
+    controller: DatePickerController;
+    dateFormat: string | string[] | undefined;
+    id: string;
+    locale: string | Locale | undefined;
+};
+
+export function useSetup(props: SetupProps): SetupResult {
+    const [controller] = useState(
+        () =>
+            new DatePickerController({
+                defaultEnd: props.defaultEndValue,
+                defaultFilter: props.defaultFilter,
+                adjustableFilterFunction: props.adjustableFilterFunction,
+                defaultStart: props.defaultStartValue,
+                defaultValue: props.defaultValue,
+                filter: props.filterStore
+            })
+    );
+
+    useEffect(() => controller.setup(), [controller]);
+
+    return useMemo(() => {
+        const locale = getLocale();
+        return {
+            calendarStartDay: locale.firstDayOfWeek,
+            dateFormat: pickerDateFormat(locale),
+            controller,
+            id: `DateFilter${generateUUID()}`,
+            locale: setupLocales(locale)
+        };
+    }, [controller]);
+}

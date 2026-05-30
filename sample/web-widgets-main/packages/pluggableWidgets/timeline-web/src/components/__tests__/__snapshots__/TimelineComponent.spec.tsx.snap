@@ -1,0 +1,602 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Timeline hides the timeline header 1`] = `
+<div>
+  <div
+    class="widget-timeline-wrapper"
+  >
+    <div
+      class="timeline-date"
+    >
+      <div
+        class="widget-timeline-events-wrapper widget-timeline-no-divider"
+      >
+        <ul>
+          <li
+            class="widget-timeline-event"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <div
+                class="widget-timeline-icon-circle"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p
+                  class="widget-eventTime"
+                >
+                  Basic event Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p
+                  class="widget-timeline-title"
+                >
+                  Basic title
+                </p>
+                <p
+                  class="widget-timeline-description"
+                >
+                  Basic description
+                </p>
+              </div>
+            </div>
+          </li>
+          <li
+            class="widget-timeline-event"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <img
+                src="mocked/web/icon"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p
+                  class="widget-eventTime"
+                >
+                  Basic event Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p
+                  class="widget-timeline-title"
+                >
+                  Basic title
+                </p>
+                <p
+                  class="widget-timeline-description"
+                >
+                  Basic description
+                </p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Timeline renders timeline with basic configuration 1`] = `
+<div>
+  <div
+    class="widget-timeline-wrapper"
+  >
+    <div
+      class="timeline-date"
+    >
+      <div
+        class="widget-timeline-date-header"
+      >
+        <span>
+          Sun May 29 1453
+        </span>
+      </div>
+      <div
+        class="widget-timeline-events-wrapper"
+      >
+        <ul>
+          <li
+            class="widget-timeline-event"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <div
+                class="widget-timeline-icon-circle"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p
+                  class="widget-eventTime"
+                >
+                  Basic event Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p
+                  class="widget-timeline-title"
+                >
+                  Basic title
+                </p>
+                <p
+                  class="widget-timeline-description"
+                >
+                  Basic description
+                </p>
+              </div>
+            </div>
+          </li>
+          <li
+            class="widget-timeline-event"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <img
+                src="mocked/web/icon"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p
+                  class="widget-eventTime"
+                >
+                  Basic event Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p
+                  class="widget-timeline-title"
+                >
+                  Basic title
+                </p>
+                <p
+                  class="widget-timeline-description"
+                >
+                  Basic description
+                </p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Timeline renders timeline with custom configuration 1`] = `
+<div>
+  <div
+    class="widget-timeline-wrapper"
+  >
+    <div
+      class="timeline-date"
+    >
+      <div
+        class="widget-timeline-date-header"
+      >
+        <p>
+          Day Divider
+        </p>
+      </div>
+      <div
+        class="widget-timeline-events-wrapper"
+      >
+        <ul>
+          <li
+            class="widget-timeline-event"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <div
+                class="widget-timeline-icon-circle"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p>
+                  Date Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p>
+                  Title
+                </p>
+                <p>
+                  Description
+                </p>
+              </div>
+            </div>
+          </li>
+          <li
+            class="widget-timeline-event"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <div
+                class="widget-timeline-icon-circle"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p>
+                  Date Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p>
+                  Title
+                </p>
+                <p>
+                  Description
+                </p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Timeline with action set change style when hovered 1`] = `
+<div>
+  <div
+    class="widget-timeline-wrapper"
+  >
+    <div
+      class="timeline-date"
+    >
+      <div
+        class="widget-timeline-date-header"
+      >
+        <span>
+          Sun May 29 1453
+        </span>
+      </div>
+      <div
+        class="widget-timeline-events-wrapper"
+      >
+        <ul>
+          <li
+            class="widget-timeline-event"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <div
+                class="widget-timeline-icon-circle"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p
+                  class="widget-eventTime"
+                >
+                  Basic event Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p
+                  class="widget-timeline-title"
+                >
+                  Basic title
+                </p>
+                <p
+                  class="widget-timeline-description"
+                >
+                  Basic description
+                </p>
+              </div>
+            </div>
+          </li>
+          <li
+            class="widget-timeline-event"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <img
+                src="mocked/web/icon"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p
+                  class="widget-eventTime"
+                >
+                  Basic event Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p
+                  class="widget-timeline-title"
+                >
+                  Basic title
+                </p>
+                <p
+                  class="widget-timeline-description"
+                >
+                  Basic description
+                </p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div
+      class="timeline-date"
+    >
+      <div
+        class="widget-timeline-date-header"
+      >
+        <span>
+          Mon May 30 1453
+        </span>
+      </div>
+      <div
+        class="widget-timeline-events-wrapper"
+      >
+        <ul>
+          <li
+            class="widget-timeline-event clickable"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <img
+                src="mocked/web/icon"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p
+                  class="widget-eventTime"
+                >
+                  Basic event Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p
+                  class="widget-timeline-title"
+                >
+                  Basic title
+                </p>
+                <p
+                  class="widget-timeline-description"
+                >
+                  Basic description
+                </p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Timeline with action set renders with clickable styles 1`] = `
+<div>
+  <div
+    class="widget-timeline-wrapper"
+  >
+    <div
+      class="timeline-date"
+    >
+      <div
+        class="widget-timeline-date-header"
+      >
+        <span>
+          Sun May 29 1453
+        </span>
+      </div>
+      <div
+        class="widget-timeline-events-wrapper"
+      >
+        <ul>
+          <li
+            class="widget-timeline-event"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <div
+                class="widget-timeline-icon-circle"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p
+                  class="widget-eventTime"
+                >
+                  Basic event Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p
+                  class="widget-timeline-title"
+                >
+                  Basic title
+                </p>
+                <p
+                  class="widget-timeline-description"
+                >
+                  Basic description
+                </p>
+              </div>
+            </div>
+          </li>
+          <li
+            class="widget-timeline-event"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <img
+                src="mocked/web/icon"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p
+                  class="widget-eventTime"
+                >
+                  Basic event Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p
+                  class="widget-timeline-title"
+                >
+                  Basic title
+                </p>
+                <p
+                  class="widget-timeline-description"
+                >
+                  Basic description
+                </p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div
+      class="timeline-date"
+    >
+      <div
+        class="widget-timeline-date-header"
+      >
+        <span>
+          Mon May 30 1453
+        </span>
+      </div>
+      <div
+        class="widget-timeline-events-wrapper"
+      >
+        <ul>
+          <li
+            class="widget-timeline-event clickable"
+          >
+            <div
+              class="widget-timeline-icon-wrapper"
+            >
+              <img
+                src="mocked/web/icon"
+              />
+            </div>
+            <div
+              class="widget-timeline-flex-container widget-timeline-content-wrapper"
+            >
+              <div
+                class="widget-timeline-date-time-wrapper"
+              >
+                <p
+                  class="widget-eventTime"
+                >
+                  Basic event Time
+                </p>
+              </div>
+              <div
+                class="widget-timeline-flex-container widget-timeline-info-wrapper"
+              >
+                <p
+                  class="widget-timeline-title"
+                >
+                  Basic title
+                </p>
+                <p
+                  class="widget-timeline-description"
+                >
+                  Basic description
+                </p>
+              </div>
+            </div>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+`;

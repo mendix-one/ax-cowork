@@ -1,0 +1,106 @@
+import classNames from "classnames";
+import { ObjectItem, WebIcon } from "mendix";
+import { CSSProperties, ReactElement, ReactNode, useCallback, useContext } from "react";
+
+import { useTreeNodeFocusChangeHandler } from "./hooks/TreeNodeAccessibility";
+import { useTreeNodeRef } from "./hooks/useTreeNodeRef";
+import { TreeNodeBranch, TreeNodeBranchProps, treeNodeBranchUtils } from "./TreeNodeBranch";
+import { TreeNodeBranchContext, useInformParentContextOfChildNodes } from "./TreeNodeBranchContext";
+import { OpenNodeOnEnum, TreeNodeContainerProps } from "../../../typings/TreeNodeProps";
+import { renderTreeNodeHeaderIcon, TreeNodeHeaderIcon } from "../common/HeaderIcon";
+
+export interface TreeNodeItem extends ObjectItem {
+    headerContent: ReactNode;
+    bodyContent: ReactNode;
+    isUserDefinedLeafNode: boolean;
+}
+
+export interface InfoTreeNodeItem {
+    Message: string;
+}
+
+export interface TreeNodeProps extends Pick<TreeNodeContainerProps, "tabIndex"> {
+    class: string;
+    style?: CSSProperties;
+    items: TreeNodeItem[] | InfoTreeNodeItem | null;
+    startExpanded: TreeNodeBranchProps["startExpanded"];
+    showCustomIcon: boolean;
+    iconPlacement: TreeNodeBranchProps["iconPlacement"];
+    expandedIcon?: WebIcon;
+    collapsedIcon?: WebIcon;
+    animateIcon: boolean;
+    animateTreeNodeContent: TreeNodeBranchProps["animateTreeNodeContent"];
+    openNodeOn: OpenNodeOnEnum;
+}
+
+export function TreeNode({
+    class: className,
+    items,
+    style,
+    showCustomIcon,
+    startExpanded,
+    iconPlacement,
+    expandedIcon,
+    collapsedIcon,
+    tabIndex,
+    animateIcon,
+    animateTreeNodeContent,
+    openNodeOn
+}: TreeNodeProps): ReactElement | null {
+    const { level } = useContext(TreeNodeBranchContext);
+    const [treeNodeElement, updateTreeNodeElement] = useTreeNodeRef();
+
+    const renderHeaderIconCallback = useCallback<TreeNodeHeaderIcon>(
+        (treeNodeState, iconPlacement) =>
+            renderTreeNodeHeaderIcon(treeNodeState, iconPlacement, {
+                animateIcon,
+                collapsedIcon,
+                expandedIcon,
+                showCustomIcon
+            }),
+        [collapsedIcon, expandedIcon, showCustomIcon, animateIcon]
+    );
+
+    const isInsideAnotherTreeNode = useCallback(() => {
+        return treeNodeElement?.parentElement?.className.includes(treeNodeBranchUtils.bodyClassName) ?? false;
+    }, [treeNodeElement]);
+
+    useInformParentContextOfChildNodes(Array.isArray(items) ? items.length : 0, isInsideAnotherTreeNode);
+
+    const changeTreeNodeBranchHeaderFocus = useTreeNodeFocusChangeHandler();
+
+    if (items === null || (Array.isArray(items) && items.length === 0)) {
+        return null;
+    }
+
+    return (
+        <ul
+            className={classNames("widget-tree-node", className)}
+            style={style}
+            ref={updateTreeNodeElement}
+            data-focusindex={tabIndex || 0}
+            role={level === 0 ? "tree" : "group"}
+        >
+            {Array.isArray(items) &&
+                items.map(item => {
+                    const { id, headerContent, bodyContent, isUserDefinedLeafNode } = item;
+                    return (
+                        <TreeNodeBranch
+                            key={id}
+                            id={id}
+                            headerContent={headerContent}
+                            isUserDefinedLeafNode={isUserDefinedLeafNode}
+                            startExpanded={startExpanded}
+                            iconPlacement={iconPlacement}
+                            renderHeaderIcon={renderHeaderIconCallback}
+                            changeFocus={changeTreeNodeBranchHeaderFocus}
+                            animateTreeNodeContent={animateTreeNodeContent}
+                            openNodeOn={openNodeOn}
+                        >
+                            {bodyContent}
+                        </TreeNodeBranch>
+                    );
+                })}
+        </ul>
+    );
+}

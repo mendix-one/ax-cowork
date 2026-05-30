@@ -1,0 +1,8 @@
+{
+    "extends": "./tsconfig.build.json",
+    "include": ["./node_modules/mendix/index.d.ts", "./src/**/*", "./__tests__/**/*", "__mocks__/**/*"],
+    "compilerOptions": {
+        "noEmit": true,
+        "rootDir": "."
+    }
+}

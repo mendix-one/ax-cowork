@@ -1,0 +1,51 @@
+// Checkbox Radio Selection Widget Styles
+.widget-checkbox-radio-selection {
+    display: block;
+    position: relative;
+    min-width: 0;
+
+    &-readonly {
+        &.widget-checkbox-radio-selection-readonly-text {
+            .radio-item {
+                display: none;
+
+                &.widget-checkbox-radio-selection-item-selected {
+                    display: block;
+
+                    input {
+                        display: none;
+                    }
+                }
+            }
+        }
+    }
+
+    &-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    &-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 5px;
+        input {
+            flex: 0 0 16px;
+        }
+
+        label {
+            font-weight: inherit;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            margin-bottom: 0;
+        }
+    }
+
+    input[type="radio"],
+    input[type="checkbox"] {
+        & + label {
+            cursor: pointer;
+            margin-left: var(--spacing-small, 8px);
+        }
+    }
+}

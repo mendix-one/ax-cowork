@@ -12,7 +12,7 @@ pnpm workspace (`pnpm-workspace.yaml`) with three top-level package roots:
   - `ax-control-table` (`@ax-cowork/control-table`) — virtualized data grid (TanStack Table + Virtual + AntD). Vite library build + `tsc --emitDeclarationOnly`. Has React/AntD as peer deps.
   - `ax-markdown` (`@ax-cowork/markdown`) — markdown renderer that embeds `ax-control-table` and ECharts blocks (the format the AI produces in snapshots). Vite lib build; peer-depends on `control-table`, antd, echarts.
   - `dhx-gantt` (`@dhx/gantt`) and `dhx-react-gantt` (`@dhx/react-gantt`) — vendored DHTMLX Gantt + a React wrapper. `dhx-react-gantt` depends on `@dhx/gantt` via `workspace:*`.
-- `widgets/` — declared in the workspace glob but currently empty (reserved for Mendix widget packages).
+- `widgets/` — Mendix pluggable widget packages. Currently `widgets/ax-login` (a login-form widget that ports `react-app/src/pages/auth/SignInPage.tsx` to a self-contained Mendix widget — uses `@mendix/pluggable-widgets-tools` + React 18 isolated from the React 19 used by `react-app`). `widgets/ax-layout` exists as an empty placeholder.
 
 Shared libs are consumed pre-built (`main`/`types` point at `dist/`). When you change a shared package, run its `build` (or `dev`) before the app picks up the change — `pnpm dev` does not transparently rebuild them.
 
@@ -37,6 +37,21 @@ Use pnpm filters to scope commands to one package, e.g.
 - `pnpm add <pkg> --filter @ax/react-app` to install into a single package (see `note` in repo root).
 
 Inside `react-app/`, the package-local scripts (`pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm preview`) work as you'd expect. The build pipeline is `tsc -b && vite build && node scripts/postbuild.mjs`.
+
+## Mendix widget builds (widgets/*)
+
+Each widget package uses `@mendix/pluggable-widgets-tools` v11.x (`pluggable-widgets-tools build:web` → `dist/<version>/<packagePath>.<WidgetName>.mpk`). v11 ships with sass + rollup-plugin-postcss + postcss-import + postcss-url as direct deps, requires Node 20+, and pulls React 19 types.
+
+Things to know before editing a widget:
+
+1. **`CI=true` prefix on every script that calls the tools** — the tools' interactive `checkMigration()` step prompts on stdin for an automatic dep upgrade, which fails non-interactively. Setting `CI=true` (or `--skip-migration`, but rollup rejects unknown flags) makes it skip. Already baked into `widgets/ax-login/package.json` scripts.
+2. **Extend the tools' tsconfig, don't override** — `widgets/ax-login/tsconfig.json` does `"extends": "./node_modules/@mendix/pluggable-widgets-tools/configs/tsconfig.base.json"`. That base uses `jsx: "react-jsx"` (automatic runtime), so do NOT `import { createElement } from "react"` — TS will flag it unused under `noUnusedLocals`. Just write JSX.
+3. **CSS/SCSS imports need an ambient declaration** — `import css from "./ui/X.scss"` (used for `getPreviewCss()`) requires `typings/global.d.ts` to declare `*.css`, `*.scss`, `*.sass`. The tools don't ship this typing; each widget keeps its own.
+4. **Tailwind is scoped to avoid stomping the host app** — `widgets/ax-login/tailwind.config.js` sets `important: ".ax-login"` and `corePlugins.preflight: false`. Preflight would override AntD defaults and bleed into other widgets on the Mendix page. Keep these settings when adding more widgets; pick a unique scope class per widget.
+5. **AntD bundles into the widget** — `antd` + `@ant-design/icons` live in `dependencies` (not devDeps) and are bundled. The `.mpk` is ~6 MB as a result. If size matters later, consider switching to subpath imports or relying on a host AntD provided by the Mendix project.
+6. **Widget id ↔ packagePath ↔ package.xml `<file>` must agree** — id `<vendor>.<package>.<lowercase widgetname>.<WidgetName>` maps to runtime path `<vendor>/<package>/<lowercase widgetname>/<WidgetName>.js`. `packagePath` in `package.json` drives the output directory and the `.mpk` filename; `src/package.xml` `<file path>` must match the actual bundle location. ax-login currently uses `one.mendix.axlogin.AxLogin` → `one/mendix/axlogin/AxLogin.js`.
+
+To rebuild a single widget: `pnpm --filter <widget-name> run build`. Dev-watch: `pnpm --filter <widget-name> run dev` (Mendix `dev` script picks up `config.projectPath` from package.json for `.mpk` drop-in — set this to your local Mendix app dir).
 
 ## Pre-commit hooks
 

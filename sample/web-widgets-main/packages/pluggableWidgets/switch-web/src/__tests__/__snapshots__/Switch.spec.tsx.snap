@@ -1,0 +1,62 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Switch with editable value renders the structure correctly 1`] = `
+<div>
+  <div
+    class="widget-switch"
+  >
+    <input
+      aria-checked="false"
+      aria-hidden="true"
+      class="sr-only"
+      id="com.mendix.widgets.custom.switch1"
+      readonly=""
+      tabindex="-1"
+      type="checkbox"
+    />
+    <div
+      aria-checked="false"
+      aria-disabled="false"
+      aria-labelledby="com.mendix.widgets.custom.switch1-label"
+      class="widget-switch-btn-wrapper widget-switch-btn-wrapper-default un-checked"
+      role="switch"
+      tabindex="0"
+    >
+      <div
+        class="widget-switch-btn left"
+      />
+    </div>
+  </div>
+</div>
+`;
+
+exports[`Switch with readonly value renders the structure correctly 1`] = `
+<div>
+  <div
+    class="widget-switch"
+  >
+    <input
+      aria-checked="false"
+      aria-hidden="true"
+      class="sr-only"
+      disabled=""
+      id="com.mendix.widgets.custom.switch1"
+      readonly=""
+      tabindex="-1"
+      type="checkbox"
+    />
+    <div
+      aria-checked="false"
+      aria-disabled="true"
+      aria-labelledby="com.mendix.widgets.custom.switch1-label"
+      class="widget-switch-btn-wrapper widget-switch-btn-wrapper-default disabled un-checked"
+      role="switch"
+      tabindex="0"
+    >
+      <div
+        class="widget-switch-btn left"
+      />
+    </div>
+  </div>
+</div>
+`;

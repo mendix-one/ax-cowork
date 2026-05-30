@@ -1,0 +1,103 @@
+import { test, expect } from "@mendix/run-e2e/fixtures";
+import { waitForMendixApp } from "@mendix/run-e2e/mendix-helpers";
+import AxeBuilder from "@axe-core/playwright";
+
+test.describe("gallery-web", () => {
+    test.beforeEach(async ({ page }) => {
+        await page.goto("/");
+        await waitForMendixApp(page);
+    });
+
+    test.describe("capabilities: sorting", () => {
+        test("applies the default sort order from the data source option", async ({ page }) => {
+            await expect(page.locator(".mx-name-gallery1")).toBeVisible();
+            await expect(page.locator(".mx-name-gallery1")).toHaveScreenshot(`galleryContent.png`);
+        });
+
+        test("changes order of data choosing another option in the dropdown sort", async ({ page }) => {
+            const gallery = ".mx-name-gallery1";
+            const dropdownSort = ".mx-name-drop_downSort2 input";
+
+            await page.locator(dropdownSort).first().click();
+            await page.locator("[role=menuitem]", { hasText: "Age" }).click();
+            await expect(page.locator(gallery)).toHaveScreenshot(`galleryDropdownSort.png`);
+        });
+    });
+
+    test.describe("capabilities: filtering", () => {
+        test("filters by text", async ({ page }) => {
+            const gallery = ".mx-name-gallery1";
+            const textFilter = ".mx-name-gallery1 .form-control";
+
+            await page.locator(textFilter).first().fill("Leo");
+            await expect(page.locator(".widget-gallery-item")).toHaveCount(1);
+            await page.locator(textFilter).first().focus();
+            await expect(page.locator(gallery)).toHaveScreenshot(`galleryTextFilter.png`);
+        });
+
+        test("filters by number", async ({ page }) => {
+            const gallery = ".mx-name-gallery1";
+            const textFilter = ".mx-name-gallery1 .form-control";
+
+            await page.locator(textFilter).nth(1).fill("32");
+            await expect(page.locator(".widget-gallery-item")).toHaveCount(2);
+            await expect(page.locator(gallery)).toHaveScreenshot(`galleryNumberFilter.png`);
+        });
+
+        test("filters by date", async ({ page }) => {
+            const gallery = ".mx-name-gallery1";
+            const textFilter = ".mx-name-gallery1 .form-control";
+
+            await page.locator(textFilter).nth(3).fill("10/10/1986");
+            await expect(page.locator(gallery)).toHaveScreenshot(`galleryDateFilter.png`);
+        });
+
+        test("filters by enum (dropdown)", async ({ page }) => {
+            const gallery = page.locator(".mx-name-gallery1");
+            const dropdown = gallery.getByRole("combobox", { name: "Role filter" });
+
+            await dropdown.click({ delay: 1 });
+            await dropdown.getByRole("listbox").getByRole("option", { name: "QA Engineer" }).click({ delay: 1 });
+            await expect(gallery).toHaveScreenshot(`galleryDropdownFilter.png`);
+        });
+    });
+
+    test.describe("capabilities: onClick action", () => {
+        test.beforeEach(async ({ page }) => {
+            await page.goto("/");
+        });
+
+        test("check the context", async ({ page }) => {
+            const textFilter = ".mx-name-gallery1 .form-control";
+            const galleryItem = ".mx-name-gallery1 .widget-gallery-item";
+            const popUpElement = ".mx-dialog-body > p";
+
+            await page.locator(textFilter).first().fill("Ana");
+
+            await expect(page.locator(galleryItem).first()).toHaveText("Ana Carol0");
+
+            await page.locator(galleryItem).first().click();
+
+            const context = "You've clicked at Ana Carol's face.";
+            await expect(page.locator(popUpElement)).toHaveText(context);
+        });
+    });
+
+    test.describe("a11y testing:", () => {
+        test.beforeEach(async ({ page }) => {
+            await page.goto("/");
+            await waitForMendixApp(page);
+        });
+
+        test("checks accessibility violations", async ({ page }) => {
+            await page.locator(".mx-name-gallery1").waitFor();
+            const accessibilityScanResults = await new AxeBuilder({ page })
+                .include(".mx-name-gallery1")
+                .withTags(["wcag21aa"])
+                .exclude(".mx-name-navigationTree3")
+                .analyze();
+
+            expect(accessibilityScanResults.violations).toEqual([]);
+        });
+    });
+});

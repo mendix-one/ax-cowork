@@ -15,12 +15,16 @@
     "test": "pnpm -r run test",
     "format": "prettier --write .",
     "format:app": "prettier --write react-app",
-    "format:check": "prettier --check .",
-    "prepare": "husky"
+    "format:check": "prettier --check ."
   },
   "devDependencies": {
-    "husky": "^9.1.7",
     "lint-staged": "^16.4.0",
     "prettier": "^3.4.2"
+  },
+  "pnpm": {
+    "patchedDependencies": {
+      "mobx-react-lite@4.0.7": "patches/mobx-react-lite@4.0.7.patch",
+      "mobx@6.12.3": "patches/mobx@6.12.3.patch"
+    }
   }
 }

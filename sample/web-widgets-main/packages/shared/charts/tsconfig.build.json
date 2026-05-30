@@ -1,0 +1,13 @@
+{
+    "extends": "@mendix/tsconfig-web-widgets/esm-library-with-jsx",
+    "include": ["./src/**/*"],
+    "exclude": ["./src/**/*.spec.ts", "./src/**/*.spec.tsx"],
+    "compilerOptions": {
+        "outDir": "./dist",
+        "rootDir": "./src",
+        "jsx": "react-jsx",
+        "jsxFactory": "",
+        "types": ["jest"]
+    },
+    "references": [{ "path": "./rollup/tsconfig.json" }]
+}

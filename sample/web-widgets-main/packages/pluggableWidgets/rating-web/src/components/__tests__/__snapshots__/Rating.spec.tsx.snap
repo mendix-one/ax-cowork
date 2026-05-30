@@ -1,0 +1,265 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Rating rendering renders correctly the structure 1`] = `
+<DocumentFragment>
+  <div
+    class="widget-rating"
+    data-focusindex="0"
+    role="radiogroup"
+  >
+    <div
+      aria-checked="false"
+      aria-label="1"
+      class="rating-item"
+      role="radio"
+      tabindex="0"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="2"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="3"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="4"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="5"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Rating rendering renders correctly the structure when disabled 1`] = `
+<DocumentFragment>
+  <div
+    class="widget-rating"
+    data-focusindex="0"
+    role="radiogroup"
+  >
+    <div
+      aria-checked="false"
+      aria-label="1"
+      class="rating-item disabled"
+      role="radio"
+      tabindex="0"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="2"
+      class="rating-item disabled"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="3"
+      class="rating-item disabled"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="4"
+      class="rating-item disabled"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="5"
+      class="rating-item disabled"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Rating rendering renders correctly the structure with custom class 1`] = `
+<DocumentFragment>
+  <div
+    class="widget-rating my-custom-class"
+    data-focusindex="0"
+    role="radiogroup"
+  >
+    <div
+      aria-checked="false"
+      aria-label="1"
+      class="rating-item"
+      role="radio"
+      tabindex="0"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="2"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="3"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="4"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="5"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;
+
+exports[`Rating rendering renders correctly the structure without animations 1`] = `
+<DocumentFragment>
+  <div
+    class="widget-rating"
+    data-focusindex="0"
+    role="radiogroup"
+  >
+    <div
+      aria-checked="false"
+      aria-label="1"
+      class="rating-item"
+      role="radio"
+      tabindex="0"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="2"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="3"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="4"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+    <div
+      aria-checked="false"
+      aria-label="5"
+      class="rating-item"
+      role="radio"
+      tabindex="-1"
+    >
+      <div
+        class="empty"
+      />
+    </div>
+  </div>
+</DocumentFragment>
+`;

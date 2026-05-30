@@ -1,0 +1,28 @@
+import classNames from "classnames";
+import { ReactElement } from "react";
+import { BarcodeGeneratorContainerProps } from "../typings/BarcodeGeneratorProps";
+import { BarcodeRenderer } from "./components/Barcode";
+import { QRCodeRenderer } from "./components/QRCode";
+import { barcodeConfig } from "./config/Barcode.config";
+
+import "./ui/BarcodeGenerator.scss";
+
+export default function BarcodeGenerator(props: BarcodeGeneratorContainerProps): ReactElement {
+    const config = barcodeConfig(props);
+
+    if (!config.codeValue) {
+        return <span>{props.emptyMessage?.value || "No barcode value provided"}</span>;
+    }
+
+    return (
+        <div
+            className={classNames(props.class, "barcode-generator", {
+                "barcode-generator--as-card": props.showAsCard
+            })}
+            tabIndex={props.tabIndex}
+            style={props.style}
+        >
+            {config.type === "qrcode" ? <QRCodeRenderer config={config} /> : <BarcodeRenderer config={config} />}
+        </div>
+    );
+}

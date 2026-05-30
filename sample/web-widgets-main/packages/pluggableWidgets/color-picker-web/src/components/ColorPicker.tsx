@@ -1,0 +1,194 @@
+import classNames from "classnames";
+import { ReactElement, useCallback, useEffect, useMemo, useState, useRef } from "react";
+import {
+    BlockPickerProps,
+    ChromePickerProps,
+    CirclePickerProps,
+    ColorState,
+    CompactPickerProps,
+    GithubPickerProps,
+    HuePickerProps,
+    MaterialPickerProps,
+    SketchPickerProps,
+    SliderPickerProps,
+    SwatchesPickerProps,
+    TwitterPickerProps
+} from "react-color";
+import { Alert } from "@mendix/widget-plugin-component-kit/Alert";
+import { debounce } from "@mendix/widget-plugin-platform/utils/debounce";
+import { DefaultColorsType, FormatEnum, ModeEnum, TypeEnum } from "../../typings/ColorPickerProps";
+import { getColorPicker, parseColor, validateColorFormat, validateProps } from "../utils";
+import { Button } from "./Button";
+import { Input } from "./Input";
+
+export interface ColorPickerProps {
+    id: string;
+    name: string;
+    tabIndex?: number | undefined;
+    onChange: () => void;
+    onColorChange: (value: string) => void;
+    mode: ModeEnum;
+    type: TypeEnum;
+    color: string | undefined;
+    defaultColors: DefaultColorsType[];
+    format: FormatEnum;
+    disabled: boolean;
+    invalidFormatMessage?: string | undefined;
+}
+
+export type ColorPickerConfigProps =
+    | SketchPickerProps
+    | ChromePickerProps
+    | TwitterPickerProps
+    | HuePickerProps
+    | BlockPickerProps
+    | GithubPickerProps
+    | CirclePickerProps
+    | SwatchesPickerProps
+    | SliderPickerProps
+    | MaterialPickerProps
+    | CompactPickerProps;
+export const ColorPicker = (props: ColorPickerProps): ReactElement => {
+    const defaultColor = {
+        hex: "#FFFFFF",
+        rgb: "rgb(255,255,255)",
+        rgba: "rgb(255,255,255,1)"
+    };
+    const {
+        type,
+        mode,
+        disabled,
+        defaultColors,
+        color,
+        format,
+        invalidFormatMessage,
+        onColorChange,
+        onChange: onColorChangeComplete
+    } = props;
+    const ColorElement = getColorPicker(type);
+    const [hidden, setHidden] = useState(mode !== "inline");
+    const currentColor = useRef<string>(color);
+    const [alertMessage, setAlertMessage] = useState<string | undefined>();
+
+    const [completeColorChange, abortCompleteColorChange] = useMemo(() => {
+        return debounce(onColorChangeComplete, 500);
+    }, [onColorChangeComplete]);
+
+    const submitColor = useCallback(
+        (color: string): void => {
+            currentColor.current = color;
+            onColorChange(color);
+            abortCompleteColorChange();
+        },
+        [onColorChange, abortCompleteColorChange]
+    );
+
+    const validateColor = (colorValue: string): void => {
+        const message = validateColorFormat(colorValue, format);
+        const validProps = validateProps(props);
+        const alertMessage = message ? invalidFormatMessage?.replaceAll(":colors:", message) : undefined;
+        setAlertMessage(validProps || alertMessage);
+    };
+
+    const setColorPickerHidden = useCallback(
+        (hide: boolean): void => {
+            if (!disabled && mode !== "inline") {
+                setHidden(hide);
+            }
+        },
+        [disabled, mode]
+    );
+    const onColorValueUpdate = useCallback(
+        (color: ColorState): void => {
+            if (color && !disabled) {
+                const finalColor = parseColor(color, format);
+                submitColor(finalColor);
+            }
+        },
+        [disabled, format, submitColor]
+    );
+
+    const renderInput = (): ReactElement => {
+        const colorValue = currentColor.current || color;
+        return (
+            <Input
+                color={colorValue}
+                disabled={disabled}
+                onKeyUp={setColorPickerHidden}
+                onChange={({ target }) => {
+                    submitColor(target.value);
+                    props.onChange();
+                }}
+            >
+                {renderButton()}
+            </Input>
+        );
+    };
+    const onChangeComplete = useCallback(
+        (color: ColorState): void => {
+            if (currentColor.current === parseColor(color, format)) {
+                completeColorChange();
+            }
+        },
+        [format, completeColorChange]
+    );
+
+    const renderButton = (): ReactElement => {
+        return <Button mode={mode} disabled={disabled} onClick={() => setColorPickerHidden(!hidden)} color={color} />;
+    };
+    const renderColorPicker = (): ReactElement => {
+        const isTriangleAvailable = type === "github" || type === "block" || type === "twitter";
+        const supportPopover = mode !== "inline" && type !== "hue" && type !== "slider";
+        const colors = defaultColors.map(color => color.color);
+        const config = {
+            color: color || defaultColor[format],
+            colors: defaultColors.length > 0 && type !== "swatches" ? colors : undefined,
+            onChangeComplete,
+            presetColors: defaultColors.length > 0 ? colors : undefined,
+            disableAlpha: format !== "rgba",
+            disabled,
+            displayColorPicker: hidden,
+            onChange: onColorValueUpdate,
+            close: () => setColorPickerHidden(true),
+            ...(isTriangleAvailable && { triangle: "hide" })
+        };
+
+        return (
+            <div
+                className={classNames({
+                    "widget-color-picker-popover": supportPopover,
+                    "widget-color-picker-no-popover": mode !== "inline"
+                })}
+            >
+                {mode !== "inline" ? (
+                    <div className={"widget-color-picker-cover"} onClick={() => setColorPickerHidden(true)} />
+                ) : null}
+                {disabled ? <div className={"widget-color-picker-overlay"} /> : null}
+                {<ColorElement {...config} />}
+            </div>
+        );
+    };
+
+    useEffect(() => {
+        if (color) {
+            validateColor(color);
+        }
+    }, [color]);
+    return (
+        <div
+            className={classNames("widget-color-picker widget-color-picker-picker", {
+                "widget-color-picker-disabled": disabled,
+                "has-error": !!alertMessage
+            })}
+        >
+            {mode === "input" && renderInput()}
+            {mode === "popover" && renderButton()}
+            {hidden || (mode !== "inline" && disabled) ? null : renderColorPicker()}
+            {alertMessage ? (
+                <Alert bootstrapStyle="danger" className={"widget-color-picker-alert has-error"}>
+                    {alertMessage}
+                </Alert>
+            ) : null}
+        </div>
+    );
+};

@@ -1,0 +1,27 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Calendar renders correctly with basic props 1`] = `
+<div
+  class="widget-calendar calendar-class"
+  style="width: 100%; height: 400px;"
+>
+  <div
+    components="[object Object]"
+    data-culture="en-US"
+    data-default-view="day"
+    data-events-count="0"
+    data-resizable="true"
+    data-selectable="true"
+    data-show-all-events="true"
+    data-step="60"
+    data-testid="mock-calendar"
+    data-timeslots="2"
+    formats="[object Object]"
+    localizer="[object Object]"
+    max="Mon Apr 28 2025 23:59:59 GMT+0000 (Coordinated Universal Time)"
+    messages="[object Object]"
+    min="Mon Apr 28 2025 00:00:00 GMT+0000 (Coordinated Universal Time)"
+    views="[object Object]"
+  />
+</div>
+`;

@@ -1,0 +1,52 @@
+import { useConst } from "@mendix/widget-plugin-mobx-kit/react/useConst";
+import { generateUUID } from "@mendix/widget-plugin-platform/framework/generate-uuid";
+import { Context, createContext, useContext, useEffect } from "react";
+import { SortStoreHost } from "../stores/SortStoreHost";
+import { error, Result, value } from "./result-meta";
+
+export interface SortAPI {
+    version: 1;
+    host: SortStoreHost;
+}
+
+const SORT_PATH = "com.mendix.widgets.web.sortable.sortContext";
+
+export function getGlobalSortContext(
+    { isPreview }: { isPreview: boolean } = { isPreview: false }
+): Context<SortAPI | null> {
+    const scope = isPreview ? window.top : window;
+    return ((scope as any)[SORT_PATH] ??= createContext<SortAPI | null>(null));
+}
+
+export function useSortAPI(options: { isPreview: boolean } = { isPreview: false }): Result<SortAPI, Error> {
+    const api = useContext(getGlobalSortContext(options));
+    if (api === null) {
+        return error(new Error("Error: widget is out of context. Please place the widget inside the Gallery header."));
+    }
+    return value(api);
+}
+
+export function useLockSortAPI(api: SortAPI): Result<SortAPI, Error> {
+    const id = useLock(api);
+
+    if (api.host.usedBy !== id) {
+        return error(
+            new Error(
+                `Error: Sort API is already in use by another widget. Remove other sort widgets and refresh the page.`
+            )
+        );
+    }
+
+    return value(api);
+}
+
+function useLock({ host }: SortAPI): string {
+    const [unlock, id] = useConst(() => {
+        const id = `useLock@${generateUUID()}`;
+        return [host.lock(id), id] as const;
+    });
+
+    useEffect(() => unlock, [unlock]);
+
+    return id;
+}

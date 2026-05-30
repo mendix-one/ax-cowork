@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget id="com.mendix.widget.web.datagriddropdownfilter.DatagridDropdownFilter" pluginWidget="true" offlineCapable="true" xmlns="http://www.mendix.com/widget/1.0/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../../../../node_modules/mendix/custom_widget.xsd">
+    <name>Drop-down filter</name>
+    <description />
+    <studioProCategory>Data controls</studioProCategory>
+    <studioCategory>Data Controls</studioCategory>
+    <helpUrl>https://docs.mendix.com/appstore/modules/data-grid-2#7-2-drop-down-filter</helpUrl>
+    <properties>
+        <propertyGroup caption="General">
+            <propertyGroup caption="Data source">
+                <property key="baseType" type="enumeration" defaultValue="attr">
+                    <caption>Filter by</caption>
+                    <description />
+                    <enumerationValues>
+                        <enumerationValue key="attr">Attribute</enumerationValue>
+                        <enumerationValue key="ref">Association</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="linkedDs" type="datasource" isLinked="true" isList="true">
+                    <caption>Datasource to Filter</caption>
+                    <description />
+                </property>
+
+                <!-- start: Attr type -->
+                <property key="attrChoice" type="enumeration" defaultValue="auto">
+                    <caption>Attribute config</caption>
+                    <description>"Auto" works only when the widget is placed in a Data grid column.</description>
+                    <enumerationValues>
+                        <enumerationValue key="auto">Auto</enumerationValue>
+                        <enumerationValue key="linked">Custom</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="attr" type="attribute" dataSource="linkedDs" isMetaData="true">
+                    <caption>Attribute</caption>
+                    <description />
+                    <attributeTypes>
+                        <attributeType name="Enum" />
+                        <attributeType name="Boolean" />
+                    </attributeTypes>
+                </property>
+                <property key="auto" type="boolean" defaultValue="true">
+                    <caption>Automatic options</caption>
+                    <description>Show options based on the references or the enumeration values and captions.</description>
+                </property>
+                <property key="filterOptions" type="object" isList="true" required="false">
+                    <caption>Options</caption>
+                    <description />
+                    <properties>
+                        <property key="caption" type="textTemplate">
+                            <caption>Caption</caption>
+                            <category>General</category>
+                            <description />
+                        </property>
+                        <property key="value" type="expression">
+                            <caption>Value</caption>
+                            <category>General</category>
+                            <description />
+                            <returnType type="String" />
+                        </property>
+                    </properties>
+                </property>
+                <!-- end: Attr type -->
+
+                <!-- start: Ref type -->
+                <property key="refEntity" type="association" selectableObjects="refOptions" required="true" dataSource="linkedDs" isMetaData="true">
+                    <caption>Entity</caption>
+                    <description>Set the entity to enable filtering over association.</description>
+                    <associationTypes>
+                        <associationType name="Reference" />
+                        <associationType name="ReferenceSet" />
+                    </associationTypes>
+                </property>
+                <property key="refOptions" type="datasource" isList="true" required="false">
+                    <caption>Selectable objects</caption>
+                    <description>The options to show in the Drop-down filter widget.</description>
+                </property>
+                <property key="refCaptionSource" type="enumeration" defaultValue="attr">
+                    <caption>Caption source</caption>
+                    <description />
+                    <enumerationValues>
+                        <enumerationValue key="attr">Attribute</enumerationValue>
+                        <enumerationValue key="exp">Expression</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="refCaption" type="attribute" dataSource="refOptions" required="true">
+                    <caption>Caption</caption>
+                    <description />
+                    <attributeTypes>
+                        <attributeType name="String" />
+                    </attributeTypes>
+                </property>
+                <property key="refCaptionExp" type="expression" dataSource="refOptions" required="true">
+                    <caption>Caption</caption>
+                    <description />
+                    <returnType type="String" />
+                </property>
+                <property key="refSearchAttr" type="attribute" dataSource="refOptions" required="true">
+                    <caption>Search attribute</caption>
+                    <description>Required when Filterable is set to yes</description>
+                    <attributeTypes>
+                        <attributeType name="String" />
+                    </attributeTypes>
+                </property>
+                <property key="fetchOptionsLazy" type="boolean" defaultValue="false">
+                    <caption>Use lazy load</caption>
+                    <description>Lazy loading enables faster parent loading, but with personalization enabled, value restoration will be limited.</description>
+                </property>
+                <!-- end: Ref type -->
+            </propertyGroup>
+            <propertyGroup caption="General">
+                <property key="defaultValue" type="expression" required="false">
+                    <caption>Default value</caption>
+                    <description>Empty option caption will be shown by default or if configured default value matches none of the options</description>
+                    <returnType type="String" />
+                </property>
+                <property key="filterable" type="boolean" defaultValue="false">
+                    <caption>Filterable</caption>
+                    <description />
+                </property>
+                <property key="multiSelect" type="boolean" defaultValue="false">
+                    <caption>Multiselect</caption>
+                    <description />
+                </property>
+                <property key="emptyOptionCaption" type="textTemplate" required="false">
+                    <caption>Empty option caption</caption>
+                    <description />
+                    <translations>
+                        <translation lang="en_US">None</translation>
+                        <translation lang="nl_NL">Niets</translation>
+                    </translations>
+                </property>
+                <property key="clearable" type="boolean" defaultValue="true">
+                    <caption>Clearable</caption>
+                    <description />
+                </property>
+                <property key="selectedItemsStyle" type="enumeration" defaultValue="text" required="true">
+                    <caption>Show selected items as</caption>
+                    <description />
+                    <enumerationValues>
+                        <enumerationValue key="text">Text</enumerationValue>
+                        <enumerationValue key="boxes">Labels</enumerationValue>
+                    </enumerationValues>
+                </property>
+                <property key="selectionMethod" type="enumeration" defaultValue="checkbox">
+                    <caption>Selection method</caption>
+                    <description />
+                    <enumerationValues>
+                        <enumerationValue key="checkbox">Checkbox</enumerationValue>
+                        <enumerationValue key="rowClick">Row click</enumerationValue>
+                    </enumerationValues>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Configurations">
+                <property key="valueAttribute" type="attribute" required="false">
+                    <caption>Saved attribute</caption>
+                    <description>Attribute used to store the last value of the filter. Associations are not supported.</description>
+                    <attributeTypes>
+                        <attributeType name="String" />
+                    </attributeTypes>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Events">
+                <property key="onChange" type="action" required="false">
+                    <caption>On change</caption>
+                    <description>Action to be triggered when the value or filter changes.</description>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+        <propertyGroup caption="Advanced">
+            <propertyGroup caption="Accessibility">
+                <property key="ariaLabel" type="textTemplate" required="false">
+                    <caption>Input caption</caption>
+                    <description>Assistive technology will read this upon reaching the input element.</description>
+                </property>
+            </propertyGroup>
+            <propertyGroup caption="Texts">
+                <property key="emptySelectionCaption" type="textTemplate" required="false">
+                    <caption>Empty selection caption</caption>
+                    <description>This text is shown if no options are selected. For example 'Select color' or 'No options are selected'.</description>
+                    <translations>
+                        <translation lang="en_US">Select</translation>
+                        <translation lang="nl_NL">Selecteer</translation>
+                    </translations>
+                </property>
+                <property key="filterInputPlaceholderCaption" type="textTemplate" required="false">
+                    <caption>Filter input placeholder</caption>
+                    <description>This text is shown as placeholder for filterable filters. For example 'Type to search'.</description>
+                    <translations>
+                        <translation lang="en_US">Search</translation>
+                        <translation lang="nl_NL">Zoeken</translation>
+                    </translations>
+                </property>
+            </propertyGroup>
+        </propertyGroup>
+    </properties>
+</widget>

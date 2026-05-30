@@ -1,0 +1,456 @@
+#!/usr/bin/env ts-node-script
+
+// Enable quiet mode for fetch calls to reduce logging noise
+process.env.FETCH_QUIET = "true";
+
+import { gh, GitHubDraftRelease, GitHubReleaseAsset } from "../src/github";
+import { basename, join } from "path";
+import { prompt } from "enquirer";
+import chalk from "chalk";
+import { createReadStream } from "node:fs";
+import * as crypto from "crypto";
+import { pipeline } from "stream/promises";
+import { homedir } from "node:os";
+import {
+    createSBomGeneratorFolderStructure,
+    findAllReadmeOssLocally,
+    generateSBomArtifactsInFolder,
+    getRecommendedReadmeOss,
+    hasReadmeOssInAssets,
+    includeReadmeOssIntoMpk
+} from "../src/oss-clearance";
+
+// ============================================================================
+// Constants
+// ============================================================================
+
+const SBOM_GENERATOR_JAR = join(homedir(), "SBOM_Generator.jar");
+
+// ============================================================================
+// Utility Functions
+// ============================================================================
+
+function printHeader(title: string): void {
+    console.log("\n" + chalk.bold.cyan("═".repeat(60)));
+    console.log(chalk.bold.cyan(`  ${title}`));
+    console.log(chalk.bold.cyan("═".repeat(60)) + "\n");
+}
+
+function printStep(step: number, total: number, message: string): void {
+    console.log(chalk.bold.blue(`\n[${step}/${total}]`) + chalk.white(` ${message}`));
+}
+
+function printSuccess(message: string): void {
+    console.log(chalk.green(`✅ ${message}`));
+}
+
+function printError(message: string): void {
+    console.log(chalk.red(`❌ ${message}`));
+}
+
+function printWarning(message: string): void {
+    console.log(chalk.yellow(`⚠️  ${message}`));
+}
+
+function printInfo(message: string): void {
+    console.log(chalk.cyan(`ℹ️  ${message}`));
+}
+
+function printProgress(message: string): void {
+    console.log(chalk.gray(`   → ${message}`));
+}
+
+function printProgressCheck(message: string): void {
+    console.log(chalk.gray(`   ☑ ${message}`));
+}
+
+// ============================================================================
+// Core Functions
+// ============================================================================
+
+async function verifyGitHubAuth(): Promise<void> {
+    printStep(1, 5, "Verifying GitHub authentication...");
+
+    try {
+        await gh.ensureAuth();
+        printSuccess("GitHub authentication verified");
+    } catch (error) {
+        printError(`GitHub authentication failed: ${(error as Error).message}`);
+        console.log(chalk.yellow("\n💡 Setup Instructions:\n"));
+        console.log(chalk.white("1. Install GitHub CLI:"));
+        console.log(chalk.cyan("   • Download: https://cli.github.com/"));
+        console.log(chalk.cyan("   • Or via brew: brew install gh\n"));
+        console.log(chalk.white("2. Authenticate (choose one option):"));
+        console.log(chalk.cyan("   • Option A: export GITHUB_TOKEN=your_token_here"));
+        console.log(chalk.cyan("   • Option B: export GH_PAT=your_token_here"));
+        console.log(chalk.cyan("   • Option C: gh auth login\n"));
+        console.log(chalk.white("3. For A and B get your token at:"));
+        console.log(chalk.cyan("   https://github.com/settings/tokens\n"));
+        throw new Error("GitHub authentication required");
+    }
+}
+
+async function selectRelease(): Promise<GitHubDraftRelease> {
+    printStep(2, 5, "Fetching draft releases...");
+
+    while (true) {
+        const currentRepo = gh.getRepo();
+        printInfo(`Current repository: ${chalk.bold(currentRepo)}`);
+
+        const releases = await gh.getDraftReleases();
+        printSuccess(`Found ${releases.length} draft release${releases.length !== 1 ? "s" : ""}`);
+
+        if (releases.length === 0) {
+            printWarning("No draft releases found. Please create a draft release before trying again.");
+        }
+
+        console.log(); // spacing
+        const { selection } = await prompt<{ selection: string }>({
+            type: "select",
+            name: "selection",
+            message: releases.length === 0 ? "What would you like to do?" : "Select a release to process:",
+            choices: [
+                ...(releases.length > 0
+                    ? releases.map(r => {
+                          const assetNames = r.assets.map(a => a.name);
+                          const hasReadmeOss = hasReadmeOssInAssets(assetNames);
+                          const indicator = hasReadmeOss ? "✅" : "";
+                          return {
+                              name: r.tag_name,
+                              message: `${r.name} ${chalk.gray(`(${r.tag_name})`)} ${indicator} `
+                          };
+                      })
+                    : []),
+                {
+                    name: "__refresh__",
+                    message: chalk.dim("--- Refresh the list ---")
+                },
+                {
+                    name: "__switch_repo__",
+                    message: chalk.dim("--- Switch repository ---")
+                },
+                { name: "__exit__", message: chalk.dim("--- Exit ---") }
+            ]
+        });
+
+        // Handle common actions
+        if (selection === "__refresh__") {
+            printInfo("Refreshing draft releases list...");
+            continue;
+        }
+
+        if (selection === "__switch_repo__") {
+            const newRepo = currentRepo === "web-widgets" ? "atlas" : "web-widgets";
+            gh.setRepo(newRepo);
+            printInfo(`Switched to repository: ${chalk.bold(newRepo)}`);
+            continue;
+        }
+
+        if (selection === "__exit__") {
+            throw new Error("No releases selected.");
+        }
+
+        // If we get here, it's a release tag_name
+        const release = releases.find(r => r.tag_name === selection);
+        if (!release) {
+            throw new Error(`Release not found: ${selection}`);
+        }
+
+        printInfo(`Selected release: ${chalk.bold(release.name)}`);
+        return release;
+    }
+}
+
+async function findAndValidateMpkAsset(release: GitHubDraftRelease): Promise<GitHubReleaseAsset> {
+    printStep(3, 5, "Locating MPK asset...");
+
+    const mpkAsset = release.assets.find(asset => asset.name.endsWith(".mpk"));
+
+    if (!mpkAsset) {
+        printError("No MPK asset found in release");
+        printInfo(`Available assets: ${release.assets.map(a => a.name).join(", ")}`);
+        throw new Error("MPK asset not found");
+    }
+
+    printSuccess(`Found MPK asset: ${chalk.bold(mpkAsset.name)}`);
+    printInfo(`Asset ID: ${mpkAsset.id}`);
+    return mpkAsset;
+}
+
+async function downloadAndVerifyAsset(mpkAsset: GitHubReleaseAsset, downloadPath: string): Promise<string> {
+    printStep(4, 5, "Downloading and verifying MPK asset...");
+
+    printProgress(`Downloading to: ${downloadPath}`);
+    await gh.downloadReleaseAsset(mpkAsset.id, downloadPath);
+    printProgressCheck("Download completed");
+
+    printProgress("Computing SHA-256 hash...");
+    const fileHash = await computeHash(downloadPath);
+    printProgressCheck(`Computed hash: ${fileHash}`);
+
+    const expectedDigest = mpkAsset.digest.replace("sha256:", "");
+    if (fileHash !== expectedDigest) {
+        printError("Hash mismatch detected!");
+        printInfo(`Expected: ${expectedDigest}`);
+        printInfo(`Got:      ${fileHash}`);
+        throw new Error("Asset integrity verification failed");
+    }
+
+    printProgressCheck("Hash verification passed");
+    return fileHash;
+}
+
+async function runSbomGenerator(tmpFolder: string, releaseName: string, fileHash: string): Promise<string> {
+    printStep(5, 5, "Running SBOM Generator...");
+
+    printProgress("Generating OSS Clearance artifacts...");
+
+    const finalName = `${releaseName} [${fileHash}].zip`;
+    const finalPath = join(homedir(), "Downloads", finalName);
+
+    await generateSBomArtifactsInFolder(tmpFolder, SBOM_GENERATOR_JAR, releaseName, finalPath);
+    printSuccess("Completed.");
+
+    return finalPath;
+}
+
+async function computeHash(filepath: string): Promise<string> {
+    const input = createReadStream(filepath);
+    const hash = crypto.createHash("sha256");
+    await pipeline(input, hash);
+    return hash.digest("hex");
+}
+
+// ============================================================================
+// Command Handlers
+// ============================================================================
+
+async function selectAction(): Promise<"prepare" | "include"> {
+    console.log(); // spacing
+    const { action } = await prompt<{ action: "prepare" | "include" }>({
+        type: "select",
+        name: "action",
+        message: "What would you like to do with this release?",
+        choices: [
+            {
+                name: "prepare",
+                message: "Prepare OSS clearance SBOM"
+            },
+            {
+                name: "include",
+                message: "Include OSS Readme"
+            }
+        ]
+    });
+
+    return action;
+}
+
+async function handlePrepareAction(release: GitHubDraftRelease, mpkAsset: GitHubReleaseAsset): Promise<void> {
+    printHeader("OSS Clearance Artifacts Preparation");
+
+    // Prepare folder structure
+    const [tmpFolder, downloadPath] = await createSBomGeneratorFolderStructure(release.name);
+    printInfo(`Working directory: ${tmpFolder}`);
+
+    // Step 4: Download and verify
+    const fileHash = await downloadAndVerifyAsset(mpkAsset, downloadPath);
+
+    // Step 5: Run SBOM Generator
+    const finalPath = await runSbomGenerator(tmpFolder, release.name, fileHash);
+
+    console.log(chalk.bold.green(`\n🎉 Success! Output file:`));
+    console.log(chalk.cyan(`   ${finalPath}\n`));
+}
+
+async function handleIncludeAction(release: GitHubDraftRelease): Promise<void> {
+    printHeader("OSS Clearance Readme Include");
+
+    // Step 4: Find and select OSS Readme
+    const readmes = findAllReadmeOssLocally();
+    const recommendedReadmeOss = getRecommendedReadmeOss(release.name, readmes);
+
+    let readmeToInclude: string;
+
+    if (!recommendedReadmeOss) {
+        const { selectedReadme } = await prompt<{ selectedReadme: string }>({
+            type: "select",
+            name: "selectedReadme",
+            message: "Select a README_OSS file to include:",
+            choices: readmes.map(r => ({
+                name: r,
+                message: basename(r)
+            }))
+        });
+
+        readmeToInclude = selectedReadme;
+    } else {
+        printSuccess(`Auto selected based on release name:`);
+        printSuccess(`${chalk.bold(basename(recommendedReadmeOss))}`);
+        readmeToInclude = recommendedReadmeOss;
+    }
+
+    printInfo(`Readme to include: ${readmeToInclude}`);
+
+    // Step 5: Ask how to include the README
+    console.log(); // spacing
+    const { includeMethod } = await prompt<{ includeMethod: "asset" | "embedded" }>({
+        type: "select",
+        name: "includeMethod",
+        message: "How would you like to include the OSS Readme?",
+        choices: [
+            {
+                name: "asset",
+                message: "Upload as separate asset (adds HTML file to release)"
+            },
+            {
+                name: "embedded",
+                message: "Embed into MPK (modifies MPK to include HTML inside)"
+            }
+        ]
+    });
+
+    if (includeMethod === "asset") {
+        await handleIncludeAsAssetAction(release, readmeToInclude);
+    } else {
+        await handleIncludeAsEmbeddedAction(release, readmeToInclude);
+    }
+}
+
+async function handleIncludeAsAssetAction(release: GitHubDraftRelease, readmeToInclude: string): Promise<void> {
+    printStep(5, 5, "Uploading README as separate asset...");
+
+    const newAsset = await gh.uploadReleaseAsset(release.id, readmeToInclude, basename(readmeToInclude));
+    printSuccess(`Successfully uploaded asset ${newAsset.name} (ID: ${newAsset.id})`);
+    printInfo(`Size: ${newAsset.size} bytes`);
+}
+
+async function handleIncludeAsEmbeddedAction(release: GitHubDraftRelease, readmeToInclude: string): Promise<void> {
+    printStep(5, 5, "Embedding README into MPK...");
+
+    // Find MPK asset
+    const mpkAsset = release.assets.find(asset => asset.name.endsWith(".mpk"));
+    if (!mpkAsset) {
+        printError("No MPK asset found in release");
+        throw new Error("MPK asset not found");
+    }
+
+    printInfo(`Found MPK: ${mpkAsset.name} (${mpkAsset.size} bytes)`);
+
+    // Create temp folder
+    const { mkdtemp } = await import("node:fs/promises");
+    const { tmpdir } = await import("node:os");
+    const tmpFolder = await mkdtemp(join(tmpdir(), "mpk-oss-embed-"));
+    const mpkPath = join(tmpFolder, mpkAsset.name);
+    const htmlPath = join(tmpFolder, basename(readmeToInclude));
+
+    try {
+        // Download MPK to temp folder
+        printProgress(`Downloading ${mpkAsset.name}...`);
+        await gh.downloadReleaseAsset(mpkAsset.id, mpkPath);
+        printProgressCheck("Download completed");
+
+        // Copy HTML to temp folder
+        const { cp } = await import("../src/shell");
+        await cp(readmeToInclude, htmlPath);
+
+        // Embed HTML into MPK
+        printProgress("Merging HTML into MPK...");
+        await includeReadmeOssIntoMpk(htmlPath, mpkPath);
+        printProgressCheck("Merge completed");
+
+        // Get modified MPK size
+        const { stat } = await import("node:fs/promises");
+        const modifiedMpkStats = await stat(mpkPath);
+        const sizeDiff = modifiedMpkStats.size - mpkAsset.size;
+        printInfo(`Modified MPK size: ${modifiedMpkStats.size} bytes (+${sizeDiff} bytes)`);
+
+        // Confirm before uploading
+        console.log(); // spacing
+        console.log(chalk.yellow("⚠️  This will modify the release assets:"));
+        console.log(
+            chalk.gray(
+                `   1. Original MPK will be renamed: ${mpkAsset.name} → ${mpkAsset.name.replace(".mpk", "._mpk")}`
+            )
+        );
+        console.log(chalk.gray(`   2. Modified MPK will be uploaded: ${mpkAsset.name}`));
+
+        const { confirmed } = await prompt<{ confirmed: boolean }>({
+            type: "confirm",
+            name: "confirmed",
+            message: "Do you want to proceed with these changes?",
+            initial: false
+        });
+
+        if (!confirmed) {
+            printWarning("Operation cancelled by user");
+            return;
+        }
+
+        printProgress("Updating release assets...");
+
+        // Rename original MPK
+        const backupName = mpkAsset.name.replace(".mpk", "._mpk");
+        printProgress(`Renaming original MPK to ${backupName}...`);
+        await gh.updateReleaseAsset(mpkAsset.id, backupName);
+        printProgressCheck("Original MPK renamed");
+
+        // Upload modified MPK
+        printProgress(`Uploading modified MPK...`);
+        const newMpkAsset = await gh.uploadReleaseAsset(release.id, mpkPath, mpkAsset.name);
+        printProgressCheck(`Modified MPK uploaded (ID: ${newMpkAsset.id})`);
+
+        console.log(chalk.bold.green(`\n🎉 Successfully embedded OSS Readme into MPK!`));
+        console.log(chalk.gray(`   Release: ${release.name}`));
+        console.log(chalk.gray(`   Modified MPK: ${newMpkAsset.name} (${newMpkAsset.size} bytes)`));
+        console.log(chalk.gray(`   Backup MPK: ${backupName}`));
+    } finally {
+        // Cleanup temp files
+        printProgress("Cleaning up temporary files...");
+        const { rm } = await import("../src/shell");
+        await rm("-rf", tmpFolder);
+    }
+}
+
+// ============================================================================
+// Main Function
+// ============================================================================
+
+async function main(): Promise<void> {
+    printHeader("OSS Clearance Tool");
+
+    try {
+        // Step 1: Verify authentication
+        await verifyGitHubAuth();
+
+        // Step 2: Select release
+        const release = await selectRelease();
+
+        // Step 3: Find MPK asset
+        const mpkAsset = await findAndValidateMpkAsset(release);
+
+        // Step 4: Select action
+        const action = await selectAction();
+
+        // Step 5: Execute selected action
+        if (action === "prepare") {
+            await handlePrepareAction(release, mpkAsset);
+        } else {
+            await handleIncludeAction(release);
+        }
+    } catch (error) {
+        console.log("\n" + chalk.bold.red("═".repeat(60)));
+        printError(`Process failed: ${(error as Error).message}`);
+        console.log(chalk.bold.red("═".repeat(60)) + "\n");
+        process.exit(1);
+    }
+}
+
+// ============================================================================
+// Entry Point
+// ============================================================================
+
+main().catch(e => {
+    console.error(chalk.red("\n💥 Unexpected error:"), e);
+    process.exit(1);
+});

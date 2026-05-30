@@ -1,0 +1,154 @@
+@use "sass:color";
+$brand-primary: #264ae5 !default;
+
+.widget-calendar {
+    $cal-form-group-margin-bottom: 15px !default;
+    $cal-brand-default: #dddddd;
+    $cal-brand-primary: #0595db;
+    $cal-brand-danger: #ed1c24 !default;
+    $cal-border-color-default: #d7d7d7;
+    $cal-color-default-lighter: color.mix($cal-brand-default, white, 20%) !default;
+    $cal-color-primary-lighter: color.mix($cal-brand-primary, white, 20%) !default;
+
+    min-height: 350px;
+    margin-bottom: var(--form-group-margin-bottom, $cal-form-group-margin-bottom);
+    -ms-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+
+    .rbc-calendar {
+        width: 100%;
+        height: 100%;
+    }
+
+    .rbc-event {
+        min-height: 20px;
+
+        &.rbc-selected {
+            filter: brightness(0.85);
+        }
+    }
+
+    .rbc-addons-dnd .rbc-addons-dnd-resize-ns-icon {
+        cursor: row-resize;
+    }
+
+    .rbc-addons-dnd .rbc-addons-dnd-resize-ew-icon {
+        cursor: col-resize;
+    }
+
+    .calendar-label {
+        font-size: var(--font-size-default, 16px);
+    }
+
+    .calendar-toolbar {
+        display: grid;
+        grid-template-columns: 1fr auto 1fr;
+        align-items: center;
+        padding-bottom: var(--spacing-medium, 10px);
+
+        &-left {
+            justify-self: start;
+        }
+        &-center {
+            justify-self: center;
+        }
+        &-right {
+            justify-self: end;
+        }
+    }
+
+    .rbc-current-time-indicator {
+        background-color: var(--brand-danger, $cal-brand-danger);
+    }
+
+    .rbc-day-slot .rbc-event {
+        border-top-color: var(--border-color-default, $cal-border-color-default);
+        border-right-color: var(--border-color-default, $cal-border-color-default);
+        border-bottom-color: var(--border-color-default, $cal-border-color-default);
+        border-left-color: var(--border-color-default, $cal-border-color-default);
+    }
+
+    .rbc-off-range-bg {
+        background-color: var(--color-default-lighter, $cal-color-default-lighter);
+    }
+
+    .rbc-today {
+        background-color: var(--color-primary-lighter, $cal-color-primary-lighter);
+    }
+
+    .rbc-event {
+        background-color: var(--brand-primary, $cal-brand-primary);
+    }
+
+    &-loading-bar {
+        -webkit-appearance: none;
+        -moz-appearance: none;
+        appearance: none;
+        background-color: var(--border-color-default, #ced0d3);
+        border: none;
+        border-radius: 2px;
+        color: var(--brand-primary, $brand-primary);
+        height: 4px;
+        width: 100%;
+
+        &::-webkit-progress-bar {
+            background-color: transparent;
+        }
+
+        &::-webkit-progress-value {
+            background-color: currentColor;
+            transition: all 0.2s;
+        }
+
+        &::-moz-progress-bar {
+            background-color: currentColor;
+            transition: all 0.2s;
+        }
+
+        &::-ms-fill {
+            border: none;
+            background-color: currentColor;
+            transition: all 0.2s;
+        }
+
+        &:indeterminate {
+            background-size: 200% 100%;
+            background-image: linear-gradient(
+                to right,
+                transparent 50%,
+                currentColor 50%,
+                currentColor 60%,
+                transparent 60%,
+                transparent 71.5%,
+                currentColor 71.5%,
+                currentColor 84%,
+                transparent 84%
+            );
+            animation: progress-linear 3s infinite linear;
+        }
+
+        &:indeterminate::-moz-progress-bar {
+            background-color: transparent;
+        }
+
+        &:indeterminate::-ms-fill {
+            animation-name: none;
+        }
+
+        @keyframes progress-linear {
+            0% {
+                background-size: 200% 100%;
+                background-position: left -31.25% top 0%;
+            }
+            50% {
+                background-size: 800% 100%;
+                background-position: left -49% top 0%;
+            }
+            100% {
+                background-size: 400% 100%;
+                background-position: left -102% top 0%;
+            }
+        }
+    }
+}
