@@ -2,93 +2,65 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Workspace layout
+## Monorepo layout
 
-pnpm monorepo (`pnpm-workspace.yaml` globs: `shared/*`, `packages/*`, `services/*`) with five packages:
+pnpm workspace (`pnpm-workspace.yaml`) with three top-level package roots:
 
-| Path                        | Package name               | Stack                                                               |
-| --------------------------- | -------------------------- | ------------------------------------------------------------------- |
-| `shared/ax-common/`         | `@ax-cowork/shared`        | Plain TypeScript library; emits to `dist/`                          |
-| `shared/ax-control-table/`  | `@ax-cowork/control-table` | React component library (AntD-based table); Vite-bundled to `dist/` |
-| `packages/ax-coworker-ui/`  | `ax-cowork-ui`             | Vite + React 19 + Ant Design v6 + MobX + Tailwind 3 + i18n + Sass   |
-| `packages/ax-coworker-be/`  | `ax-cowork-be`             | NestJS 11 (Express + Handlebars views)                              |
-| `services/ax-cdn-services/` | `ax-cdn-services`          | NestJS 11 (Express + Swagger + class-validator)                     |
+- `react-app/` — `@ax/react-app`, the web client (React 19 + Ant Design v6 + Vite). The bulk of the application code lives here. See `react-app/CLAUDE.md` for layer rules, routing, store, theming, i18n, and TS strictness details — read it before non-trivial edits inside `react-app/`.
+- `shared/` — internal libraries consumed by the app via `workspace:*`:
+  - `ax-common` (`@ax-cowork/shared`) — utilities, formatters, converters. Built with `tsc` (no bundler). Consumers import from `./utils`, `./formatters`, `./converters` subpaths.
+  - `ax-control-table` (`@ax-cowork/control-table`) — virtualized data grid (TanStack Table + Virtual + AntD). Vite library build + `tsc --emitDeclarationOnly`. Has React/AntD as peer deps.
+  - `ax-markdown` (`@ax-cowork/markdown`) — markdown renderer that embeds `ax-control-table` and ECharts blocks (the format the AI produces in snapshots). Vite lib build; peer-depends on `control-table`, antd, echarts.
+  - `dhx-gantt` (`@dhx/gantt`) and `dhx-react-gantt` (`@dhx/react-gantt`) — vendored DHTMLX Gantt + a React wrapper. `dhx-react-gantt` depends on `@dhx/gantt` via `workspace:*`.
+- `widgets/` — declared in the workspace glob but currently empty (reserved for Mendix widget packages).
 
-Both NestJS packages and the UI consume `@ax-cowork/shared` via `workspace:*`; the UI also consumes `@ax-cowork/control-table`. Both shared packages point their `main`/`types`/`exports` at `dist/`, so **shared libraries must be built before consumers can type-check**:
+Shared libs are consumed pre-built (`main`/`types` point at `dist/`). When you change a shared package, run its `build` (or `dev`) before the app picks up the change — `pnpm dev` does not transparently rebuild them.
 
-- `pnpm --filter @ax-cowork/shared build` (or `... dev` for `tsc --watch`)
-- `pnpm --filter @ax-cowork/control-table build` (or `... dev` for `vite build --watch`)
+## Common commands (run from repo root)
 
-`pnpm dev` from the repo root runs both shared packages in watch mode in parallel. Import from the documented subpaths only (e.g. `import { ... } from '@ax-cowork/shared/utils'`) — no deep paths.
+- `pnpm dev` — runs `dev` in every package in parallel (`pnpm -r --parallel --stream run dev`). Use this when you want shared libs in watch mode alongside the app.
+- `pnpm dev:app` — only the react-app Vite server.
+- `pnpm dev:simulation` — only the simulation package (`@ax/simulation` — not present in the current tree; this script is reserved).
+- `pnpm build` — `pnpm -r run build` across all packages.
+- `pnpm build:shared` — `ax-cowork-ui` only (legacy filter name kept for backwards compat).
+- `pnpm lint` / `pnpm test` — recursive over all packages.
+- `pnpm format` / `pnpm format:check` — Prettier on the whole tree. `pnpm format:app` is a Prettier-only shortcut for `react-app/`.
 
-## Commands (run from repo root)
+There is no top-level test runner; tests live inside packages that opt in (currently `ax-markdown` via Vitest, and `react-app` if/when test files are present).
 
-- `pnpm dev` — runs `dev` in every package in parallel (`shared` watch + Vite + Nest watch ×2)
-- `pnpm dev:fe` / `pnpm dev:be` / `pnpm dev:cdn` — single-package dev
-- `pnpm build` — builds all packages (`tsc -b && vite build` for UI, `nest build` for each Nest app, `tsc` for shared)
-- `pnpm lint` — runs each package's `lint` script
-- `pnpm test` — runs each package's `test` script: BE + CDN use Jest, UI uses Vitest (co-located `*.test.{ts,tsx}` under `src/`). Shared has no tests yet.
-- `pnpm format` / `pnpm format:check` — Prettier across the whole repo
+## Per-package work
 
-Per-package commands (run with `pnpm --filter <name> <script>` or inside the package dir):
+Use pnpm filters to scope commands to one package, e.g.
 
-- `ax-cowork-be`: `pnpm --filter ax-cowork-be test` (Jest), `... test:e2e`, `... test:cov`, `... start:debug`
-- `ax-cdn-services`: same script set as BE (`test`, `test:e2e`, `test:cov`, `start:debug`)
-- `ax-cowork-ui`: `pnpm --filter ax-cowork-ui preview` (serve production build)
-- Single Jest test in a Nest package: `pnpm --filter <name> exec jest path/to/file.spec.ts -t "test name"`
+- `pnpm --filter @ax/react-app run lint`
+- `pnpm --filter @ax-cowork/control-table run build`
+- `pnpm add <pkg> --filter @ax/react-app` to install into a single package (see `note` in repo root).
 
-A Husky `pre-commit` hook runs `lint-staged` (`.lintstagedrc.json`): per-package ESLint `--fix` on changed TS files plus Prettier on everything else. The lint-staged config addresses each package by its real path (`packages/ax-coworker-ui/**`, `packages/ax-coworker-be/**`, `services/ax-cdn-services/**`, `shared/ax-common/src/**`, `shared/ax-control-table/src/**`) — keep these patterns in sync with the workspace layout when adding or renaming packages, and keep each package's `eslint.config.*` self-contained because `lint-staged` invokes them by package filter.
+Inside `react-app/`, the package-local scripts (`pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm preview`) work as you'd expect. The build pipeline is `tsc -b && vite build && node scripts/postbuild.mjs`.
 
-## Architecture notes that span files
+## Pre-commit hooks
 
-### Front-end (`packages/ax-coworker-ui/`)
+Husky runs `lint-staged` on commit (`.husky/pre-commit`). `.lintstagedrc.json` is **out of date** — it references paths like `packages/ax-coworker-ui/**` and `services/**` that don't exist in the current layout. When you touch lint-staged behavior, update the globs to match the actual `react-app/`, `shared/<name>/`, `widgets/` paths. Until then, expect lint-staged to be a no-op for most edits and rely on `pnpm lint` / Prettier manually.
 
-The UI has many conventions — **read `packages/ax-coworker-ui/CLAUDE.md` first** before non-trivial changes. Highlights worth knowing at this level:
+## Route map (for orientation)
 
-- **Layer rules are enforced by `eslint-plugin-boundaries`** (`pages → acore/shared/layout`, `acore → acore/shared`, `shared → shared` only, etc.). Violations fail lint. See the per-package doc for the full table.
-- **State is domain-organized**, not page-organized: `RootStore` aggregates `auth`, `ui`, `tasks`, `documents`, `comments`. Don't create `<Page>Store` — extend the matching domain store. `AuthStore` persists to `localStorage` via `acore/storage/`.
-- **Path alias `@/` → `src/`** is configured in both `tsconfig.app.json` and `vite.config.ts`. Prefer `@/` for cross-folder imports; relative `./` is fine within the same folder.
-- **Theme tokens single source of truth = AntD `axTheme`** (`src/acore/theme/theme.ts`, raw colors in `token.ts`); Tailwind config (`tailwind.config.js`) mirrors brand colors. `src/styles/_ax-variables.scss` is intentionally retained but **not consumed** — don't add color refs there.
-- **Strict TS dialect**: `tsconfig.app.json` enables `verbatimModuleSyntax` + `erasableSyntaxOnly`, so type-only imports must use `import type` and TS-runtime constructs (enums, parameter properties, value-bearing namespaces) won't compile. `noUnusedLocals`/`noUnusedParameters` are on — prefix unused params with `_`.
-- Routing lives in `src/acore/router/index.tsx` (named export `index`). Routes use `lazy: () => ({ Component })` for code-splitting, with `RequireAuth` / `RedirectIfAuthed` guards and `RouteError` `errorElement` per layout group. Two layouts: `SimulationLayout` (4-vùng app shell) and `AuthLayout` (centered card with EN/KO language switcher). The `<AxApp>` tree wires `StoreContext` → `ConfigProvider(axTheme)` → `AntApp` → `RouterProvider`.
-- i18n: 3 namespaces (`common` default, `auth`, `app`) × 2 languages (`en` fallback, `ko`). Use `useTranslation('ns')` for non-default namespaces. Adding a key → update both `en/` and `ko/` JSON.
+The app exposes four authed pages plus auth/error/sample routes — defined in `react-app/src/acore/router/index.tsx`:
 
-### Back-end (`packages/ax-coworker-be/`)
+- `/` → `HomePage`
+- `/pps` → `PpsPage`, `/eps` → `EpsPage`, `/mps` → `MpsPage` (the three core planning/simulation surfaces; each owns `data/`, `helpers/`, `layout/`, `modals/`, `panels/`, `stores/`, `views/` subfolders under `src/pages/<name>/`)
+- `/sample/*` → demos for `control-table` and `markdown-view` (uses `AppLayout` instead of `PageLayout`)
+- `/auth/signin`, `/system-error`, `/system-exception`, `/access-denied`, `*` (NotFound)
 
-NestJS 11 app bootstrapped from `src/main.ts` (listens on `PORT ?? 3000`). The root is `MainModule` (not the default `AppModule`), which wires:
+`InterruptionGuard` wraps the whole tree — when `auth.isInterrupted` flips true, navigation is forced to `/system-error`. Boot blocks the router until `auth.init()` resolves (see `AxApp.tsx`).
 
-- `ConfigModule` (`src/acore/config/`) — `@nestjs/config` + `joi` validation
-- `GatewayModule`, `WebhookModule`, `WebsocketModule`, `WorkersModule` — feature module slots (mostly stubs today; add controllers/providers inside the matching folder)
-- `WebappModule` (`src/webapp/`) — Handlebars-rendered web UI. `main.ts` serves static assets from `public/` and sets `pages/` as the views directory (`hbs` view engine), so server-rendered pages go in `packages/ax-coworker-be/pages/*.hbs`.
+## Conventions worth knowing before editing
 
-ESLint is configured with `recommendedTypeChecked` + `projectService`, so type-aware lint rules apply — imports from `@ax-cowork/shared` will fail lint until `shared/ax-common/dist` exists.
+- TS strictness in `react-app` (`verbatimModuleSyntax`, `erasableSyntaxOnly`, no unused locals): type-only imports must use `import type`, no enums/namespaces, prefix unused params with `_`. The `@/` alias maps to `react-app/src/`.
+- Boundary rules in `react-app/` are enforced by `eslint-plugin-boundaries` (see `eslint.config.js`). Cross-page imports and `acore → page/layout` imports fail lint, not just review. The full table is in `react-app/CLAUDE.md`.
+- Shared design-system primitives in `react-app/src/shared/<kebab>/Ax<Name>.tsx` consume AntD tokens via `theme.useToken()` and MDI icon names typed by `MdiIconName` — don't widen those types.
+- i18n requires both `en/` and `ko/` locale files when adding keys (three namespaces: `common`, `auth`, `app`).
+- MobX stores are organized by **data shape** under `react-app/src/acore/store/`, not per-page. Add new domain stores there and wire into `RootStore`; do not create page-scoped stores.
 
-### CDN service (`services/ax-cdn-services/`)
+## Task notes
 
-Separate NestJS 11 app bootstrapped from `src/main.ts` (listens on `PORT ?? 3011`). Its root `MainModule` wires `ConfigModule` (`src/acore/config/`), `WorkersModule`, and `ServicesModule` (under which feature folders like `services/health-check/` live). Differences from `ax-cowork-be` worth knowing before touching it:
-
-- Global `ValidationPipe` is enabled with `whitelist: true, transform: true` — request DTOs need `class-validator` decorators or fields are stripped.
-- CORS is wide-open (`origin: '*'`) with custom headers `cdn-owner-id`, `timezone`, `lang` (plus `authorization`) allowed.
-- Swagger UI is mounted at `/api-docs` via `@nestjs/swagger`; document controllers with the Swagger decorators or they won't appear there.
-- No Handlebars / static assets — this app is API-only.
-
-### Shared — `shared/ax-common/`
-
-Pure utility library with three subpath exports (`./utils`, `./formatters`, `./converters`). The barrel `src/index.ts` re-exports all three. When adding a new category, add a new subpath export in `shared/ax-common/package.json` rather than encouraging deep imports. Built with plain `tsc` → `dist/`.
-
-### Shared — `shared/ax-control-table/`
-
-React component library wrapping AntD `Table` with column toggle, controlled pagination/sort/filter, and a typed change event. Single entry `.` exports `AxControlTable` + types (`ControlTableColumn`, `ControlTablePagination`, `ControlTableSort`, `ControlTableFilters`, `ControlTableChangeEvent`). Built with Vite library mode (`vite build`) + `tsc --emitDeclarationOnly` → `dist/ax-control-table.js` + `dist/index.d.ts`. Peer deps: `antd >=6`, `react >=19`. Consumers (currently `ax-cowork-ui`) must build this once before type-checking. When extending the table API, keep public types in `src/types.ts` and re-export from `src/index.ts` so consumers don't deep-import.
-
-## Task-driven workflow convention
-
-Incremental scaffolding work is captured in per-package `tasks/<NNN>_<short-name>/` directories. Each contains a `note.txt` (sometimes `index.txt`) with the spec, plus any reference assets (images, mocks). When the user asks you to "run a task" or names one of these folders, **read the note before making non-trivial changes** — those notes are the source of truth for what the package is supposed to become, ahead of the current code state. Active task lists:
-
-- `packages/ax-coworker-ui/tasks/001_setup-react-ant-design/` — initial scaffold + brand assets (DONE)
-- `packages/ax-coworker-ui/tasks/002_make-ui-concept/` — main page UI from `sample-page.png` (DONE for concept; data is currently mocked inside domain stores)
-
-The repo root `tasks/` directory does not exist yet — task folders live inside the package they apply to.
-
-## Formatting
-
-Single Prettier source of truth at the repo root: `.prettierrc.json` (`printWidth: 160`, `semi: false`, `singleQuote: true`, `trailingComma: 'all'`, `endOfLine: 'lf'`) and `.prettierignore`. Per-package Prettier files were removed. Prettier is **not** wired into ESLint — `eslint-plugin-prettier` is intentionally excluded (avoids the MAL-2025-6023 supply-chain risk and follows Prettier's own current guidance). Run formatting via `pnpm format`, the editor's Prettier integration, or the `lint-staged` hook. Each package's ESLint config extends `eslint-config-prettier` (turns off conflicting stylistic rules) and re-asserts `indent` / `quotes` / `comma-dangle` as a safety net — those three rules are mirrored across `packages/ax-coworker-ui/eslint.config.js`, `packages/ax-coworker-be/eslint.config.mjs`, `services/ax-cdn-services/eslint.config.mjs`, `shared/ax-common/eslint.config.mjs`, and `shared/ax-control-table/eslint.config.mjs`, so update all five together.
+Per-task scratch notes live in `react-app/tasks/<NNN>_<name>/note.txt` and are treated as the source of truth for what an in-progress task is supposed to deliver. Check the relevant `note.txt` before non-trivial work on a page or feature that has one.

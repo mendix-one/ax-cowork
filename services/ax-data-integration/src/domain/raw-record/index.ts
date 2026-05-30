@@ -1,5 +1,0 @@
-export { RawRecordModule } from './raw-record.module'
-export { RawRecordRepository } from './raw-record.repository'
-export type { UpdateChangedInput } from './raw-record.repository'
-export { RAW_RECORDS_COLLECTION } from './raw-record.schema'
-export type { RawRecordDoc, RawRecordInsert, RawRecordStatus } from './raw-record.schema'

@@ -1,5 +1,0 @@
-export { PostgresAdapter } from './postgres.adapter'
-export type { PostgresAdapterConfig, PostgresCredentials } from './postgres.adapter'
-export { PostgresAdapterModule } from './postgres.adapter.module'
-export type { PgConnection, PgConnectionFactory, PgConnectConfig } from './pg-connection'
-export { RealPgConnectionFactory } from './pg-connection'

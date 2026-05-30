@@ -1,6 +1,0 @@
-export { SecretModule } from './secret.module'
-export { SecretsService } from './secret.service'
-export type { CreateSecretInput, UpdateSecretInput } from './secret.service'
-export { SecretRepository } from './secret.repository'
-export { SECRETS_COLLECTION } from './secret.schema'
-export type { SecretDoc, SecretInsert, SecretSummary, SecretType } from './secret.schema'
