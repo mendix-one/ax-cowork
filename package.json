@@ -11,6 +11,7 @@
     "dev:sim": "pnpm --filter @ax/simulation run dev",
     "build": "pnpm -r run build",
     "build:shared": "pnpm --filter ax-cowork-ui run build",
+    "build:login": "pnpm --filter @ax/login run build",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
     "format": "prettier --write .",

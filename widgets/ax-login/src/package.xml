@@ -5,7 +5,7 @@
             <widgetFile path="AxLogin.xml"/>
         </widgetFiles>
         <files>
-            <file path="one/mendix/axlogin/AxLogin.js"/>
+            <file path="one/mendix/axlogin"/>
         </files>
     </clientModule>
 </package>

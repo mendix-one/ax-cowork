@@ -1,5 +1,5 @@
 {
-  "name": "axlogin",
+  "name": "@ax/login",
   "widgetName": "AxLogin",
   "version": "1.0.0",
   "description": "Login form widget for the AX platform — ports the React SignInPage to a self-contained Mendix pluggable widget.",
@@ -10,7 +10,7 @@
   },
   "license": "Apache-2.0",
   "config": {
-    "projectPath": "./tests/testProject",
+    "projectPath": "../../../ax-widgets-app-main",
     "mendixHost": "http://localhost:8080",
     "developmentPort": 3000
   },
