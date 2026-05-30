@@ -18,7 +18,8 @@
         "baseUrl": ".",
         "paths": {
             "@/*": ["./src/*"],
-            "@axlogin/*": ["../widgets/ax-login/src/*"]
+            "@axlogin/*": ["../widgets/ax-login/src/*"],
+            "mendix": ["./src/mock/mendix.ts"]
         },
         "types": []
     },

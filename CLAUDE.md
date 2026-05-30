@@ -12,7 +12,8 @@ pnpm workspace (`pnpm-workspace.yaml`) with three top-level package roots:
   - `ax-control-table` (`@ax-cowork/control-table`) — virtualized data grid (TanStack Table + Virtual + AntD). Vite library build + `tsc --emitDeclarationOnly`. Has React/AntD as peer deps.
   - `ax-markdown` (`@ax-cowork/markdown`) — markdown renderer that embeds `ax-control-table` and ECharts blocks (the format the AI produces in snapshots). Vite lib build; peer-depends on `control-table`, antd, echarts.
   - `dhx-gantt` (`@dhx/gantt`) and `dhx-react-gantt` (`@dhx/react-gantt`) — vendored DHTMLX Gantt + a React wrapper. `dhx-react-gantt` depends on `@dhx/gantt` via `workspace:*`.
-- `widgets/` — Mendix pluggable widget packages. Currently `widgets/ax-login` (a login-form widget that ports `react-app/src/pages/auth/SignInPage.tsx` to a self-contained Mendix widget — uses `@mendix/pluggable-widgets-tools` + React 18 isolated from the React 19 used by `react-app`). `widgets/ax-layout` exists as an empty placeholder.
+- `widgets/` — Mendix pluggable widget packages. Currently `widgets/ax-login` (a login-form widget that ports `react-app/src/pages/auth/SignInPage.tsx` to a self-contained Mendix widget). `widgets/ax-layout` exists as an empty placeholder.
+- `simulation/` — `@ax/simulation`, a Vite + React 19 + React Router 7 host that renders widgets outside Studio Pro with mocked Mendix value APIs (see `simulation/src/mock/mendix.ts`). Each widget gets a sim page under `src/pages/`. Aliases `@axlogin/*` → widget source so changes to the widget hot-reload immediately. `pnpm dev:simulation` (port 5174).
 
 Shared libs are consumed pre-built (`main`/`types` point at `dist/`). When you change a shared package, run its `build` (or `dev`) before the app picks up the change — `pnpm dev` does not transparently rebuild them.
 

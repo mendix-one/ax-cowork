@@ -8,13 +8,14 @@
     "dev": "pnpm --filter @ax/react-app run dev",
     "dev:all": "pnpm -r --parallel --stream run dev",
     "dev:app": "pnpm --filter @ax/react-app run dev",
-    "dev:simulation": "pnpm --filter @ax/simulation run dev",
+    "dev:sim": "pnpm --filter @ax/simulation run dev",
     "build": "pnpm -r run build",
     "build:shared": "pnpm --filter ax-cowork-ui run build",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
     "format": "prettier --write .",
     "format:app": "prettier --write react-app",
+    "format:sim": "prettier --write simulation",
     "format:check": "prettier --check ."
   },
   "devDependencies": {
@@ -22,6 +23,7 @@
     "prettier": "^3.4.2"
   },
   "pnpm": {
+    "allowUnusedPatches": true,
     "patchedDependencies": {
       "mobx-react-lite@4.0.7": "patches/mobx-react-lite@4.0.7.patch",
       "mobx@6.12.3": "patches/mobx@6.12.3.patch"

@@ -10,7 +10,10 @@ export default defineConfig({
     resolve: {
         alias: {
             "@": fileURLToPath(new URL("./src", import.meta.url)),
-            "@axlogin": fileURLToPath(new URL("../widgets/ax-login/src", import.meta.url))
+            "@axlogin": fileURLToPath(new URL("../widgets/ax-login/src", import.meta.url)),
+            // The Mendix widget's typings import from "mendix" — alias to our mock so
+            // type stripping has a real module to resolve when Vite walks the imports.
+            mendix: fileURLToPath(new URL("./src/mock/mendix.ts", import.meta.url))
         }
     },
     server: {
