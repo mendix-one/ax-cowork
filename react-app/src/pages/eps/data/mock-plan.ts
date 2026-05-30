@@ -78,7 +78,7 @@ export const mtoLabel = (offset: number): string => {
 // Add `months` to a YYYY-MM anchor → YYYY-MM-01 ISO date.
 export const mtoDateFromAnchor = (anchorYearMonth: string, monthOffset: number): string => {
   const [y, m] = anchorYearMonth.split('-').map(Number)
-  const idx = (y * 12 + (m - 1)) + monthOffset
+  const idx = y * 12 + (m - 1) + monthOffset
   const yy = Math.floor(idx / 12)
   const mm = (idx % 12) + 1
   return `${String(yy).padStart(4, '0')}-${String(mm).padStart(2, '0')}-01`
@@ -89,19 +89,7 @@ export const mtoDateFromAnchor = (anchorYearMonth: string, monthOffset: number):
 // Only the bottom Cell carries headcount + skill mix; parents roll up via helpers.
 // ============================================================================================
 
-export type SkillGroup =
-  | 'Architecture'
-  | 'RTL'
-  | 'DV'
-  | 'PNR'
-  | 'Power'
-  | 'Analog'
-  | 'DFT'
-  | 'SI'
-  | 'PostSi'
-  | 'SW'
-  | 'Certification'
-  | 'RF'
+export type SkillGroup = 'Architecture' | 'RTL' | 'DV' | 'PNR' | 'Power' | 'Analog' | 'DFT' | 'SI' | 'PostSi' | 'SW' | 'Certification' | 'RF'
 
 export type SkillMix = { skill: SkillGroup; count: number }
 
@@ -349,14 +337,14 @@ export const PRODUCTION_FAMILY_GROUPS: ProductionFamilyGroup[] = ['Basic', 'Lead
 // Mock seed — Engineering Process Catalog (Stage → Block → Function → Activity)
 // ============================================================================================
 
-const pnode = (
-  id: string,
-  code: string,
-  name: string,
-  level: ProcessLevel,
-  parentId?: string,
-  extras?: Partial<ProcessNode>,
-): ProcessNode => ({ id, code, name, level, parentId, ...extras })
+const pnode = (id: string, code: string, name: string, level: ProcessLevel, parentId?: string, extras?: Partial<ProcessNode>): ProcessNode => ({
+  id,
+  code,
+  name,
+  level,
+  parentId,
+  ...extras,
+})
 
 export const MOCK_PROCESS_NODES: ProcessNode[] = [
   // === SOC stage =============================================================
@@ -423,9 +411,7 @@ export const MOCK_PROCESS_NODES: ProcessNode[] = [
 ]
 
 // Convenience indices.
-export const MOCK_PROCESS_INDEX: Record<string, ProcessNode> = Object.fromEntries(
-  MOCK_PROCESS_NODES.map((p) => [p.id, p]),
-)
+export const MOCK_PROCESS_INDEX: Record<string, ProcessNode> = Object.fromEntries(MOCK_PROCESS_NODES.map((p) => [p.id, p]))
 export const MOCK_PROCESS_CHILDREN: Record<string, ProcessNode[]> = (() => {
   const out: Record<string, ProcessNode[]> = {}
   for (const p of MOCK_PROCESS_NODES) {
@@ -450,8 +436,7 @@ const dayAt = (anchorYearMonth: string, monthOffset: number, dayOfMonth = 15): s
   return d.toISOString().slice(0, 10)
 }
 
-const dayDiff = (start: string, end: string): number =>
-  Math.max(1, Math.round((new Date(end).getTime() - new Date(start).getTime()) / (24 * 60 * 60 * 1000)))
+const dayDiff = (start: string, end: string): number => Math.max(1, Math.round((new Date(end).getTime() - new Date(start).getTime()) / (24 * 60 * 60 * 1000)))
 
 type TaskSpec = {
   id: string
@@ -931,8 +916,7 @@ export const MOCK_ORG_DEMAND_BY_TEAM: OrgDemandRow[] = (() => {
 // Production family index helper.
 // ============================================================================================
 
-export const productionFamilyById = (id: string): ProductionFamily | undefined =>
-  MOCK_PRODUCTION_FAMILIES.find((p) => p.id === id)
+export const productionFamilyById = (id: string): ProductionFamily | undefined => MOCK_PRODUCTION_FAMILIES.find((p) => p.id === id)
 
 export const bizTeamById = (id: string): BizTeam | undefined => MOCK_BIZ_TEAMS.find((t) => t.id === id)
 
@@ -952,5 +936,4 @@ export const processPathLabel = (processPath: string[]): string =>
     .join(' › ')
 
 // MTO milestones belonging to a given Production Family.
-export const milestonesForFamily = (pfId: string): MtoMilestone[] =>
-  MOCK_MTO_MILESTONES.filter((m) => m.productionFamilyId === pfId)
+export const milestonesForFamily = (pfId: string): MtoMilestone[] => MOCK_MTO_MILESTONES.filter((m) => m.productionFamilyId === pfId)

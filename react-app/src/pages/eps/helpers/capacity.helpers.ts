@@ -1,10 +1,4 @@
-import {
-  MOCK_FLAT_CELLS,
-  MOCK_PRODUCTION_FAMILIES,
-  MTO_OFFSETS_STANDARD,
-  mtoLabel,
-  type Cell,
-} from '../data/mock-plan'
+import { MOCK_FLAT_CELLS, MOCK_PRODUCTION_FAMILIES, MTO_OFFSETS_STANDARD, mtoLabel, type Cell } from '../data/mock-plan'
 
 // === Headcount composition for a Cell =============================================================
 // Each Cell carries `skills: { skill, count }[]`. The composition card shows utilisation per skill
@@ -64,7 +58,14 @@ const cellsUnder = (node: { divisionId?: string; siteId?: string; teamId?: strin
 
 // Compute capacity vs demand curve over the standard MTO offsets for a given org-node target.
 // `nodeRef` is interpreted as a *partial* org ref (e.g. only divisionId, or division+team).
-export const calcCapacityVsDemand = (nodeRef: { divisionId?: string; siteId?: string; teamId?: string; groupId?: string; partId?: string; cellId?: string }): CapacityDemandPoint[] => {
+export const calcCapacityVsDemand = (nodeRef: {
+  divisionId?: string
+  siteId?: string
+  teamId?: string
+  groupId?: string
+  partId?: string
+  cellId?: string
+}): CapacityDemandPoint[] => {
   const ids = cellsUnder(nodeRef)
   const headcount = MOCK_FLAT_CELLS.filter((e) => ids.has(e.cell.id)).reduce((s, e) => s + e.cell.headcount, 0)
 

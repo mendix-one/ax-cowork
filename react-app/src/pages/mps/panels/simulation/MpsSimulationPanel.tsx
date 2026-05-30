@@ -17,13 +17,19 @@ export const MpsSimulationPanel = observer((props: MainPanelControls) => {
         <div className="ax-mps-simulation_body">
           {/* Filter sidebar — always mounted, width-animates open/closed so the planner sees a continuous
               slide rather than a hard insertion. */}
-          <div className={`ax-mps-simulation_side_wrap ${simulation.filterSidebarOpen ? 'is-open' : 'is-collapsed'}`} aria-hidden={!simulation.filterSidebarOpen}>
+          <div
+            className={`ax-mps-simulation_side_wrap ${simulation.filterSidebarOpen ? 'is-open' : 'is-collapsed'}`}
+            aria-hidden={!simulation.filterSidebarOpen}
+          >
             <MpsSimulationFilterSidebar />
           </div>
           <div className="ax-mps-simulation_body_content">
             <MpsSimulationChart />
             {/* Quick analysis (capacity overlay) — height-animates so the chart re-flows smoothly. */}
-            <div className={`ax-mps-simulation_analysis_wrap ${simulation.quickAnalysisOpen ? 'is-open' : 'is-collapsed'}`} aria-hidden={!simulation.quickAnalysisOpen}>
+            <div
+              className={`ax-mps-simulation_analysis_wrap ${simulation.quickAnalysisOpen ? 'is-open' : 'is-collapsed'}`}
+              aria-hidden={!simulation.quickAnalysisOpen}
+            >
               <MpsSimulationQuickAnalysis />
             </div>
             {/*<MpsSimulationRisksStrip />*/}

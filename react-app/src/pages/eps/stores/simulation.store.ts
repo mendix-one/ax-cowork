@@ -99,8 +99,7 @@ export type SimulationHorizon = 'day' | 'week' | 'month'
 const pfgKey = (group: ProductionFamilyGroup) => `pfg::${group}`
 const pfKey = (group: ProductionFamilyGroup, pfId: string) => `pf::${group}::${pfId}`
 const tskKey = (group: ProductionFamilyGroup, pfId: string, taskId: string) => `task::${group}::${pfId}::${taskId}`
-const subKey = (group: ProductionFamilyGroup, pfId: string, taskId: string, subId: string) =>
-  `sub::${group}::${pfId}::${taskId}::${subId}`
+const subKey = (group: ProductionFamilyGroup, pfId: string, taskId: string, subId: string) => `sub::${group}::${pfId}::${taskId}::${subId}`
 
 // "Running" = part of the locked-in / executing schedule.
 const isSubRunning = (cls: ScheduleClass) => cls === 'fixed'
@@ -503,10 +502,7 @@ export class SimulationStore {
       // Cascade — task window may need to extend to wrap the sub.
       task.start = task.subTasks.reduce((a, s) => (s.start < a ? s.start : a), task.start)
       task.end = task.subTasks.reduce((a, s) => (s.end > a ? s.end : a), task.end)
-      task.durationDays = Math.max(
-        1,
-        Math.round((new Date(task.end).getTime() - new Date(task.start).getTime()) / (24 * 60 * 60 * 1000)),
-      )
+      task.durationDays = Math.max(1, Math.round((new Date(task.end).getTime() - new Date(task.start).getTime()) / (24 * 60 * 60 * 1000)))
       if (task.scheduleClass !== 'new') task.scheduleClass = 'changes'
     } else {
       const pf = this.families.find((p) => p.tasks.some((t) => t.id === taskRowId))

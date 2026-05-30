@@ -7,7 +7,8 @@ import { MpsPreflightModal } from '@/pages/mps/views/MpsPreflightModal'
 import { MpsKeyboardShortcuts } from '@/pages/mps/views/MpsKeyboardShortcuts'
 
 export const MpsPage = observer(() => {
-  const preflightLabel = mpsStore.preflightTarget === 'simulation' ? 'Save Simulation plan' : mpsStore.preflightTarget === 'orders' ? 'Save Orders edits' : undefined
+  const preflightLabel =
+    mpsStore.preflightTarget === 'simulation' ? 'Save Simulation plan' : mpsStore.preflightTarget === 'orders' ? 'Save Orders edits' : undefined
   return (
     <MpsContext.Provider value={mpsStore}>
       <MpsLayout />

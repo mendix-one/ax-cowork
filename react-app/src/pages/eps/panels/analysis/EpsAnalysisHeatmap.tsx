@@ -41,7 +41,18 @@ export const EpsAnalysisHeatmap = observer(() => {
               <tr key={r.org}>
                 <td style={{ padding: '4px 8px', fontSize: 11, whiteSpace: 'nowrap' }}>{r.org}</td>
                 {r.cells.map((c) => (
-                  <td key={c.bucket} title={`${c.bucket} · ${(c.ratio * 100).toFixed(0)}%`} style={{ background: BAND_COLOR[c.band], width: 36, height: 22, color: c.band === 'idle' ? '#37474F' : '#ffffff', fontSize: 10, textAlign: 'center' }}>
+                  <td
+                    key={c.bucket}
+                    title={`${c.bucket} · ${(c.ratio * 100).toFixed(0)}%`}
+                    style={{
+                      background: BAND_COLOR[c.band],
+                      width: 36,
+                      height: 22,
+                      color: c.band === 'idle' ? '#37474F' : '#ffffff',
+                      fontSize: 10,
+                      textAlign: 'center',
+                    }}
+                  >
                     {(c.ratio * 100).toFixed(0)}
                   </td>
                 ))}

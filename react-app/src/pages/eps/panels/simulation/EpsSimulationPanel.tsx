@@ -17,13 +17,19 @@ export const EpsSimulationPanel = observer((props: MainPanelControls) => {
         <div className="ax-eps-simulation_body">
           {/* Filter sidebar — always mounted, width-animates open/closed so the planner sees a continuous
               slide rather than a hard insertion. */}
-          <div className={`ax-eps-simulation_side_wrap ${simulation.filterSidebarOpen ? 'is-open' : 'is-collapsed'}`} aria-hidden={!simulation.filterSidebarOpen}>
+          <div
+            className={`ax-eps-simulation_side_wrap ${simulation.filterSidebarOpen ? 'is-open' : 'is-collapsed'}`}
+            aria-hidden={!simulation.filterSidebarOpen}
+          >
             <EpsSimulationFilterSidebar />
           </div>
           <div className="ax-eps-simulation_body_content">
             <EpsSimulationChart />
             {/* Quick analysis (capacity overlay) — height-animates so the chart re-flows smoothly. */}
-            <div className={`ax-eps-simulation_analysis_wrap ${simulation.quickAnalysisOpen ? 'is-open' : 'is-collapsed'}`} aria-hidden={!simulation.quickAnalysisOpen}>
+            <div
+              className={`ax-eps-simulation_analysis_wrap ${simulation.quickAnalysisOpen ? 'is-open' : 'is-collapsed'}`}
+              aria-hidden={!simulation.quickAnalysisOpen}
+            >
               <EpsSimulationQuickAnalysis />
             </div>
             {/*<EpsSimulationRisksStrip />*/}

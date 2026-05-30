@@ -18,13 +18,7 @@ export const EpsAnalysisPanel = observer((props: MainPanelControls) => {
   const sim = useEpsContext()
   const analysis = sim.analysis
   return (
-    <AxDisplayPanel
-      type="main"
-      icon="mdiChartBar"
-      title={`Resource Analysis · ${sim.activeEpsPlan.name}`}
-      tools={<EpsAnalysisToolbar />}
-      {...props}
-    >
+    <AxDisplayPanel type="main" icon="mdiChartBar" title={`Resource Analysis · ${sim.activeEpsPlan.name}`} tools={<EpsAnalysisToolbar />} {...props}>
       <div className="ax-eps-simulation">
         <div className="ax-eps-simulation_body">
           {analysis.filterSidebarOpen && <EpsAdjustmentSidebar onClose={() => analysis.toggleFilterSidebar()} />}

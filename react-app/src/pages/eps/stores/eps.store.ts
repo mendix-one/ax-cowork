@@ -49,16 +49,7 @@ const initialStates: PanelStates = {
 // The key is versioned so adding/removing a panel ID later invalidates stale entries via the guard.
 const SHELL_STORAGE_KEY = 'ax.eps.shell.v1'
 
-const MAIN_PANEL_IDS: readonly MainPanelId[] = [
-  'simulation',
-  'analysis',
-  'orders',
-  'processes',
-  'capacity',
-  'processTuning',
-  'capacityTuning',
-  'integration',
-]
+const MAIN_PANEL_IDS: readonly MainPanelId[] = ['simulation', 'analysis', 'orders', 'processes', 'capacity', 'processTuning', 'capacityTuning', 'integration']
 const SUB_PANEL_IDS: readonly SubPanelId[] = ['compare', 'aiChat', 'background', 'history', 'recommendations']
 const PANEL_REGION_IDS: readonly PanelId[] = ['regionLeft', 'regionRight']
 const PANEL_STATE_VALUES: readonly PanelState[] = ['normal', 'maximized', 'hidden']

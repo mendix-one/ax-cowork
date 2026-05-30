@@ -7,7 +7,8 @@ import { EpsPreflightModal } from '@/pages/eps/views/EpsPreflightModal'
 import { EpsKeyboardShortcuts } from '@/pages/eps/views/EpsKeyboardShortcuts'
 
 export const EpsPage = observer(() => {
-  const preflightLabel = epsStore.preflightTarget === 'simulation' ? 'Save Simulation plan' : epsStore.preflightTarget === 'orders' ? 'Save Orders edits' : undefined
+  const preflightLabel =
+    epsStore.preflightTarget === 'simulation' ? 'Save Simulation plan' : epsStore.preflightTarget === 'orders' ? 'Save Orders edits' : undefined
   return (
     <EpsContext.Provider value={epsStore}>
       <EpsLayout />

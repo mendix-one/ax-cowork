@@ -50,9 +50,7 @@ export type CapacityStats = {
 
 export const calcCapacityStats = (): CapacityStats => {
   const totalDemand = MOCK_ORG_DEMAND_BY_DIVISION.reduce((s, r) => s + r.demand, 0)
-  const avgDemand = MOCK_ORG_DEMAND_BY_DIVISION.length
-    ? Math.round(totalDemand / MOCK_ORG_DEMAND_BY_DIVISION.length)
-    : 0
+  const avgDemand = MOCK_ORG_DEMAND_BY_DIVISION.length ? Math.round(totalDemand / MOCK_ORG_DEMAND_BY_DIVISION.length) : 0
 
   const violation = MOCK_ORG_DEMAND_BY_TEAM.find((r) => r.demand > r.headcount)
   const highloadOrg = violation?.label ?? null

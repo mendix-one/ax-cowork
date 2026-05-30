@@ -71,7 +71,10 @@ export const EpsProcessPipeline = observer(() => {
             {
               title: 'Path',
               key: 'path',
-              render: (_v, row) => ancestorPath(row.id).map((p) => p.name).join(' › '),
+              render: (_v, row) =>
+                ancestorPath(row.id)
+                  .map((p) => p.name)
+                  .join(' › '),
             },
             {
               title: 'SPM baseline',

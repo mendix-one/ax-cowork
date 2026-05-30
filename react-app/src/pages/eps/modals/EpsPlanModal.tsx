@@ -27,14 +27,10 @@ export const EpsPlanModal = observer(() => {
       width={560}
     >
       <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
-        Switch between the approved baseline, an in-flight draft, or a what-if simulation variant. Approved roadmaps sync to PROMIS; sandbox
-        variants stay isolated until promoted.
+        Switch between the approved baseline, an in-flight draft, or a what-if simulation variant. Approved roadmaps sync to PROMIS; sandbox variants stay
+        isolated until promoted.
       </Typography.Paragraph>
-      <Radio.Group
-        value={simulation.activeEpsPlanId}
-        onChange={(e) => simulation.setActiveEpsPlan(e.target.value as string)}
-        style={{ width: '100%' }}
-      >
+      <Radio.Group value={simulation.activeEpsPlanId} onChange={(e) => simulation.setActiveEpsPlan(e.target.value as string)} style={{ width: '100%' }}>
         <List
           size="small"
           dataSource={simulation.epsPlans}
@@ -46,7 +42,10 @@ export const EpsPlanModal = observer(() => {
                 <List.Item.Meta
                   title={
                     <span>
-                      {plan.name} <Tag color={tag.color} style={{ marginLeft: 8 }}>{tag.label}</Tag>
+                      {plan.name}{' '}
+                      <Tag color={tag.color} style={{ marginLeft: 8 }}>
+                        {tag.label}
+                      </Tag>
                     </span>
                   }
                   description={plan.description}

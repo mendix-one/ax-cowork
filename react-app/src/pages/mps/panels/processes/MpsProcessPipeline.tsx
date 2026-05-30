@@ -285,7 +285,8 @@ const StageSection = ({ group, bottleneckStepId, onDrill }: StageSectionProps) =
           {group.steps.length} step{group.steps.length === 1 ? '' : 's'} · {formatCycle(group.totalCycleHours)} process
           {group.totalMoveHours > 0 ? ` · ${formatCycle(group.totalMoveHours)} move` : ''}
           {group.totalWaitHours > 0 ? ` · ${formatCycle(group.totalWaitHours)} wait` : ''}
-          {' · '}{formatCycle(clock)} clock · {formatYield(stageYield(group))} yield
+          {' · '}
+          {formatCycle(clock)} clock · {formatYield(stageYield(group))} yield
         </Typography.Text>
       </div>
       <div className="ax-mps-analysis_section_body">

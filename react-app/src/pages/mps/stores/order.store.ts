@@ -161,9 +161,7 @@ export class OrderStore {
   // Entity notes (list). Persisted to localStorage so cross-shift handoff survives reload. Seeded
   // with a few example notes so the concept demo shows realistic content out of the box.
   private entityNotesStore: PersistedEntityNotes = readJson(ENTITY_NOTES_STORAGE_KEY, isPersistedEntityNotes) ?? {
-    'po::PO-2025-118': [
-      { id: 'seed-po-1', text: 'Customer A flagged urgency on M1 — keep buffer on QLC-A.', createdAt: '2026-05-10T08:30:00Z' },
-    ],
+    'po::PO-2025-118': [{ id: 'seed-po-1', text: 'Customer A flagged urgency on M1 — keep buffer on QLC-A.', createdAt: '2026-05-10T08:30:00Z' }],
     'family::fam-118-v9-qlc-a': [
       { id: 'seed-fam-1', text: 'V9-QLC-A tech: watch HARC Etch utilisation, recipe v3.4 runs hot.', createdAt: '2026-05-12T10:00:00Z' },
     ],

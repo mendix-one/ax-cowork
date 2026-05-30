@@ -1,11 +1,6 @@
 import { Table, Typography } from 'antd'
 import { observer } from 'mobx-react-lite'
-import {
-  MOCK_PROCESS_INDEX,
-  MOCK_PROCESS_NODES,
-  MOCK_PRODUCTION_FAMILIES,
-  type ProductionFamily,
-} from '../../data/mock-plan'
+import { MOCK_PROCESS_INDEX, MOCK_PROCESS_NODES, MOCK_PRODUCTION_FAMILIES, type ProductionFamily } from '../../data/mock-plan'
 
 // Family × Activity matrix. Each cell shows the SPM contributed by tasks in that PF whose processPath
 // ends at the given activity (leaf node). Useful for spotting which activities concentrate demand.

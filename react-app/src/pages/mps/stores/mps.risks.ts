@@ -46,11 +46,19 @@ export const capacityRisk = (sim: MpsStore): RiskBadge | null => {
   const imminent = constraintsInWindow(today)
   const critical = imminent.filter((c) => c.severity === 'critical')
   if (critical.length > 0) {
-    return { count: critical.length, severity: 'critical', reason: `${critical.length} critical constraint${critical.length > 1 ? 's' : ''} in the next ${IMMINENT_DAYS} days` }
+    return {
+      count: critical.length,
+      severity: 'critical',
+      reason: `${critical.length} critical constraint${critical.length > 1 ? 's' : ''} in the next ${IMMINENT_DAYS} days`,
+    }
   }
   const warnings = imminent.filter((c) => c.severity === 'warning')
   if (warnings.length > 0) {
-    return { count: warnings.length, severity: 'warning', reason: `${warnings.length} warning constraint${warnings.length > 1 ? 's' : ''} in the next ${IMMINENT_DAYS} days` }
+    return {
+      count: warnings.length,
+      severity: 'warning',
+      reason: `${warnings.length} warning constraint${warnings.length > 1 ? 's' : ''} in the next ${IMMINENT_DAYS} days`,
+    }
   }
   return null
 }
@@ -69,7 +77,12 @@ export const orderRisk = (sim: MpsStore): RiskBadge | null => {
 // The "critical" tier means an overload that the process touches (i.e. visible to that tech).
 export const processRisk = (): RiskBadge | null => {
   const overloads = TOOL_GROUP_CAPACITIES.filter((g) => g.used > g.total)
-  if (overloads.length > 0) return { count: overloads.length, severity: 'critical', reason: `${overloads.length} step${overloads.length > 1 ? 's' : ''} hit overloaded tool group${overloads.length > 1 ? 's' : ''}` }
+  if (overloads.length > 0)
+    return {
+      count: overloads.length,
+      severity: 'critical',
+      reason: `${overloads.length} step${overloads.length > 1 ? 's' : ''} hit overloaded tool group${overloads.length > 1 ? 's' : ''}`,
+    }
   const high = TOOL_GROUP_CAPACITIES.filter((g) => g.used / g.total >= SAFE_THRESHOLD)
   if (high.length > 0) return { count: high.length, severity: 'warning', reason: `${high.length} high-load step${high.length > 1 ? 's' : ''}` }
   return null

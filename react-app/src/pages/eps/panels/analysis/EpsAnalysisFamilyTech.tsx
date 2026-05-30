@@ -26,12 +26,18 @@ export const EpsAnalysisFamilyTech = observer(() => {
             key: s,
             align: 'right' as const,
             width: 110,
-            render: (_v: unknown, row: typeof rows[number]) => {
+            render: (_v: unknown, row: (typeof rows)[number]) => {
               const found = row.stages.find((x) => x.stage === s)
               return found ? <Typography.Text strong>{found.spm}</Typography.Text> : '—'
             },
           })),
-          { title: 'Total SPM', dataIndex: 'totalSpm', align: 'right' as const, width: 120, render: (v: number) => <Typography.Text strong>{v}</Typography.Text> },
+          {
+            title: 'Total SPM',
+            dataIndex: 'totalSpm',
+            align: 'right' as const,
+            width: 120,
+            render: (v: number) => <Typography.Text strong>{v}</Typography.Text>,
+          },
         ]}
       />
     </div>

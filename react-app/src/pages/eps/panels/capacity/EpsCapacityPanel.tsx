@@ -16,8 +16,7 @@ const CapacityToolbar = () => (
   <Flex align="center" justify="space-between" gap="small" className="ax-eps-simulation_toolbar" style={{ width: '100%' }}>
     <Space size={10}>
       <Typography.Text type="secondary" className="text-sm">
-        Read-only Headcount Portfolio — pick an organization node on the left to inspect its capacity,
-        composition and resource constraints.
+        Read-only Headcount Portfolio — pick an organization node on the left to inspect its capacity, composition and resource constraints.
       </Typography.Text>
     </Space>
   </Flex>
@@ -29,7 +28,23 @@ const CapacityToolbar = () => (
 type Level = 'division' | 'site' | 'team' | 'group' | 'part' | 'cell'
 
 const OrgNode = observer(
-  ({ id, label, level, headcount, children, isActive, onSelect }: { id: string; label: string; level: Level; headcount: number; children?: React.ReactNode; isActive: boolean; onSelect: (id: string) => void }) => (
+  ({
+    id,
+    label,
+    level,
+    headcount,
+    children,
+    isActive,
+    onSelect,
+  }: {
+    id: string
+    label: string
+    level: Level
+    headcount: number
+    children?: React.ReactNode
+    isActive: boolean
+    onSelect: (id: string) => void
+  }) => (
     <div className={`ax-eps-capacity_tree_node ax-eps-capacity_tree_node__${level}`}>
       <button type="button" className={`ax-eps-capacity_tree_label ${isActive ? 'is-active' : ''}`} onClick={() => onSelect(id)}>
         <span className="ax-eps-capacity_tree_label_text">{label}</span>
@@ -42,8 +57,7 @@ const OrgNode = observer(
 
 const CapacityOrgTree = observer(() => {
   const store = useEpsContext().capacity
-  const sumCellsUnder = (filter: (e: typeof MOCK_FLAT_CELLS[number]) => boolean) =>
-    MOCK_FLAT_CELLS.filter(filter).reduce((s, e) => s + e.cell.headcount, 0)
+  const sumCellsUnder = (filter: (e: (typeof MOCK_FLAT_CELLS)[number]) => boolean) => MOCK_FLAT_CELLS.filter(filter).reduce((s, e) => s + e.cell.headcount, 0)
   const renderDivision = (d: Division) => (
     <OrgNode
       key={d.id}

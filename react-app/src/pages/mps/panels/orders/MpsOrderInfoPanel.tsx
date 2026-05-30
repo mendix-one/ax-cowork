@@ -5,7 +5,17 @@ import { useMpsContext } from '../../stores/mps.context'
 import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 import { MilestoneChips, PriorityChip, StateChip, StatusChip } from './order-chips'
 import { MpsOrderSummary } from './MpsOrderSummary'
-import { simulationKeyForBatch, simulationKeyForFamily, simulationKeyForOrder, noteKeyForBatch, noteKeyForFamily, noteKeyForOrder, remarkForOrder, waferStatesForOrder, waferStatesForRow } from '../../helpers/order.helpers'
+import {
+  simulationKeyForBatch,
+  simulationKeyForFamily,
+  simulationKeyForOrder,
+  noteKeyForBatch,
+  noteKeyForFamily,
+  noteKeyForOrder,
+  remarkForOrder,
+  waferStatesForOrder,
+  waferStatesForRow,
+} from '../../helpers/order.helpers'
 
 // Entity-scoped notes list (PO / Family / etc). Reads from po.getNotes (list model, separate from
 // the single-note NotesStore). Renders existing notes oldest-first with delete buttons, plus an
@@ -50,12 +60,7 @@ const EntityNotesList = observer(({ entityKey, placeholder }: { entityKey: strin
         </div>
       )}
       <Space.Compact style={{ width: '100%', marginTop: 8 }}>
-        <Input
-          value={draft}
-          placeholder={placeholder}
-          onChange={(e) => setDraft(e.target.value)}
-          onPressEnter={submit}
-        />
+        <Input value={draft} placeholder={placeholder} onChange={(e) => setDraft(e.target.value)} onPressEnter={submit} />
         <Button type="primary" disabled={!draft.trim()} onClick={submit} icon={<AxMuiIcon icon="mdiPlus" size={14} />}>
           Add
         </Button>
@@ -91,7 +96,9 @@ const BatchesList = observer(({ poId, familyId }: { poId: string; familyId: stri
           <div className="ax-mps-order_fams_item_meta">
             <span>{b.durationDays} days</span>
             <span>·</span>
-            <span>{b.start} → {b.end}</span>
+            <span>
+              {b.start} → {b.end}
+            </span>
             {b.toolGroup && (
               <>
                 <span>·</span>
@@ -135,7 +142,9 @@ const FamiliesList = observer(({ poId }: { poId: string }) => {
               <span>·</span>
               <span>{f.batches.length} batches</span>
               <span>·</span>
-              <span>{f.start} → {f.end}</span>
+              <span>
+                {f.start} → {f.end}
+              </span>
             </div>
           </button>
         )
@@ -273,7 +282,9 @@ export const MpsOrderInfoPanel = observer(() => {
       )
       titleActions = (
         <Space size={4}>
-          <Tooltip title={isBatchRunning ? 'Running batches cannot be split' : batch.waferCount < 2 ? 'Need at least 2 wafers to split' : 'Split batch in half'}>
+          <Tooltip
+            title={isBatchRunning ? 'Running batches cannot be split' : batch.waferCount < 2 ? 'Need at least 2 wafers to split' : 'Split batch in half'}
+          >
             <Button
               size="small"
               icon={<AxMuiIcon icon="mdiCallSplit" size={14} />}
@@ -391,12 +402,7 @@ export const MpsOrderInfoPanel = observer(() => {
                 <div className="ax-mps-order_info_section">
                   <div className="ax-mps-order_info_section_title">
                     Production Family ({order.schedule.length})
-                    <Button
-                      size="small"
-                      type="link"
-                      icon={<AxMuiIcon icon="mdiPlusBoxOutline" size={14} />}
-                      onClick={() => po.addFamily(order.id)}
-                    >
+                    <Button size="small" type="link" icon={<AxMuiIcon icon="mdiPlusBoxOutline" size={14} />} onClick={() => po.addFamily(order.id)}>
                       Add family
                     </Button>
                   </div>

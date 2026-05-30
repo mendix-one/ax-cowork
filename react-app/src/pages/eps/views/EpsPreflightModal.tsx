@@ -39,7 +39,13 @@ export const EpsPreflightModal = observer((props: EpsPreflightModalProps) => {
   const firstCritical = findings.find((f) => f.severity === 'critical')
 
   const banner = summary.ok ? (
-    <Alert type="success" message="All validators passed" description="No capacity overloads, constraint overlaps, or shape issues detected. Safe to save." showIcon style={{ marginBottom: 12 }} />
+    <Alert
+      type="success"
+      message="All validators passed"
+      description="No capacity overloads, constraint overlaps, or shape issues detected. Safe to save."
+      showIcon
+      style={{ marginBottom: 12 }}
+    />
   ) : summary.critical > 0 ? (
     <Alert
       type="error"
@@ -49,7 +55,13 @@ export const EpsPreflightModal = observer((props: EpsPreflightModalProps) => {
       style={{ marginBottom: 12 }}
     />
   ) : (
-    <Alert type="warning" message={`${summary.warning} warning${summary.warning > 1 ? 's' : ''}`} description="Plan is not strictly invalid but the planner should review the items below." showIcon style={{ marginBottom: 12 }} />
+    <Alert
+      type="warning"
+      message={`${summary.warning} warning${summary.warning > 1 ? 's' : ''}`}
+      description="Plan is not strictly invalid but the planner should review the items below."
+      showIcon
+      style={{ marginBottom: 12 }}
+    />
   )
 
   return (

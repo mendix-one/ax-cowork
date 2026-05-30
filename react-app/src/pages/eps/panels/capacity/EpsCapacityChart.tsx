@@ -39,7 +39,14 @@ export const EpsCapacityChart = observer(() => {
       xAxis: { type: 'category', data: points.map((p) => p.label), boundaryGap: false, axisLabel: { fontSize: 10 } },
       yAxis: { type: 'value', axisLabel: { fontSize: 10 } },
       series: [
-        { name: 'Headcount', type: 'line', data: points.map((p) => p.capacity), itemStyle: { color: '#37474F' }, lineStyle: { type: 'dashed' }, showSymbol: false },
+        {
+          name: 'Headcount',
+          type: 'line',
+          data: points.map((p) => p.capacity),
+          itemStyle: { color: '#37474F' },
+          lineStyle: { type: 'dashed' },
+          showSymbol: false,
+        },
         {
           name: 'Demand',
           type: 'line',

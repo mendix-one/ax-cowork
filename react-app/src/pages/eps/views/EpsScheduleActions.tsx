@@ -48,12 +48,7 @@ export const EpsScheduleActions = observer(({ target }: { target: ScheduleAction
       </Tooltip>
       <Space.Compact>
         <Tooltip title="Save · runs a pre-flight validation first">
-          <Button
-            size="small"
-            type="primary"
-            onClick={() => sim.openPreflight(target)}
-            style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}
-          >
+          <Button size="small" type="primary" onClick={() => sim.openPreflight(target)} style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
             <AxMuiIcon icon="mdiContentSaveOutline" size={14} />
             <span>Save</span>
           </Button>

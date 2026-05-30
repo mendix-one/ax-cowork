@@ -18,13 +18,7 @@ const ColumnTuneRow = observer(({ tune, index, total }: { tune: ColumnTune; inde
     <div className="ax-eps-order_tune_row">
       <div className="ax-eps-order_tune_row_move">
         <Tooltip title="Move up">
-          <Button
-            size="small"
-            type="text"
-            disabled={index === 0}
-            icon={<AxMuiIcon icon="mdiArrowUp" size={12} />}
-            onClick={() => po.moveColumnUp(tune.key)}
-          />
+          <Button size="small" type="text" disabled={index === 0} icon={<AxMuiIcon icon="mdiArrowUp" size={12} />} onClick={() => po.moveColumnUp(tune.key)} />
         </Tooltip>
         <Tooltip title="Move down">
           <Button
@@ -36,12 +30,10 @@ const ColumnTuneRow = observer(({ tune, index, total }: { tune: ColumnTune; inde
           />
         </Tooltip>
       </div>
-      <Checkbox
-        checked={tune.visible}
-        disabled={isSelectCol}
-        onChange={(e) => po.setColumnVisible(tune.key, e.target.checked)}
-      />
-      <span className="ax-eps-order_tune_row_label" title={tune.label}>{tune.label}</span>
+      <Checkbox checked={tune.visible} disabled={isSelectCol} onChange={(e) => po.setColumnVisible(tune.key, e.target.checked)} />
+      <span className="ax-eps-order_tune_row_label" title={tune.label}>
+        {tune.label}
+      </span>
       <Segmented<ColumnSticky>
         size="small"
         value={tune.sticky}
@@ -79,7 +71,9 @@ const TuneContent = observer(() => {
     <div className="ax-eps-order_tune">
       <div className="ax-eps-order_tune_header">
         <span>Column tune</span>
-        <Button size="small" type="text" onClick={() => po.resetTableTune()}>Reset</Button>
+        <Button size="small" type="text" onClick={() => po.resetTableTune()}>
+          Reset
+        </Button>
       </div>
       <div className="ax-eps-order_tune_body">
         {po.tableTune.map((tune, index) => (
@@ -92,12 +86,6 @@ const TuneContent = observer(() => {
 
 export const EpsOrderTuneButton = () => (
   <Popover content={<TuneContent />} trigger="click" placement="bottomLeft" destroyOnHidden>
-    <Button
-      size="small"
-      type="text"
-      icon={<AxMuiIcon icon="mdiTune" size={16} />}
-      title="Tune columns"
-      style={{ cursor: 'pointer' }}
-    />
+    <Button size="small" type="text" icon={<AxMuiIcon icon="mdiTune" size={16} />} title="Tune columns" style={{ cursor: 'pointer' }} />
   </Popover>
 )

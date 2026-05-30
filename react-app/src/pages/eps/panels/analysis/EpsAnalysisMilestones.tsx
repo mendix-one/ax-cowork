@@ -22,10 +22,14 @@ export const EpsAnalysisMilestones = observer(() => {
         <div className="ax-eps-analysis_milestone_list">
           {rows.map((r) => (
             <div key={`${r.pfId}::${r.label}`} className={`ax-eps-analysis_milestone_row ax-eps-analysis_milestone_row__${r.state}`}>
-              <Tag color={STATE_TAG[r.state].color} style={{ margin: 0 }}>{STATE_TAG[r.state].label}</Tag>
+              <Tag color={STATE_TAG[r.state].color} style={{ margin: 0 }}>
+                {STATE_TAG[r.state].label}
+              </Tag>
               <Typography.Text strong>{r.pfCode}</Typography.Text>
               <Typography.Text>{r.label}</Typography.Text>
-              <Typography.Text type="secondary" style={{ marginLeft: 'auto' }}>{r.date}</Typography.Text>
+              <Typography.Text type="secondary" style={{ marginLeft: 'auto' }}>
+                {r.date}
+              </Typography.Text>
               {r.slipDays > 0 && <Typography.Text type="danger">+{r.slipDays}d</Typography.Text>}
               {r.cause && <Typography.Text type="secondary">· {r.cause}</Typography.Text>}
             </div>

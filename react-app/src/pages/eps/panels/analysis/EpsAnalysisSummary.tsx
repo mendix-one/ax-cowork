@@ -11,7 +11,13 @@ const renderCardTitle = (args: { icon: MdiIconName; label: ReactNode; openLabel:
     <AxMuiIcon icon={args.icon} size={16} />
     <span style={{ flex: 1 }}>{args.label}</span>
     {args.onOpen && (
-      <button type="button" onClick={args.onOpen} aria-label={args.openLabel} className="ax-eps-analysis_summary_card_open" style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 2, display: 'inline-flex', alignItems: 'center', color: 'inherit' }}>
+      <button
+        type="button"
+        onClick={args.onOpen}
+        aria-label={args.openLabel}
+        className="ax-eps-analysis_summary_card_open"
+        style={{ background: 'transparent', border: 'none', cursor: 'pointer', padding: 2, display: 'inline-flex', alignItems: 'center', color: 'inherit' }}
+      >
         <AxMuiIcon icon="mdiArrowTopRight" size={14} />
       </button>
     )}
@@ -34,7 +40,12 @@ export const EpsAnalysisSummary = observer(() => {
   return (
     <div className="ax-eps-analysis_summary">
       <div className="ax-eps-analysis_summary_card">
-        {renderCardTitle({ icon: 'mdiViewListOutline', label: 'Totals', openLabel: 'Open Production Requirements', onOpen: () => sim.setActiveMainPanel('orders') })}
+        {renderCardTitle({
+          icon: 'mdiViewListOutline',
+          label: 'Totals',
+          openLabel: 'Open Production Requirements',
+          onOpen: () => sim.setActiveMainPanel('orders'),
+        })}
         <div className="ax-eps-analysis_summary_card_body">
           <div className="ax-eps-analysis_totals">
             <div className="ax-eps-analysis_totals_tile ax-eps-analysis_totals_tile__po">
@@ -59,11 +70,21 @@ export const EpsAnalysisSummary = observer(() => {
       </div>
 
       <div className="ax-eps-analysis_summary_card">
-        {renderCardTitle({ icon: 'mdiSpeedometer', label: 'Avg org demand', openLabel: 'Open Headcount Portfolio', onOpen: () => sim.setActiveMainPanel('capacity') })}
+        {renderCardTitle({
+          icon: 'mdiSpeedometer',
+          label: 'Avg org demand',
+          openLabel: 'Open Headcount Portfolio',
+          onOpen: () => sim.setActiveMainPanel('capacity'),
+        })}
         <div className="ax-eps-analysis_summary_card_body">
           <Statistic
             value={cap.avgDemand}
-            suffix={<Typography.Text type="secondary" className="text-sm"> P/M / division</Typography.Text>}
+            suffix={
+              <Typography.Text type="secondary" className="text-sm">
+                {' '}
+                P/M / division
+              </Typography.Text>
+            }
             styles={{ content: { fontSize: 22, color: cap.avgVsLimitPct > 100 ? '#f44336' : cap.avgVsSafePct > 100 ? '#ff9800' : '#2196f3' } }}
           />
           <Typography.Text type="secondary" className="text-sm">
@@ -80,9 +101,23 @@ export const EpsAnalysisSummary = observer(() => {
       </div>
 
       <div className="ax-eps-analysis_summary_card">
-        {renderCardTitle({ icon: 'mdiSitemapOutline', label: <>Engineering Process</>, openLabel: 'Open Engineering Process', onOpen: () => sim.setActiveMainPanel('processes') })}
+        {renderCardTitle({
+          icon: 'mdiSitemapOutline',
+          label: <>Engineering Process</>,
+          openLabel: 'Open Engineering Process',
+          onOpen: () => sim.setActiveMainPanel('processes'),
+        })}
         <div className="ax-eps-analysis_summary_card_body">
-          <Statistic value={totals.task} suffix={<Typography.Text type="secondary" className="text-sm"> tasks routed</Typography.Text>} styles={{ content: { fontSize: 22, color: '#3F51B5' } }} />
+          <Statistic
+            value={totals.task}
+            suffix={
+              <Typography.Text type="secondary" className="text-sm">
+                {' '}
+                tasks routed
+              </Typography.Text>
+            }
+            styles={{ content: { fontSize: 22, color: '#3F51B5' } }}
+          />
           <Typography.Text type="secondary" className="text-sm">
             Across {totals.pf} families · {totals.sub} sub-tasks
           </Typography.Text>
@@ -90,13 +125,25 @@ export const EpsAnalysisSummary = observer(() => {
       </div>
 
       <div className="ax-eps-analysis_summary_card">
-        {renderCardTitle({ icon: 'mdiAlertOctagonOutline', label: <>Violations &amp; High-load</>, openLabel: 'Open Headcount Portfolio', onOpen: () => (violationTarget ? sim.navigateToOrgNode(violationTarget) : sim.setActiveMainPanel('capacity')) })}
+        {renderCardTitle({
+          icon: 'mdiAlertOctagonOutline',
+          label: <>Violations &amp; High-load</>,
+          openLabel: 'Open Headcount Portfolio',
+          onOpen: () => (violationTarget ? sim.navigateToOrgNode(violationTarget) : sim.setActiveMainPanel('capacity')),
+        })}
         <div className="ax-eps-analysis_summary_card_body ax-eps-analysis_summary_card_body__list">
           {violations.length === 0 ? (
             <Typography.Text type="secondary">All org nodes within safe range.</Typography.Text>
           ) : (
             violations.slice(0, 4).map((v) => (
-              <div key={v.org.label} className={`ax-eps-analysis_summary_violation ${v.kind}`} role="button" tabIndex={0} style={{ cursor: 'pointer' }} onClick={() => sim.navigateToOrgNode(v.org.ref.teamId ?? v.org.ref.divisionId)}>
+              <div
+                key={v.org.label}
+                className={`ax-eps-analysis_summary_violation ${v.kind}`}
+                role="button"
+                tabIndex={0}
+                style={{ cursor: 'pointer' }}
+                onClick={() => sim.navigateToOrgNode(v.org.ref.teamId ?? v.org.ref.divisionId)}
+              >
                 <Tag color={v.kind === 'violation' ? 'red' : 'orange'} style={{ margin: 0 }}>
                   {v.kind === 'violation' ? 'Violation' : 'Highload'}
                 </Tag>

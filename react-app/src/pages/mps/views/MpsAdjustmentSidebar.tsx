@@ -18,13 +18,7 @@ export const MpsAdjustmentSidebar = observer((props: MpsAdjustmentSidebarProps) 
     <div className="ax-mps-simulation_side">
       <div className="ax-mps-simulation_side_header">
         <span>Adjustment</span>
-        <Button
-          size="small"
-          type="text"
-          className="ax-antd-button-icon-small"
-          icon={<AxMuiIcon icon="mdiClose" size="1.15rem" />}
-          onClick={props.onClose}
-        />
+        <Button size="small" type="text" className="ax-antd-button-icon-small" icon={<AxMuiIcon icon="mdiClose" size="1.15rem" />} onClick={props.onClose} />
       </div>
       <div className="ax-mps-simulation_side_body">
         <div className="ax-mps-simulation_filter_group">

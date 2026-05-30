@@ -131,7 +131,14 @@ export const MpsLayout = observer(() => {
         <MpsLayoutLeft />
         <Layout.Content className="ax-layout_main">
           <div className={styles.root}>
-            <AxSplitPane first={mainNode} second={subNode} secondVisible={subVisible} defaultRightPercent={rightDefault} minRightPercent={12} maxRightPercent={80} />
+            <AxSplitPane
+              first={mainNode}
+              second={subNode}
+              secondVisible={subVisible}
+              defaultRightPercent={rightDefault}
+              minRightPercent={12}
+              maxRightPercent={80}
+            />
           </div>
         </Layout.Content>
         <MpsLayoutRight />

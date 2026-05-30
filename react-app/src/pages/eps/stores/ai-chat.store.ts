@@ -24,10 +24,15 @@ const INITIAL_MESSAGES: ChatMessage[] = [
   {
     id: 'm2',
     role: 'assistant',
-    content: 'I evaluated 3 reallocation candidates against your headcount portfolio. None breach Jisoo Park\'s 95% utilization ceiling:',
+    content: "I evaluated 3 reallocation candidates against your headcount portfolio. None breach Jisoo Park's 95% utilization ceiling:",
     scenarios: [
       { id: 's-a', letter: 'A', title: 'Move 5 engineers from NAND-V9 → HBM4-Dev', detail: 'HBM4 timeline -3 months. NAND-V9 util 85% → 92% (within band).' },
-      { id: 's-b', letter: 'B', title: 'Borrow 3 verification engineers from Pyeongtaek', detail: 'HBM4 timeline -6 weeks. Cross-site approval needed (Minho Kim).' },
+      {
+        id: 's-b',
+        letter: 'B',
+        title: 'Borrow 3 verification engineers from Pyeongtaek',
+        detail: 'HBM4 timeline -6 weeks. Cross-site approval needed (Minho Kim).',
+      },
       { id: 's-c', letter: 'C', title: 'Defer DDR5-Gen5 by 1 quarter', detail: 'Frees 7 design heads. DDR5 commit slips Q2 → Q3 2027.' },
     ],
     explainability: [

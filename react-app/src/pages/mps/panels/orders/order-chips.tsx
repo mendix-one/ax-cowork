@@ -65,9 +65,7 @@ const STATE_STYLE: Record<ScheduleState, { label: string; bg: string; color: str
 export const StateChip = ({ state }: { state: ScheduleState | undefined }) => {
   if (!state) return null
   const style = STATE_STYLE[state]
-  return (
-    <Tag style={{ marginInlineEnd: 0, background: style.bg, color: style.color, border: 'none', fontWeight: 500 }}>{style.label}</Tag>
-  )
+  return <Tag style={{ marginInlineEnd: 0, background: style.bg, color: style.color, border: 'none', fontWeight: 500 }}>{style.label}</Tag>
 }
 
 const MILESTONE_STATE_COLOR: Record<ScheduleMilestone['state'], string> = {

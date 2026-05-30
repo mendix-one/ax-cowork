@@ -154,7 +154,7 @@ export const EpsOrderTable = observer(() => {
       if (!t.visible) continue
       const base = byKey.get(t.key)
       if (!base) continue
-      out.push({ ...base, sortable: t.sortable, sticky: (t.sticky ?? base.sticky) ?? undefined })
+      out.push({ ...base, sortable: t.sortable, sticky: t.sticky ?? base.sticky ?? undefined })
     }
     return out
   }, [baseColumns, po.tableTune])

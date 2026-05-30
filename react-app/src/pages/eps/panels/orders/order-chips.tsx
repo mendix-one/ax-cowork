@@ -14,9 +14,7 @@ const STATE_STYLE: Record<ScheduleState, { label: string; bg: string; color: str
 export const StateChip = ({ state }: { state: ScheduleState | undefined }) => {
   if (!state) return null
   const style = STATE_STYLE[state]
-  return (
-    <Tag style={{ marginInlineEnd: 0, background: style.bg, color: style.color, border: 'none', fontWeight: 500 }}>{style.label}</Tag>
-  )
+  return <Tag style={{ marginInlineEnd: 0, background: style.bg, color: style.color, border: 'none', fontWeight: 500 }}>{style.label}</Tag>
 }
 
 // Sub-Task kind chip — Certification / RF / Other.
@@ -47,11 +45,7 @@ export const MilestoneChips = ({ milestones, pfId }: { milestones: MtoMilestone[
   return (
     <span style={{ display: 'inline-flex', gap: 4, flexWrap: 'wrap' }}>
       {milestones.map((m) => {
-        const lines = [
-          `${m.label} · ${m.date}`,
-          m.cause ? `Cause · ${m.cause}` : '',
-          m.slipDays ? `Slip +${m.slipDays}d` : '',
-        ].filter(Boolean)
+        const lines = [`${m.label} · ${m.date}`, m.cause ? `Cause · ${m.cause}` : '', m.slipDays ? `Slip +${m.slipDays}d` : ''].filter(Boolean)
         return (
           <Tooltip key={`${pfId}::${m.id}`} title={<div style={{ whiteSpace: 'pre-line' }}>{lines.join('\n')}</div>}>
             <Tag color={MILESTONE_STATE_COLOR[m.state]} style={{ marginInlineEnd: 0 }}>

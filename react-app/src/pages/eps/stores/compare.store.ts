@@ -21,14 +21,10 @@ export type PlanSnapshot = {
 }
 
 const sumSpm = () =>
-  MOCK_PRODUCTION_FAMILIES.reduce(
-    (s, pf) => s + pf.tasks.reduce((ss, t) => ss + t.spm + t.subTasks.reduce((sss, x) => sss + x.spm, 0), 0),
-    0,
-  )
+  MOCK_PRODUCTION_FAMILIES.reduce((s, pf) => s + pf.tasks.reduce((ss, t) => ss + t.spm + t.subTasks.reduce((sss, x) => sss + x.spm, 0), 0), 0)
 const countTasks = () => MOCK_PRODUCTION_FAMILIES.reduce((s, pf) => s + pf.tasks.length, 0)
 const countAtRisk = () => MOCK_PRODUCTION_FAMILIES.filter((p) => p.scheduleClass === 'changes').length
-const maxEnd = () =>
-  MOCK_PRODUCTION_FAMILIES.flatMap((p) => p.tasks).reduce((a, t) => (t.end > a ? t.end : a), '')
+const maxEnd = () => MOCK_PRODUCTION_FAMILIES.flatMap((p) => p.tasks).reduce((a, t) => (t.end > a ? t.end : a), '')
 
 const VARIATIONS: Record<string, { spmMul: number; atRiskDelta: number; endShiftDays: number; bottleneck: string }> = {
   'plan-a': { spmMul: 1.0, atRiskDelta: 0, endShiftDays: 0, bottleneck: MOCK_ORG_DEMAND_BY_TEAM[0]?.label ?? '—' },
@@ -60,9 +56,7 @@ const DIFFS_PLAN_B: DiffEntry[] = [
   { id: 'd1', text: 'NPU RTL Design pulled in 6 weeks', reason: 'capacity freed', weight: -2 },
   { id: 'd2', text: 'Post-Si validation team rebalanced to AV Cell', reason: 'skill match', weight: -1 },
 ]
-const DIFFS_PUBLISHED: DiffEntry[] = [
-  { id: 'd1', text: 'MTO(0) slipped to 2027-08 (+2 months)', reason: 'PnR timing closure', weight: 2 },
-]
+const DIFFS_PUBLISHED: DiffEntry[] = [{ id: 'd1', text: 'MTO(0) slipped to 2027-08 (+2 months)', reason: 'PnR timing closure', weight: 2 }]
 
 const diffsFor = (planId: string): DiffEntry[] => (planId === 'published' ? DIFFS_PUBLISHED : DIFFS_PLAN_B)
 

@@ -49,10 +49,28 @@ export const EpsAnalysisShopFloorArea = observer(() => {
           markLine: {
             symbol: 'none' as const,
             silent: true,
-            label: { position: 'end' as const, distance: 4, fontSize: 10, fontWeight: 'bold' as const, backgroundColor: '#ffffff', padding: [2, 4] as [number, number], borderRadius: 2 },
+            label: {
+              position: 'end' as const,
+              distance: 4,
+              fontSize: 10,
+              fontWeight: 'bold' as const,
+              backgroundColor: '#ffffff',
+              padding: [2, 4] as [number, number],
+              borderRadius: 2,
+            },
             data: [
-              { yAxis: HEADCOUNT_CAPACITY_LIMIT, name: 'Limit', lineStyle: { color: '#f44336', type: 'solid' as const, width: 2 }, label: { formatter: `Limit ${HEADCOUNT_CAPACITY_LIMIT}`, color: '#f44336' } },
-              { yAxis: HEADCOUNT_CAPACITY_SAFE, name: 'Safe', lineStyle: { color: '#ff9800', type: 'dashed' as const, width: 2 }, label: { formatter: `Safe ${HEADCOUNT_CAPACITY_SAFE}`, color: '#ff9800' } },
+              {
+                yAxis: HEADCOUNT_CAPACITY_LIMIT,
+                name: 'Limit',
+                lineStyle: { color: '#f44336', type: 'solid' as const, width: 2 },
+                label: { formatter: `Limit ${HEADCOUNT_CAPACITY_LIMIT}`, color: '#f44336' },
+              },
+              {
+                yAxis: HEADCOUNT_CAPACITY_SAFE,
+                name: 'Safe',
+                lineStyle: { color: '#ff9800', type: 'dashed' as const, width: 2 },
+                label: { formatter: `Safe ${HEADCOUNT_CAPACITY_SAFE}`, color: '#ff9800' },
+              },
             ],
           },
         },

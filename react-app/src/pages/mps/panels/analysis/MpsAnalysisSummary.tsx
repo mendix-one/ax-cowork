@@ -68,7 +68,12 @@ export const MpsAnalysisSummary = observer(() => {
     <div className="ax-mps-analysis_summary">
       {/* Totals — three tiles showing the PO → PF → MB hierarchy, plus a one-line ratio caption. */}
       <div className="ax-mps-analysis_summary_card">
-        {renderCardTitle({ icon: 'mdiViewListOutline', label: 'Totals', openLabel: 'Open Production Order panel', onOpen: () => sim.setActiveMainPanel('orders') })}
+        {renderCardTitle({
+          icon: 'mdiViewListOutline',
+          label: 'Totals',
+          openLabel: 'Open Production Order panel',
+          onOpen: () => sim.setActiveMainPanel('orders'),
+        })}
         <div className="ax-mps-analysis_summary_card_body">
           <div className="ax-mps-analysis_totals">
             <div className="ax-mps-analysis_totals_tile ax-mps-analysis_totals_tile__po">
@@ -112,7 +117,12 @@ export const MpsAnalysisSummary = observer(() => {
         <div className="ax-mps-analysis_summary_card_body">
           <Statistic
             value={cap.avgDaily}
-            suffix={<Typography.Text type="secondary" className="text-sm"> wafer-moves/day</Typography.Text>}
+            suffix={
+              <Typography.Text type="secondary" className="text-sm">
+                {' '}
+                wafer-moves/day
+              </Typography.Text>
+            }
             valueStyle={{ fontSize: 22, color: cap.avgVsLimitPct > 100 ? '#f44336' : cap.avgVsSafePct > 100 ? '#ff9800' : '#2196f3' }}
           />
           <Typography.Text type="secondary" className="text-sm">
@@ -120,11 +130,21 @@ export const MpsAnalysisSummary = observer(() => {
           </Typography.Text>
           {cap.bottleneckGroup && (
             <div className="ax-mps-analysis_summary_card_chips">
-              <Tag color="orange" style={{ margin: 0, cursor: 'pointer' }} onClick={() => sim.navigateToToolGroup(cap.bottleneckGroup!)} title="Open in Shop Floor Capacity">
+              <Tag
+                color="orange"
+                style={{ margin: 0, cursor: 'pointer' }}
+                onClick={() => sim.navigateToToolGroup(cap.bottleneckGroup!)}
+                title="Open in Shop Floor Capacity"
+              >
                 Bottleneck · {cap.bottleneckGroup}
               </Tag>
               {cap.highloadGroup && cap.highloadGroup !== cap.bottleneckGroup && (
-                <Tag color="red" style={{ margin: 0, cursor: 'pointer' }} onClick={() => sim.navigateToToolGroup(cap.highloadGroup!)} title="Open in Shop Floor Capacity">
+                <Tag
+                  color="red"
+                  style={{ margin: 0, cursor: 'pointer' }}
+                  onClick={() => sim.navigateToToolGroup(cap.highloadGroup!)}
+                  title="Open in Shop Floor Capacity"
+                >
                   Highload · {cap.highloadGroup}
                 </Tag>
               )}
@@ -144,7 +164,12 @@ export const MpsAnalysisSummary = observer(() => {
         <div className="ax-mps-analysis_summary_card_body">
           <Statistic
             value={ship.totalWafersOut}
-            suffix={<Typography.Text type="secondary" className="text-sm"> wafers planned</Typography.Text>}
+            suffix={
+              <Typography.Text type="secondary" className="text-sm">
+                {' '}
+                wafers planned
+              </Typography.Text>
+            }
             valueStyle={{ fontSize: 22, color: '#2196f3' }}
           />
           <Typography.Text type="secondary" className="text-sm">

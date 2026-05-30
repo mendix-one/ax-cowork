@@ -39,7 +39,7 @@ Use pnpm filters to scope commands to one package, e.g.
 
 Inside `react-app/`, the package-local scripts (`pnpm dev`, `pnpm build`, `pnpm lint`, `pnpm preview`) work as you'd expect. The build pipeline is `tsc -b && vite build && node scripts/postbuild.mjs`.
 
-## Mendix widget builds (widgets/*)
+## Mendix widget builds (widgets/\*)
 
 Each widget package uses `@mendix/pluggable-widgets-tools` v11.x (`pluggable-widgets-tools build:web` → `dist/<version>/<packagePath>.<WidgetName>.mpk`). v11 ships with sass + rollup-plugin-postcss + postcss-import + postcss-url as direct deps, requires Node 20+, and pulls React 19 types.
 

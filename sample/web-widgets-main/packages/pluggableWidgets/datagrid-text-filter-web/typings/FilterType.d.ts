@@ -1,1 +1,0 @@
-export { DefaultFilterEnum as FilterType } from "./DatagridTextFilterProps";

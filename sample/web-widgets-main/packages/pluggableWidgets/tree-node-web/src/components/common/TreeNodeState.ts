@@ -1,6 +1,0 @@
-export const enum TreeNodeState {
-    COLLAPSED_WITH_JS = "COLLAPSED_WITH_JS",
-    COLLAPSED_WITH_CSS = "COLLAPSED_WITH_CSS",
-    EXPANDED = "EXPANDED",
-    LOADING = "LOADING"
-}

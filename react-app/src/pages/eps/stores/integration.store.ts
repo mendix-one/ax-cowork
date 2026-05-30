@@ -20,10 +20,17 @@ const SOURCES: DataSource[] = [
   { id: 'smdm', name: 'SMDM', type: 'Org hierarchy · skill groups', lastSync: '2026-05-25 06:01', status: 'healthy', latency: '2.0s' },
   { id: 'ghrp', name: 'GHRP', type: 'Headcount snapshot · hiring plan', lastSync: '2026-05-25 06:00', status: 'healthy', latency: '0.8s' },
   { id: 'promis', name: 'PROMIS', type: 'Profit / cost · approved roadmap sink', lastSync: '2026-05-25 06:01', status: 'healthy', latency: 'Δ-sync 30 min' },
-  { id: 'teamcenter', name: 'Teamcenter (PLM)', type: 'Engineering spec · prior-gen specs', lastSync: '2026-05-25 05:45', status: 'delayed', latency: '16 min ▲' },
+  {
+    id: 'teamcenter',
+    name: 'Teamcenter (PLM)',
+    type: 'Engineering spec · prior-gen specs',
+    lastSync: '2026-05-25 05:45',
+    status: 'delayed',
+    latency: '16 min ▲',
+  },
   { id: 'pmplanner', name: 'PM Planner (legacy)', type: 'Mendix 9 — being decommissioned', lastSync: '2026-05-22 09:00', status: 'stale', latency: '3 days' },
   { id: 'aiservices', name: 'Samsung AI Services', type: 'Demand forecast · AI co-pilot', lastSync: '2026-05-25 04:00', status: 'healthy', latency: '2 hr' },
-  { id: 'workday', name: 'Workday (cross-site HR)', type: 'Austin / Xi\'an HR — read only', lastSync: '—', status: 'not-configured', latency: '—' },
+  { id: 'workday', name: 'Workday (cross-site HR)', type: "Austin / Xi'an HR — read only", lastSync: '—', status: 'not-configured', latency: '—' },
 ]
 
 export class IntegrationStore {

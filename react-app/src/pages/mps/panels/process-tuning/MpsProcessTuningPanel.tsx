@@ -65,7 +65,9 @@ const TuneItem = observer(({ s, active, onClick }: { s: TuneSuggestion; active: 
           {s.delta.toFixed(1)}%
         </Tag>
       </Flex>
-      <Typography.Text>{s.toolGroup} · {s.recipe}</Typography.Text>
+      <Typography.Text>
+        {s.toolGroup} · {s.recipe}
+      </Typography.Text>
       <div>
         <Typography.Text type="secondary" className="text-sm">
           Confidence {s.confidence}%

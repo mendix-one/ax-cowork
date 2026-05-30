@@ -62,12 +62,7 @@ const CapacityToolGroupTree = observer(() => {
             {items.map((g) => {
               const isActive = g.id === store.selectedGroupId
               return (
-                <button
-                  key={g.id}
-                  type="button"
-                  className={`ax-mps-capacity_tree_card ${isActive ? 'is-active' : ''}`}
-                  onClick={() => store.selectGroup(g.id)}
-                >
+                <button key={g.id} type="button" className={`ax-mps-capacity_tree_card ${isActive ? 'is-active' : ''}`} onClick={() => store.selectGroup(g.id)}>
                   <div className="ax-mps-capacity_tree_card_top">
                     <span className="ax-mps-capacity_tree_card_name">{g.name}</span>
                     <Typography.Text className="text-sm" style={{ color: utilColor(g.utilization) }} strong>
@@ -120,7 +115,7 @@ const KpiStrip = observer(({ group }: { group: ToolGroup }) => {
       <KpiCard
         label="Effective WSPM"
         value={`${Math.round(oee.effective * 30).toLocaleString()}`}
-        sub={`Theoretical ${Math.round(oee.theoretical * 30).toLocaleString()} · gap ${(Math.round((oee.theoretical - oee.effective) * 30)).toLocaleString()}`}
+        sub={`Theoretical ${Math.round(oee.theoretical * 30).toLocaleString()} · gap ${Math.round((oee.theoretical - oee.effective) * 30).toLocaleString()}`}
       />
       <KpiCard
         label="Tools online"
@@ -224,7 +219,9 @@ const CapacityDetail = observer(({ group }: { group: ToolGroup }) => {
         <div className="ax-mps-analysis_section_header">
           <div className="ax-mps-analysis_section_header_title">
             <AxMuiIcon icon="mdiFactory" size={18} />
-            <span>{group.name} · {group.module}</span>
+            <span>
+              {group.name} · {group.module}
+            </span>
           </div>
           <Tooltip title={`${utilLabel(group.utilization)} — utilisation against effective capacity`}>
             <Tag color={group.utilization > 85 ? 'red' : group.utilization > 70 ? 'orange' : 'green'} style={{ margin: 0 }}>
@@ -234,9 +231,8 @@ const CapacityDetail = observer(({ group }: { group: ToolGroup }) => {
         </div>
         <div className="ax-mps-analysis_section_body">
           <Typography.Text type="secondary" className="text-sm">
-            {store.tools.length} tools in this group · {store.qualMatrix.length} recipes qualified across the group.
-            Use the charts below to drill into capacity / OEE / constraints, then the Tools and Qualification
-            tables for per-tool state.
+            {store.tools.length} tools in this group · {store.qualMatrix.length} recipes qualified across the group. Use the charts below to drill into capacity
+            / OEE / constraints, then the Tools and Qualification tables for per-tool state.
           </Typography.Text>
         </div>
       </div>

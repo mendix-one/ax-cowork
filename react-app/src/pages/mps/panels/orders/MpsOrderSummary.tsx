@@ -47,7 +47,16 @@ export const MpsOrderSummary = observer(() => {
           <span>Visible orders</span>
         </div>
         <div className="ax-mps-order_summary_card_body">
-          <Statistic value={s.poCount} suffix={<Typography.Text type="secondary" className="text-sm"> POs · {s.batchCount} batches</Typography.Text>} valueStyle={{ fontSize: 22, color: '#2196f3' }} />
+          <Statistic
+            value={s.poCount}
+            suffix={
+              <Typography.Text type="secondary" className="text-sm">
+                {' '}
+                POs · {s.batchCount} batches
+              </Typography.Text>
+            }
+            valueStyle={{ fontSize: 22, color: '#2196f3' }}
+          />
           <Typography.Text type="secondary" className="text-sm">
             Running {s.runningCount} · At-risk {s.atRiskCount}
           </Typography.Text>
@@ -60,7 +69,16 @@ export const MpsOrderSummary = observer(() => {
           <span>Committed wafers</span>
         </div>
         <div className="ax-mps-order_summary_card_body">
-          <Statistic value={s.totalCommitted} suffix={<Typography.Text type="secondary" className="text-sm"> wafers</Typography.Text>} valueStyle={{ fontSize: 22, color: '#3F51B5' }} />
+          <Statistic
+            value={s.totalCommitted}
+            suffix={
+              <Typography.Text type="secondary" className="text-sm">
+                {' '}
+                wafers
+              </Typography.Text>
+            }
+            valueStyle={{ fontSize: 22, color: '#3F51B5' }}
+          />
           <Typography.Text type="secondary" className="text-sm">
             Across {s.poCount} production orders
           </Typography.Text>
@@ -73,7 +91,16 @@ export const MpsOrderSummary = observer(() => {
           <span>Out</span>
         </div>
         <div className="ax-mps-order_summary_card_body">
-          <Statistic value={s.totalOut} suffix={<Typography.Text type="secondary" className="text-sm"> wafers · {outPct}%</Typography.Text>} valueStyle={{ fontSize: 22, color: '#4caf50' }} />
+          <Statistic
+            value={s.totalOut}
+            suffix={
+              <Typography.Text type="secondary" className="text-sm">
+                {' '}
+                wafers · {outPct}%
+              </Typography.Text>
+            }
+            valueStyle={{ fontSize: 22, color: '#4caf50' }}
+          />
           <div className="ax-mps-order_summary_bar">
             <div className="ax-mps-order_summary_bar_fill ax-mps-order_summary_bar_fill__done" style={{ width: `${outPct}%` }} />
           </div>
@@ -88,7 +115,12 @@ export const MpsOrderSummary = observer(() => {
         <div className="ax-mps-order_summary_card_body">
           <Statistic
             value={s.totalRemaining}
-            suffix={<Typography.Text type="secondary" className="text-sm"> wafers · {remainingPct}%</Typography.Text>}
+            suffix={
+              <Typography.Text type="secondary" className="text-sm">
+                {' '}
+                wafers · {remainingPct}%
+              </Typography.Text>
+            }
             valueStyle={{ fontSize: 22, color: s.atRiskCount > 0 ? '#ff9800' : '#2196f3' }}
           />
           {s.atRiskCount > 0 ? (

@@ -39,7 +39,9 @@ export const MpsProcessTechList = observer(() => {
                   <div className="ax-mps-process_tech_card_stat_value">{s.totalWafers.toLocaleString()}</div>
                 </div>
                 <div>
-                  <Tooltip title={`Processing ${formatCycle(s.totalCycleHours)} · Move ${formatCycle(s.totalMoveHours)} · Wait ${formatCycle(s.totalWaitHours)}`}>
+                  <Tooltip
+                    title={`Processing ${formatCycle(s.totalCycleHours)} · Move ${formatCycle(s.totalMoveHours)} · Wait ${formatCycle(s.totalWaitHours)}`}
+                  >
                     <div className="ax-mps-process_tech_card_stat_label">End-to-end</div>
                     <div className="ax-mps-process_tech_card_stat_value">{formatCycle(s.totalClockHours)}</div>
                   </Tooltip>

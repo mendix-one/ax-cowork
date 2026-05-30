@@ -99,8 +99,7 @@ const PO_COLUMN_BASELINE: ColumnTune[] = [
 ]
 
 const BIZ_TEAM_BY_ID: Record<string, BizTeam> = Object.fromEntries(MOCK_BIZ_TEAMS.map((t) => [t.id, t]))
-const familyTotalSpm = (pf: ProductionFamily): number =>
-  pf.tasks.reduce((s, t) => s + t.spm + t.subTasks.reduce((ss, x) => ss + x.spm, 0), 0)
+const familyTotalSpm = (pf: ProductionFamily): number => pf.tasks.reduce((s, t) => s + t.spm + t.subTasks.reduce((ss, x) => ss + x.spm, 0), 0)
 const taskTotalSpm = (t: EngineeringTask): number => t.spm + t.subTasks.reduce((ss, x) => ss + x.spm, 0)
 
 // Find the earliest / latest date among a set of tasks (or subtasks).
@@ -163,9 +162,7 @@ export class OrderStore {
 
   // Entity notes (list). Persisted to localStorage; keys are namespaced ("pf::id", "task::id", "sub::id").
   private entityNotesStore: PersistedEntityNotes = readJson(ENTITY_NOTES_STORAGE_KEY, isPersistedEntityNotes) ?? {
-    'pf::pf-flg-modap-1': [
-      { id: 'seed-pf-1', text: 'Watch MTO(0) slip — PnR closure pending.', createdAt: '2026-05-10T08:30:00Z' },
-    ],
+    'pf::pf-flg-modap-1': [{ id: 'seed-pf-1', text: 'Watch MTO(0) slip — PnR closure pending.', createdAt: '2026-05-10T08:30:00Z' }],
   }
 
   private historyCount = 0
@@ -253,9 +250,7 @@ export class OrderStore {
     const topo = buildTopology(this.families)
     this.expandedBizGroupKeys = new Set(topo.map((b) => `bizGroup::${b.bizGroup}`))
     this.expandedBizTeamKeys = new Set(topo.flatMap((b) => b.teams.map((t) => `bizTeam::${t.bizTeam.id}`)))
-    this.expandedPfgKeys = new Set(
-      topo.flatMap((b) => b.teams.flatMap((t) => t.byPfg.map((g) => `pfg::${t.bizTeam.id}::${g.group}`))),
-    )
+    this.expandedPfgKeys = new Set(topo.flatMap((b) => b.teams.flatMap((t) => t.byPfg.map((g) => `pfg::${t.bizTeam.id}::${g.group}`))))
     this.expandedPfIds = new Set(this.families.map((p) => p.id))
     this.expandedTaskIds = new Set(this.families.flatMap((p) => p.tasks.map((t) => t.id)))
   }

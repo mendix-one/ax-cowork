@@ -113,8 +113,8 @@ export const HomePage = observer(() => {
           </Flex>
 
           <Typography.Paragraph type="secondary" style={{ maxWidth: 760, marginBottom: 0 }}>
-            Pick the simulation that matches your planning horizon. Each workspace shares the same gantt, capacity and AI co-pilot patterns,
-            so switching between portfolio, engineering (IRIS) and manufacturing planning feels familiar. Samsung DSR planners start with EPS.
+            Pick the simulation that matches your planning horizon. Each workspace shares the same gantt, capacity and AI co-pilot patterns, so switching
+            between portfolio, engineering (IRIS) and manufacturing planning feels familiar. Samsung DSR planners start with EPS.
           </Typography.Paragraph>
 
           <Row gutter={[24, 24]}>

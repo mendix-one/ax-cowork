@@ -17,9 +17,7 @@ export type PreflightFinding = {
   title: string
   detail: string
   // Optional pointer for a "Fix" affordance — caller maps it to navigateTo* on the simulation store.
-  drillTarget?:
-    | { kind: 'toolGroup'; name: string }
-    | { kind: 'order'; id: string }
+  drillTarget?: { kind: 'toolGroup'; name: string } | { kind: 'order'; id: string }
 }
 
 const overlaps = (aStart: string, aEnd: string, bStart: string, bEnd: string) => aStart <= bEnd && bStart <= aEnd
@@ -72,7 +70,9 @@ export const runPreflight = ({ orders }: PreflightArgs): PreflightFinding[] => {
         const stepGroup = batch.toolGroup ?? null
         // Match constraints whose tool group plausibly affects this family/batch. Without a per-step tool
         // mapping in the mock, we conservatively check tool groups that match the family's tech namespace.
-        const candidates = TOOLING_CONSTRAINTS.filter((c) => blockingKinds.includes(c.kind) && (stepGroup ? c.toolGroup === stepGroup : true) && overlaps(batch.start, batch.end, c.start, c.end))
+        const candidates = TOOLING_CONSTRAINTS.filter(
+          (c) => blockingKinds.includes(c.kind) && (stepGroup ? c.toolGroup === stepGroup : true) && overlaps(batch.start, batch.end, c.start, c.end),
+        )
         for (const c of candidates) {
           out.push({
             id: `cons-${order.id}-${family.id}-${batch.id}-${c.id}`,

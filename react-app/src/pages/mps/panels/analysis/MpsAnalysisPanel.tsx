@@ -18,13 +18,7 @@ export const MpsAnalysisPanel = observer((props: MainPanelControls) => {
   const sim = useMpsContext()
   const analysis = sim.analysis
   return (
-    <AxDisplayPanel
-      type="main"
-      icon="mdiChartBar"
-      title={`Analysis · ${sim.activeMpsPlan.name}`}
-      tools={<MpsAnalysisToolbar />}
-      {...props}
-    >
+    <AxDisplayPanel type="main" icon="mdiChartBar" title={`Analysis · ${sim.activeMpsPlan.name}`} tools={<MpsAnalysisToolbar />} {...props}>
       <div className="ax-mps-simulation">
         <div className="ax-mps-simulation_body">
           {analysis.filterSidebarOpen && <MpsAdjustmentSidebar onClose={() => analysis.toggleFilterSidebar()} />}

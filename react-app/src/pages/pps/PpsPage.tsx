@@ -24,9 +24,9 @@ export const PpsPage = observer(() => {
               Product portfolio planning is coming next
             </Typography.Title>
             <Typography.Paragraph type="secondary" style={{ marginBottom: 0, maxWidth: 720 }}>
-              PPS shapes the upstream view that feeds EPS and MPS. It lines up market demand, business cases and platform investments before
-              engineering and manufacturing commit. The workspace will mirror the EPS / MPS shell — gantt simulation, capacity tuning and an AI
-              co-pilot — adapted to portfolio decisions.
+              PPS shapes the upstream view that feeds EPS and MPS. It lines up market demand, business cases and platform investments before engineering and
+              manufacturing commit. The workspace will mirror the EPS / MPS shell — gantt simulation, capacity tuning and an AI co-pilot — adapted to portfolio
+              decisions.
             </Typography.Paragraph>
           </Flex>
 

@@ -6,13 +6,7 @@ import { AxMuiIcon } from '@/shared/mui-icon/AxMuiIcon.tsx'
 import { StateChip, SubTaskKindChip, MilestoneChips } from './order-chips'
 import { EpsOrderSummary } from './EpsOrderSummary'
 import { formatMtoAnchor, noteKeyForFamily, noteKeyForSubTask, noteKeyForTask } from '../../helpers/order.helpers'
-import {
-  bizTeamById,
-  milestonesForFamily,
-  orgPathForCell,
-  processPathLabel,
-  productionFamilyById,
-} from '../../data/mock-plan'
+import { bizTeamById, milestonesForFamily, orgPathForCell, processPathLabel, productionFamilyById } from '../../data/mock-plan'
 
 const EntityNotesList = observer(({ entityKey, placeholder }: { entityKey: string; placeholder: string }) => {
   const po = useEpsContext().order
@@ -162,7 +156,9 @@ export const EpsOrderInfoPanel = observer(() => {
                     {pf.tasks.map((t) => (
                       <button key={t.id} type="button" className="ax-eps-order_fams_item" onClick={() => po.selectRow(`task::${t.id}`)}>
                         <div className="ax-eps-order_fams_item_top">
-                          <span className="ax-eps-order_fams_item_label">{t.code} · {t.name}</span>
+                          <span className="ax-eps-order_fams_item_label">
+                            {t.code} · {t.name}
+                          </span>
                           <StateChip state={t.scheduleClass} />
                         </div>
                         <div className="ax-eps-order_fams_item_meta">
@@ -170,7 +166,9 @@ export const EpsOrderInfoPanel = observer(() => {
                           <span>·</span>
                           <span>{t.spm} P/M</span>
                           <span>·</span>
-                          <span>{t.start} → {t.end}</span>
+                          <span>
+                            {t.start} → {t.end}
+                          </span>
                         </div>
                       </button>
                     ))}
@@ -198,25 +196,20 @@ export const EpsOrderInfoPanel = observer(() => {
                     <Descriptions.Item label="Process Path" span={2}>
                       {processPathLabel(task.processPath)}
                     </Descriptions.Item>
-                    <Descriptions.Item label="Owner">
-                      {task.ownerCellIds.map((id) => orgPathForCell(id)).join('; ')}
-                    </Descriptions.Item>
+                    <Descriptions.Item label="Owner">{task.ownerCellIds.map((id) => orgPathForCell(id)).join('; ')}</Descriptions.Item>
                     <Descriptions.Item label="SPM">{task.spm} P/M</Descriptions.Item>
                     <Descriptions.Item label="Start">{task.start}</Descriptions.Item>
                     <Descriptions.Item label="End">{task.end}</Descriptions.Item>
                     <Descriptions.Item label="Duration">{task.durationDays} days</Descriptions.Item>
-                    <Descriptions.Item label="State"><StateChip state={task.scheduleClass} /></Descriptions.Item>
+                    <Descriptions.Item label="State">
+                      <StateChip state={task.scheduleClass} />
+                    </Descriptions.Item>
                   </Descriptions>
                 </div>
                 <div className="ax-eps-order_info_section">
                   <div className="ax-eps-order_info_section_title">
                     Sub-Tasks ({task.subTasks.length})
-                    <Button
-                      size="small"
-                      type="link"
-                      icon={<AxMuiIcon icon="mdiPlusCircleOutline" size={14} />}
-                      onClick={() => po.addSubTask(pf.id, task.id)}
-                    >
+                    <Button size="small" type="link" icon={<AxMuiIcon icon="mdiPlusCircleOutline" size={14} />} onClick={() => po.addSubTask(pf.id, task.id)}>
                       Add Sub-Task
                     </Button>
                   </div>
@@ -233,7 +226,9 @@ export const EpsOrderInfoPanel = observer(() => {
                           <span>·</span>
                           <span>{s.durationDays} days</span>
                           <span>·</span>
-                          <span>{s.start} → {s.end}</span>
+                          <span>
+                            {s.start} → {s.end}
+                          </span>
                         </div>
                       </button>
                     ))}
@@ -257,16 +252,18 @@ export const EpsOrderInfoPanel = observer(() => {
                 <div className="ax-eps-order_info_section">
                   <div className="ax-eps-order_info_section_title">Meta Info</div>
                   <Descriptions size="small" column={2} bordered labelStyle={{ width: 130, fontWeight: 500, color: '#262626' }}>
-                    <Descriptions.Item label="Kind"><SubTaskKindChip kind={sub.kind} /></Descriptions.Item>
-                    <Descriptions.Item label="Name">{sub.name}</Descriptions.Item>
-                    <Descriptions.Item label="Owner">
-                      {sub.ownerCellIds.map((id) => orgPathForCell(id)).join('; ')}
+                    <Descriptions.Item label="Kind">
+                      <SubTaskKindChip kind={sub.kind} />
                     </Descriptions.Item>
+                    <Descriptions.Item label="Name">{sub.name}</Descriptions.Item>
+                    <Descriptions.Item label="Owner">{sub.ownerCellIds.map((id) => orgPathForCell(id)).join('; ')}</Descriptions.Item>
                     <Descriptions.Item label="SPM">{sub.spm} P/M</Descriptions.Item>
                     <Descriptions.Item label="Start">{sub.start}</Descriptions.Item>
                     <Descriptions.Item label="End">{sub.end}</Descriptions.Item>
                     <Descriptions.Item label="Duration">{sub.durationDays} days</Descriptions.Item>
-                    <Descriptions.Item label="State"><StateChip state={sub.scheduleClass} /></Descriptions.Item>
+                    <Descriptions.Item label="State">
+                      <StateChip state={sub.scheduleClass} />
+                    </Descriptions.Item>
                   </Descriptions>
                 </div>
                 <div className="ax-eps-order_info_section">

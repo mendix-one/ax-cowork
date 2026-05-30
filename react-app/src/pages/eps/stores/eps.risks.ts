@@ -26,7 +26,8 @@ export const capacityRisk = (_sim: EpsStore): RiskBadge | null => {
   void _sim
   const overloads = MOCK_ORG_DEMAND_BY_TEAM.filter((o) => o.demand > o.headcount)
   const high = MOCK_ORG_DEMAND_BY_TEAM.filter((o) => o.headcount > 0 && o.demand / o.headcount >= SAFE_THRESHOLD)
-  if (overloads.length > 0) return { count: overloads.length, severity: 'critical', reason: `${overloads.length} org node${overloads.length > 1 ? 's' : ''} over headcount` }
+  if (overloads.length > 0)
+    return { count: overloads.length, severity: 'critical', reason: `${overloads.length} org node${overloads.length > 1 ? 's' : ''} over headcount` }
   if (high.length > 0) return { count: high.length, severity: 'warning', reason: `${high.length} org node${high.length > 1 ? 's' : ''} highload` }
   return null
 }

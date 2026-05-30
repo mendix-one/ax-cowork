@@ -19,8 +19,8 @@ export const ProductionLineModal = observer(() => {
       width={520}
     >
       <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
-        A workspace is scoped to a <strong>Site · Business Unit · Fiscal Year</strong>. Resource roadmaps, headcount portfolio and PROMIS sync are
-        all filtered to the selected workspace.
+        A workspace is scoped to a <strong>Site · Business Unit · Fiscal Year</strong>. Resource roadmaps, headcount portfolio and PROMIS sync are all filtered
+        to the selected workspace.
       </Typography.Paragraph>
       <Radio.Group
         value={simulation.activeProductionLineId}

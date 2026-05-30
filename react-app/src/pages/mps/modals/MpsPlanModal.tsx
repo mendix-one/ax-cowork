@@ -23,11 +23,7 @@ export const MpsPlanModal = observer(() => {
       <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
         {t('mpsPlan.description')}
       </Typography.Paragraph>
-      <Radio.Group
-        value={simulation.activeMpsPlanId}
-        onChange={(e) => simulation.setActiveMpsPlan(e.target.value as string)}
-        style={{ width: '100%' }}
-      >
+      <Radio.Group value={simulation.activeMpsPlanId} onChange={(e) => simulation.setActiveMpsPlan(e.target.value as string)} style={{ width: '100%' }}>
         <List
           size="small"
           dataSource={simulation.mpsPlans}
