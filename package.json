@@ -12,9 +12,10 @@
     "build:login": "pnpm --filter @ax/login run build",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
-    "format": "prettier --write .",
+    "format": "prettier --write shared",
     "format:app": "prettier --write react-app",
     "format:sim": "prettier --write simulation",
+    "format:login": "prettier --write widgets/ax-login",
     "format:check": "prettier --check ."
   },
   "devDependencies": {

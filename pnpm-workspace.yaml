@@ -1,5 +1,6 @@
 packages:
   - 'widgets/*'
+  - 'simulation'
 
 ignoredBuiltDependencies:
   - core-js
@@ -15,8 +16,6 @@ overrides:
   react-dom: ^19.2.6
 patchedDependencies:
   '@mendix/pluggable-widgets-tools@11.8.1': patches/@mendix__pluggable-widgets-tools@11.8.1.patch
-#patchedDependencies:
-#  '@mendix/pluggable-widgets-tools@11.8.1': patches/@mendix__pluggable-widgets-tools@11.8.1.patch
 
 peerDependencyRules:
   allowedVersions:

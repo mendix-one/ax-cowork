@@ -6,10 +6,8 @@
 // classes apply to its *descendants*, not the element itself), so the outer centering frame
 // lives here in SCSS. The inner card + form use Tailwind utilities in the JSX.
 .ax-login {
-  width: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  @apply bg-blue-500;
+  @apply w-full h-full flex items-center justify-center;
 
   &__logo {
     width: 160px;
