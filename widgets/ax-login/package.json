@@ -50,6 +50,7 @@
     "typescript-eslint": "^8.60.0"
   },
   "dependencies": {
+    "@ax/common": "workspace:*",
     "@ant-design/icons": "^6.2.5",
     "antd": "^6.4.3",
     "classnames": "^2.2.6",

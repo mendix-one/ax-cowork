@@ -1,5 +1,5 @@
 {
-  "name": "@ax-cowork/shared",
+  "name": "@ax/common",
   "version": "1.1.0",
   "description": "Shared utilities, formatters, and converters for AX Cowork packages.",
   "private": true,
@@ -21,6 +21,18 @@
     "./converters": {
       "types": "./dist/converters/index.d.ts",
       "default": "./dist/converters/index.js"
+    },
+    "./context": {
+      "types": "./dist/context/index.d.ts",
+      "default": "./dist/context/index.js"
+    },
+    "./eventbus": {
+      "types": "./dist/eventbus/index.d.ts",
+      "default": "./dist/eventbus/index.js"
+    },
+    "./platform": {
+      "types": "./dist/platform/index.d.ts",
+      "default": "./dist/platform/index.js"
     }
   },
   "files": [
@@ -32,11 +44,21 @@
     "clean": "rm -rf dist",
     "lint": "eslint src"
   },
+  "peerDependencies": {
+    "react": "^19.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    }
+  },
   "devDependencies": {
     "@eslint/js": "^9.18.0",
+    "@types/react": "^19.2.15",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "globals": "^17.0.0",
+    "react": "^19.2.6",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.20.0"
   }

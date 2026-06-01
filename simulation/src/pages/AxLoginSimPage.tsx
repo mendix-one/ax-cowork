@@ -3,6 +3,7 @@ import { App as AntApp, Button, Card, Space, Switch, Typography } from 'antd'
 import { AxLogin } from '@axlogin/AxLogin'
 import type { AxLoginContainerProps } from '../../../widgets/ax-login/typings/AxLoginProps'
 import { action, dynamic, editable, webImage } from '@/mock/mendix'
+import { AX_BROADCAST, emitEvent } from '@ax-cowork/shared'
 
 // A toy credentials check that mirrors what the BE-backed signin microflow does in the
 // real Mendix app. Lets the sim demonstrate the success path AND the inline error path.
@@ -86,6 +87,21 @@ export function AxLoginSimPage() {
             >
               Reset
             </Button>
+            <Card type="inner" title="Global events (bus)" size="small">
+              <Space direction="vertical" size="small" style={{ width: '100%' }}>
+                <Typography.Paragraph type="secondary" style={{ fontSize: 12, marginBottom: 4 }}>
+                  Emits on <code>ax:broadcast</code>; the widget handles it via useWidgetEvents.
+                </Typography.Paragraph>
+                <Space>
+                  <Button size="small" onClick={() => emitEvent(AX_BROADCAST, { action: 'reset' })}>
+                    Emit reset
+                  </Button>
+                  <Button size="small" onClick={() => emitEvent(AX_BROADCAST, { action: 'submit' })}>
+                    Emit submit
+                  </Button>
+                </Space>
+              </Space>
+            </Card>
             <Card type="inner" title="Current state" size="small">
               <pre style={{ margin: 0, fontSize: 12 }}>{JSON.stringify({ account, password, errorMessage, isBusy }, null, 2)}</pre>
             </Card>

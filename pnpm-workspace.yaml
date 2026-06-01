@@ -1,6 +1,7 @@
 packages:
   - 'widgets/*'
   - 'simulation'
+  - 'shared/ax-common'
 
 ignoredBuiltDependencies:
   - core-js
