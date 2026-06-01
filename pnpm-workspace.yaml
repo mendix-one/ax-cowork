@@ -24,10 +24,3 @@ peerDependencyRules:
     react-dom: ^19.2.6
   ignoreMissing:
     - react-native
-
-# mobx patches are carried over from the react-app era; no current workspace package
-# depends on mobx, so allowUnusedPatches keeps install from failing on them.
-# allowUnusedPatches: true
-# patchedDependencies:
-#   mobx-react-lite@4.0.7: patches/mobx-react-lite@4.0.7.patch
-#   mobx@6.12.3: patches/mobx@6.12.3.patch

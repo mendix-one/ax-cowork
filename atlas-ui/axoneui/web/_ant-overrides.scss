@@ -133,21 +133,8 @@ table.mx-table > tbody > tr:hover > td {
     background-color: $ant-row-hover;
 }
 
-// Data Grid 2 (datawidgets) — pseudo-table
-.widget-datagrid {
-    .th {
-        background-color: $ant-header-bg;
-        color: $font-color-default;
-        font-weight: 600;
-        border-bottom: 1px solid $ant-split;
-    }
-    .td {
-        border-bottom: 1px solid $ant-split;
-    }
-    .tr:hover > .td {
-        background-color: $ant-row-hover;
-    }
-}
+// Data Grid 2 + filters live in the `datawidgets` module. They are re-skinned
+// in the dedicated "Data widgets" section below (order-independent via CSS vars).
 
 /* ==========================================================================
    Cards / Group boxes / Modals — Ant radius + shadow
@@ -194,6 +181,96 @@ table.mx-table > tbody > tr:hover > td {
    ========================================================================== */
 input[type="checkbox"]:focus-visible,
 input[type="radio"]:focus-visible {
+    outline: 0;
+    box-shadow: $ant-focus-ring;
+}
+
+/* ==========================================================================
+   DATA WIDGETS — Data Grid 2, filters, dropdown-filter, gallery, tree node
+   --------------------------------------------------------------------------
+   The `datawidgets` module reads CSS custom properties (--brand-primary,
+   --grid-border-color, --grid-selected-row-background, --wdf-*), so most of it
+   already re-skins from the token change in custom-variables.scss. Here we
+   inject the Ant-specific values those widgets can't express via tokens.
+   Using CSS vars + higher-specificity selectors keeps these wins independent
+   of whether datawidgets.css loads before or after axoneui.css.
+   ========================================================================== */
+
+// Ant table tokens supplied as CSS custom properties (datawidgets only reads
+// these with a fallback, so a :root definition always wins — order-safe).
+:root {
+    --grid-selected-row-background: #e6f4ff; // Ant controlItemBgActive (selected row)
+    // Ant boxShadowSecondary — used by filter/column popovers via this var
+    --wdf-filter-box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12),
+        0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+// Data Grid 2 — Ant table chrome
+.widget-datagrid {
+    --grid-border-color: #{$ant-split}; // Ant cell split color (#f0f0f0), scoped to the grid
+
+    .th {
+        background-color: $ant-header-bg; // Ant table header (#fafafa)
+        color: $font-color-default;
+        border-bottom: 1px solid $ant-split;
+    }
+
+    // Ant row hover (.tr uses display:contents, so colour the cells)
+    .tr:hover > .td {
+        background-color: $ant-row-hover;
+    }
+    // Hover on an already-selected row → Ant controlItemBgActiveHover
+    &.widget-datagrid-selection-method-click .tr.tr-selected:hover .td {
+        background-color: #bae0ff;
+    }
+}
+
+// Filter / column-selector popovers — Ant radius + shadow
+.column-selectors,
+.filter-selectors,
+.dropdown-content,
+:not(.dropdown-content) > .dropdown-list {
+    border-radius: $ant-radius-lg;
+    box-shadow: 0 6px 16px 0 rgba(0, 0, 0, 0.08), 0 3px 6px -4px rgba(0, 0, 0, 0.12),
+        0 9px 28px 8px rgba(0, 0, 0, 0.05);
+}
+
+// Filter list items — Ant active/hover item colours
+.filter-selectors .filter-listitem.filter-selected,
+.filter-selectors li.filter-selected,
+.dropdown-list li.filter-selected {
+    background-color: #e6f4ff;
+    color: $brand-primary;
+}
+
+// Dropdown filter widget (variant select / combobox / tag picker)
+.widget-dropdown-filter {
+    --wdf-bd-radius: #{$ant-radius-lg}; // popover radius 8px
+    --wdf-selected-bg-color: #e6f4ff; // Ant active item
+    --wdf-highlighted-bg-color: #{$ant-row-hover}; // Ant hovered item (#fafafa)
+
+    // Tag-picker chips → Ant tag look (square-ish, light primary)
+    &.variant-tag-picker .widget-dropdown-filter-selected-item {
+        border-radius: $ant-radius;
+        background-color: #e6f4ff;
+        color: $brand-primary;
+    }
+}
+
+// Three-state checkbox already uses --brand-primary / --form-input-border-color
+// (now Ant blue / #d9d9d9). Nudge the corner radius to Ant's checkbox value.
+input[type="checkbox"].three-state-checkbox:before {
+    border-radius: 4px;
+}
+
+// Pagination bar — Ant primary on the active/hover control (vars already Ant)
+.pagination-bar .pagination-button:focus-visible {
+    outline: 0;
+    box-shadow: $ant-focus-ring;
+}
+
+// Gallery — Ant focus ring + selected item accent
+.widget-gallery .widget-gallery-clickable:focus-visible {
     outline: 0;
     box-shadow: $ant-focus-ring;
 }
