@@ -10,6 +10,10 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,
+    // Vite handles bundling — tsc is for type-checking only. Without this, `tsc -b` emits .js
+    // next to sources, including into the widget src it pulls in via the @axlogin path alias,
+    // where the tools' .js-first module resolution can shadow the real .tsx.
+    "noEmit": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "resolveJsonModule": true,

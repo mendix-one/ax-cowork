@@ -22,10 +22,14 @@ export interface AxLoginMainProps {
   password: string
   busy?: boolean
   errorMessage?: string
+  accountError?: string
+  passwordError?: string
   canSignUp?: boolean
   labels: AxLoginLabels
   onAccountChange: (value: string) => void
   onPasswordChange: (value: string) => void
+  onAccountBlur?: () => void
+  onPasswordBlur?: () => void
   onSignIn: () => void
   onSignUp?: () => void
 }
@@ -56,21 +60,23 @@ export function AxLoginMain(props: AxLoginMainProps): ReactElement {
           disabled={busy}
         >
           {errorMessage && <Alert type="error" message={errorMessage} showIcon className="mb-4" />}
-          <Form.Item label={labels.account} required>
+          <Form.Item label={labels.account} required validateStatus={props.accountError ? 'error' : undefined} help={props.accountError}>
             <Input
               autoComplete="username"
               placeholder={labels.accountPlaceholder}
               prefix={<UserOutlined style={{ color: token.colorTextTertiary }} />}
               value={props.account}
               onChange={(e) => props.onAccountChange(e.target.value)}
+              onBlur={() => props.onAccountBlur?.()}
             />
           </Form.Item>
-          <Form.Item label={labels.password} required>
+          <Form.Item label={labels.password} required validateStatus={props.passwordError ? 'error' : undefined} help={props.passwordError}>
             <Input.Password
               autoComplete="current-password"
               prefix={<LockOutlined style={{ color: token.colorTextTertiary }} />}
               value={props.password}
               onChange={(e) => props.onPasswordChange(e.target.value)}
+              onBlur={() => props.onPasswordBlur?.()}
             />
           </Form.Item>
           <Button type="primary" htmlType="submit" block loading={busy} icon={<LoginOutlined />}>
