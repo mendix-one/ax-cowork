@@ -32,9 +32,6 @@ importers:
       '@ant-design/icons':
         specifier: ^6.2.5
         version: 6.2.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
-      '@mdi/js':
-        specifier: ^7.4.47
-        version: 7.4.47
       antd:
         specifier: ^6.4.3
         version: 6.4.3(date-fns@2.30.0)(moment@2.30.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
@@ -1044,9 +1041,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.9':
     resolution: {integrity: sha512-3Belt6tdc8bPgAtbcmdtNJlirVoTmEb5e2gC94PnkwEW9jI6CAHUeoG85tjWP5WquqfavoMtMwiG4P926ZKKuQ==}
-
-  '@mdi/js@7.4.47':
-    resolution: {integrity: sha512-KPnNOtm5i2pMabqZxpUz7iQf+mfrYZyKCZ8QNz85czgEt7cuHcGorWfdzUMWYA0SD+a6Hn4FmJ+YhzzzjkTZrQ==}
 
   '@mendix/pluggable-widgets-tools@11.8.1':
     resolution: {integrity: sha512-DFmETnB3U/Cqpz6vnk4OX4WxxaAHALUMG7bURBDvnPr9yz42Wz29tEikhVE6AajV1iVWg4KfEBHlcYlX66cUBw==}
@@ -6707,8 +6701,6 @@ snapshots:
     dependencies:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.5
-
-  '@mdi/js@7.4.47': {}
 
   '@mendix/pluggable-widgets-tools@11.8.1(patch_hash=a70d841119f63dc060463a7ddf5415c604e0c39bb524315bd7dee402144c1cc9)(@jest/transform@29.7.0)(@jest/types@29.6.3)(@types/babel__core@7.20.5)(@types/node@20.19.41)(jest-util@29.7.0)(picomatch@4.0.4)(react-dom@19.2.6(react@19.2.6))(react-native@0.85.3(@babel/core@7.29.7)(@types/react@19.2.15)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)':
     dependencies:

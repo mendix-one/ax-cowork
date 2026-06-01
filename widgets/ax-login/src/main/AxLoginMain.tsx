@@ -1,8 +1,7 @@
 import type { ReactElement } from 'react'
 import cn from 'classnames'
-import { Alert, Button, Form, Input, theme, Typography } from 'antd'
-import { LoginOutlined } from '@ant-design/icons'
-import { AxMuiIcon } from './AxMuiIcon'
+import { Alert, Avatar, Button, Form, Input, theme, Typography } from 'antd'
+import { LockOutlined, LoginOutlined, UserOutlined } from '@ant-design/icons'
 import '../styles/AxLogin.scss'
 
 const { Text } = Typography
@@ -42,7 +41,11 @@ export function AxLoginMain(props: AxLoginMainProps): ReactElement {
     <div className={cn('ax-login', props.className)}>
       <div className="ax-login__card w-full max-w-sm rounded-md shadow-md p-8" style={{ background: token.colorBgContainer }}>
         <header className="flex flex-col items-center mb-6">
-          {logoUrl ? <img className="ax-login__logo" src={logoUrl} alt="logo" /> : <AxMuiIcon icon="mdiAccountCircle" size={64} color={token.colorPrimary} />}
+          {logoUrl ? (
+            <img className="ax-login__logo" src={logoUrl} alt="logo" />
+          ) : (
+            <Avatar size={64} icon={<UserOutlined />} style={{ backgroundColor: token.colorPrimary }} />
+          )}
         </header>
         <Form
           layout="vertical"
@@ -57,7 +60,7 @@ export function AxLoginMain(props: AxLoginMainProps): ReactElement {
             <Input
               autoComplete="username"
               placeholder={labels.accountPlaceholder}
-              prefix={<AxMuiIcon icon="mdiAccountOutline" size={18} color={token.colorTextTertiary} />}
+              prefix={<UserOutlined style={{ color: token.colorTextTertiary }} />}
               value={props.account}
               onChange={(e) => props.onAccountChange(e.target.value)}
             />
@@ -65,7 +68,7 @@ export function AxLoginMain(props: AxLoginMainProps): ReactElement {
           <Form.Item label={labels.password} required>
             <Input.Password
               autoComplete="current-password"
-              prefix={<AxMuiIcon icon="mdiLockOutline" size={18} color={token.colorTextTertiary} />}
+              prefix={<LockOutlined style={{ color: token.colorTextTertiary }} />}
               value={props.password}
               onChange={(e) => props.onPasswordChange(e.target.value)}
             />

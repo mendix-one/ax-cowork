@@ -51,7 +51,6 @@
   },
   "dependencies": {
     "@ant-design/icons": "^6.2.5",
-    "@mdi/js": "^7.4.47",
     "antd": "^6.4.3",
     "classnames": "^2.2.6"
   }
