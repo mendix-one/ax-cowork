@@ -11,14 +11,6 @@ overrides:
   '@types/react-dom': ^19.2.3
   '@mendix/pluggable-widgets-tools': ^11.8.1
 
-patchedDependencies:
-  mobx-react-lite@4.0.7:
-    hash: 47fd2d1b5c35554ddd4fa32fcaa928a16fda9f82dca0ff68bcdc1f7c3e5f9d1a
-    path: patches/mobx-react-lite@4.0.7.patch
-  mobx@6.12.3:
-    hash: 39c55279e8f75c9a322eba64dd22e1a398f621c64bbfc3632e55a97f46edfeb9
-    path: patches/mobx@6.12.3.patch
-
 importers:
 
   .:

@@ -1,2 +1,29 @@
 packages:
   - 'widgets/*'
+
+# pnpm 10 reads these settings from here, not from the "pnpm" field in package.json.
+overrides:
+  react: ^19.2.6
+  react-dom: ^19.2.6
+  '@types/react': ^19.2.15
+  '@types/react-dom': ^19.2.3
+  '@mendix/pluggable-widgets-tools': ^11.8.1
+
+peerDependencyRules:
+  allowedVersions:
+    react: ^19.2.6
+    react-dom: ^19.2.6
+  ignoreMissing:
+    - react-native
+
+onlyBuiltDependencies: []
+
+ignoredBuiltDependencies:
+  - core-js
+
+# mobx patches are carried over from the react-app era; no current workspace package
+# depends on mobx, so allowUnusedPatches keeps install from failing on them.
+# allowUnusedPatches: true
+# patchedDependencies:
+#   mobx-react-lite@4.0.7: patches/mobx-react-lite@4.0.7.patch
+#   mobx@6.12.3: patches/mobx@6.12.3.patch

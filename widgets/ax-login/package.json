@@ -37,17 +37,5 @@
   },
   "dependencies": {
     "classnames": "^2.2.6"
-  },
-  "resolutions": {
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "@types/react": "^19.2.15",
-    "@types/react-dom": "^19.2.3"
-  },
-  "overrides": {
-    "react": "^19.2.6",
-    "react-dom": "^19.2.6",
-    "@types/react": "^19.2.15",
-    "@types/react-dom": "^19.2.3"
   }
 }
