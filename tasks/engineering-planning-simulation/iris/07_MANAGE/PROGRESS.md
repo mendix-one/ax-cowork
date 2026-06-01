@@ -3,8 +3,8 @@
 > **Version**: 1.0.0
 > **Pillar**: PLAN
 > **Start Date**: {{DATE}}
-> **Current Phase**: **_
-> **North Star Metric**: _**
+> **Current Phase**: **\_
+> **North Star Metric**: \_**
 > **Current OMTM**: \_\_\_
 
 ---

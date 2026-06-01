@@ -1,10 +1,10 @@
-import { ReactElement } from "react";
-import { HelloWorldSample } from "./components/HelloWorldSample";
+import { ReactElement } from 'react'
+import { HelloWorldSample } from './components/HelloWorldSample'
 
-import { AxLoginContainerProps } from "../typings/AxLoginProps";
+import { AxLoginContainerProps } from '../typings/AxLoginProps'
 
-import "./ui/AxLogin.css";
+import './ui/AxLogin.css'
 
 export function AxLogin({ sampleText }: AxLoginContainerProps): ReactElement {
-    return <HelloWorldSample sampleText={sampleText ? sampleText : "World"} />;
+  return <HelloWorldSample sampleText={sampleText ? sampleText : 'World'} />
 }

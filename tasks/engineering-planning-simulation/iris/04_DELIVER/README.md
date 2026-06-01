@@ -24,8 +24,8 @@ Complete before beginning DELIVER work.
 - [ ] Gate 3 completed with GO or CONDITIONAL GO decision
 - [ ] Gate 3 decision document archived
 - [ ] Conditional items documented (if CONDITIONAL GO) with timeline:
-  - [ ] Condition 1: ******\_\_\_******
-  - [ ] Condition 2: ******\_\_\_******
+  - [ ] Condition 1: **\*\***\_\_\_**\*\***
+  - [ ] Condition 2: **\*\***\_\_\_**\*\***
 
 ### DEVELOP Deliverables Carried Forward
 

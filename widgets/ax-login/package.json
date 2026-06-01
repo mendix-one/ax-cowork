@@ -19,21 +19,31 @@
     "start": "cross-env CI=true pluggable-widgets-tools start:server",
     "dev": "cross-env CI=true pluggable-widgets-tools start:web",
     "build": "cross-env CI=true pluggable-widgets-tools build:web",
-    "lint": "pluggable-widgets-tools lint",
-    "lint:fix": "pluggable-widgets-tools lint:fix",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write \"src/**/*.{ts,tsx,js,jsx,json,css,scss,xml,md}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,tsx,js,jsx,json,css,scss,xml,md}\"",
     "prerelease": "npm run lint",
     "release": "cross-env CI=true pluggable-widgets-tools release:web"
   },
   "devDependencies": {
+    "@eslint/js": "^10.0.1",
     "@mendix/pluggable-widgets-tools": "^11.8.1",
+    "@prettier/plugin-xml": "^3.4.2",
     "@types/big.js": "^6.0.2",
-    "cross-env": "^7.0.3",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.19.41",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3",
+    "cross-env": "^7.0.3",
+    "eslint": "^10.4.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.6.0",
+    "prettier": "^3.8.3",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
-    "@types/react": "^19.2.15",
-    "@types/react-dom": "^19.2.3"
+    "typescript-eslint": "^8.60.0"
   },
   "dependencies": {
     "classnames": "^2.2.6"

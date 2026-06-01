@@ -55,7 +55,7 @@ Each pillar is scored across three maturity levels:
 | P6  | **Decision Authority**: Can the team make decisions without excessive escalation?                         | All decisions escalated, slow approval chains    | Application-level decisions made by sprint team; program decisions by CPO+CDO | Three-level governance functioning smoothly; team decides confidently within authority        | \_/3  |
 | P7  | **Culture & Psychological Safety**: Can team members raise concerns, admit mistakes, and challenge ideas? | Fear of failure, blame culture, ideas suppressed | Retrospectives happen but discomfort remains                                  | Team openly discusses failures, celebrates learning, runs honest retrospectives               | \_/3  |
 
-**PEOPLE Score**: **_ / 21 | **Maturity Level**: _**
+**PEOPLE Score**: **\_ / 21 | **Maturity Level**: \_**
 
 | Score Range | Maturity Level |
 | ----------- | -------------- |
@@ -84,7 +84,7 @@ Each pillar is scored across three maturity levels:
 | Q5  | **Sequencing**: Is IRIS launching at the right time relative to ecosystem readiness?             | No sequencing consideration; launching when someone has an idea       | Dependencies checked; launch sequenced after required platform components | Product launch sequence optimized across pillars; new products launch faster than previous ones | \_/3  |
 | Q6  | **Complexity Assessment**: Has the strategic value vs. implementation complexity been evaluated? | No formal assessment                                                  | Complexity matrix applied; build/buy/partner decision made                | Portfolio selection criteria applied consistently across all product decisions                  | \_/3  |
 
-**PORTFOLIO Score**: **_ / 18 | **Maturity Level**: _**
+**PORTFOLIO Score**: **\_ / 18 | **Maturity Level**: \_**
 
 | Score Range | Maturity Level |
 | ----------- | -------------- |
@@ -115,7 +115,7 @@ Each pillar is scored across three maturity levels:
 | R7  | **Parallel Workstreams**: Can multiple workstreams (Frontend, Backend, Data, AI-ML) run simultaneously? | Sequential work; one workstream waits for another              | API contracts defined upfront; workstreams operate in parallel with sync points   | Parallel workstreams are routine; integration issues are rare; contract-first is default      | \_/3  |
 | R8  | **Lean Waste Reduction**: Is the team actively identifying and eliminating waste?                       | No waste awareness                                             | 8 wastes understood; major bottlenecks identified and addressed                   | Continuous flow; WIP limits enforced; cycle time measured and optimized                       | \_/3  |
 
-**PROCESS Score**: **_ / 24 | **Maturity Level**: _**
+**PROCESS Score**: **\_ / 24 | **Maturity Level**: \_**
 
 | Score Range | Maturity Level |
 | ----------- | -------------- |
@@ -146,7 +146,7 @@ Each pillar is scored across three maturity levels:
 | T7  | **Monitoring & Observability**: Can the team detect and diagnose production issues quickly? | No monitoring; issues discovered by users                  | Error tracking, alerting, and basic dashboards in place                      | Full observability stack; anomaly detection; MTTR < 1 hour                                     | \_/3  |
 | T8  | **Data Platform Readiness**: Is the shared data platform (AData) available for IRIS?        | No shared data platform; each product manages its own data | AData available for basic storage and pipelines                              | Full data platform with ETL, analytics, and cross-product data sharing                         | \_/3  |
 
-**PLATFORM Score**: **_ / 24 | **Maturity Level**: _**
+**PLATFORM Score**: **\_ / 24 | **Maturity Level**: \_**
 
 | Score Range | Maturity Level |
 | ----------- | -------------- |
@@ -175,7 +175,7 @@ Each pillar is scored across three maturity levels:
 | M5  | **External Communication**: Is the transformation story shared externally?                | No external communication                 | >= 2 external touchpoints per quarter (blog, social, conference) | Thought leadership established; employer brand strengthened; community engagement active | \_/3  |
 | M6  | **Metrics Storytelling**: Are quantitative results paired with qualitative narratives?    | Dashboards shared without context         | Metrics presented with user stories and impact narratives        | Data storytelling is a team skill; stakeholders receive both numbers and narratives      | \_/3  |
 
-**PROMOTION Score**: **_ / 18 | **Maturity Level**: _**
+**PROMOTION Score**: **\_ / 18 | **Maturity Level**: \_**
 
 | Score Range | Maturity Level |
 | ----------- | -------------- |

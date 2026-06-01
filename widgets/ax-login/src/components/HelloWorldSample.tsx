@@ -1,9 +1,9 @@
-import { ReactElement } from "react";
+import { ReactElement } from 'react'
 
 export interface HelloWorldSampleProps {
-    sampleText?: string;
+  sampleText?: string
 }
 
 export function HelloWorldSample({ sampleText }: HelloWorldSampleProps): ReactElement {
-    return <div className="widget-hello-world">Hello AX {sampleText}</div>;
+  return <div className="widget-hello-world">Hello AX {sampleText}</div>
 }

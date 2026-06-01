@@ -24,8 +24,8 @@ Complete before beginning DESIGN work.
 - [ ] Gate 1 completed with GO or CONDITIONAL GO decision
 - [ ] Gate 1 decision document archived
 - [ ] Conditional items documented (if CONDITIONAL GO) with timeline for resolution:
-  - [ ] Condition 1: ******\_\_\_******
-  - [ ] Condition 2: ******\_\_\_******
+  - [ ] Condition 1: **\*\***\_\_\_**\*\***
+  - [ ] Condition 2: **\*\***\_\_\_**\*\***
 
 ### DISCOVER Deliverables Carried Forward
 

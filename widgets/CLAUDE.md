@@ -52,16 +52,16 @@ When you change a widget's `.xml` properties, regenerate the typings (run the wi
 
 ## Anatomy of a widget package (`widgets/ax-login`)
 
-| File | Role |
-| --- | --- |
-| `src/AxLogin.xml` | **Property definitions** — the single source of truth for the widget's props. Editing this regenerates `typings/AxLoginProps.d.ts` on the next build/dev. See the property-types doc below. |
-| `src/package.xml` | Client-module manifest: maps `<widgetFile>` and the bundle `<file path>` to the runtime location. Must agree with `packagePath` + widget id. |
-| `src/AxLogin.tsx` | The runtime container component. Receives `AxLoginContainerProps`, renders the UI. This is where ported `react-app` UI lives. |
-| `src/AxLogin.editorPreview.tsx` | Studio Pro design-mode preview (`preview()` + `getPreviewCss()`). `getPreviewCss` uses `require()` on the CSS. |
-| `src/AxLogin.editorConfig.ts` | Studio property-pane behaviour: `getProperties()` (conditional visibility), optional `check()` (validation errors/warnings), `getPreview()` (structure-mode rendering). |
-| `src/ui/AxLogin.css` | Widget styles. |
-| `typings/AxLoginProps.d.ts` | **Generated — do not edit.** Regenerated from `AxLogin.xml`. The header warns changes are overwritten. |
-| `package.json` | Scripts run via `pluggable-widgets-tools`; key fields `widgetName`, `packagePath`, `config.projectPath`. |
+| File                            | Role                                                                                                                                                                                        |
+| ------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `src/AxLogin.xml`               | **Property definitions** — the single source of truth for the widget's props. Editing this regenerates `typings/AxLoginProps.d.ts` on the next build/dev. See the property-types doc below. |
+| `src/package.xml`               | Client-module manifest: maps `<widgetFile>` and the bundle `<file path>` to the runtime location. Must agree with `packagePath` + widget id.                                                |
+| `src/AxLogin.tsx`               | The runtime container component. Receives `AxLoginContainerProps`, renders the UI. This is where ported `react-app` UI lives.                                                               |
+| `src/AxLogin.editorPreview.tsx` | Studio Pro design-mode preview (`preview()` + `getPreviewCss()`). `getPreviewCss` uses `require()` on the CSS.                                                                              |
+| `src/AxLogin.editorConfig.ts`   | Studio property-pane behaviour: `getProperties()` (conditional visibility), optional `check()` (validation errors/warnings), `getPreview()` (structure-mode rendering).                     |
+| `src/ui/AxLogin.css`            | Widget styles.                                                                                                                                                                              |
+| `typings/AxLoginProps.d.ts`     | **Generated — do not edit.** Regenerated from `AxLogin.xml`. The header warns changes are overwritten.                                                                                      |
+| `package.json`                  | Scripts run via `pluggable-widgets-tools`; key fields `widgetName`, `packagePath`, `config.projectPath`.                                                                                    |
 
 ### Identity wiring (must stay consistent)
 

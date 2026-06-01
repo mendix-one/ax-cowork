@@ -28,8 +28,8 @@ export const ProductionLineModal = observer(() => {
       width={520}
     >
       <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
-        The workspace is scoped to a <strong>production line</strong> (Business Team). Resource roadmaps, headcount portfolio and PROMIS sync are all filtered to
-        the selected line.
+        The workspace is scoped to a <strong>production line</strong> (Business Team). Resource roadmaps, headcount portfolio and PROMIS sync are all filtered
+        to the selected line.
       </Typography.Paragraph>
       <Radio.Group value={simulation.activeProductionLineId} onChange={(e) => selectLine(e.target.value as string)} style={{ width: '100%' }}>
         <List

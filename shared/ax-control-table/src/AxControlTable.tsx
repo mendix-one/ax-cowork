@@ -485,11 +485,7 @@ function HeaderCell<T>({ col, table, showColumnFilter, padX, style }: HeaderCell
   // chrome, etc.). We still keep the cell's outer click handler off so the custom content can be
   // interactive without flipping the sort.
   if (meta?.headerRender) {
-    return (
-      <div style={{ ...HEADER_CELL_STYLE, padding: `0 ${padX}px`, cursor: 'default', justifyContent: 'center', ...style }}>
-        {meta.headerRender()}
-      </div>
-    )
+    return <div style={{ ...HEADER_CELL_STYLE, padding: `0 ${padX}px`, cursor: 'default', justifyContent: 'center', ...style }}>{meta.headerRender()}</div>
   }
   const sortDir = col.getIsSorted()
   return (

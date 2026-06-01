@@ -24,8 +24,8 @@ Complete before beginning ITERATE work.
 - [ ] Gate 4 completed with GO or CONDITIONAL GO decision
 - [ ] Gate 4 decision document archived
 - [ ] Conditional items documented (if CONDITIONAL GO) with timeline:
-  - [ ] Condition 1: ******\_\_\_******
-  - [ ] Condition 2: ******\_\_\_******
+  - [ ] Condition 1: **\*\***\_\_\_**\*\***
+  - [ ] Condition 2: **\*\***\_\_\_**\*\***
 
 ### DELIVER Deliverables Carried Forward
 
