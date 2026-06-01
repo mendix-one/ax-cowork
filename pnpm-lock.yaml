@@ -5,15 +5,15 @@ settings:
   excludeLinksFromLockfile: false
 
 overrides:
-  react: ^19.2.6
-  react-dom: ^19.2.6
+  '@mendix/pluggable-widgets-tools': ^11.8.1
   '@types/react': ^19.2.15
   '@types/react-dom': ^19.2.3
-  '@mendix/pluggable-widgets-tools': ^11.8.1
+  react: ^19.2.6
+  react-dom: ^19.2.6
 
 patchedDependencies:
   '@mendix/pluggable-widgets-tools@11.8.1':
-    hash: 5811b0ec78172e33f994a5a75c674ff2c0a32e1ce9279b202001092aa49a9f00
+    hash: a70d841119f63dc060463a7ddf5415c604e0c39bb524315bd7dee402144c1cc9
     path: patches/@mendix__pluggable-widgets-tools@11.8.1.patch
 
 importers:
@@ -47,7 +47,7 @@ importers:
         version: 10.0.1(eslint@10.4.1(jiti@1.21.7))
       '@mendix/pluggable-widgets-tools':
         specifier: ^11.8.1
-        version: 11.8.1(patch_hash=5811b0ec78172e33f994a5a75c674ff2c0a32e1ce9279b202001092aa49a9f00)(@jest/transform@29.7.0)(@jest/types@29.6.3)(@types/babel__core@7.20.5)(@types/node@20.19.41)(jest-util@29.7.0)(picomatch@4.0.4)(react-dom@19.2.6(react@19.2.6))(react-native@0.85.3(@babel/core@7.29.7)(@types/react@19.2.15)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)
+        version: 11.8.1(patch_hash=a70d841119f63dc060463a7ddf5415c604e0c39bb524315bd7dee402144c1cc9)(@jest/transform@29.7.0)(@jest/types@29.6.3)(@types/babel__core@7.20.5)(@types/node@20.19.41)(jest-util@29.7.0)(picomatch@4.0.4)(react-dom@19.2.6(react@19.2.6))(react-native@0.85.3(@babel/core@7.29.7)(@types/react@19.2.15)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)
       '@prettier/plugin-xml':
         specifier: ^3.4.2
         version: 3.4.2(prettier@3.8.3)
@@ -6710,7 +6710,7 @@ snapshots:
 
   '@mdi/js@7.4.47': {}
 
-  '@mendix/pluggable-widgets-tools@11.8.1(patch_hash=5811b0ec78172e33f994a5a75c674ff2c0a32e1ce9279b202001092aa49a9f00)(@jest/transform@29.7.0)(@jest/types@29.6.3)(@types/babel__core@7.20.5)(@types/node@20.19.41)(jest-util@29.7.0)(picomatch@4.0.4)(react-dom@19.2.6(react@19.2.6))(react-native@0.85.3(@babel/core@7.29.7)(@types/react@19.2.15)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)':
+  '@mendix/pluggable-widgets-tools@11.8.1(patch_hash=a70d841119f63dc060463a7ddf5415c604e0c39bb524315bd7dee402144c1cc9)(@jest/transform@29.7.0)(@jest/types@29.6.3)(@types/babel__core@7.20.5)(@types/node@20.19.41)(jest-util@29.7.0)(picomatch@4.0.4)(react-dom@19.2.6(react@19.2.6))(react-native@0.85.3(@babel/core@7.29.7)(@types/react@19.2.15)(react@19.2.6))(react@19.2.6)(tslib@2.8.1)':
     dependencies:
       '@babel/core': 7.29.7
       '@babel/eslint-parser': 7.29.7(@babel/core@7.29.7)(eslint@8.57.1)

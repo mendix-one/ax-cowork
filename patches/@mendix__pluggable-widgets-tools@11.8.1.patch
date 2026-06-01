@@ -1,8 +1,27 @@
 diff --git a/configs/rollup.config.mjs b/configs/rollup.config.mjs
-index ad46da6b5c26508e6cb033a597805ec16fd7b88c..23c9eb6d9734752758c5e2d91f2d0e88492fd864 100644
+index ad46da6b5c26508e6cb033a597805ec16fd7b88c..1e3b490cbddeefe98de66635279f5dd9eaa4c1f1 100644
 --- a/configs/rollup.config.mjs
 +++ b/configs/rollup.config.mjs
-@@ -157,6 +157,10 @@ export default async args => {
+@@ -70,11 +70,15 @@ const commonExternalLibs = [
+     // "react"
+     /^react$/,
+ 
+-    // "react/jsx-runtime"
++    // "react/jsx-runtime" and "react/jsx-dev-runtime"
+     /^react\/jsx-runtime$/,
++    /^react\/jsx-dev-runtime$/,
+ 
+-    // "react-dom"
+-    /^react-dom$/
++    // "react-dom" and its subpaths. The Mendix React Client provides these as externals.
++    // AntD v6 imports "react-dom/client" (createRoot), which the original /^react-dom$/
++    // missed — it got bundled and crashed at load with
++    // "Cannot read properties of undefined (reading 'S')".
++    /^react-dom($|\/)/
+ ];
+ 
+ const webExternal = [...commonExternalLibs, /^big.js$/];
+@@ -157,6 +161,10 @@ export default async args => {
                      inject: true,
                      minimize: production,
                      plugins: [postcssImport(), postcssUrl({ url: "inline" })],
@@ -13,7 +32,7 @@ index ad46da6b5c26508e6cb033a597805ec16fd7b88c..23c9eb6d9734752758c5e2d91f2d0e88
                      sourceMap: !production ? "inline" : false,
                      use: ["sass"]
                  }),
-@@ -353,6 +357,10 @@ export function postCssPlugin(outputFormat, production, postcssPlugins = []) {
+@@ -353,6 +361,10 @@ export function postCssPlugin(outputFormat, production, postcssPlugins = []) {
              postcssUrl({ url: cssUrlTransform }),
              ...postcssPlugins
          ],
