@@ -3,7 +3,7 @@ import { App as AntApp, Button, Card, Space, Switch, Typography } from 'antd'
 import { AxLogin } from '@axlogin/AxLogin'
 import type { AxLoginContainerProps } from '../../../widgets/ax-login/typings/AxLoginProps'
 import { action, dynamic, editable, webImage } from '@/mock/mendix'
-import { AX_BROADCAST, emitEvent } from '@ax-cowork/shared'
+import { AX_BROADCAST, emitEvent } from '@ax/common'
 
 // A toy credentials check that mirrors what the BE-backed signin microflow does in the
 // real Mendix app. Lets the sim demonstrate the success path AND the inline error path.

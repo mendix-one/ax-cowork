@@ -1,12 +1,18 @@
 import type { ReactElement } from 'react'
 import { useCallback } from 'react'
+import { configure } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { ConfigProvider } from 'antd'
-import { type AxEvent, executeAction, useWidgetEvents } from '@ax-cowork/shared'
+import { type AxEvent, executeAction, useWidgetEvents } from '@ax/common'
 import type { AxLoginContainerProps } from '../typings/AxLoginProps'
 import { AxLoginMain } from './main/AxLoginMain'
 import { AxLoginStore, type AxLoginBridge } from './stores/AxLoginStore'
 import { AxLoginProvider, useAxLoginStore } from './stores/context'
+
+// Each Mendix widget bundle ships its own MobX copy, so several MobX instances can be active on
+// one page. Isolate this bundle's global state to avoid the "multiple, different versions of MobX
+// active" runtime error. Runs at module load, before any store/observable is created.
+configure({ isolateGlobalState: true })
 
 // Build the (non-observable) bridge of current Mendix values/callbacks the store reads at
 // action time. executeAction guards canExecute/isExecuting for us.
