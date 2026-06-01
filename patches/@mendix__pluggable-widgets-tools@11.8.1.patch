@@ -1,0 +1,26 @@
+diff --git a/configs/rollup.config.mjs b/configs/rollup.config.mjs
+index ad46da6b5c26508e6cb033a597805ec16fd7b88c..23c9eb6d9734752758c5e2d91f2d0e88492fd864 100644
+--- a/configs/rollup.config.mjs
++++ b/configs/rollup.config.mjs
+@@ -157,6 +157,10 @@ export default async args => {
+                     inject: true,
+                     minimize: production,
+                     plugins: [postcssImport(), postcssUrl({ url: "inline" })],
++                    // Load the widget's postcss.config.js (tailwindcss + autoprefixer) and append
++                    // its plugins to the ones above. Resolved relative to the .scss file's dir, so
++                    // tailwind is found in the widget's own node_modules. No-op if absent.
++                    config: true,
+                     sourceMap: !production ? "inline" : false,
+                     use: ["sass"]
+                 }),
+@@ -353,6 +357,10 @@ export function postCssPlugin(outputFormat, production, postcssPlugins = []) {
+             postcssUrl({ url: cssUrlTransform }),
+             ...postcssPlugins
+         ],
++        // Load the widget's postcss.config.js (tailwindcss + autoprefixer) and append its
++        // plugins to the ones above. Resolved relative to the .scss file's dir, so tailwind
++        // is found in the widget's own node_modules. No-op if the widget has no postcss config.
++        config: true,
+         sourceMap: !production ? "inline" : false,
+         use: ["sass"],
+         to: join(outDir, `${outWidgetFile}.css`)

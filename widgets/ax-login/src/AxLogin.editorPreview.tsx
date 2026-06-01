@@ -1,11 +1,11 @@
-import { ReactElement } from 'react'
-import { HelloWorldSample } from './components/HelloWorldSample'
-import { AxLoginPreviewProps } from '../typings/AxLoginProps'
+import type { ReactElement } from 'react'
+import type { AxLoginPreviewProps } from '../typings/AxLoginProps'
+import { AxLoginPreview } from './preview/AxLoginPreview'
 
-export function preview({ sampleText }: AxLoginPreviewProps): ReactElement {
-  return <HelloWorldSample sampleText={sampleText} />
+export function preview(_props: AxLoginPreviewProps): ReactElement {
+  return <AxLoginPreview />
 }
 
 export function getPreviewCss(): string {
-  return require('./ui/AxLogin.css')
+  return require('./styles/AxLogin.scss')
 }

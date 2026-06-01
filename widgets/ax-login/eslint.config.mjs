@@ -23,6 +23,7 @@ export default defineConfig([
       indent: ['error', 2, { SwitchCase: 1 }],
       quotes: ['error', 'single', { avoidEscape: true, allowTemplateLiterals: true }],
       'comma-dangle': ['error', 'always-multiline'],
+      '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_', varsIgnorePattern: '^_', caughtErrorsIgnorePattern: '^_' }],
     },
   },
   {

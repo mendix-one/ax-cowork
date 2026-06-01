@@ -1,0 +1,23 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+// The widget root is only the Tailwind scope marker (`important: '.ax-login'` means utility
+// classes apply to its *descendants*, not the element itself), so the outer centering frame
+// lives here in SCSS. The inner card + form use Tailwind utilities in the JSX.
+.ax-login {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &__logo {
+    width: 160px;
+    height: auto;
+  }
+
+  // Tighten AntD's default form-item spacing so the card matches react-app's compact layout.
+  .ant-form-item:last-of-type {
+    margin-bottom: 0;
+  }
+}
