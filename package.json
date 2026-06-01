@@ -6,11 +6,9 @@
   "packageManager": "pnpm@10.33.0",
   "scripts": {
     "dev": "pnpm --filter @ax/react-app run dev",
-    "dev:all": "pnpm -r --parallel --stream run dev",
     "dev:app": "pnpm --filter @ax/react-app run dev",
     "dev:sim": "pnpm --filter @ax/simulation run dev",
     "build": "pnpm -r run build",
-    "build:shared": "pnpm --filter ax-cowork-ui run build",
     "build:login": "pnpm --filter @ax/login run build",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
@@ -24,10 +22,30 @@
     "prettier": "^3.4.2"
   },
   "pnpm": {
+    "peerDependencyRules": {
+      "allowedVersions": {
+        "react": "^19.2.6",
+        "react-dom": "^19.2.6"
+      },
+      "ignoreMissing": [
+        "react-native"
+      ]
+    },
+    "onlyBuiltDependencies": [],
+    "overrides": {
+      "react": "^19.2.6",
+      "react-dom": "^19.2.6",
+      "@types/react": "^19.2.15",
+      "@types/react-dom": "^19.2.3",
+      "@mendix/pluggable-widgets-tools": "^11.8.1"
+    },
     "allowUnusedPatches": true,
     "patchedDependencies": {
       "mobx-react-lite@4.0.7": "patches/mobx-react-lite@4.0.7.patch",
       "mobx@6.12.3": "patches/mobx@6.12.3.patch"
-    }
+    },
+    "ignoredBuiltDependencies": [
+      "core-js"
+    ]
   }
 }
