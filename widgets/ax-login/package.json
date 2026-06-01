@@ -16,19 +16,24 @@
   },
   "packagePath": "one.mendix",
   "scripts": {
-    "start": "pluggable-widgets-tools start:server",
-    "dev": "pluggable-widgets-tools start:web",
-    "build": "pluggable-widgets-tools build:web",
+    "start": "cross-env CI=true pluggable-widgets-tools start:server",
+    "dev": "cross-env CI=true pluggable-widgets-tools start:web",
+    "build": "cross-env CI=true pluggable-widgets-tools build:web",
     "lint": "pluggable-widgets-tools lint",
     "lint:fix": "pluggable-widgets-tools lint:fix",
     "prerelease": "npm run lint",
-    "release": "pluggable-widgets-tools release:web"
+    "release": "cross-env CI=true pluggable-widgets-tools release:web"
   },
   "devDependencies": {
     "@mendix/pluggable-widgets-tools": "^11.8.1",
     "@types/big.js": "^6.0.2",
+    "cross-env": "^7.0.3",
     "@types/jest": "^29.5.14",
-    "@types/node": "^20.19.41"
+    "@types/node": "^20.19.41",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "@types/react": "^19.2.15",
+    "@types/react-dom": "^19.2.3"
   },
   "dependencies": {
     "classnames": "^2.2.6"
