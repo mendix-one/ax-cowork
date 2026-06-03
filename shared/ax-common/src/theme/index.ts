@@ -71,6 +71,11 @@ export const axDensity = {
 } as const
 
 myToken.colorPrimary = axColors.primary
+// Hover + active states use the tertiary accent (deep purple) instead of AntD's
+// auto-derived lighter/darker shades of primary, so interactive primary controls
+// (e.g. the sign-in button) shift indigo → purple on hover and press.
+myToken.colorPrimaryHover = '#391085'
+myToken.colorPrimaryActive = '#391085'
 myToken.fontFamily = axFontFamily
 
 myToken.colorText = '#262626'
