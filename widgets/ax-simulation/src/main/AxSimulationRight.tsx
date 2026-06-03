@@ -4,17 +4,28 @@ import { observer } from 'mobx-react-lite'
 import { useAxSimulationStore } from '../stores/context'
 import { AxMenuBtn } from './views/AxMenuBtn'
 
+// Tooltip labels for the right rail buttons — sourced from widget props (translatable in Studio).
+export interface AxSimulationRightProps {
+  labels: {
+    compare: string
+    aiAssistant: string
+    recommendation: string
+    history: string
+  }
+}
+
 // Right icon rail (Layout.Sider). Clicking toggles the right region: opens it on the clicked view, or
 // closes it when the active view is clicked again. Active state reflects the open right view.
-export const AxSimulationRight = observer((): ReactElement => {
+export const AxSimulationRight = observer((props: AxSimulationRightProps): ReactElement => {
   const store = useAxSimulationStore()
+  const { labels } = props
   return (
     <Layout.Sider width="2.65rem" className="ax-sim_rail ax-sim_rail_right">
       <Flex vertical align="center" justify="space-between" className="ax-sim_rail_inner">
         <Flex vertical align="center" justify="start">
           <Space vertical>
             <AxMenuBtn
-              title="Compare"
+              title={labels.compare}
               placement="left"
               active={store.rightOpen && store.activeRight === 'compare'}
               onClick={() => store.toggleRight('compare')}
@@ -25,7 +36,7 @@ export const AxSimulationRight = observer((): ReactElement => {
               </svg>
             </AxMenuBtn>
             <AxMenuBtn
-              title="AI Assistant"
+              title={labels.aiAssistant}
               placement="left"
               active={store.rightOpen && store.activeRight === 'aiAssistant'}
               onClick={() => store.toggleRight('aiAssistant')}
@@ -36,7 +47,7 @@ export const AxSimulationRight = observer((): ReactElement => {
               </svg>
             </AxMenuBtn>
             <AxMenuBtn
-              title="Recommendation"
+              title={labels.recommendation}
               placement="left"
               active={store.rightOpen && store.activeRight === 'recommendation'}
               onClick={() => store.toggleRight('recommendation')}
@@ -47,7 +58,7 @@ export const AxSimulationRight = observer((): ReactElement => {
               </svg>
             </AxMenuBtn>
             <AxMenuBtn
-              title="History"
+              title={labels.history}
               placement="left"
               active={store.rightOpen && store.activeRight === 'history'}
               onClick={() => store.toggleRight('history')}

@@ -19,13 +19,8 @@ import type { AxSimulationContainerProps } from '../../../../widgets/ax-simulati
 // A placeholder content panel that fills its view slot, so switching left/right menus is obvious.
 function MockPanel({ title, subtitle, children }: { title: string; subtitle?: string; children?: ReactNode }) {
   return (
-    <div style={{ height: '100%', padding: 16, boxSizing: 'border-box' }}>
-      <Card
-        title={title}
-        size="small"
-        style={{ height: '100%' }}
-        styles={{ body: { height: 'calc(100% - 38px)', overflow: 'auto' } }}
-      >
+    <div style={{ width: '100%', height: '100%', boxSizing: 'border-box' }}>
+      <Card title={title} size="small" style={{ height: '100%' }} styles={{ body: { height: 'calc(100% - 38px)', overflow: 'auto' } }}>
         {subtitle && (
           <Typography.Paragraph type="secondary" style={{ marginTop: 0 }}>
             {subtitle}

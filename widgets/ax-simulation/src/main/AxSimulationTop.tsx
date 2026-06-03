@@ -1,28 +1,39 @@
 import type { ReactElement, ReactNode } from 'react'
 import { Flex, Layout, Space } from 'antd'
 import { observer } from 'mobx-react-lite'
+import type { ActionValue } from 'mendix'
 import { useAxSimulationStore } from '../stores/context'
 import { AxMenuBtn } from './views/AxMenuBtn'
 
-// Top bar (Layout.Header). Mirrors MpsLayoutTop: a left cluster (logo, menu, line, plan version) and a
-// right cluster (split view, notify, user, setting). Each region is a Mendix `widgets` drop zone.
+// Top bar (Layout.Header): a left cluster (logo, apps, world map) and a right cluster (notify, account,
+// settings). The logo is a Mendix `widgets` drop zone; every button fires its configured Mendix action.
+// Labels are widget props (translatable in Studio) rather than hardcoded strings.
 export interface AxSimulationTopProps {
   logo?: ReactNode
-  topMenu?: ReactNode
-  line?: ReactNode
-  planVersion?: ReactNode
-  splitView?: ReactNode
-  notify?: ReactNode
-  user?: ReactNode
-  setting?: ReactNode
+  labels: {
+    apps: string
+    worldMap: string
+    notify: string
+    account: string
+    settings: string
+  }
+  actions: {
+    apps?: ActionValue
+    worldMap?: ActionValue
+    notify?: ActionValue
+    account?: ActionValue
+    settings?: ActionValue
+  }
 }
 
-// no-op for buttons that have no backing state yet (apps menu, world map). Kept explicit so the click is
-// inert rather than throwing; wire to a Mendix action / store flag when the behaviour is defined.
-const noop = (): void => {}
+// Fire a Mendix action if it's configured and currently executable.
+const runAction = (action?: ActionValue): void => {
+  if (action && action.canExecute && !action.isExecuting) action.execute()
+}
 
 export const AxSimulationTop = observer((props: AxSimulationTopProps): ReactElement => {
   const store = useAxSimulationStore()
+  const { labels, actions } = props
   return (
     <Layout.Header className="ax-sim_top">
       <Flex align="center" justify="space-between" gap="small" style={{ height: '100%' }}>
@@ -31,13 +42,13 @@ export const AxSimulationTop = observer((props: AxSimulationTopProps): ReactElem
             <div className="ax-sim_top_logo">{props.logo}</div>
           </Space>
           <Space>
-            <AxMenuBtn title="Menu" placement="bottom" active={false} onClick={noop}>
+            <AxMenuBtn title={labels.apps} placement="bottom" active={false} onClick={() => runAction(actions.apps)}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>apps</title>
                 <path d="M16,20H20V16H16M16,14H20V10H16M10,8H14V4H10M16,8H20V4H16M10,14H14V10H10M4,14H8V10H4M4,20H8V16H4M10,20H14V16H10M4,8H8V4H4V8Z" />
               </svg>
             </AxMenuBtn>
-            <AxMenuBtn title="World Map" placement="bottom" active={false} onClick={noop}>
+            <AxMenuBtn title={labels.worldMap} placement="bottom" active={false} onClick={() => runAction(actions.worldMap)}>
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>earth</title>
                 <path d="M17.9,17.39C17.64,16.59 16.89,16 16,16H15V13A1,1 0 0,0 14,12H8V10H10A1,1 0 0,0 11,9V7H13A2,2 0 0,0 15,5V4.59C17.93,5.77 20,8.64 20,12C20,14.08 19.2,15.97 17.9,17.39M11,19.93C7.05,19.44 4,16.08 4,12C4,11.38 4.08,10.78 4.21,10.21L9,15V16A2,2 0 0,0 11,18M12,2A10,10 0 0,0 2,12A10,10 0 0,0 12,22A10,10 0 0,0 22,12A10,10 0 0,0 12,2Z" />
@@ -48,10 +59,13 @@ export const AxSimulationTop = observer((props: AxSimulationTopProps): ReactElem
         <Flex align="center" justify="end" gap="small" className="ax-sim_top_right">
           <Space size={8}>
             <AxMenuBtn
-              title="Notify"
+              title={labels.notify}
               placement="bottom"
               active={store.activeTop === 'notify'}
-              onClick={() => store.toggleTop('notify')}
+              onClick={() => {
+                store.toggleTop('notify')
+                runAction(actions.notify)
+              }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>bell-outline</title>
@@ -59,10 +73,13 @@ export const AxSimulationTop = observer((props: AxSimulationTopProps): ReactElem
               </svg>
             </AxMenuBtn>
             <AxMenuBtn
-              title="Account"
+              title={labels.account}
               placement="bottomLeft"
               active={store.activeTop === 'account'}
-              onClick={() => store.toggleTop('account')}
+              onClick={() => {
+                store.toggleTop('account')
+                runAction(actions.account)
+              }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>account-circle-outline</title>
@@ -70,10 +87,13 @@ export const AxSimulationTop = observer((props: AxSimulationTopProps): ReactElem
               </svg>
             </AxMenuBtn>
             <AxMenuBtn
-              title="Settings"
+              title={labels.settings}
               placement="bottomLeft"
               active={store.activeTop === 'settings'}
-              onClick={() => store.toggleTop('settings')}
+              onClick={() => {
+                store.toggleTop('settings')
+                runAction(actions.settings)
+              }}
             >
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                 <title>cog-outline</title>

@@ -33,39 +33,55 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
 
   // Map the Mendix drop-zone props onto id-keyed records so the menus drive the content stacks.
   const leftSlots: Record<LeftPanelId, ReactNode> = {
-    simulation: props.leftSimulation,
-    projects: props.leftProjects,
-    analysis: props.leftAnalysis,
-    pmData: props.leftPmData,
-    tuningLogic: props.leftTuningLogic,
-    factorControl: props.leftFactorControl,
-    pmStandard: props.leftPmStandard,
-    integration: props.leftIntegration,
-    setting: props.leftSetting,
+    simulation: props.propSimulation,
+    projects: props.propProjects,
+    analysis: props.propAnalysis,
+    pmData: props.propPmData,
+    tuningLogic: props.propTuningLogic,
+    factorControl: props.propFactorControl,
+    pmStandard: props.propPmStandard,
+    integration: props.propIntegration,
+    setting: props.propSetting,
   }
 
   const rightSlots: Record<RightPanelId, ReactNode> = {
-    compare: props.rightCompare,
-    aiAssistant: props.rightAiAssistant,
-    recommendation: props.rightRecommendation,
-    history: props.rightHistory,
+    compare: props.propCompare,
+    aiAssistant: props.propAiAssistant,
+    recommendation: props.propRecommendation,
+    history: props.propHistory,
   }
 
   return (
     <Layout className={cn('ax-sim', props.class)} style={props.style} tabIndex={props.tabIndex}>
       <AxSimulationTop
         logo={props.logo}
-        topMenu={props.topMenu}
-        line={props.line}
-        planVersion={props.planVersion}
-        splitView={props.splitView}
-        notify={props.notify}
-        user={props.user}
-        setting={props.setting}
+        labels={{
+          apps: props.labelApps,
+          worldMap: props.labelWorldMap,
+          notify: props.labelNotify,
+          account: props.labelAccount,
+          settings: props.labelSettings,
+        }}
+        actions={{
+          apps: props.actionApps,
+          worldMap: props.actionWorldMap,
+          notify: props.actionNotify,
+          account: props.actionAccount,
+          settings: props.actionSettings,
+        }}
       />
 
       <Layout className="ax-sim_middle">
-        <AxSimulationLeft />
+        <AxSimulationLeft
+          labels={{
+            simulation: props.labelSimulation,
+            projects: props.labelProjects,
+            analysis: props.labelAnalysis,
+            pmData: props.labelPmData,
+            tuningLogic: props.labelTuningLogic,
+            setting: props.labelSetting,
+          }}
+        />
         <Layout.Content className="ax-sim_main">
           <Splitter
             className="ax-sim_splitter"
@@ -84,7 +100,7 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
             <Splitter.Panel
               className="ax-sim_splitter_panel ax-sim_splitter_panel_right"
               size={store.rightOpen ? rightSize : 0}
-              min={store.rightOpen ? 240 : 0}
+              min={store.rightOpen ? 480 : 0}
               resizable={store.rightOpen}
             >
               <div className="ax-sim_view ax-sim_view_right">
@@ -97,9 +113,15 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
             </Splitter.Panel>
           </Splitter>
         </Layout.Content>
-        <AxSimulationRight />
+        <AxSimulationRight
+          labels={{
+            compare: props.labelCompare,
+            aiAssistant: props.labelAiAssistant,
+            recommendation: props.labelRecommendation,
+            history: props.labelHistory,
+          }}
+        />
       </Layout>
-
       <AxSimulationBottom />
     </Layout>
   )

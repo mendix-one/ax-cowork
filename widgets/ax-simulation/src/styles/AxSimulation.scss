@@ -62,9 +62,31 @@
   }
 }
 
+// === Content view stacks (left & right panels) =======================================================================
+// One stack per Splitter panel. Every view stays mounted; the store flips which slot is active so the
+// left panel shows store.activeLeft and the right shows store.activeRight (only while store.rightOpen).
+// `.ax-sim_view` is the positioning context; slots stack on top of each other (absolute inset-0) and only
+// the active one is visible + interactive. Inactive slots use visibility:hidden (not display:none) so they
+// stay measurable — first paint isn't deferred to activation and the Splitter never remounts its children.
+.ax-sim_view {
+  @apply relative w-full h-full overflow-hidden;
+}
+.ax-sim_slot {
+  @apply absolute inset-0;
+  transition: opacity 0.2s ease;
+
+  &.is-inactive {
+    @apply opacity-0 invisible pointer-events-none;
+  }
+  &.is-active {
+    @apply opacity-100 visible pointer-events-auto;
+  }
+}
+
 // === Bottom bar (Layout.Footer) ======================================================================================
 .ax-sim_bottom {
   @apply w-full h-2;
+  @apply bg-transparent !important;
 }
 
 // === Elements ========================================================================================================

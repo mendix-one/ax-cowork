@@ -4,17 +4,30 @@ import { observer } from 'mobx-react-lite'
 import { useAxSimulationStore } from '../stores/context'
 import { AxMenuBtn } from './views/AxMenuBtn'
 
+// Tooltip labels for the left rail buttons — sourced from widget props (translatable in Studio).
+export interface AxSimulationLeftProps {
+  labels: {
+    simulation: string
+    projects: string
+    analysis: string
+    pmData: string
+    tuningLogic: string
+    setting: string
+  }
+}
+
 // Left icon rail (Layout.Sider). Fixed-width vertical menu; clicking sets the active left view. Active
 // state reflects store.activeLeft so the rail and the content stack in AxSimulationMain stay in sync.
-export const AxSimulationLeft = observer((): ReactElement => {
+export const AxSimulationLeft = observer((props: AxSimulationLeftProps): ReactElement => {
   const store = useAxSimulationStore()
+  const { labels } = props
   return (
     <Layout.Sider width="2.65rem" className="ax-sim_rail ax-sim_rail_left">
       <Flex vertical align="center" justify="space-between" className="ax-sim_rail_inner">
         <Flex vertical align="center" justify="start">
           <Space vertical>
             <AxMenuBtn
-              title="Simulation"
+              title={labels.simulation}
               placement="right"
               active={store.activeLeft === 'simulation'}
               onClick={() => store.setActiveLeft('simulation')}
@@ -25,7 +38,7 @@ export const AxSimulationLeft = observer((): ReactElement => {
               </svg>
             </AxMenuBtn>
             <AxMenuBtn
-              title="Projects"
+              title={labels.projects}
               placement="right"
               active={store.activeLeft === 'projects'}
               onClick={() => store.setActiveLeft('projects')}
@@ -36,7 +49,7 @@ export const AxSimulationLeft = observer((): ReactElement => {
               </svg>
             </AxMenuBtn>
             <AxMenuBtn
-              title="Analysis"
+              title={labels.analysis}
               placement="right"
               active={store.activeLeft === 'analysis'}
               onClick={() => store.setActiveLeft('analysis')}
@@ -47,7 +60,7 @@ export const AxSimulationLeft = observer((): ReactElement => {
               </svg>
             </AxMenuBtn>
             <AxMenuBtn
-              title="PM Data"
+              title={labels.pmData}
               placement="right"
               active={store.activeLeft === 'pmData'}
               onClick={() => store.setActiveLeft('pmData')}
@@ -58,7 +71,7 @@ export const AxSimulationLeft = observer((): ReactElement => {
               </svg>
             </AxMenuBtn>
             <AxMenuBtn
-              title="Tuning Logic"
+              title={labels.tuningLogic}
               placement="right"
               active={store.activeLeft === 'tuningLogic'}
               onClick={() => store.setActiveLeft('tuningLogic')}
@@ -72,7 +85,7 @@ export const AxSimulationLeft = observer((): ReactElement => {
           <Divider className="ax-menu-divider" />
           <Space vertical>
             <AxMenuBtn
-              title="Setting"
+              title={labels.setting}
               placement="right"
               active={store.activeLeft === 'setting'}
               onClick={() => store.setActiveLeft('setting')}
