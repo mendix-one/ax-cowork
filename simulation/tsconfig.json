@@ -23,6 +23,7 @@
     "paths": {
       "@/*": ["./src/*"],
       "@axlogin/*": ["../widgets/ax-login/src/*"],
+      "@axsimulation/*": ["../widgets/ax-simulation/src/*"],
       "mendix": ["./src/mock/mendix.ts"]
     },
     "types": []

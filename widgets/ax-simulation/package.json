@@ -1,8 +1,8 @@
 {
-  "name": "@ax/login-panel",
-  "widgetName": "AxLogin",
+  "name": "@ax/simulation-layout",
+  "widgetName": "AxSimulation",
   "version": "1.0.0",
-  "description": "Ax Login - Ax Widgets Kit",
+  "description": "Ax Simulation - Mendix page layout for the simulation module",
   "copyright": "Mendix One",
   "author": "Danniel Ng",
   "engines": {
@@ -30,7 +30,6 @@
     "@eslint/js": "^10.0.1",
     "@mendix/pluggable-widgets-tools": "^11.8.1",
     "@prettier/plugin-xml": "^3.4.2",
-    "@types/big.js": "^6.0.2",
     "@types/jest": "^29.5.14",
     "@types/node": "^20.19.41",
     "@types/react": "^19.2.15",

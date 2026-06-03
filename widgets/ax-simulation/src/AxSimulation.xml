@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget
+  id="one.mendix.axsimulation.AxSimulation"
+  pluginWidget="true"
+  offlineCapable="true"
+  supportedPlatform="Web"
+  xmlns="http://www.mendix.com/widget/1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd"
+>
+    <name>Ax Simulation</name>
+    <description>Full-page layout shell for the simulation module — header, left/right icon rails, switchable content views.</description>
+    <icon />
+    <properties>
+        <propertyGroup caption="Header — left">
+            <property key="logo" type="widgets" required="false">
+                <caption>Logo</caption>
+                <description>Top-left logo / brand content.</description>
+            </property>
+            <property key="topMenu" type="widgets" required="false">
+                <caption>Top menu</caption>
+                <description>Primary top menu next to the logo.</description>
+            </property>
+            <property key="line" type="widgets" required="false">
+                <caption>Line</caption>
+                <description>Production line selector.</description>
+            </property>
+            <property key="planVersion" type="widgets" required="false">
+                <caption>Plan version</caption>
+                <description>Plan / simulation version selector.</description>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Header — right">
+            <property key="splitView" type="widgets" required="false">
+                <caption>Split view</caption>
+                <description>Split / book view control.</description>
+            </property>
+            <property key="notify" type="widgets" required="false">
+                <caption>Notifications</caption>
+                <description>Notifications menu.</description>
+            </property>
+            <property key="user" type="widgets" required="false">
+                <caption>User</caption>
+                <description>User account menu.</description>
+            </property>
+            <property key="setting" type="widgets" required="false">
+                <caption>Settings</caption>
+                <description>System settings menu.</description>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Left views">
+            <property key="leftSimulation" type="widgets" required="false">
+                <caption>Simulation</caption>
+                <description>Content shown for the Simulation menu item.</description>
+            </property>
+            <property key="leftProjects" type="widgets" required="false">
+                <caption>Projects</caption>
+                <description>Content shown for the Projects menu item.</description>
+            </property>
+            <property key="leftAnalysis" type="widgets" required="false">
+                <caption>Analysis</caption>
+                <description>Content shown for the Analysis menu item.</description>
+            </property>
+            <property key="leftPmData" type="widgets" required="false">
+                <caption>PM Data</caption>
+                <description>Content shown for the PM Data menu item.</description>
+            </property>
+            <property key="leftTuningLogic" type="widgets" required="false">
+                <caption>Tuning Logic</caption>
+                <description>Content shown for the Tuning Logic menu item.</description>
+            </property>
+            <property key="leftFactorControl" type="widgets" required="false">
+                <caption>Factor Control</caption>
+                <description>Content shown for the Factor Control menu item.</description>
+            </property>
+            <property key="leftPmStandard" type="widgets" required="false">
+                <caption>PM Standard</caption>
+                <description>Content shown for the PM Standard menu item.</description>
+            </property>
+            <property key="leftIntegration" type="widgets" required="false">
+                <caption>Integration</caption>
+                <description>Content shown for the Integration menu item.</description>
+            </property>
+            <property key="leftSetting" type="widgets" required="false">
+                <caption>Setting</caption>
+                <description>Content shown for the Setting menu item.</description>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Right views">
+            <property key="rightCompare" type="widgets" required="false">
+                <caption>Compare</caption>
+                <description>Content shown for the Compare menu item.</description>
+            </property>
+            <property key="rightAiAssistant" type="widgets" required="false">
+                <caption>AI Assistant</caption>
+                <description>Content shown for the AI Assistant menu item.</description>
+            </property>
+            <property key="rightRecommendation" type="widgets" required="false">
+                <caption>Recommendation</caption>
+                <description>Content shown for the Recommendation menu item.</description>
+            </property>
+            <property key="rightHistory" type="widgets" required="false">
+                <caption>History</caption>
+                <description>Content shown for the History menu item.</description>
+            </property>
+        </propertyGroup>
+        <propertyGroup caption="Footer">
+            <property key="footer" type="widgets" required="false">
+                <caption>Footer</caption>
+                <description>Bottom bar content.</description>
+            </property>
+        </propertyGroup>
+    </properties>
+</widget>

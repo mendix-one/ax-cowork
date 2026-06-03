@@ -13,8 +13,9 @@
   "dependencies": {
     "@ant-design/icons": "^6.2.2",
     "antd": "^6.3.7",
-    "@ax/login": "workspace:*",
     "@ax/common": "workspace:*",
+    "@ax/login-panel": "workspace:*",
+    "@ax/simulation-layout": "workspace:*",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.15.0"

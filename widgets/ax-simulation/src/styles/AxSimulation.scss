@@ -1,0 +1,189 @@
+// Full-page layout shell for the simulation module. Plain SCSS (no Tailwind directives) — the widget
+// owns the whole viewport, so the frame is a flex column (top / middle / bottom) with the middle a
+// flex row (left rail / main / right rail). All content views stay mounted; switching is a CSS fade.
+
+$ax-primary: #3f51b5;
+$ax-border: #f0f0f0;
+$ax-rail-w: 48px;
+$ax-right-w: 360px;
+
+.ax-sim {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  color: rgba(0, 0, 0, 0.88);
+}
+
+.ax-sim_layout {
+  flex: 1;
+  min-width: 0;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+// === Top bar =========================================================================================
+.ax-sim_top {
+  flex: 0 0 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 12px;
+  background: #ffffff;
+  border-bottom: 1px solid $ax-border;
+}
+
+.ax-sim_top_left,
+.ax-sim_top_right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+}
+
+.ax-sim_top_logo {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  margin-right: 4px;
+}
+
+.ax-sim_top_slot {
+  display: flex;
+  align-items: center;
+}
+
+// === Middle (rails + main) ===========================================================================
+.ax-sim_middle {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: row;
+}
+
+.ax-sim_rail {
+  flex: 0 0 $ax-rail-w;
+  width: $ax-rail-w;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 8px 0;
+  background: #fafafa;
+  border-right: 1px solid $ax-border;
+}
+
+.ax-sim_rail__right {
+  border-right: none;
+  border-left: 1px solid $ax-border;
+}
+
+.ax-sim_rail_btn {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: rgba(0, 0, 0, 0.6);
+  font-size: 18px;
+  transition:
+    background 0.15s ease,
+    color 0.15s ease;
+
+  &:hover {
+    background: rgba(0, 0, 0, 0.05);
+    color: rgba(0, 0, 0, 0.88);
+  }
+
+  &.is-active {
+    background: rgba($ax-primary, 0.12);
+    color: $ax-primary;
+  }
+}
+
+.ax-sim_rail_btn_icon {
+  display: inline-flex;
+}
+
+// === Main content (left view + collapsible right view) ===============================================
+.ax-sim_main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: row;
+  background: #f5f5f5;
+  overflow: hidden;
+}
+
+.ax-sim_view {
+  position: relative;
+  height: 100%;
+}
+
+.ax-sim_view__left {
+  flex: 1;
+  min-width: 0;
+}
+
+.ax-sim_view__right {
+  flex: 0 0 $ax-right-w;
+  width: $ax-right-w;
+  background: #ffffff;
+  border-left: 1px solid $ax-border;
+  overflow: hidden;
+  // Animate open/close of the right region for a smooth switch.
+  transition:
+    flex-basis 0.25s ease,
+    width 0.25s ease,
+    opacity 0.2s ease;
+
+  &.is-closed {
+    flex-basis: 0;
+    width: 0;
+    opacity: 0;
+    border-left-color: transparent;
+  }
+}
+
+// Stacked content slots: all mounted, only the active one visible. visibility (not display) keeps the
+// inactive panels laid out so their first paint isn't deferred until activation.
+.ax-sim_slot {
+  position: absolute;
+  inset: 0;
+  overflow: auto;
+  transition: opacity 0.2s ease;
+
+  &.is-active {
+    opacity: 1;
+    visibility: visible;
+    z-index: 1;
+  }
+
+  &.is-inactive {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+}
+
+// === Bottom bar ======================================================================================
+.ax-sim_bottom {
+  flex: 0 0 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 12px;
+  background: #ffffff;
+  border-top: 1px solid $ax-border;
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+}
