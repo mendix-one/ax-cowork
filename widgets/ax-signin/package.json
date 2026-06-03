@@ -1,8 +1,8 @@
 {
-  "name": "@ax/login-panel",
-  "widgetName": "AxLogin",
+  "name": "@ax/signin-panel",
+  "widgetName": "AxSignin",
   "version": "1.0.0",
-  "description": "Ax Login - Ax Widgets Kit",
+  "description": "Ax Signin - Ax Widgets Kit",
   "copyright": "Mendix One",
   "author": "Danniel Ng",
   "engines": {

@@ -26,7 +26,7 @@ export const AxDisplayPanelSync = observer((props: AxDisplayPanelContainerProps)
 
   // Header (type, title, icon).
   useEffect(() => {
-    store.setHeader(props.prpEnmType, props.prpStrTitle, props.prpIcnHeader?.value)
+    store.setHeader(props.prpEnmType, props.prpStrTitle, props.prpIcnHeader?.value ?? undefined)
   }, [store, props.prpEnmType, props.prpStrTitle, props.prpIcnHeader])
 
   // Toolbar / content drop zones.

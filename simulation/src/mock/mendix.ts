@@ -31,6 +31,13 @@ export interface WebImage {
   altText?: string
 }
 
+// Mirrors Mendix's WebIcon union (and the shape consumed by mock/mendix-icon.tsx). Widgets that
+// type-import `WebIcon` from 'mendix' (e.g. ax-panel/ax-signin) resolve it here in the sim.
+export type WebIcon =
+  | { type: 'glyph'; iconClass: string }
+  | { type: 'icon'; iconClass: string }
+  | { type: 'image'; iconUrl: string }
+
 // ----- Factories -----
 
 export function editable<T>(state: [T, Dispatch<SetStateAction<T>>], opts?: { readOnly?: boolean }): EditableValue<T> {

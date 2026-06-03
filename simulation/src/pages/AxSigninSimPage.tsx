@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { App as AntApp, Button, Card, Space, Switch, Typography } from 'antd'
-import { AxLogin } from '@axlogin/AxLogin'
-import type { AxLoginContainerProps } from '../../../widgets/ax-login/typings/AxLoginProps'
+import { AxSignin } from '@axsignin/AxSignin'
+import type { AxSigninContainerProps } from '../../../widgets/ax-signin/typings/AxSigninProps'
 import { action, dynamic, editable, webImage } from '@/mock/mendix'
 import { AX_BROADCAST, emitEvent } from '@ax/common'
 
@@ -10,7 +10,7 @@ import { AX_BROADCAST, emitEvent } from '@ax/common'
 const VALID_ACCOUNT = 'admin'
 const VALID_PASSWORD = 'password'
 
-export function AxLoginSimPage() {
+export function AxSigninSimPage() {
   const { notification } = AntApp.useApp()
 
   // Form state owned by the simulation; the widget mutates this via EditableValue.setValue.
@@ -45,8 +45,8 @@ export function AxLoginSimPage() {
     notification.info({ message: 'SSO clicked', description: 'Real app would redirect to the identity provider.' })
   }
 
-  const props: AxLoginContainerProps = {
-    name: 'axlogin',
+  const props: AxSigninContainerProps = {
+    name: 'axsignin',
     class: '',
     prpAtrAccount: editable([account, setAccount]),
     prpAtrPassword: editable([password, setPassword]),
@@ -67,13 +67,13 @@ export function AxLoginSimPage() {
 
   return (
     <AntApp>
-      <Typography.Title level={3}>AxLogin</Typography.Title>
+      <Typography.Title level={3}>AxSignin</Typography.Title>
       <Typography.Paragraph type="secondary">
         Mendix props are mocked. Try <code>admin</code> / <code>password</code> for the success path; anything else surfaces the inline error.
       </Typography.Paragraph>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, alignItems: 'start' }}>
         <Card title="Rendered widget" style={{ display: 'flex', justifyContent: 'center' }}>
-          <AxLogin {...props} />
+          <AxSignin {...props} />
         </Card>
         <Card title="Sim controls" size="small">
           <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -103,10 +103,10 @@ export function AxLoginSimPage() {
                   Emits on <code>ax:broadcast</code>; the widget handles it via useWidgetEvents.
                 </Typography.Paragraph>
                 <Space>
-                  <Button size="small" onClick={() => emitEvent(AX_BROADCAST, { action: 'reset' })}>
+                  <Button size="small" onClick={() => emitEvent(AX_BROADCAST, { action: 'CMD_RESET' })}>
                     Emit reset
                   </Button>
-                  <Button size="small" onClick={() => emitEvent(AX_BROADCAST, { action: 'submit' })}>
+                  <Button size="small" onClick={() => emitEvent(AX_BROADCAST, { action: 'CMD_SUBMIT' })}>
                     Emit submit
                   </Button>
                 </Space>

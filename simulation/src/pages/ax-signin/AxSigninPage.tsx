@@ -1,34 +1,34 @@
 import { useState } from 'react'
 import { App as AntApp } from 'antd'
 import { useNavigate } from 'react-router-dom'
-import { AxLogin } from '@axlogin/AxLogin'
-import type { AxLoginContainerProps } from '../../../../widgets/ax-login/typings/AxLoginProps'
+import { AxSignin } from '@axsignin/AxSignin'
+import type { AxSigninContainerProps } from '../../../../widgets/ax-signin/typings/AxSigninProps'
 import { action, dynamic, editable } from '@/mock/mendix'
-import './AxLoginPage.css'
+import './AxSigninPage.css'
 
-// A "real page" host for the AxLogin widget at route /login: full-viewport split
+// A "real page" host for the AxSignin widget at route /signin: full-viewport split
 // layout (brand panel + centred widget), rendered outside the sim's dashboard chrome.
-// The widget supplies the login card; this page supplies everything around it and
+// The widget supplies the signin card; this page supplies everything around it and
 // owns the form state, mutated by the widget through the mocked Mendix Values API —
 // exactly as Studio Pro would drive it.
 
-// Toy credentials, matching AxLoginSimPage so both demos behave the same.
+// Toy credentials, matching AxSigninSimPage so both demos behave the same.
 const VALID_ACCOUNT = 'admin'
 const VALID_PASSWORD = 'password'
 
-export function AxLoginPage() {
+export function AxSigninPage() {
   return (
     <AntApp className="ax-app">
-      <div className="ax-login-page">
-        <LoginPanel />
+      <div className="ax-signin-page">
+        <SigninPanel />
       </div>
     </AntApp>
   )
 }
 
 // The widget + the form state it drives. Split out so it can read the AntApp
-// notification context (the provider lives in AxLoginPage above).
-function LoginPanel() {
+// notification context (the provider lives in AxSigninPage above).
+function SigninPanel() {
   const { notification } = AntApp.useApp()
   const navigate = useNavigate()
 
@@ -63,8 +63,8 @@ function LoginPanel() {
   // Map the page's React state onto the widget's Mendix Values-API prop shape.
   // No logoUrl here: the light product logo lives on the brand panel, so the card
   // falls back to the widget's branded avatar.
-  const props: AxLoginContainerProps = {
-    name: 'axlogin',
+  const props: AxSigninContainerProps = {
+    name: 'axsignin',
     class: '',
     prpAtrAccount: editable([account, setAccount]),
     prpAtrPassword: editable([password, setPassword]),
@@ -83,5 +83,5 @@ function LoginPanel() {
     prpTxtSsoLabel: dynamic('Sign in with SSO'),
   }
 
-  return <AxLogin {...props} />
+  return <AxSignin {...props} />
 }

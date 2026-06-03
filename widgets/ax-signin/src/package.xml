@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <package xmlns="http://www.mendix.com/package/1.0/">
-    <clientModule name="AxLogin" version="1.0.0" xmlns="http://www.mendix.com/clientModule/1.0/">
+    <clientModule name="AxSignin" version="1.0.0" xmlns="http://www.mendix.com/clientModule/1.0/">
         <widgetFiles>
-            <widgetFile path="AxLogin.xml" />
+            <widgetFile path="AxSignin.xml" />
         </widgetFiles>
         <files>
-            <file path="one/mendix/axlogin" />
+            <file path="one/mendix/axsignin" />
         </files>
     </clientModule>
 </package>

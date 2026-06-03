@@ -1,9 +1,9 @@
 /** @type {import('tailwindcss').Config} */
-// Scoped to .ax-login (important + no preflight) so the widget never resets or overrides
+// Scoped to .ax-signin (important + no preflight) so the widget never resets or overrides
 // the host Mendix page's styles. Mirrors simulation/tailwind.config.js so utilities resolve
 // identically in the sim and in the .mpk build. Colors match react-app's brand palette.
 module.exports = {
-  important: '.ax-login',
+  important: '.ax-signin',
   content: ['./src/**/*.{ts,tsx,scss,css}'],
   corePlugins: {
     preflight: false,

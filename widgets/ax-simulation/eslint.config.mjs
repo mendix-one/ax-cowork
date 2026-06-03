@@ -5,7 +5,7 @@ import tseslint from 'typescript-eslint'
 import prettierConfig from 'eslint-config-prettier'
 import { defineConfig, globalIgnores } from 'eslint/config'
 
-// Mirrors widgets/ax-login/eslint.config.mjs — same rule set + prettier alignment.
+// Mirrors widgets/ax-signin/eslint.config.mjs — same rule set + prettier alignment.
 export default defineConfig([
   globalIgnores(['dist', 'typings', 'tests/testProject']),
   {

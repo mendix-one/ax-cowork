@@ -1,12 +1,12 @@
 /**
- * This file was generated from AxLogin.xml
+ * This file was generated from AxSignin.xml
  * WARNING: All changes made to this file will be overwritten
  * @author Mendix Widgets Framework Team
  */
 import { CSSProperties } from "react";
 import { ActionValue, DynamicValue, EditableValue, WebImage } from "mendix";
 
-export interface AxLoginContainerProps {
+export interface AxSigninContainerProps {
     name: string;
     class: string;
     style?: CSSProperties;
@@ -28,7 +28,7 @@ export interface AxLoginContainerProps {
     prpTxtSsoLabel: DynamicValue<string>;
 }
 
-export interface AxLoginPreviewProps {
+export interface AxSigninPreviewProps {
     /**
      * @deprecated Deprecated since version 9.18.0. Please use class property instead.
      */

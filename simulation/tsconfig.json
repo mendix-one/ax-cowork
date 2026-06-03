@@ -11,7 +11,7 @@
     "noFallthroughCasesInSwitch": true,
     "isolatedModules": true,
     // Vite handles bundling — tsc is for type-checking only. Without this, `tsc -b` emits .js
-    // next to sources, including into the widget src it pulls in via the @axlogin path alias,
+    // next to sources, including into the widget src it pulls in via the @axsignin path alias,
     // where the tools' .js-first module resolution can shadow the real .tsx.
     "noEmit": true,
     "esModuleInterop": true,
@@ -22,7 +22,7 @@
     "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
-      "@axlogin/*": ["../widgets/ax-login/src/*"],
+      "@axsignin/*": ["../widgets/ax-signin/src/*"],
       "@axsimulation/*": ["../widgets/ax-simulation/src/*"],
       "@axpanel/*": ["../widgets/ax-panel/src/*"],
       "mendix/components/web/Icon": ["./src/mock/mendix-icon.tsx"],

@@ -1,4 +1,4 @@
-import { AxLoginPreviewProps } from '../typings/AxLoginProps'
+import { AxSigninPreviewProps } from '../typings/AxSigninProps'
 
 export type Platform = 'web' | 'desktop'
 
@@ -92,7 +92,7 @@ type DatasourceProps = BaseProps & {
 
 export type PreviewProps = ImageProps | ContainerProps | RowLayoutProps | TextProps | DropZoneProps | SelectableProps | DatasourceProps
 
-export function getProperties(_values: AxLoginPreviewProps, defaultProperties: Properties /* , target: Platform*/): Properties {
+export function getProperties(_values: AxSigninPreviewProps, defaultProperties: Properties /* , target: Platform*/): Properties {
   // Do the values manipulation here to control the visibility of properties in Studio and Studio Pro conditionally.
   /* Example
     if (values.myProperty === "custom") {
@@ -102,7 +102,7 @@ export function getProperties(_values: AxLoginPreviewProps, defaultProperties: P
   return defaultProperties
 }
 
-// export function check(_values: AxLoginPreviewProps): Problem[] {
+// export function check(_values: AxSigninPreviewProps): Problem[] {
 //     const errors: Problem[] = [];
 //     // Add errors to the above array to throw errors in Studio and Studio Pro.
 //     /* Example
@@ -117,7 +117,7 @@ export function getProperties(_values: AxLoginPreviewProps, defaultProperties: P
 //     return errors;
 // }
 
-// export function getPreview(values: AxLoginPreviewProps, isDarkMode: boolean, version: number[]): PreviewProps {
+// export function getPreview(values: AxSigninPreviewProps, isDarkMode: boolean, version: number[]): PreviewProps {
 //     // Customize your pluggable widget appearance for Studio Pro.
 //     return {
 //         type: "Container",
@@ -125,6 +125,6 @@ export function getProperties(_values: AxLoginPreviewProps, defaultProperties: P
 //     }
 // }
 
-// export function getCustomCaption(values: AxLoginPreviewProps, platform: Platform): string {
-//     return "AxLogin";
+// export function getCustomCaption(values: AxSigninPreviewProps, platform: Platform): string {
+//     return "AxSignin";
 // }

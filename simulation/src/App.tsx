@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Navigate, Route, Routes } from 'react-router-dom'
-import { AxLoginPage } from './pages/ax-login/AxLoginPage'
+import { AxSigninPage } from './pages/ax-signin/AxSigninPage'
 import { SimulationPage } from './pages/simulation/SimulationPage'
 
 export function App() {
@@ -7,7 +7,7 @@ export function App() {
     <Router>
       <Routes>
         <Route path="/" element={<Navigate to="/simulation" replace />} />
-        <Route path="/login" element={<AxLoginPage />} />
+        <Route path="/signin" element={<AxSigninPage />} />
         <Route path="/simulation" element={<SimulationPage />} />
       </Routes>
     </Router>

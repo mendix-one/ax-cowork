@@ -1,9 +1,9 @@
 import type { ReactElement } from 'react'
 
-// Studio Pro design-mode preview. A lightweight static skeleton of the login card (logo, two inputs,
+// Studio Pro design-mode preview. A lightweight static skeleton of the signin card (logo, two inputs,
 // primary button, sign-up hint, SSO card) so the widget reads correctly on the canvas. Design-time is
 // inert — no store, no handlers.
-export function AxLoginPreview(): ReactElement {
+export function AxSigninPreview(): ReactElement {
   const card: React.CSSProperties = {
     width: 320,
     border: '1px solid #f0f0f0',

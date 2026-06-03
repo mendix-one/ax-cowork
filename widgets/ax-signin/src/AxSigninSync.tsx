@@ -2,9 +2,9 @@ import type { ReactElement } from 'react'
 import { useCallback, useEffect } from 'react'
 import { observer } from 'mobx-react-lite'
 import { type AxEvent, useWidgetEvents } from '@ax/common'
-import type { AxLoginContainerProps } from '../typings/AxLoginProps'
-import { useAxLoginStore } from './stores/context'
-import { AxLoginMain } from './main/AxLoginMain'
+import type { AxSigninContainerProps } from '../typings/AxSigninProps'
+import { useAxSigninStore } from './stores/context'
+import { AxSigninMain } from './main/AxSigninMain'
 
 // Props ↔ store bridge layer. The ONLY component that reads the Mendix container props: it pushes each
 // group into the store through a dedicated useEffect (keyed on that group's props, so values that
@@ -13,14 +13,14 @@ import { AxLoginMain } from './main/AxLoginMain'
 // The store never touches a Mendix value. It emits ACT_* intents on its private topic; this component
 // holds the EditableValues + ActionValues and turns those intents into real Mendix calls (setValue() /
 // execute()). Nanoflows / other widgets can also drive the form by emitting CMD_* (CMD_SUBMIT |
-// CMD_RESET). isLayout ensures the bus exists when the login widget stands alone. AxLoginMain below
+// CMD_RESET). isLayout ensures the bus exists when the signin widget stands alone. AxSigninMain below
 // works purely off store state.
-export const AxLoginSync = observer((props: AxLoginContainerProps): ReactElement => {
-  const store = useAxLoginStore()
+export const AxSigninSync = observer((props: AxSigninContainerProps): ReactElement => {
+  const store = useAxSigninStore()
 
   // Widget attributes.
   useEffect(() => {
-    store.setWidget(props.name || 'axLogin1', props.class, props.style, props.tabIndex)
+    store.setWidget(props.name || 'axSignin1', props.class, props.style, props.tabIndex)
   }, [store, props.name, props.class, props.style, props.tabIndex])
 
   // Field labels.
@@ -120,5 +120,5 @@ export const AxLoginSync = observer((props: AxLoginContainerProps): ReactElement
   )
   useWidgetEvents({ widgetName: props.name, onEvent: handleEvent, isLayout: true })
 
-  return <AxLoginMain />
+  return <AxSigninMain />
 })

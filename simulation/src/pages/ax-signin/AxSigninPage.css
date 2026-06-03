@@ -1,4 +1,4 @@
-/* Full-page chrome for the /login demo. The AxLogin widget renders its own centered
+/* Full-page chrome for the /signin demo. The AxSignin widget renders its own centered
    card; this file only provides the surrounding "real product page" — a branded
    gradient panel beside the form column. Page-scoped class names avoid bleeding into
    the widget's own styles. */

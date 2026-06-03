@@ -10,7 +10,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
-      '@axlogin': fileURLToPath(new URL('../widgets/ax-login/src', import.meta.url)),
+      '@axsignin': fileURLToPath(new URL('../widgets/ax-signin/src', import.meta.url)),
       '@axsimulation': fileURLToPath(new URL('../widgets/ax-simulation/src', import.meta.url)),
       '@axpanel': fileURLToPath(new URL('../widgets/ax-panel/src', import.meta.url)),
       // Resolve the shared lib to its TS source too, so Vite compiles real ESM on

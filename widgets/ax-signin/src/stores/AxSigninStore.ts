@@ -2,8 +2,8 @@ import type { CSSProperties } from 'react'
 import { makeAutoObservable, observable } from 'mobx'
 import { emitEvent } from '@ax/common'
 
-// Field labels for the login card. Sourced from widget props (translatable in Studio).
-export interface AxLoginLabels {
+// Field labels for the signin card. Sourced from widget props (translatable in Studio).
+export interface AxSigninLabels {
   account: string
   accountPlaceholder: string
   password: string
@@ -13,7 +13,7 @@ export interface AxLoginLabels {
   sso: string
 }
 
-const EMPTY_LABELS: AxLoginLabels = {
+const EMPTY_LABELS: AxSigninLabels = {
   account: '',
   accountPlaceholder: '',
   password: '',
@@ -23,28 +23,28 @@ const EMPTY_LABELS: AxLoginLabels = {
   sso: '',
 }
 
-// MobX store owning the login form. It holds the form's interaction state (which fields are touched,
+// MobX store owning the signin form. It holds the form's interaction state (which fields are touched,
 // whether a submit was attempted) and the prop-derived view data (labels, busy/error flags, logo,
 // capabilities), and it talks to the outside world only through the event bus — never through a Mendix
 // value:
 //
 //  - `account` / `password` are the synchronous source of truth for the controlled inputs, so typing
 //    never lags the bound attribute's async round-trip. On user edit we update the field immediately
-//    and emit `ACT_SET_*` so AxLoginSync writes the bound attribute; the attribute reconciles back via
+//    and emit `ACT_SET_*` so AxSigninSync writes the bound attribute; the attribute reconciles back via
 //    `syncAccount` / `syncPassword`.
-//  - `submit` / `signUp` / `sso` emit `ACT_*` intents on the widget's private topic; AxLoginSync holds
+//  - `submit` / `signUp` / `sso` emit `ACT_*` intents on the widget's private topic; AxSigninSync holds
 //    the Mendix ActionValues and runs them.
 //
-// AxLoginSync pushes prop-derived data in via setters (per group, via useEffect) so late-arriving
-// Mendix values are picked up after mount. AxLoginMain reads everything from this store.
-export class AxLoginStore {
+// AxSigninSync pushes prop-derived data in via setters (per group, via useEffect) so late-arriving
+// Mendix values are picked up after mount. AxSigninMain reads everything from this store.
+export class AxSigninStore {
   // --- Interaction state --------------------------------------------------------------------------
   accountTouched = false
   passwordTouched = false
   submitAttempted = false
 
-  // --- Prop-derived view data (set by AxLoginSync) ------------------------------------------------
-  name = 'axLogin1'
+  // --- Prop-derived view data (set by AxSigninSync) ------------------------------------------------
+  name = 'axSignin1'
   className = ''
   style?: CSSProperties
   tabIndex?: number
@@ -55,7 +55,7 @@ export class AxLoginStore {
   logoUrl?: string
   canSignUp = false
   canSso = false
-  labels: AxLoginLabels = EMPTY_LABELS
+  labels: AxSigninLabels = EMPTY_LABELS
 
   constructor() {
     makeAutoObservable(
@@ -68,12 +68,12 @@ export class AxLoginStore {
     )
   }
 
-  // Emit an action-intent event on this widget's private topic (handled by AxLoginSync).
+  // Emit an action-intent event on this widget's private topic (handled by AxSigninSync).
   private emit(action: string, payload?: unknown): void {
     emitEvent(`ax:${this.name}`, { action, payload })
   }
 
-  // --- Setters used by AxLoginSync's effects ------------------------------------------------------
+  // --- Setters used by AxSigninSync's effects ------------------------------------------------------
   setWidget(name: string, className: string, style: CSSProperties | undefined, tabIndex: number | undefined): void {
     this.name = name
     this.className = className
@@ -81,7 +81,7 @@ export class AxLoginStore {
     this.tabIndex = tabIndex
   }
 
-  setLabels(labels: AxLoginLabels): void {
+  setLabels(labels: AxSigninLabels): void {
     this.labels = labels
   }
 
@@ -111,7 +111,7 @@ export class AxLoginStore {
   }
 
   // --- Input handlers (user editing) --------------------------------------------------------------
-  // Update the field immediately (synchronous, smooth typing) and ask AxLoginSync to persist it to the
+  // Update the field immediately (synchronous, smooth typing) and ask AxSigninSync to persist it to the
   // bound Mendix attribute.
   setAccount(account: string): void {
     this.account = account

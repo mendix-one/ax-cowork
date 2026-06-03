@@ -3,29 +3,29 @@ import { Alert, Avatar, Button, Form, Input, theme, Typography } from 'antd'
 import { LockOutlined, LoginOutlined, SafetyCertificateOutlined, UserOutlined } from '@ant-design/icons'
 import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
-import { useAxLoginStore } from '../stores/context'
+import { useAxSigninStore } from '../stores/context'
 
 const { Text } = Typography
 
-// Presentational login card — a self-contained port of react-app's SignInPage + AuthLayout card.
+// Presentational signin card — a self-contained port of react-app's SignInPage + AuthLayout card.
 // Holds no widget props: every value + handler comes from the store (kept in sync with Mendix by
-// AxLoginSync), so this component never touches a widget value.
-export const AxLoginMain = observer((): ReactElement => {
+// AxSigninSync), so this component never touches a widget value.
+export const AxSigninMain = observer((): ReactElement => {
   const { token } = theme.useToken()
-  const store = useAxLoginStore()
+  const store = useAxSigninStore()
   const { labels, busy, errorMessage, canSignUp, canSso, logoUrl } = store
 
   return (
-    <div className={cn('ax-login', store.className)} style={store.style} tabIndex={store.tabIndex}>
-      <div className="ax-login_card" style={{ background: token.colorBgContainer }}>
-        <header className="ax-login_card_header">
+    <div className={cn('ax-signin', store.className)} style={store.style} tabIndex={store.tabIndex}>
+      <div className="ax-signin_card" style={{ background: token.colorBgContainer }}>
+        <header className="ax-signin_card_header">
           {logoUrl ? (
-            <img className="ax-login_logo" src={logoUrl} alt="logo" />
+            <img className="ax-signin_logo" src={logoUrl} alt="logo" />
           ) : (
             <Avatar size={64} icon={<UserOutlined />} style={{ backgroundColor: token.colorPrimary }} />
           )}
         </header>
-        <div className="ax-login_card_body">
+        <div className="ax-signin_card_body">
           <Form
             layout="vertical"
             // Mirror SignInPage: stop the native submit so the host page never reloads, then
@@ -33,10 +33,10 @@ export const AxLoginMain = observer((): ReactElement => {
             onSubmitCapture={(e) => e.preventDefault()}
             onFinish={() => store.submit()}
             disabled={busy}
-            className="ax-login_form"
+            className="ax-signin_form"
           >
-            <div className="ax-login_form_alert">{errorMessage && <Alert type="error" title={errorMessage} showIcon />}</div>
-            <div className="ax-login_form_input">
+            <div className="ax-signin_form_alert">{errorMessage && <Alert type="error" title={errorMessage} showIcon />}</div>
+            <div className="ax-signin_form_input">
               <Form.Item label={labels.account} required validateStatus={store.accountError ? 'error' : undefined} help={store.accountError}>
                 <Input
                   autoComplete="username"
@@ -48,7 +48,7 @@ export const AxLoginMain = observer((): ReactElement => {
                 />
               </Form.Item>
             </div>
-            <div className="ax-login_form_input">
+            <div className="ax-signin_form_input">
               <Form.Item label={labels.password} required validateStatus={store.passwordError ? 'error' : undefined} help={store.passwordError}>
                 <Input.Password
                   autoComplete="current-password"
@@ -59,12 +59,12 @@ export const AxLoginMain = observer((): ReactElement => {
                 />
               </Form.Item>
             </div>
-            <div className="ax-login_form_action pt-2">
+            <div className="ax-signin_form_action pt-2">
               <Button type="primary" htmlType="submit" block loading={busy} icon={<LoginOutlined />}>
                 {labels.submit}
               </Button>
             </div>
-            <div className="ax-login_form_action">
+            <div className="ax-signin_form_action">
               {canSignUp && (
                 <Text type="secondary">
                   {labels.signUpPrompt}{' '}
@@ -85,9 +85,9 @@ export const AxLoginMain = observer((): ReactElement => {
         </div>
       </div>
       {canSso && (
-        <div className="ax-login_card" style={{ background: token.colorBgContainer }}>
-          <div className="ax-login_card_body">
-            <div className="ax-login_form_action">
+        <div className="ax-signin_card" style={{ background: token.colorBgContainer }}>
+          <div className="ax-signin_card_body">
+            <div className="ax-signin_form_action">
               <Button block icon={<SafetyCertificateOutlined />} loading={busy} onClick={() => store.sso()}>
                 {labels.sso}
               </Button>

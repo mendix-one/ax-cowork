@@ -1,6 +1,6 @@
-## AxLogin
+## AxSignin
 
-[Ax Login - Ax Widgets Kit]
+[Ax Signin - Ax Widgets Kit]
 
 ## Features
 

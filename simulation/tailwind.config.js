@@ -1,9 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  // Match the widget's scoping — utilities only apply under .ax-login. Keeps the
+  // Match the widget's scoping — utilities only apply under .ax-signin. Keeps the
   // sim chrome (AntD Layout/Menu) untouched by Tailwind's reset/utilities.
-  important: '.ax-login',
-  content: ['./src/**/*.{ts,tsx,scss,css}', '../widgets/ax-login/src/**/*.{ts,tsx,scss,css}'],
+  important: '.ax-signin',
+  content: ['./src/**/*.{ts,tsx,scss,css}', '../widgets/ax-signin/src/**/*.{ts,tsx,scss,css}'],
   corePlugins: {
     preflight: false,
   },

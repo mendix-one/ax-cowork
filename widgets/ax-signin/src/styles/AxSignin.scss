@@ -2,15 +2,15 @@
 @tailwind components;
 @tailwind utilities;
 
-// The widget root is only the Tailwind scope marker (`important: '.ax-login'` means utility
+// The widget root is only the Tailwind scope marker (`important: '.ax-signin'` means utility
 // classes apply to its *descendants*, not the element itself), so the outer centering frame
 // lives here in SCSS. The inner card + form use Tailwind utilities in the JSX.
-.ax-login {
+.ax-signin {
   // Stack the form card and the optional SSO card vertically, centred in the frame.
   @apply w-full h-full flex flex-col items-center justify-center gap-4;
 
   // Inner card: utilities moved out of the JSX so the markup carries a single
-  // semantic class. Produces the selector `.ax-login_card`.
+  // semantic class. Produces the selector `.ax-signin_card`.
   &_card {
     @apply w-full max-w-sm rounded-md shadow-md p-8;
 

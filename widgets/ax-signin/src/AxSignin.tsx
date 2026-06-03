@@ -2,12 +2,12 @@ import type { ReactElement } from 'react'
 import { configure } from 'mobx'
 import { ConfigProvider } from 'antd'
 import { axColors, axTheme } from '@ax/common'
-import type { AxLoginContainerProps } from '../typings/AxLoginProps'
-import { AxLoginProvider } from './stores/context'
-import { AxLoginStore } from './stores/AxLoginStore'
-import { AxLoginSync } from './AxLoginSync'
+import type { AxSigninContainerProps } from '../typings/AxSigninProps'
+import { AxSigninProvider } from './stores/context'
+import { AxSigninStore } from './stores/AxSigninStore'
+import { AxSigninSync } from './AxSigninSync'
 
-import './styles/AxLogin.scss'
+import './styles/AxSignin.scss'
 
 // Each Mendix widget bundle ships its own MobX copy, so several MobX instances can be active on
 // one page. Isolate this bundle's global state to avoid the "multiple, different versions of MobX
@@ -15,12 +15,12 @@ import './styles/AxLogin.scss'
 configure({ isolateGlobalState: true })
 
 // Entry component: provides the per-instance MobX store (created once by the shared
-// createWidgetContext Provider) and the AX brand theme. AxLoginSync syncs the widget props into the
-// store and wires the event bus; the presentational card lives in AxLoginMain, which reads only store
+// createWidgetContext Provider) and the AX brand theme. AxSigninSync syncs the widget props into the
+// store and wires the event bus; the presentational card lives in AxSigninMain, which reads only store
 // state.
-export function AxLogin(props: AxLoginContainerProps): ReactElement {
+export function AxSignin(props: AxSigninContainerProps): ReactElement {
   return (
-    <AxLoginProvider createStore={() => new AxLoginStore()}>
+    <AxSigninProvider createStore={() => new AxSigninStore()}>
       <ConfigProvider
         theme={axTheme}
         form={{
@@ -36,8 +36,8 @@ export function AxLogin(props: AxLoginContainerProps): ReactElement {
           ),
         }}
       >
-        <AxLoginSync {...props} />
+        <AxSigninSync {...props} />
       </ConfigProvider>
-    </AxLoginProvider>
+    </AxSigninProvider>
   )
 }
