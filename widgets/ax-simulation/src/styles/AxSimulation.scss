@@ -3,25 +3,73 @@
   @apply bg-neutral-600;
 }
 
-// === Top bar (Layout.Header) =========================================================================
+.ax-bg-hover {
+  background-color: #391085;
+}
+.ax-bg-activated {
+  background-color: #3F51B5;
+}
+
+// === Top bar (Layout.Header) =========================================================================================
 .ax-sim_top {
 }
 
-// === Middle (rails + main) ===========================================================================
+// === Middle (rails + main) ===========================================================================================
 // Icon rails (Layout.Sider). Background comes from the siderBg token; add the divider border + layout.
 .ax-sim_rail {
+  &_inner {
+    @apply w-full h-full;
+  }
 }
 
 .ax-sim_middle {
 }
 
-// === Main content (resizable Splitter) ===============================================================
+// === Main content (resizable Splitter) ===============================================================================
 .ax-sim_main {
   @apply w-full h-full;
   @apply bg-neutral-100;
 }
 
-// === Bottom bar (Layout.Footer) ======================================================================
+// === Bottom bar (Layout.Footer) ======================================================================================
 .ax-sim_bottom {
   @apply w-full h-2;
+}
+
+// === Elements ========================================================================================================
+.ax-menu-divider {
+  @apply m-0 my-2;
+}
+.ax-menu-button {
+  @apply block;
+  @apply w-8 h-8 rounded-md cursor-pointer flex items-center justify-center;
+  @apply border-0 bg-transparent text-inherit;
+
+  &_icon {
+    @apply inline-block;
+    @apply w-8 h-8 flex items-center justify-center;
+    svg {
+      fill: #434343;
+      @apply w-6 h-6;
+    }
+  }
+
+  &:hover {
+    @apply ax-bg-hover text-neutral-100;
+    svg {
+      fill: #f0f0f0;
+    }
+  }
+  &:active {
+    @apply ax-bg-hover text-neutral-100;
+    svg {
+      fill: #f0f0f0;
+    }
+  }
+  &.is-active {
+    @apply ax-bg-activated text-neutral-100;
+    svg {
+      fill: #fafafa;
+    }
+  }
 }

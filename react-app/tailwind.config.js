@@ -7,6 +7,7 @@ export default {
         'ax-primary': '#3f51b5',
         'ax-secondary': '#009688',
         'ax-tertiary': '#673ab7',
+        'ax-activated': '#391085',
         'ax-error': '#f44336',
         'ax-warning': '#ff9800',
         'ax-info': '#2196f3',
