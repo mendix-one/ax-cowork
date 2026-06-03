@@ -1,12 +1,8 @@
 import type { ReactElement } from 'react'
-import { useCallback } from 'react'
 import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
 import { Icon } from 'mendix/components/web/Icon'
-import { type AxEvent, useWidgetEvents } from '@ax/common'
-import type { AxDisplayPanelContainerProps } from '../../typings/AxDisplayPanelProps'
 import { useAxDisplayPanelStore } from '../stores/context'
-import { buildBridge } from '../stores/AxDisplayPanelStore'
 
 // MDI glyph paths for the single header control button.
 const GLYPH = {
@@ -16,21 +12,13 @@ const GLYPH = {
 }
 
 // Presentational + interaction layer. Renders the panel chrome (icon, title, toolbar, control button,
-// body), reads maximize state from the bound attribute (or the store's local fallback), and routes the
-// control button + global bus events through the store's action vocabulary.
-export const AxDisplayPanelMain = observer((props: AxDisplayPanelContainerProps): ReactElement => {
+// body) purely from store state, and routes the control button through the store's action vocabulary.
+// Holds no widget props — AxDisplayPanelSync keeps the store in sync with Mendix.
+export const AxDisplayPanelMain = observer((): ReactElement => {
   const store = useAxDisplayPanelStore()
-  // Refresh the store's bridge with the latest Mendix values/actions on every render.
-  store.syncBridge(buildBridge(props))
 
-  // Listen on the global Ax bus (broadcast + this widget's private topic) so nanoflows / other widgets
-  // can drive the panel: emit { action: 'maximize' | 'restore' | 'toggle' | 'close' }. isLayout ensures
-  // the bus exists even when the panel stands alone.
-  const handleEvent = useCallback((event: AxEvent) => store.handleEvent(event.action), [store])
-  useWidgetEvents({ widgetName: props.name, onEvent: handleEvent, isLayout: true })
-
-  const isMain = props.prpEnmType === 'main'
-  const maximized = props.prpAtrMaximized ? props.prpAtrMaximized.value === true : store.localMaximized
+  const isMain = store.type === 'main'
+  const maximized = store.maximized
   const control = !isMain
     ? { glyph: GLYPH.close, title: 'Close' }
     : maximized
@@ -38,17 +26,17 @@ export const AxDisplayPanelMain = observer((props: AxDisplayPanelContainerProps)
       : { glyph: GLYPH.maximize, title: 'Maximize' }
 
   return (
-    <div className={cn('ax-display-panel', props.class)} style={props.style} tabIndex={props.tabIndex}>
+    <div className={cn('ax-display-panel', store.className)} style={store.style} tabIndex={store.tabIndex}>
       <div className="ax-display-panel_header">
         <div className="ax-display-panel_header_title">
-          {props.prpIcnHeader?.value && (
+          {store.icon && (
             <span className="ax-display-panel_header_title_icon">
-              <Icon icon={props.prpIcnHeader.value} altText={props.prpStrTitle} />
+              <Icon icon={store.icon} altText={store.title} />
             </span>
           )}
-          {props.prpStrTitle && <p className="ax-display-panel_header_title_text">{props.prpStrTitle}</p>}
+          {store.title && <p className="ax-display-panel_header_title_text">{store.title}</p>}
         </div>
-        <div className="ax-display-panel_header_tools">{props.prpWdgToolbar}</div>
+        <div className="ax-display-panel_header_tools">{store.toolbar}</div>
         <div className="ax-display-panel_header_option">
           <button
             className="ax-display-panel_header_option_button"
@@ -63,7 +51,7 @@ export const AxDisplayPanelMain = observer((props: AxDisplayPanelContainerProps)
           </button>
         </div>
       </div>
-      <div className="ax-display-panel_body">{props.prpWdgContent}</div>
+      <div className="ax-display-panel_body">{store.content}</div>
     </div>
   )
 })

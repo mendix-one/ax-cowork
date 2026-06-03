@@ -2,8 +2,8 @@ import type { ReactElement } from 'react'
 import { configure } from 'mobx'
 import type { AxDisplayPanelContainerProps } from '../typings/AxDisplayPanelProps'
 import { AxDisplayPanelProvider } from './stores/context'
-import { AxDisplayPanelStore, buildBridge } from './stores/AxDisplayPanelStore'
-import { AxDisplayPanelMain } from './main/AxDisplayPanelMain'
+import { AxDisplayPanelStore } from './stores/AxDisplayPanelStore'
+import { AxDisplayPanelSync } from './AxDisplayPanelSync'
 
 import './styles/AxDisplayPanel.scss'
 
@@ -13,11 +13,12 @@ import './styles/AxDisplayPanel.scss'
 configure({ isolateGlobalState: true })
 
 // Entry component: provides the per-instance MobX store (created once by the shared createWidgetContext
-// Provider). The chrome, maximize state, and global-bus wiring live in the observer child.
+// Provider). AxDisplayPanelSync syncs the widget props into the store and wires the event bus; the
+// chrome + maximize state live in AxDisplayPanelMain, which reads only store state.
 export function AxDisplayPanel(props: AxDisplayPanelContainerProps): ReactElement {
   return (
-    <AxDisplayPanelProvider createStore={() => new AxDisplayPanelStore(buildBridge(props))}>
-      <AxDisplayPanelMain {...props} />
+    <AxDisplayPanelProvider createStore={() => new AxDisplayPanelStore()}>
+      <AxDisplayPanelSync {...props} />
     </AxDisplayPanelProvider>
   )
 }

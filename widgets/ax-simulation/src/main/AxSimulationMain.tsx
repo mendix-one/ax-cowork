@@ -38,7 +38,7 @@ export const AxSimulationMain = observer((): ReactElement => {
         <AxSimulationLeft />
         <Layout.Content className="ax-sim_main">
           <Splitter
-            className="ax-sim_splitter"
+            className={cn('ax-sim_splitter', { 'ax-maximize-main': !store.rightOpen })}
             onResize={onResize}
             classNames={{ dragger: { default: 'ax-sim_splitter_dragger', active: 'ax-sim_splitter_dragger_active' } }}
           >
@@ -56,7 +56,7 @@ export const AxSimulationMain = observer((): ReactElement => {
               size={store.rightOpen ? rightSize : 0}
               min={store.rightOpen ? 480 : 0}
               resizable={store.rightOpen}
-              style={{ paddingLeft: '3px' }}
+              style={{ paddingLeft: store.rightOpen ? '3px' : '0' }}
             >
               <div className="ax-sim_view ax-sim_view_right">
                 {RIGHT_MENU.map((item) => (

@@ -179,25 +179,28 @@ export class AxSimulationStore {
 
   // --- Right rail ---------------------------------------------------------------------------------
   // Clicking the active+open right item closes the region; clicking any other opens it on that view.
+  // Opening/closing broadcasts AX_LAYOUT_RIGHT_CHANGED so an ax-panel can mirror it (right hidden →
+  // maximize). `notify` is false when we're reacting to the panel's own broadcast, so we don't echo
+  // back and bounce forever. The no-op guards also stop a redundant broadcast from re-triggering.
   toggleRight(id: RightPanelId): void {
     if (this.rightOpen && this.activeRight === id) {
-      this.rightOpen = false
+      this.closeRight()
     } else {
-      this.activeRight = id
-      this.rightOpen = true
+      this.openRight(id)
     }
-    this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id: this.activeRight, open: this.rightOpen })
   }
 
-  openRight(id: RightPanelId): void {
+  openRight(id: RightPanelId, notify = true): void {
+    if (this.rightOpen && this.activeRight === id) return
     this.activeRight = id
     this.rightOpen = true
-    this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id, open: true })
+    if (notify) this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id, open: true })
   }
 
-  closeRight(): void {
+  closeRight(notify = true): void {
+    if (!this.rightOpen) return
     this.rightOpen = false
-    this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id: this.activeRight, open: false })
+    if (notify) this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id: this.activeRight, open: false })
   }
 
   // --- Top bar ------------------------------------------------------------------------------------
@@ -246,6 +249,23 @@ export class AxSimulationStore {
         break
       case 'CMD_CLOSE_RIGHT':
         this.closeRight()
+        break
+      default:
+        break
+    }
+  }
+
+  // React to AX_LAYOUT_* notifications broadcast by an ax-panel inside the layout: collapse the right
+  // region to give the maximized panel more room, and reopen it when the panel is restored or closed.
+  // The layout's own AX_LAYOUT_*_CHANGED notifications share this prefix but fall through to default.
+  handleLayout(action: string): void {
+    switch (action) {
+      case 'AX_LAYOUT_MAXIMIZED':
+        this.closeRight(false)
+        break
+      case 'AX_LAYOUT_RESTORED':
+      case 'AX_LAYOUT_CLOSED':
+        this.closeRight(false)
         break
       default:
         break

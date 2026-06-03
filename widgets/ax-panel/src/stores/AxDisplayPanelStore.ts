@@ -1,90 +1,115 @@
-import { makeAutoObservable } from 'mobx'
-import { AX_BROADCAST, emitEvent, executeAction } from '@ax/common'
-import type { AxDisplayPanelContainerProps } from '../../typings/AxDisplayPanelProps'
+import type { CSSProperties, ReactNode } from 'react'
+import { makeAutoObservable, observable } from 'mobx'
+import { AX_BROADCAST, emitEvent } from '@ax/common'
+import type { WebIcon } from 'mendix'
 
-// Thin, non-observable bridge to the latest Mendix-bound values/actions the store reads at action
-// time. Rebuilt by the container on every render (the EditableValue/ActionValue instances are new
-// each render) and pushed in via `syncBridge`. The store's own observable state (the local maximize
-// fallback) drives re-renders when no attribute is bound; when an attribute IS bound it is the source
-// of truth and the container re-renders from props.
-export interface AxDisplayPanelBridge {
-  type: 'main' | 'sub'
-  /** Current maximized value from the bound attribute (false when unbound). */
-  maximized: boolean
-  /** Whether a `maximized` attribute is actually bound. */
-  hasMaxAttr: boolean
-  setMaximized(value: boolean): void
-  onMaximize(): void
-  onRestore(): void
-  onClose(): void
-  /** Broadcast a state-change notification on the global bus (for the host layout to react). */
-  notify(action: string): void
-}
+export type PanelType = 'main' | 'sub'
 
-// Glue between Mendix container props and the store. Wires the optional attribute + actions, and the
-// global-bus notification, behind the bridge so the store itself stays platform-agnostic.
-export function buildBridge(props: AxDisplayPanelContainerProps): AxDisplayPanelBridge {
-  return {
-    type: props.prpEnmType,
-    maximized: props.prpAtrMaximized?.value === true,
-    hasMaxAttr: props.prpAtrMaximized !== undefined,
-    setMaximized: (value) => props.prpAtrMaximized?.setValue(value),
-    onMaximize: () => executeAction(props.prpActMaximize),
-    onRestore: () => executeAction(props.prpActRestore),
-    onClose: () => executeAction(props.prpActClose),
-    notify: (action) => emitEvent(AX_BROADCAST, { action, payload: { name: props.name } }),
-  }
-}
-
-// MobX store owning the panel's interaction state + the action vocabulary (maximize / restore /
-// toggle / close) shared by the header control button and the global event bus. Maximize state lives
-// in the bound Mendix attribute when present; otherwise it falls back to `localMaximized` here so the
-// panel still works standalone.
+// MobX store for the display panel. It holds prop-derived view data (set by AxDisplayPanelSync via
+// effects) and the panel's interaction vocabulary (maximize / restore / close), and it talks to the
+// outside world only through the event bus — never through a Mendix value:
+//
+//  - `emit('ACT_*')` on the widget's private topic asks AxDisplayPanelSync (which holds the Mendix
+//    ActionValue + EditableValue) to run the configured action and write the bound attribute.
+//  - `broadcast('AX_LAYOUT_*')` tells other widgets (e.g. the ax-simulation host layout) that the panel
+//    changed, so they can react.
+//
+// Maximize state is the bound attribute's value when one is bound (`hasMaxAttr`), pushed in from the
+// prop; otherwise it falls back to `localMaximized` so the panel still works standalone.
 export class AxDisplayPanelStore {
+  // --- Prop-derived view data (set by AxDisplayPanelSync) -----------------------------------------
+  name = 'axDisplayPanel1'
+  className = ''
+  style?: CSSProperties
+  tabIndex?: number
+  type: PanelType = 'main'
+  title = ''
+  icon?: WebIcon
+  toolbar: ReactNode = null
+  content: ReactNode = null
+
+  // Maximize state: attribute value (when bound) vs. local fallback.
+  hasMaxAttr = false
+  attrMaximized = false
   localMaximized = false
 
-  private bridge: AxDisplayPanelBridge
-
-  constructor(bridge: AxDisplayPanelBridge) {
-    this.bridge = bridge
-    // `bridge` excluded from observability (it's reassigned every render with fresh Mendix values);
-    // autoBind so actions can be passed straight as handlers (onClick={store.activate}).
-    makeAutoObservable<AxDisplayPanelStore, 'bridge'>(this, { bridge: false }, { autoBind: true })
+  constructor() {
+    makeAutoObservable(
+      this,
+      {
+        style: observable.ref,
+        icon: observable.ref,
+        toolbar: observable.ref,
+        content: observable.ref,
+      },
+      { autoBind: true },
+    )
   }
 
-  syncBridge(bridge: AxDisplayPanelBridge): void {
-    this.bridge = bridge
+  // Emit an action-intent event on this widget's private topic (handled by AxDisplayPanelSync).
+  private emit(action: string, payload?: unknown): void {
+    emitEvent(`ax:${this.name}`, { action, payload })
   }
 
-  // Read/write the effective maximize state (attribute when bound, local fallback otherwise).
-  private current(): boolean {
-    return this.bridge.hasMaxAttr ? this.bridge.maximized : this.localMaximized
+  // Broadcast a state-change notification on the global bus (for other widgets to react).
+  private broadcast(action: string, payload?: unknown): void {
+    emitEvent(AX_BROADCAST, { action, payload })
   }
 
-  private apply(value: boolean): void {
-    if (this.bridge.hasMaxAttr) {
-      this.bridge.setMaximized(value)
-    } else {
-      this.localMaximized = value
-    }
+  // --- Setters used by AxDisplayPanelSync's effects -----------------------------------------------
+  setWidget(name: string, className: string, style: CSSProperties | undefined, tabIndex: number | undefined): void {
+    this.name = name
+    this.className = className
+    this.style = style
+    this.tabIndex = tabIndex
   }
 
-  maximize(): void {
-    if (this.bridge.type !== 'main') return
-    this.apply(true)
-    this.bridge.onMaximize()
-    this.bridge.notify('panel-maximized')
+  setHeader(type: PanelType, title: string, icon: WebIcon | undefined): void {
+    this.type = type
+    this.title = title
+    this.icon = icon
   }
 
-  restore(): void {
-    if (this.bridge.type !== 'main') return
-    this.apply(false)
-    this.bridge.onRestore()
-    this.bridge.notify('panel-restored')
+  setToolbar(toolbar: ReactNode): void {
+    this.toolbar = toolbar
+  }
+
+  setContent(content: ReactNode): void {
+    this.content = content
+  }
+
+  setMaximized(hasMaxAttr: boolean, value: boolean): void {
+    this.hasMaxAttr = hasMaxAttr
+    this.attrMaximized = value
+  }
+
+  // Effective maximize state: the bound attribute when present, else the local fallback.
+  get maximized(): boolean {
+    return this.hasMaxAttr ? this.attrMaximized : this.localMaximized
+  }
+
+  // --- Interaction vocabulary ---------------------------------------------------------------------
+  // Only `main` panels maximize/restore. The local fallback flips immediately when no attribute is
+  // bound; when one is bound, the attribute write happens in the Sync and rounds back via setMaximized.
+  // `notify` is false when this change is itself a reaction to the layout's AX_LAYOUT_RIGHT_CHANGED
+  // broadcast: we update our own state (+ run the Mendix action) but don't echo AX_LAYOUT_MAXIMIZED
+  // back, which would otherwise bounce between the panel and the layout forever.
+  maximize(notify = true): void {
+    if (this.type !== 'main' || this.maximized) return
+    if (!this.hasMaxAttr) this.localMaximized = true
+    this.emit('ACT_MAXIMIZE')
+    if (notify) this.broadcast('AX_LAYOUT_MAXIMIZED', { name: this.name })
+  }
+
+  restore(notify = true): void {
+    if (this.type !== 'main' || !this.maximized) return
+    if (!this.hasMaxAttr) this.localMaximized = false
+    this.emit('ACT_RESTORE')
+    if (notify) this.broadcast('AX_LAYOUT_RESTORED', { name: this.name })
   }
 
   toggleMaximize(): void {
-    if (this.current()) {
+    if (this.maximized) {
       this.restore()
     } else {
       this.maximize()
@@ -92,39 +117,53 @@ export class AxDisplayPanelStore {
   }
 
   close(): void {
-    this.bridge.onClose()
-    this.bridge.notify('panel-closed')
+    this.emit('ACT_CLOSE')
+    this.broadcast('AX_LAYOUT_CLOSED', { name: this.name })
   }
 
   // Header control button: main panels toggle maximize/restore, sub panels close.
   activate(): void {
-    if (this.bridge.type === 'main') {
+    if (this.type === 'main') {
       this.toggleMaximize()
     } else {
       this.close()
     }
   }
 
-  // Dispatch a global-bus action to this panel. Commands are distinct from the `panel-*`
-  // notifications emitted above, so a broadcast command never loops back into itself.
-  handleEvent(action: string): void {
+  // --- Global event bus ---------------------------------------------------------------------------
+  // Drive the panel from nanoflows / other widgets. Command names (CMD_*) are distinct from the
+  // ACT_* / AX_LAYOUT_* events emitted above, so a command never loops back into itself.
+  handleCommand(action: string): void {
     switch (action) {
-      case 'maximize':
+      case 'CMD_MAXIMIZE':
         this.maximize()
         break
-      case 'minimize':
-      case 'restore':
+      case 'CMD_MINIMIZE':
+      case 'CMD_RESTORE':
         this.restore()
         break
-      case 'toggle':
-      case 'toggle-maximize':
+      case 'CMD_TOGGLE':
+      case 'CMD_TOGGLE_MAXIMIZE':
         this.toggleMaximize()
         break
-      case 'close':
+      case 'CMD_CLOSE':
         this.close()
         break
       default:
         break
+    }
+  }
+
+  // React to the host layout's AX_LAYOUT_RIGHT_CHANGED broadcast: when the right region is hidden the
+  // main content has more room, so maximize; when it reopens, restore. Reacts silently (notify=false)
+  // so it doesn't echo back to the layout. Our own AX_LAYOUT_MAXIMIZED/RESTORED/CLOSED fall through.
+  handleLayout(action: string, payload: unknown): void {
+    if (action !== 'AX_LAYOUT_RIGHT_CHANGED') return
+    const open = (payload as { open?: boolean } | undefined)?.open
+    if (open === false) {
+      this.maximize(false)
+    } else if (open === true) {
+      this.restore(false)
     }
   }
 }

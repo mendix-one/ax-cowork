@@ -60,6 +60,11 @@
   .ax-sim_splitter_dragger_active:active::after{
     @apply bg-neutral-400 !important;
   }
+  &.ax-maximize-main {
+    .ax-sim_splitter_dragger {
+      display: none !important;
+    }
+  }
 }
 
 // === Content view stacks (left & right panels) =======================================================================

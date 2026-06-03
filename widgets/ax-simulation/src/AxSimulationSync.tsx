@@ -11,9 +11,11 @@ import { AxSimulationMain } from './main/AxSimulationMain'
 // that group depends on, so a value that isn't resolved at mount time (e.g. the context datasource, or
 // a drop zone whose content arrives asynchronously) is written into the store as soon as it changes —
 // the effect re-runs and updates only that slice. It also wires the global Ax event bus so nanoflows /
-// other widgets can drive the layout (emit { action: 'SET-LEFT' | 'OPEN-RIGHT' | 'TOGGLE-RIGHT' |
-// 'CLOSE-RIGHT', payload }). isLayout ensures the bus exists — this widget is the host layout.
-// AxSimulationMain and the rail children below it work purely off store state.
+// other widgets can drive the layout (emit { action: 'CMD_SET_LEFT' | 'CMD_OPEN_RIGHT' |
+// 'CMD_TOGGLE_RIGHT' | 'CMD_CLOSE_RIGHT', payload }). It also reacts to AX_LAYOUT_* notifications
+// broadcast by ax-panel children (maximize collapses the right region; restore/close reopens it).
+// isLayout ensures the bus exists — this widget is the host layout. AxSimulationMain and the rail
+// children below it work purely off store state.
 export const AxSimulationSync = observer((props: AxSimulationContainerProps): ReactElement => {
   const store = useAxSimulationStore()
 
@@ -140,6 +142,8 @@ export const AxSimulationSync = observer((props: AxSimulationContainerProps): Re
       console.info(`${action}: ${payload ? JSON.stringify(payload) : '<no payload>'}`)
       if (action?.startsWith('CMD_')) {
         store.handleCommand(action, payload)
+      } else if (action?.startsWith('AX_LAYOUT_')) {
+        store.handleLayout(action)
       } else if (action?.startsWith('ACT_')) {
         switch (action) {
           case 'ACT_ON_CLICK_APPS':
