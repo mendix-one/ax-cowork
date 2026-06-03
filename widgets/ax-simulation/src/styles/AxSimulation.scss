@@ -1,6 +1,7 @@
+// === Simulation & Common =============================================================================================
 .ax-sim {
   @apply w-screen h-screen overflow-hidden;
-  @apply bg-neutral-600;
+  @apply bg-neutral-400 !important;
 }
 
 .ax-bg-hover {
@@ -12,23 +13,53 @@
 
 // === Top bar (Layout.Header) =========================================================================================
 .ax-sim_top {
+  @apply bg-transparent !important;
 }
 
 // === Middle (rails + main) ===========================================================================================
 // Icon rails (Layout.Sider). Background comes from the siderBg token; add the divider border + layout.
 .ax-sim_rail {
+  @apply bg-transparent !important;
+
   &_inner {
     @apply w-full h-full;
   }
 }
 
 .ax-sim_middle {
+  @apply bg-transparent !important;
 }
 
 // === Main content (resizable Splitter) ===============================================================================
 .ax-sim_main {
   @apply w-full h-full;
-  @apply bg-neutral-100;
+  @apply bg-transparent !important;
+}
+
+// Style the split bar's draggable "hanger" through Splitter's semantic `classNames.dragger` API (wired
+// in AxSimulationMain) — the supported customize path — instead of antd's internal classes. The visible
+// bar is the dragger's ::after pseudo-element, reached here via the semantic class. Recolor it to the
+// .ax-sim chrome (neutral-400) so it blends at rest, darkening on hover and turning brand-primary while
+// dragging for resize affordance. (::before is antd's hover-highlight track; left at its default.)
+.ax-sim_splitter {
+  .ax-sim_splitter_dragger,
+  .ax-sim_splitter_dragger::before,
+  .ax-sim_splitter_dragger::after {
+    @apply bg-neutral-400 !important;
+  }
+  .ax-sim_splitter_dragger:hover,
+  .ax-sim_splitter_dragger:hover::before,
+  .ax-sim_splitter_dragger:hover::after {
+    @apply bg-neutral-400 !important;
+  }
+  .ax-sim_splitter_dragger_active,
+  .ax-sim_splitter_dragger_active:hover,
+  .ax-sim_splitter_dragger_active:active,
+  .ax-sim_splitter_dragger_active::after,
+  .ax-sim_splitter_dragger_active:hover::after,
+  .ax-sim_splitter_dragger_active:active::after{
+    @apply bg-neutral-400 !important;
+  }
 }
 
 // === Bottom bar (Layout.Footer) ======================================================================================

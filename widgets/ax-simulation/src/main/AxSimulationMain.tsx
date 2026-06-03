@@ -7,11 +7,11 @@ import type { AxSimulationContainerProps } from '../../typings/AxSimulationProps
 import { useAxSimulationStore } from '../stores/context'
 import type { LeftPanelId, RightPanelId } from '../stores/AxSimulationStore'
 import { LEFT_MENU, RIGHT_MENU } from './menus'
-import { ViewSlot } from './parts'
 import { AxSimulationTop } from './AxSimulationTop'
 import { AxSimulationLeft } from './AxSimulationLeft'
 import { AxSimulationRight } from './AxSimulationRight'
 import { AxSimulationBottom } from './AxSimulationBottom'
+import { ViewSlot } from './parts'
 
 // Full-page layout shell — a self-contained port of react-app's MpsLayout. AntD Layout for the
 // top / left / right / bottom frame; an AntD Splitter for the resizable main (left view | right view).
@@ -67,7 +67,11 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
       <Layout className="ax-sim_middle">
         <AxSimulationLeft />
         <Layout.Content className="ax-sim_main">
-          <Splitter className="ax-sim_splitter" onResize={onResize}>
+          <Splitter
+            className="ax-sim_splitter"
+            onResize={onResize}
+            classNames={{ dragger: { default: 'ax-sim_splitter_dragger', active: 'ax-sim_splitter_dragger_active' } }}
+          >
             <Splitter.Panel min="25%" className="ax-sim_splitter_panel ax-sim_splitter_panel_left">
               <div className="ax-sim_view ax-sim_view_left">
                 {LEFT_MENU.map((item) => (
