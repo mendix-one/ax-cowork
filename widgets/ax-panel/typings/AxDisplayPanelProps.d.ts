@@ -18,7 +18,7 @@ export interface AxDisplayPanelContainerProps {
     prpWdgToolbar?: ReactNode;
     prpWdgContent?: ReactNode;
     prpEnmType: PrpEnmTypeEnum;
-    prpAtrMaximized?: EditableValue<boolean>;
+    prpAttMaximized?: EditableValue<boolean>;
     prpActMaximize?: ActionValue;
     prpActRestore?: ActionValue;
     prpActClose?: ActionValue;
@@ -40,7 +40,7 @@ export interface AxDisplayPanelPreviewProps {
     prpWdgToolbar: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
     prpWdgContent: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
     prpEnmType: PrpEnmTypeEnum;
-    prpAtrMaximized: string;
+    prpAttMaximized: string;
     prpActMaximize: {} | null;
     prpActRestore: {} | null;
     prpActClose: {} | null;

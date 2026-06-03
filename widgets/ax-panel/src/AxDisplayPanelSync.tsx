@@ -40,24 +40,24 @@ export const AxDisplayPanelSync = observer((props: AxDisplayPanelContainerProps)
 
   // Bound maximize attribute (the source of truth when present).
   useEffect(() => {
-    store.setMaximized(props.prpAtrMaximized !== undefined, props.prpAtrMaximized?.value === true)
-  }, [store, props.prpAtrMaximized])
+    store.setMaximized(props.prpAttMaximized !== undefined, props.prpAttMaximized?.value === true)
+  }, [store, props.prpAttMaximized])
 
   // Action callbacks. The Mendix ActionValues / EditableValue and their guards stay here at the top
   // level; the store only asks for them by emitting ACT_* on its private topic.
   const onMaximize = useCallback(() => {
-    props.prpAtrMaximized?.setValue(true)
+    props.prpAttMaximized?.setValue(true)
     if (props.prpActMaximize && props.prpActMaximize.canExecute && !props.prpActMaximize.isExecuting) {
       props.prpActMaximize.execute()
     }
-  }, [props.prpAtrMaximized, props.prpActMaximize])
+  }, [props.prpAttMaximized, props.prpActMaximize])
 
   const onRestore = useCallback(() => {
-    props.prpAtrMaximized?.setValue(false)
+    props.prpAttMaximized?.setValue(false)
     if (props.prpActRestore && props.prpActRestore.canExecute && !props.prpActRestore.isExecuting) {
       props.prpActRestore.execute()
     }
-  }, [props.prpAtrMaximized, props.prpActRestore])
+  }, [props.prpAttMaximized, props.prpActRestore])
 
   const onClose = useCallback(() => {
     if (props.prpActClose && props.prpActClose.canExecute && !props.prpActClose.isExecuting) {

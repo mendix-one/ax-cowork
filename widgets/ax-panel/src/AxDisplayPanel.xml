@@ -44,7 +44,7 @@
           <enumerationValue key="sub">Sub</enumerationValue>
         </enumerationValues>
       </property>
-      <property key="prpAtrMaximized" type="attribute" required="false">
+      <property key="prpAttMaximized" type="attribute" required="false">
         <caption>Maximized</caption>
         <description>Boolean attribute holding the maximized state. Toggled by the Main panel control button.</description>
         <attributeTypes>

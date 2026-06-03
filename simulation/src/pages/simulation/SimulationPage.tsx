@@ -39,7 +39,7 @@ function SimPanel({ type, title, subtitle }: { type: 'main' | 'sub'; title: stri
       prpEnmType={type}
       prpStrTitle={title}
       prpWdgContent={<PanelBody subtitle={subtitle} />}
-      prpAtrMaximized={editable([maximized, setMaximized])}
+      prpAttMaximized={editable([maximized, setMaximized])}
       prpActMaximize={action(() => message.info(`Maximize: ${title}`))}
       prpActRestore={action(() => message.info(`Restore: ${title}`))}
       prpActClose={action(() => message.info(`Close: ${title}`))}
