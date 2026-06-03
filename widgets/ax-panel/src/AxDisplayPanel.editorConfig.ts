@@ -48,7 +48,7 @@ function hideKeys(groups: Properties, keys: string[]): void {
 export function getProperties(values: AxDisplayPanelPreviewProps, defaultProperties: Properties /* , target: Platform */): Properties {
   // Main panels maximize/restore (boolean attribute + actions); Sub panels only close. Hide the
   // irrelevant controls for the selected type so the property pane stays focused.
-  const hidden = values.type === 'sub' ? ['maximized', 'onMaximize', 'onRestore'] : ['onClose']
+  const hidden = values.prpEnmType === 'sub' ? ['prpAtrMaximized', 'prpActMaximize', 'prpActRestore'] : ['prpActClose']
   hideKeys(defaultProperties, hidden)
   return defaultProperties
 }

@@ -29,8 +29,8 @@ export const AxDisplayPanelMain = observer((props: AxDisplayPanelContainerProps)
   const handleEvent = useCallback((event: AxEvent) => store.handleEvent(event.action), [store])
   useWidgetEvents({ widgetName: props.name, onEvent: handleEvent, isLayout: true })
 
-  const isMain = props.type === 'main'
-  const maximized = props.maximized ? props.maximized.value === true : store.localMaximized
+  const isMain = props.prpEnmType === 'main'
+  const maximized = props.prpAtrMaximized ? props.prpAtrMaximized.value === true : store.localMaximized
   const control = !isMain
     ? { glyph: GLYPH.close, title: 'Close' }
     : maximized
@@ -41,14 +41,14 @@ export const AxDisplayPanelMain = observer((props: AxDisplayPanelContainerProps)
     <div className={cn('ax-display-panel', props.class)} style={props.style} tabIndex={props.tabIndex}>
       <div className="ax-display-panel_header">
         <div className="ax-display-panel_header_title">
-          {props.headerIcon?.value && (
+          {props.prpIcnHeader?.value && (
             <span className="ax-display-panel_header_title_icon">
-              <Icon icon={props.headerIcon.value} altText={props.title} />
+              <Icon icon={props.prpIcnHeader.value} altText={props.prpStrTitle} />
             </span>
           )}
-          {props.title && <p className="ax-display-panel_header_title_text">{props.title}</p>}
+          {props.prpStrTitle && <p className="ax-display-panel_header_title_text">{props.prpStrTitle}</p>}
         </div>
-        <div className="ax-display-panel_header_tools">{props.toolbar}</div>
+        <div className="ax-display-panel_header_tools">{props.prpWdgToolbar}</div>
         <div className="ax-display-panel_header_option">
           <button
             className="ax-display-panel_header_option_button"
@@ -63,7 +63,7 @@ export const AxDisplayPanelMain = observer((props: AxDisplayPanelContainerProps)
           </button>
         </div>
       </div>
-      <div className="ax-display-panel_body">{props.content}</div>
+      <div className="ax-display-panel_body">{props.prpWdgContent}</div>
     </div>
   )
 })

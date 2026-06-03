@@ -6,22 +6,22 @@
 import { ComponentType, CSSProperties, ReactNode } from "react";
 import { ActionValue, DynamicValue, EditableValue, WebIcon } from "mendix";
 
-export type TypeEnum = "main" | "sub";
+export type PrpEnmTypeEnum = "main" | "sub";
 
 export interface AxDisplayPanelContainerProps {
     name: string;
     class: string;
     style?: CSSProperties;
     tabIndex?: number;
-    headerIcon?: DynamicValue<WebIcon>;
-    title: string;
-    toolbar?: ReactNode;
-    content?: ReactNode;
-    type: TypeEnum;
-    maximized?: EditableValue<boolean>;
-    onMaximize?: ActionValue;
-    onRestore?: ActionValue;
-    onClose?: ActionValue;
+    prpIcnHeader?: DynamicValue<WebIcon>;
+    prpStrTitle: string;
+    prpWdgToolbar?: ReactNode;
+    prpWdgContent?: ReactNode;
+    prpEnmType: PrpEnmTypeEnum;
+    prpAtrMaximized?: EditableValue<boolean>;
+    prpActMaximize?: ActionValue;
+    prpActRestore?: ActionValue;
+    prpActClose?: ActionValue;
 }
 
 export interface AxDisplayPanelPreviewProps {
@@ -35,13 +35,13 @@ export interface AxDisplayPanelPreviewProps {
     readOnly: boolean;
     renderMode: "design" | "xray" | "structure";
     translate: (text: string) => string;
-    headerIcon: { type: "glyph"; iconClass: string; } | { type: "image"; imageUrl: string; iconUrl: string; } | { type: "icon"; iconClass: string; } | undefined;
-    title: string;
-    toolbar: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    content: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    type: TypeEnum;
-    maximized: string;
-    onMaximize: {} | null;
-    onRestore: {} | null;
-    onClose: {} | null;
+    prpIcnHeader: { type: "glyph"; iconClass: string; } | { type: "image"; imageUrl: string; iconUrl: string; } | { type: "icon"; iconClass: string; } | undefined;
+    prpStrTitle: string;
+    prpWdgToolbar: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
+    prpWdgContent: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
+    prpEnmType: PrpEnmTypeEnum;
+    prpAtrMaximized: string;
+    prpActMaximize: {} | null;
+    prpActRestore: {} | null;
+    prpActClose: {} | null;
 }

@@ -7,5 +7,5 @@ export function preview(props: AxDisplayPanelPreviewProps): ReactElement {
 }
 
 export function getPreviewCss(): string {
-  return require('./ui/AxDisplayPanel.scss')
+  return require('./styles/AxDisplayPanel.scss')
 }

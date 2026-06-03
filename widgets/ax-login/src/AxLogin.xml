@@ -14,14 +14,14 @@
     <icon />
     <properties>
         <propertyGroup caption="Data">
-            <property key="accountAttribute" type="attribute" required="true">
+            <property key="prpAtrAccount" type="attribute" required="true">
                 <caption>Account</caption>
                 <description>Attribute bound to the account / username field.</description>
                 <attributeTypes>
                     <attributeType name="String" />
                 </attributeTypes>
             </property>
-            <property key="passwordAttribute" type="attribute" required="true">
+            <property key="prpAtrPassword" type="attribute" required="true">
                 <caption>Password</caption>
                 <description>Attribute bound to the password field.</description>
                 <attributeTypes>
@@ -30,80 +30,80 @@
             </property>
         </propertyGroup>
         <propertyGroup caption="Actions">
-            <property key="signInAction" type="action" required="true">
+            <property key="prpActSignIn" type="action" required="true">
                 <caption>On sign in</caption>
                 <description>Microflow / nanoflow that authenticates the account.</description>
             </property>
-            <property key="signUpAction" type="action" required="false">
+            <property key="prpActSignUp" type="action" required="false">
                 <caption>On sign up</caption>
                 <description>Optional. When set, a sign-up link is shown below the form.</description>
             </property>
-            <property key="ssoAction" type="action" required="false">
+            <property key="prpActSso" type="action" required="false">
                 <caption>On SSO sign in</caption>
                 <description>Optional. When set, an SSO sign-in button is shown below the form.</description>
             </property>
         </propertyGroup>
         <propertyGroup caption="State">
-            <property key="isBusy" type="expression" required="true" defaultValue="false">
+            <property key="prpExpIsBusy" type="expression" required="true" defaultValue="false">
                 <caption>Is busy</caption>
                 <description>Shows the loading state on the submit button while signing in.</description>
                 <returnType type="Boolean" />
             </property>
-            <property key="errorMessage" type="textTemplate" required="false">
+            <property key="prpTxtErrorMessage" type="textTemplate" required="false">
                 <caption>Error message</caption>
                 <description>Optional. When non-empty, an inline error alert is shown above the form.</description>
             </property>
         </propertyGroup>
         <propertyGroup caption="Appearance">
-            <property key="logoUrl" type="image" required="false">
+            <property key="prpImgLogoUrl" type="image" required="false">
                 <caption>Logo</caption>
                 <description>Optional logo shown above the form. Falls back to an account icon.</description>
             </property>
         </propertyGroup>
         <propertyGroup caption="Labels">
-            <property key="accountLabel" type="textTemplate" required="true">
+            <property key="prpTxtAccountLabel" type="textTemplate" required="true">
                 <caption>Account label</caption>
                 <description />
                 <translations>
                     <translation lang="en_US">Account</translation>
                 </translations>
             </property>
-            <property key="accountPlaceholder" type="textTemplate" required="true">
+            <property key="prpTxtAccountPlaceholder" type="textTemplate" required="true">
                 <caption>Account placeholder</caption>
                 <description />
                 <translations>
                     <translation lang="en_US">Username, email or phone</translation>
                 </translations>
             </property>
-            <property key="passwordLabel" type="textTemplate" required="true">
+            <property key="prpTxtPasswordLabel" type="textTemplate" required="true">
                 <caption>Password label</caption>
                 <description />
                 <translations>
                     <translation lang="en_US">Password</translation>
                 </translations>
             </property>
-            <property key="submitLabel" type="textTemplate" required="true">
+            <property key="prpTxtSubmitLabel" type="textTemplate" required="true">
                 <caption>Submit label</caption>
                 <description />
                 <translations>
                     <translation lang="en_US">Sign in</translation>
                 </translations>
             </property>
-            <property key="signUpPrompt" type="textTemplate" required="true">
+            <property key="prpTxtSignUpPrompt" type="textTemplate" required="true">
                 <caption>Sign-up prompt</caption>
                 <description />
                 <translations>
                     <translation lang="en_US">Don't have an account?</translation>
                 </translations>
             </property>
-            <property key="signUpLinkLabel" type="textTemplate" required="true">
+            <property key="prpTxtSignUpLinkLabel" type="textTemplate" required="true">
                 <caption>Sign-up link label</caption>
                 <description />
                 <translations>
                     <translation lang="en_US">Sign up</translation>
                 </translations>
             </property>
-            <property key="ssoLabel" type="textTemplate" required="true">
+            <property key="prpTxtSsoLabel" type="textTemplate" required="true">
                 <caption>SSO button label</caption>
                 <description />
                 <translations>

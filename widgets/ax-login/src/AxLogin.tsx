@@ -20,12 +20,12 @@ configure({ isolateGlobalState: true })
 // action time. executeAction guards canExecute/isExecuting for us.
 function buildBridge(props: AxLoginContainerProps): AxLoginBridge {
   return {
-    account: props.accountAttribute.value ?? '',
-    password: props.passwordAttribute.value ?? '',
-    busy: props.isBusy?.value === true,
-    signIn: () => executeAction(props.signInAction),
-    signUp: () => executeAction(props.signUpAction),
-    sso: () => executeAction(props.ssoAction),
+    account: props.prpAtrAccount.value ?? '',
+    password: props.prpAtrPassword.value ?? '',
+    busy: props.prpExpIsBusy?.value === true,
+    signIn: () => executeAction(props.prpActSignIn),
+    signUp: () => executeAction(props.prpActSignUp),
+    sso: () => executeAction(props.prpActSso),
   }
 }
 
@@ -58,8 +58,8 @@ export function AxLogin(props: AxLoginContainerProps): ReactElement {
 
 const AxLoginInner = observer((props: AxLoginContainerProps): ReactElement => {
   const store = useAxLoginStore()
-  const account = props.accountAttribute.value ?? ''
-  const password = props.passwordAttribute.value ?? ''
+  const account = props.prpAtrAccount.value ?? ''
+  const password = props.prpAtrPassword.value ?? ''
 
   // Refresh the store's bridge with the latest Mendix props on every render.
   store.syncBridge(buildBridge(props))
@@ -69,14 +69,14 @@ const AxLoginInner = observer((props: AxLoginContainerProps): ReactElement => {
   const handleEvent = useCallback(
     (event: AxEvent) => {
       if (event.action === 'reset') {
-        props.accountAttribute.setValue('')
-        props.passwordAttribute.setValue('')
+        props.prpAtrAccount.setValue('')
+        props.prpAtrPassword.setValue('')
         store.reset()
       } else if (event.action === 'submit') {
         store.submit()
       }
     },
-    [props.accountAttribute, props.passwordAttribute, store],
+    [props.prpAtrAccount, props.prpAtrPassword, store],
   )
   // isLayout: ensure the bus exists even when the login widget stands alone (no layout widget).
   useWidgetEvents({ widgetName: props.name, onEvent: handleEvent, isLayout: true })
@@ -84,31 +84,31 @@ const AxLoginInner = observer((props: AxLoginContainerProps): ReactElement => {
   return (
     <AxLoginMain
       className={props.class}
-      logoUrl={props.logoUrl?.value?.uri}
+      logoUrl={props.prpImgLogoUrl?.value?.uri}
       account={account}
       password={password}
       accountError={store.accountErrorFor(account)}
       passwordError={store.passwordErrorFor(password)}
-      busy={props.isBusy?.value === true}
-      errorMessage={props.errorMessage?.value || undefined}
-      canSignUp={!!props.signUpAction}
-      canSso={!!props.ssoAction}
+      busy={props.prpExpIsBusy?.value === true}
+      errorMessage={props.prpTxtErrorMessage?.value || undefined}
+      canSignUp={!!props.prpActSignUp}
+      canSso={!!props.prpActSso}
       labels={{
-        account: props.accountLabel?.value ?? '',
-        accountPlaceholder: props.accountPlaceholder?.value ?? '',
-        password: props.passwordLabel?.value ?? '',
-        submit: props.submitLabel?.value ?? '',
-        signUpPrompt: props.signUpPrompt?.value ?? '',
-        signUpLink: props.signUpLinkLabel?.value ?? '',
-        sso: props.ssoLabel?.value ?? '',
+        account: props.prpTxtAccountLabel?.value ?? '',
+        accountPlaceholder: props.prpTxtAccountPlaceholder?.value ?? '',
+        password: props.prpTxtPasswordLabel?.value ?? '',
+        submit: props.prpTxtSubmitLabel?.value ?? '',
+        signUpPrompt: props.prpTxtSignUpPrompt?.value ?? '',
+        signUpLink: props.prpTxtSignUpLinkLabel?.value ?? '',
+        sso: props.prpTxtSsoLabel?.value ?? '',
       }}
-      onAccountChange={(value) => props.accountAttribute.setValue(value)}
-      onPasswordChange={(value) => props.passwordAttribute.setValue(value)}
+      onAccountChange={(value) => props.prpAtrAccount.setValue(value)}
+      onPasswordChange={(value) => props.prpAtrPassword.setValue(value)}
       onAccountBlur={store.touchAccount}
       onPasswordBlur={store.touchPassword}
       onSignIn={store.submit}
-      onSignUp={props.signUpAction ? store.signUp : undefined}
-      onSso={props.ssoAction ? store.sso : undefined}
+      onSignUp={props.prpActSignUp ? store.signUp : undefined}
+      onSso={props.prpActSso ? store.sso : undefined}
     />
   )
 })

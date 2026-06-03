@@ -37,13 +37,13 @@ function SimPanel({ type, title, subtitle }: { type: 'main' | 'sub'; title: stri
     <AxDisplayPanel
       name={`panel-${title}`}
       class=""
-      type={type}
-      title={title}
-      content={<PanelBody subtitle={subtitle} />}
-      maximized={editable([maximized, setMaximized])}
-      onMaximize={action(() => message.info(`Maximize: ${title}`))}
-      onRestore={action(() => message.info(`Restore: ${title}`))}
-      onClose={action(() => message.info(`Close: ${title}`))}
+      prpEnmType={type}
+      prpStrTitle={title}
+      prpWdgContent={<PanelBody subtitle={subtitle} />}
+      prpAtrMaximized={editable([maximized, setMaximized])}
+      prpActMaximize={action(() => message.info(`Maximize: ${title}`))}
+      prpActRestore={action(() => message.info(`Restore: ${title}`))}
+      prpActClose={action(() => message.info(`Close: ${title}`))}
     />
   )
 }
@@ -54,7 +54,7 @@ export function SimulationPage() {
     class: '',
 
     // --- Header logo (the only top-bar drop zone; the rest are widget-owned icon buttons) ---
-    logo: (
+    prpWdgLogo: (
       <Space size={8} align="center">
         <Avatar size={24} style={{ background: '#3F51B5' }} icon={<AppstoreOutlined />} />
         <Typography.Text strong style={{ color: '#3F51B5', whiteSpace: 'nowrap' }}>
@@ -64,38 +64,38 @@ export function SimulationPage() {
     ),
 
     // --- Left views (9) — Main panels (maximize / restore) ---
-    propSimulation: <SimPanel type="main" title="Simulation" subtitle="Gantt schedule & quick analysis for the active plan." />,
-    propProjects: <SimPanel type="main" title="Projects" subtitle="Project list and scenario portfolio." />,
-    propAnalysis: <SimPanel type="main" title="Analysis" subtitle="Heatmaps, milestones and routing matrix." />,
-    propPmData: <SimPanel type="main" title="PM Data" subtitle="Preventive-maintenance master data." />,
-    propTuningLogic: <SimPanel type="main" title="Tuning Logic" subtitle="Rules driving the auto-tuner." />,
-    propFactorControl: <SimPanel type="main" title="Factor Control" subtitle="Capacity & demand factors." />,
-    propPmStandard: <SimPanel type="main" title="PM Standard" subtitle="Standard PM definitions and templates." />,
-    propIntegration: <SimPanel type="main" title="Integration" subtitle="Inbound / outbound connectors." />,
-    propSetting: <SimPanel type="main" title="Setting" subtitle="Module configuration." />,
+    prpWdgSimulation: <SimPanel type="main" title="Simulation" subtitle="Gantt schedule & quick analysis for the active plan." />,
+    prpWdgProjects: <SimPanel type="main" title="Projects" subtitle="Project list and scenario portfolio." />,
+    prpWdgAnalysis: <SimPanel type="main" title="Analysis" subtitle="Heatmaps, milestones and routing matrix." />,
+    prpWdgPmData: <SimPanel type="main" title="PM Data" subtitle="Preventive-maintenance master data." />,
+    prpWdgTuningLogic: <SimPanel type="main" title="Tuning Logic" subtitle="Rules driving the auto-tuner." />,
+    prpWdgFactorControl: <SimPanel type="main" title="Factor Control" subtitle="Capacity & demand factors." />,
+    prpWdgPmStandard: <SimPanel type="main" title="PM Standard" subtitle="Standard PM definitions and templates." />,
+    prpWdgIntegration: <SimPanel type="main" title="Integration" subtitle="Inbound / outbound connectors." />,
+    prpWdgSetting: <SimPanel type="main" title="Setting" subtitle="Module configuration." />,
 
     // --- Right views (4) — Sub panels (close) ---
-    propCompare: <SimPanel type="sub" title="Compare" subtitle="Side-by-side plan comparison." />,
-    propAiAssistant: <SimPanel type="sub" title="AI Assistant" subtitle="Ask about the current plan." />,
-    propRecommendation: <SimPanel type="sub" title="Recommendation" subtitle="Suggested reroutes & fixes." />,
-    propHistory: <SimPanel type="sub" title="History" subtitle="Schedule change log." />,
+    prpWdgCompare: <SimPanel type="sub" title="Compare" subtitle="Side-by-side plan comparison." />,
+    prpWdgAiAssistant: <SimPanel type="sub" title="AI Assistant" subtitle="Ask about the current plan." />,
+    prpWdgRecommendation: <SimPanel type="sub" title="Recommendation" subtitle="Suggested reroutes & fixes." />,
+    prpWdgHistory: <SimPanel type="sub" title="History" subtitle="Schedule change log." />,
 
     // --- Labels (translatable in Studio; defaults mirror AxSimulation.xml) ---
-    labelSimulation: 'Simulation',
-    labelProjects: 'Projects',
-    labelAnalysis: 'Analysis',
-    labelPmData: 'PM Data',
-    labelTuningLogic: 'Tuning Logic',
-    labelSetting: 'Setting',
-    labelCompare: 'Compare',
-    labelAiAssistant: 'AI Assistant',
-    labelRecommendation: 'Recommendation',
-    labelHistory: 'History',
-    labelApps: 'Menu',
-    labelWorldMap: 'World Map',
-    labelNotify: 'Notify',
-    labelAccount: 'Account',
-    labelSettings: 'Settings',
+    prpStrSimulation: 'Simulation',
+    prpStrProjects: 'Projects',
+    prpStrAnalysis: 'Analysis',
+    prpStrPmData: 'PM Data',
+    prpStrTuningLogic: 'Tuning Logic',
+    prpStrSetting: 'Setting',
+    prpStrCompare: 'Compare',
+    prpStrAiAssistant: 'AI Assistant',
+    prpStrRecommendation: 'Recommendation',
+    prpStrHistory: 'History',
+    prpStrApps: 'Menu',
+    prpStrWorldMap: 'World Map',
+    prpStrNotify: 'Notify',
+    prpStrAccount: 'Account',
+    prpStrSettings: 'Settings',
   }
 
   return (

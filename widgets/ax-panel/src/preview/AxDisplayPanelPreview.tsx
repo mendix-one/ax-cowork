@@ -9,9 +9,9 @@ const GLYPH = {
 }
 
 export function AxDisplayPanelPreview(props: AxDisplayPanelPreviewProps): ReactElement {
-  const Toolbar = props.toolbar.renderer
-  const Content = props.content.renderer
-  const glyph = props.type === 'sub' ? GLYPH.close : GLYPH.maximize
+  const Toolbar = props.prpWdgToolbar.renderer
+  const Content = props.prpWdgContent.renderer
+  const glyph = props.prpEnmType === 'sub' ? GLYPH.close : GLYPH.maximize
 
   return (
     <div style={{ width: '100%', border: '1px solid #d9d9d9', borderRadius: 6, background: '#fff', overflow: 'hidden' }}>
@@ -26,7 +26,7 @@ export function AxDisplayPanelPreview(props: AxDisplayPanelPreviewProps): ReactE
           borderBottom: '1px solid #d6d3d1',
         }}
       >
-        <span style={{ fontWeight: 600, color: '#292524', whiteSpace: 'nowrap' }}>{props.title || 'Panel'}</span>
+        <span style={{ fontWeight: 600, color: '#292524', whiteSpace: 'nowrap' }}>{props.prpStrTitle || 'Panel'}</span>
         <div style={{ flex: 1, minWidth: 0 }}>
           <Toolbar>{null}</Toolbar>
         </div>

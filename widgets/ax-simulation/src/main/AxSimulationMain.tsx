@@ -33,53 +33,53 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
 
   // Map the Mendix drop-zone props onto id-keyed records so the menus drive the content stacks.
   const leftSlots: Record<LeftPanelId, ReactNode> = {
-    simulation: props.propSimulation,
-    projects: props.propProjects,
-    analysis: props.propAnalysis,
-    pmData: props.propPmData,
-    tuningLogic: props.propTuningLogic,
-    factorControl: props.propFactorControl,
-    pmStandard: props.propPmStandard,
-    integration: props.propIntegration,
-    setting: props.propSetting,
+    simulation: props.prpWdgSimulation,
+    projects: props.prpWdgProjects,
+    analysis: props.prpWdgAnalysis,
+    pmData: props.prpWdgPmData,
+    tuningLogic: props.prpWdgTuningLogic,
+    factorControl: props.prpWdgFactorControl,
+    pmStandard: props.prpWdgPmStandard,
+    integration: props.prpWdgIntegration,
+    setting: props.prpWdgSetting,
   }
 
   const rightSlots: Record<RightPanelId, ReactNode> = {
-    compare: props.propCompare,
-    aiAssistant: props.propAiAssistant,
-    recommendation: props.propRecommendation,
-    history: props.propHistory,
+    compare: props.prpWdgCompare,
+    aiAssistant: props.prpWdgAiAssistant,
+    recommendation: props.prpWdgRecommendation,
+    history: props.prpWdgHistory,
   }
 
   return (
     <Layout className={cn('ax-sim', props.class)} style={props.style} tabIndex={props.tabIndex}>
       <AxSimulationTop
-        logo={props.logo}
+        logo={props.prpWdgLogo}
         labels={{
-          apps: props.labelApps,
-          worldMap: props.labelWorldMap,
-          notify: props.labelNotify,
-          account: props.labelAccount,
-          settings: props.labelSettings,
+          apps: props.prpStrApps,
+          worldMap: props.prpStrWorldMap,
+          notify: props.prpStrNotify,
+          account: props.prpStrAccount,
+          settings: props.prpStrSettings,
         }}
         actions={{
-          apps: props.actionApps,
-          worldMap: props.actionWorldMap,
-          notify: props.actionNotify,
-          account: props.actionAccount,
-          settings: props.actionSettings,
+          apps: props.prpActApps,
+          worldMap: props.prpActWorldMap,
+          notify: props.prpActNotify,
+          account: props.prpActAccount,
+          settings: props.prpActSettings,
         }}
       />
 
       <Layout className="ax-sim_middle">
         <AxSimulationLeft
           labels={{
-            simulation: props.labelSimulation,
-            projects: props.labelProjects,
-            analysis: props.labelAnalysis,
-            pmData: props.labelPmData,
-            tuningLogic: props.labelTuningLogic,
-            setting: props.labelSetting,
+            simulation: props.prpStrSimulation,
+            projects: props.prpStrProjects,
+            analysis: props.prpStrAnalysis,
+            pmData: props.prpStrPmData,
+            tuningLogic: props.prpStrTuningLogic,
+            setting: props.prpStrSetting,
           }}
         />
         <Layout.Content className="ax-sim_main">
@@ -116,10 +116,10 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
         </Layout.Content>
         <AxSimulationRight
           labels={{
-            compare: props.labelCompare,
-            aiAssistant: props.labelAiAssistant,
-            recommendation: props.labelRecommendation,
-            history: props.labelHistory,
+            compare: props.prpStrCompare,
+            aiAssistant: props.prpStrAiAssistant,
+            recommendation: props.prpStrRecommendation,
+            history: props.prpStrHistory,
           }}
         />
       </Layout>

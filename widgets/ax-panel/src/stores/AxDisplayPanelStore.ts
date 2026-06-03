@@ -25,13 +25,13 @@ export interface AxDisplayPanelBridge {
 // global-bus notification, behind the bridge so the store itself stays platform-agnostic.
 export function buildBridge(props: AxDisplayPanelContainerProps): AxDisplayPanelBridge {
   return {
-    type: props.type,
-    maximized: props.maximized?.value === true,
-    hasMaxAttr: props.maximized !== undefined,
-    setMaximized: (value) => props.maximized?.setValue(value),
-    onMaximize: () => executeAction(props.onMaximize),
-    onRestore: () => executeAction(props.onRestore),
-    onClose: () => executeAction(props.onClose),
+    type: props.prpEnmType,
+    maximized: props.prpAtrMaximized?.value === true,
+    hasMaxAttr: props.prpAtrMaximized !== undefined,
+    setMaximized: (value) => props.prpAtrMaximized?.setValue(value),
+    onMaximize: () => executeAction(props.prpActMaximize),
+    onRestore: () => executeAction(props.prpActRestore),
+    onClose: () => executeAction(props.prpActClose),
     notify: (action) => emitEvent(AX_BROADCAST, { action, payload: { name: props.name } }),
   }
 }
