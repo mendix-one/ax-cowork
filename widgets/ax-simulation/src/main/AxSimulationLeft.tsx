@@ -4,23 +4,12 @@ import { observer } from 'mobx-react-lite'
 import { useAxSimulationStore } from '../stores/context'
 import { AxMenuBtn } from './views/AxMenuBtn'
 
-// Tooltip labels for the left rail buttons — sourced from widget props (translatable in Studio).
-export interface AxSimulationLeftProps {
-  labels: {
-    simulation: string
-    projects: string
-    analysis: string
-    pmData: string
-    tuningLogic: string
-    setting: string
-  }
-}
-
-// Left icon rail (Layout.Sider). Fixed-width vertical menu; clicking sets the active left view. Active
-// state reflects store.activeLeft so the rail and the content stack in AxSimulationMain stay in sync.
-export const AxSimulationLeft = observer((props: AxSimulationLeftProps): ReactElement => {
+// Left icon rail (Layout.Sider). Fixed-width vertical menu; clicking sets the active left view. Labels
+// and active state both come from the store (kept in sync with widget props by AxSimulationSync), so
+// the rail and the content stack in AxSimulationMain stay in sync without touching widget props.
+export const AxSimulationLeft = observer((): ReactElement => {
   const store = useAxSimulationStore()
-  const { labels } = props
+  const labels = store.labels
   return (
     <Layout.Sider width="2.65rem" className="ax-sim_rail ax-sim_rail_left" style={{ padding: '0.15rem' }}>
       <Flex vertical align="center" justify="space-between" className="ax-sim_rail_inner">

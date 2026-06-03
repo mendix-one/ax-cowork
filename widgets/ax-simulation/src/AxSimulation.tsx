@@ -5,7 +5,7 @@ import { axTheme } from '@ax/common'
 import type { AxSimulationContainerProps } from '../typings/AxSimulationProps'
 import { AxSimulationProvider } from './stores/context'
 import { AxSimulationStore } from './stores/AxSimulationStore'
-import { AxSimulationMain } from './main/AxSimulationMain'
+import { AxSimulationSync } from './AxSimulationSync'
 
 import './styles/AxSimulation.scss'
 
@@ -15,13 +15,14 @@ import './styles/AxSimulation.scss'
 configure({ isolateGlobalState: true })
 
 // Entry component: provides the per-instance MobX store (created once by the shared
-// createWidgetContext Provider) and the AX brand theme. The presentational layout + the
-// active-view wiring live in the observer child.
+// createWidgetContext Provider) and the AX brand theme. AxSimulationSync syncs the widget props into
+// the store (per-group, via effects) and wires the event bus; the presentational layout lives in
+// AxSimulationMain, which reads only store state.
 export function AxSimulation(props: AxSimulationContainerProps): ReactElement {
   return (
     <AxSimulationProvider createStore={() => new AxSimulationStore()}>
       <ConfigProvider theme={axTheme}>
-        <AxSimulationMain {...props} />
+        <AxSimulationSync {...props} />
       </ConfigProvider>
     </AxSimulationProvider>
   )

@@ -4,21 +4,12 @@ import { observer } from 'mobx-react-lite'
 import { useAxSimulationStore } from '../stores/context'
 import { AxMenuBtn } from './views/AxMenuBtn'
 
-// Tooltip labels for the right rail buttons — sourced from widget props (translatable in Studio).
-export interface AxSimulationRightProps {
-  labels: {
-    compare: string
-    aiAssistant: string
-    recommendation: string
-    history: string
-  }
-}
-
 // Right icon rail (Layout.Sider). Clicking toggles the right region: opens it on the clicked view, or
-// closes it when the active view is clicked again. Active state reflects the open right view.
-export const AxSimulationRight = observer((props: AxSimulationRightProps): ReactElement => {
+// closes it when the active view is clicked again. Labels and active state both come from the store
+// (kept in sync with widget props by AxSimulationSync) — this view touches no widget props directly.
+export const AxSimulationRight = observer((): ReactElement => {
   const store = useAxSimulationStore()
-  const { labels } = props
+  const labels = store.labels
   return (
     <Layout.Sider width="2.65rem" className="ax-sim_rail ax-sim_rail_right" style={{ padding: '0.15rem' }}>
       <Flex vertical align="center" justify="space-between" className="ax-sim_rail_inner">

@@ -1,11 +1,9 @@
-import type { ReactElement, ReactNode } from 'react'
+import type { ReactElement } from 'react'
 import { useCallback, useState } from 'react'
 import cn from 'classnames'
 import { Layout, Splitter } from 'antd'
 import { observer } from 'mobx-react-lite'
-import type { AxSimulationContainerProps } from '../../typings/AxSimulationProps'
 import { useAxSimulationStore } from '../stores/context'
-import type { LeftPanelId, RightPanelId } from '../stores/AxSimulationStore'
 import { LEFT_MENU, RIGHT_MENU } from './menus'
 import { AxSimulationTop } from './AxSimulationTop'
 import { AxSimulationLeft } from './AxSimulationLeft'
@@ -15,10 +13,11 @@ import { ViewSlot } from './parts'
 
 // Full-page layout shell — a self-contained port of react-app's MpsLayout. AntD Layout for the
 // top / left / right / bottom frame; an AntD Splitter for the resizable main (left view | right view).
-// Holds no business logic: the container maps Mendix `widgets` drop zones to the slots below, and the
-// store decides which left/right view is visible. Every view stays mounted (CSS fade on switch), so
-// neither the Splitter nor its children remount when the active view changes.
-export const AxSimulationMain = observer((props: AxSimulationContainerProps): ReactElement => {
+// Holds no business logic and touches no widget props: every drop zone, label, and action is read from
+// the store (kept in sync with Mendix props by AxSimulationSync). The store decides which left/right
+// view is visible; every view stays mounted (CSS fade on switch), so neither the Splitter nor its
+// children remount when the active view changes.
+export const AxSimulationMain = observer((): ReactElement => {
   const store = useAxSimulationStore()
 
   // Remember the right region's width (px) so closing → reopening restores the user's drag, mirroring
@@ -31,57 +30,12 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
     [store],
   )
 
-  // Map the Mendix drop-zone props onto id-keyed records so the menus drive the content stacks.
-  const leftSlots: Record<LeftPanelId, ReactNode> = {
-    simulation: props.prpWdgSimulation,
-    projects: props.prpWdgProjects,
-    analysis: props.prpWdgAnalysis,
-    pmData: props.prpWdgPmData,
-    tuningLogic: props.prpWdgTuningLogic,
-    factorControl: props.prpWdgFactorControl,
-    pmStandard: props.prpWdgPmStandard,
-    integration: props.prpWdgIntegration,
-    setting: props.prpWdgSetting,
-  }
-
-  const rightSlots: Record<RightPanelId, ReactNode> = {
-    compare: props.prpWdgCompare,
-    aiAssistant: props.prpWdgAiAssistant,
-    recommendation: props.prpWdgRecommendation,
-    history: props.prpWdgHistory,
-  }
-
   return (
-    <Layout className={cn('ax-sim', props.class)} style={props.style} tabIndex={props.tabIndex}>
-      <AxSimulationTop
-        logo={props.prpWdgLogo}
-        labels={{
-          apps: props.prpStrApps,
-          worldMap: props.prpStrWorldMap,
-          notify: props.prpStrNotify,
-          account: props.prpStrAccount,
-          settings: props.prpStrSettings,
-        }}
-        actions={{
-          apps: props.prpActApps,
-          worldMap: props.prpActWorldMap,
-          notify: props.prpActNotify,
-          account: props.prpActAccount,
-          settings: props.prpActSettings,
-        }}
-      />
+    <Layout className={cn('ax-sim', store.className)} style={store.style} tabIndex={store.tabIndex}>
+      <AxSimulationTop />
 
       <Layout className="ax-sim_middle">
-        <AxSimulationLeft
-          labels={{
-            simulation: props.prpStrSimulation,
-            projects: props.prpStrProjects,
-            analysis: props.prpStrAnalysis,
-            pmData: props.prpStrPmData,
-            tuningLogic: props.prpStrTuningLogic,
-            setting: props.prpStrSetting,
-          }}
-        />
+        <AxSimulationLeft />
         <Layout.Content className="ax-sim_main">
           <Splitter
             className="ax-sim_splitter"
@@ -92,7 +46,7 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
               <div className="ax-sim_view ax-sim_view_left">
                 {LEFT_MENU.map((item) => (
                   <ViewSlot key={item.id} active={store.activeLeft === item.id}>
-                    {leftSlots[item.id]}
+                    {store.leftSlots[item.id]}
                   </ViewSlot>
                 ))}
               </div>
@@ -107,21 +61,14 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
               <div className="ax-sim_view ax-sim_view_right">
                 {RIGHT_MENU.map((item) => (
                   <ViewSlot key={item.id} active={store.rightOpen && store.activeRight === item.id}>
-                    {rightSlots[item.id]}
+                    {store.rightSlots[item.id]}
                   </ViewSlot>
                 ))}
               </div>
             </Splitter.Panel>
           </Splitter>
         </Layout.Content>
-        <AxSimulationRight
-          labels={{
-            compare: props.prpStrCompare,
-            aiAssistant: props.prpStrAiAssistant,
-            recommendation: props.prpStrRecommendation,
-            history: props.prpStrHistory,
-          }}
-        />
+        <AxSimulationRight />
       </Layout>
       <AxSimulationBottom />
     </Layout>
