@@ -1,51 +1,22 @@
 import type { ReactElement } from 'react'
 import { Alert, Avatar, Button, Form, Input, theme, Typography } from 'antd'
 import { LockOutlined, LoginOutlined, SafetyCertificateOutlined, UserOutlined } from '@ant-design/icons'
-
 import cn from 'classnames'
+import { observer } from 'mobx-react-lite'
+import { useAxLoginStore } from '../stores/context'
 
 const { Text } = Typography
 
-export interface AxLoginLabels {
-  account: string
-  accountPlaceholder: string
-  password: string
-  submit: string
-  signUpPrompt: string
-  signUpLink: string
-  sso: string
-}
-
-export interface AxLoginMainProps {
-  className?: string
-  logoUrl?: string
-  account: string
-  password: string
-  busy?: boolean
-  errorMessage?: string
-  accountError?: string
-  passwordError?: string
-  canSignUp?: boolean
-  canSso?: boolean
-  labels: AxLoginLabels
-  onAccountChange: (value: string) => void
-  onPasswordChange: (value: string) => void
-  onAccountBlur?: () => void
-  onPasswordBlur?: () => void
-  onSignIn: () => void
-  onSignUp?: () => void
-  onSso?: () => void
-}
-
 // Presentational login card — a self-contained port of react-app's SignInPage + AuthLayout card.
-// Holds no business logic: the container (AxLogin.tsx) maps Mendix Values-API props to these
-// plain props, and the simulation drives them from local React state.
-export function AxLoginMain(props: AxLoginMainProps): ReactElement {
+// Holds no widget props: every value + handler comes from the store (kept in sync with Mendix by
+// AxLoginSync), so this component never touches a widget value.
+export const AxLoginMain = observer((): ReactElement => {
   const { token } = theme.useToken()
-  const { labels, busy, errorMessage, canSignUp, canSso, logoUrl } = props
+  const store = useAxLoginStore()
+  const { labels, busy, errorMessage, canSignUp, canSso, logoUrl } = store
 
   return (
-    <div className={cn('ax-login', props.className)}>
+    <div className={cn('ax-login', store.className)} style={store.style} tabIndex={store.tabIndex}>
       <div className="ax-login_card" style={{ background: token.colorBgContainer }}>
         <header className="ax-login_card_header">
           {logoUrl ? (
@@ -58,33 +29,33 @@ export function AxLoginMain(props: AxLoginMainProps): ReactElement {
           <Form
             layout="vertical"
             // Mirror SignInPage: stop the native submit so the host page never reloads, then
-            // delegate to the Mendix sign-in action via onFinish.
+            // delegate to the store's sign-in action via onFinish.
             onSubmitCapture={(e) => e.preventDefault()}
-            onFinish={() => props.onSignIn()}
+            onFinish={() => store.submit()}
             disabled={busy}
             className="ax-login_form"
           >
             <div className="ax-login_form_alert">{errorMessage && <Alert type="error" title={errorMessage} showIcon />}</div>
             <div className="ax-login_form_input">
-              <Form.Item label={labels.account} required validateStatus={props.accountError ? 'error' : undefined} help={props.accountError}>
+              <Form.Item label={labels.account} required validateStatus={store.accountError ? 'error' : undefined} help={store.accountError}>
                 <Input
                   autoComplete="username"
                   placeholder={labels.accountPlaceholder}
                   prefix={<UserOutlined style={{ color: token.colorTextTertiary }} />}
-                  value={props.account}
-                  onChange={(e) => props.onAccountChange(e.target.value)}
-                  onBlur={() => props.onAccountBlur?.()}
+                  value={store.account}
+                  onChange={(e) => store.setAccount(e.target.value)}
+                  onBlur={store.touchAccount}
                 />
               </Form.Item>
             </div>
             <div className="ax-login_form_input">
-              <Form.Item label={labels.password} required validateStatus={props.passwordError ? 'error' : undefined} help={props.passwordError}>
+              <Form.Item label={labels.password} required validateStatus={store.passwordError ? 'error' : undefined} help={store.passwordError}>
                 <Input.Password
                   autoComplete="current-password"
                   prefix={<LockOutlined style={{ color: token.colorTextTertiary }} />}
-                  value={props.password}
-                  onChange={(e) => props.onPasswordChange(e.target.value)}
-                  onBlur={() => props.onPasswordBlur?.()}
+                  value={store.password}
+                  onChange={(e) => store.setPassword(e.target.value)}
+                  onBlur={store.touchPassword}
                 />
               </Form.Item>
             </div>
@@ -98,9 +69,9 @@ export function AxLoginMain(props: AxLoginMainProps): ReactElement {
                 <Text type="secondary">
                   {labels.signUpPrompt}{' '}
                   <a
-                    onClick={() => props.onSignUp?.()}
+                    onClick={() => store.signUp()}
                     onKeyDown={(e) => {
-                      if (e.key === 'Enter') props.onSignUp?.()
+                      if (e.key === 'Enter') store.signUp()
                     }}
                     role="button"
                     tabIndex={0}
@@ -117,7 +88,7 @@ export function AxLoginMain(props: AxLoginMainProps): ReactElement {
         <div className="ax-login_card" style={{ background: token.colorBgContainer }}>
           <div className="ax-login_card_body">
             <div className="ax-login_form_action">
-              <Button block icon={<SafetyCertificateOutlined />} loading={busy} onClick={() => props.onSso?.()}>
+              <Button block icon={<SafetyCertificateOutlined />} loading={busy} onClick={() => store.sso()}>
                 {labels.sso}
               </Button>
             </div>
@@ -126,4 +97,4 @@ export function AxLoginMain(props: AxLoginMainProps): ReactElement {
       )}
     </div>
   )
-}
+})

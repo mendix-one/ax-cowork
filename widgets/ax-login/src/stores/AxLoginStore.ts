@@ -1,41 +1,126 @@
-import { makeAutoObservable } from 'mobx'
+import type { CSSProperties } from 'react'
+import { makeAutoObservable, observable } from 'mobx'
+import { emitEvent } from '@ax/common'
 
-// Thin bridge to the latest Mendix-bound values/callbacks. Rebuilt by the container on every
-// render (the underlying EditableValue/ActionValue instances are new each render), and pushed
-// into the store via `syncBridge`. It is intentionally NOT observable — the store's own
-// observable interaction state (touched flags, submit attempts) drives re-renders; the bridge is
-// just read at action time so submit() always sees the current Mendix props.
-export interface AxLoginBridge {
+// Field labels for the login card. Sourced from widget props (translatable in Studio).
+export interface AxLoginLabels {
   account: string
+  accountPlaceholder: string
   password: string
-  busy: boolean
-  signIn(): void
-  signUp(): void
-  sso(): void
+  submit: string
+  signUpPrompt: string
+  signUpLink: string
+  sso: string
 }
 
-// MobX store owning the login form's interaction state. Mirrors react-app's store-per-shape
-// convention: observable state + actions, consumed by an `observer` container. The field values
-// themselves stay Mendix-controlled (the attributes are the source of truth) — this store owns
-// the bits Mendix has no concept of: which fields the user has touched and whether a submit was
-// attempted, which together decide when required-field errors become visible.
+const EMPTY_LABELS: AxLoginLabels = {
+  account: '',
+  accountPlaceholder: '',
+  password: '',
+  submit: '',
+  signUpPrompt: '',
+  signUpLink: '',
+  sso: '',
+}
+
+// MobX store owning the login form. It holds the form's interaction state (which fields are touched,
+// whether a submit was attempted) and the prop-derived view data (labels, busy/error flags, logo,
+// capabilities), and it talks to the outside world only through the event bus — never through a Mendix
+// value:
+//
+//  - `account` / `password` are the synchronous source of truth for the controlled inputs, so typing
+//    never lags the bound attribute's async round-trip. On user edit we update the field immediately
+//    and emit `ACT_SET_*` so AxLoginSync writes the bound attribute; the attribute reconciles back via
+//    `syncAccount` / `syncPassword`.
+//  - `submit` / `signUp` / `sso` emit `ACT_*` intents on the widget's private topic; AxLoginSync holds
+//    the Mendix ActionValues and runs them.
+//
+// AxLoginSync pushes prop-derived data in via setters (per group, via useEffect) so late-arriving
+// Mendix values are picked up after mount. AxLoginMain reads everything from this store.
 export class AxLoginStore {
+  // --- Interaction state --------------------------------------------------------------------------
   accountTouched = false
   passwordTouched = false
   submitAttempted = false
 
-  private bridge: AxLoginBridge
+  // --- Prop-derived view data (set by AxLoginSync) ------------------------------------------------
+  name = 'axLogin1'
+  className = ''
+  style?: CSSProperties
+  tabIndex?: number
+  account = ''
+  password = ''
+  busy = false
+  errorMessage?: string
+  logoUrl?: string
+  canSignUp = false
+  canSso = false
+  labels: AxLoginLabels = EMPTY_LABELS
 
-  constructor(bridge: AxLoginBridge) {
-    this.bridge = bridge
-    // `bridge` excluded from observability (see interface note); the explicit second generic adds
-    // the private key to the annotations map. autoBind so actions can be passed straight as event
-    // handlers (e.g. onBlur={store.touchAccount}).
-    makeAutoObservable<AxLoginStore, 'bridge'>(this, { bridge: false }, { autoBind: true })
+  constructor() {
+    makeAutoObservable(
+      this,
+      {
+        style: observable.ref,
+        labels: observable.ref,
+      },
+      { autoBind: true },
+    )
   }
 
-  syncBridge(bridge: AxLoginBridge): void {
-    this.bridge = bridge
+  // Emit an action-intent event on this widget's private topic (handled by AxLoginSync).
+  private emit(action: string, payload?: unknown): void {
+    emitEvent(`ax:${this.name}`, { action, payload })
+  }
+
+  // --- Setters used by AxLoginSync's effects ------------------------------------------------------
+  setWidget(name: string, className: string, style: CSSProperties | undefined, tabIndex: number | undefined): void {
+    this.name = name
+    this.className = className
+    this.style = style
+    this.tabIndex = tabIndex
+  }
+
+  setLabels(labels: AxLoginLabels): void {
+    this.labels = labels
+  }
+
+  setStatus(busy: boolean, errorMessage: string | undefined): void {
+    this.busy = busy
+    this.errorMessage = errorMessage
+  }
+
+  setLogo(logoUrl: string | undefined): void {
+    this.logoUrl = logoUrl
+  }
+
+  setCapabilities(canSignUp: boolean, canSso: boolean): void {
+    this.canSignUp = canSignUp
+    this.canSso = canSso
+  }
+
+  // Reconcile the bound attributes (the persisted values) back into the synchronous fields — covers
+  // the initial value and external/runtime changes. No emit, so it never loops with the ACT_SET_*
+  // write below.
+  syncAccount(account: string): void {
+    this.account = account
+  }
+
+  syncPassword(password: string): void {
+    this.password = password
+  }
+
+  // --- Input handlers (user editing) --------------------------------------------------------------
+  // Update the field immediately (synchronous, smooth typing) and ask AxLoginSync to persist it to the
+  // bound Mendix attribute.
+  setAccount(account: string): void {
+    this.account = account
+    this.emit('ACT_SET_ACCOUNT', account)
+  }
+
+  setPassword(password: string): void {
+    this.password = password
+    this.emit('ACT_SET_PASSWORD', password)
   }
 
   touchAccount(): void {
@@ -46,31 +131,30 @@ export class AxLoginStore {
     this.passwordTouched = true
   }
 
-  // Validation errors surface once a field is touched or a submit has been attempted. Read by the
-  // observer container (it also tracks the live account/password values, so these stay fresh).
-  accountErrorFor(account: string): string | undefined {
-    return (this.accountTouched || this.submitAttempted) && !account.trim() ? 'Account is required' : undefined
+  // Validation errors surface once a field is touched or a submit has been attempted.
+  get accountError(): string | undefined {
+    return (this.accountTouched || this.submitAttempted) && !this.account.trim() ? 'Account is required' : undefined
   }
 
-  passwordErrorFor(password: string): string | undefined {
-    return (this.passwordTouched || this.submitAttempted) && !password ? 'Password is required' : undefined
+  get passwordError(): string | undefined {
+    return (this.passwordTouched || this.submitAttempted) && !this.password ? 'Password is required' : undefined
   }
 
+  // --- Action vocabulary --------------------------------------------------------------------------
   submit(): void {
     this.submitAttempted = true
-    const { account, password, busy } = this.bridge
-    if (!busy && account.trim() && password) {
-      this.bridge.signIn()
+    if (!this.busy && this.account.trim() && this.password) {
+      this.emit('ACT_SIGN_IN')
     }
   }
 
   signUp(): void {
-    this.bridge.signUp()
+    this.emit('ACT_SIGN_UP')
   }
 
   sso(): void {
-    if (!this.bridge.busy) {
-      this.bridge.sso()
+    if (!this.busy) {
+      this.emit('ACT_SSO')
     }
   }
 
@@ -78,5 +162,25 @@ export class AxLoginStore {
     this.accountTouched = false
     this.passwordTouched = false
     this.submitAttempted = false
+    this.account = ''
+    this.password = ''
+    this.emit('ACT_SET_ACCOUNT', '')
+    this.emit('ACT_SET_PASSWORD', '')
+  }
+
+  // --- Global event bus ---------------------------------------------------------------------------
+  // Drive the form from nanoflows / other widgets. Command names (CMD_*) are distinct from the ACT_*
+  // intents emitted above, so a command never loops back into itself.
+  handleCommand(action: string): void {
+    switch (action) {
+      case 'CMD_SUBMIT':
+        this.submit()
+        break
+      case 'CMD_RESET':
+        this.reset()
+        break
+      default:
+        break
+    }
   }
 }
