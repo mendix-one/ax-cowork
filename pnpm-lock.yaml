@@ -451,9 +451,9 @@ importers:
       '@ax/common':
         specifier: workspace:*
         version: link:../shared/ax-common
-      '@ax/login-panel':
+      '@ax/signin-panel':
         specifier: workspace:*
-        version: link:../widgets/ax-login
+        version: link:../widgets/ax-signin
       '@ax/simulation-layout':
         specifier: workspace:*
         version: link:../widgets/ax-simulation
@@ -516,17 +516,11 @@ importers:
         specifier: ^8.0.10
         version: 8.0.16(@types/node@24.12.4)(esbuild@0.28.0)(jiti@2.7.0)(less@4.6.4)(sass@1.100.0)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0)
 
-  widgets/ax-login:
+  widgets/ax-panel:
     dependencies:
-      '@ant-design/icons':
-        specifier: ^6.2.5
-        version: 6.2.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@ax/common':
         specifier: workspace:*
         version: link:../../shared/ax-common
-      antd:
-        specifier: ^6.4.3
-        version: 6.4.3(date-fns@2.30.0)(moment@2.30.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       classnames:
         specifier: ^2.2.6
         version: 2.5.1
@@ -546,9 +540,6 @@ importers:
       '@prettier/plugin-xml':
         specifier: ^3.4.2
         version: 3.4.2(prettier@3.8.3)
-      '@types/big.js':
-        specifier: ^6.0.2
-        version: 6.2.2
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14
@@ -604,11 +595,17 @@ importers:
         specifier: ^8.60.0
         version: 8.60.0(eslint@10.4.1(jiti@2.7.0))(typescript@6.0.3)
 
-  widgets/ax-panel:
+  widgets/ax-signin:
     dependencies:
+      '@ant-design/icons':
+        specifier: ^6.2.5
+        version: 6.2.5(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       '@ax/common':
         specifier: workspace:*
         version: link:../../shared/ax-common
+      antd:
+        specifier: ^6.4.3
+        version: 6.4.3(date-fns@2.30.0)(moment@2.30.1)(react-dom@19.2.6(react@19.2.6))(react@19.2.6)
       classnames:
         specifier: ^2.2.6
         version: 2.5.1
@@ -628,6 +625,9 @@ importers:
       '@prettier/plugin-xml':
         specifier: ^3.4.2
         version: 3.4.2(prettier@3.8.3)
+      '@types/big.js':
+        specifier: ^6.0.2
+        version: 6.2.2
       '@types/jest':
         specifier: ^29.5.14
         version: 29.5.14

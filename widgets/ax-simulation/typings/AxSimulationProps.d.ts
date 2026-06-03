@@ -33,6 +33,11 @@ export interface AxSimulationContainerProps {
     prpActNotify?: ActionValue;
     prpActAccount?: ActionValue;
     prpActSettings?: ActionValue;
+    prpStrApps: string;
+    prpStrWorldMap: string;
+    prpStrNotify: string;
+    prpStrAccount: string;
+    prpStrSettings: string;
     prpStrSimulation: string;
     prpStrProjects: string;
     prpStrAnalysis: string;
@@ -43,11 +48,6 @@ export interface AxSimulationContainerProps {
     prpStrAiAssistant: string;
     prpStrRecommendation: string;
     prpStrHistory: string;
-    prpStrApps: string;
-    prpStrWorldMap: string;
-    prpStrNotify: string;
-    prpStrAccount: string;
-    prpStrSettings: string;
 }
 
 export interface AxSimulationPreviewProps {
@@ -83,6 +83,11 @@ export interface AxSimulationPreviewProps {
     prpActNotify: {} | null;
     prpActAccount: {} | null;
     prpActSettings: {} | null;
+    prpStrApps: string;
+    prpStrWorldMap: string;
+    prpStrNotify: string;
+    prpStrAccount: string;
+    prpStrSettings: string;
     prpStrSimulation: string;
     prpStrProjects: string;
     prpStrAnalysis: string;
@@ -93,9 +98,4 @@ export interface AxSimulationPreviewProps {
     prpStrAiAssistant: string;
     prpStrRecommendation: string;
     prpStrHistory: string;
-    prpStrApps: string;
-    prpStrWorldMap: string;
-    prpStrNotify: string;
-    prpStrAccount: string;
-    prpStrSettings: string;
 }

@@ -20,7 +20,7 @@
 .ax-sim_logo {
   @apply w-8 h-8 rounded-md cursor-pointer flex items-center justify-center;
   & > img {
-    @apply max-w-full max-h-full object-contain;
+    @apply max-w-6 max-h-6 object-contain;
   }
 }
 
