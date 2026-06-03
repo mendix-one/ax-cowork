@@ -106,6 +106,9 @@ export class AxSimulationStore {
   activeLeft: LeftPanelId = 'simulation'
   activeRight: RightPanelId = 'compare'
   rightOpen = true
+  // The right view that was showing when the region was last closed. Saved on close so restoring the
+  // main panel (or reopening) can bring back exactly that view rather than a default.
+  lastRight: RightPanelId = 'compare'
 
   // --- Prop-derived view data (set by AxSimulationSync) -------------------------------------------
   name: string = 'axSimulation1'
@@ -199,6 +202,7 @@ export class AxSimulationStore {
 
   closeRight(notify = true): void {
     if (!this.rightOpen) return
+    this.lastRight = this.activeRight
     this.rightOpen = false
     if (notify) this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id: this.activeRight, open: false })
   }
@@ -256,16 +260,19 @@ export class AxSimulationStore {
   }
 
   // React to AX_LAYOUT_* notifications broadcast by an ax-panel inside the layout: collapse the right
-  // region to give the maximized panel more room, and reopen it when the panel is restored or closed.
-  // The layout's own AX_LAYOUT_*_CHANGED notifications share this prefix but fall through to default.
+  // region to give the maximized panel more room, and reopen the last-shown right view when the panel
+  // is restored or closed. Reacts silently (notify=false) so it doesn't echo back to the panel. The
+  // layout's own AX_LAYOUT_*_CHANGED notifications share this prefix but fall through to default.
   handleLayout(action: string): void {
     switch (action) {
       case 'AX_LAYOUT_MAXIMIZED':
-        this.closeRight(false)
+        this.closeRight(true)
         break
       case 'AX_LAYOUT_RESTORED':
+        this.openRight(this.lastRight, true)
+        break
       case 'AX_LAYOUT_CLOSED':
-        this.closeRight(false)
+        this.closeRight(true)
         break
       default:
         break

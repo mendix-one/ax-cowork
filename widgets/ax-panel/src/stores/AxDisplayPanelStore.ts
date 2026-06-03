@@ -14,8 +14,9 @@ export type PanelType = 'main' | 'sub'
 //  - `broadcast('AX_LAYOUT_*')` tells other widgets (e.g. the ax-simulation host layout) that the panel
 //    changed, so they can react.
 //
-// Maximize state is the bound attribute's value when one is bound (`hasMaxAttr`), pushed in from the
-// prop; otherwise it falls back to `localMaximized` so the panel still works standalone.
+// Maximize state lives in the synchronous `maximized` field so it never lags the Mendix attribute's
+// async round-trip; when an attribute is bound (`hasMaxAttr`) the Sync persists it and reconciles its
+// value back in. Standalone (no attribute) it just works off the in-memory field.
 export class AxDisplayPanelStore {
   // --- Prop-derived view data (set by AxDisplayPanelSync) -----------------------------------------
   name = 'axDisplayPanel1'
@@ -28,10 +29,13 @@ export class AxDisplayPanelStore {
   toolbar: ReactNode = null
   content: ReactNode = null
 
-  // Maximize state: attribute value (when bound) vs. local fallback.
+  // Maximize state. `maximized` is the single, synchronous source of truth that drives the UI and the
+  // maximize/restore guards — set immediately on every interaction so rapid layout ⇄ panel toggles can
+  // never desync on the Mendix attribute's async round-trip. When an attribute is bound it is the
+  // persisted value: AxDisplayPanelSync writes it on change and reconciles it back in via setMaximized
+  // (which also honours external/attribute-driven changes).
   hasMaxAttr = false
-  attrMaximized = false
-  localMaximized = false
+  maximized = false
 
   constructor() {
     makeAutoObservable(
@@ -78,32 +82,29 @@ export class AxDisplayPanelStore {
     this.content = content
   }
 
+  // Reconcile from the bound attribute: track whether one is bound, and when it is, mirror its value
+  // into `maximized` (honours both the round-trip from our own ACT_* writes and external changes).
   setMaximized(hasMaxAttr: boolean, value: boolean): void {
     this.hasMaxAttr = hasMaxAttr
-    this.attrMaximized = value
-  }
-
-  // Effective maximize state: the bound attribute when present, else the local fallback.
-  get maximized(): boolean {
-    return this.hasMaxAttr ? this.attrMaximized : this.localMaximized
+    if (hasMaxAttr) this.maximized = value
   }
 
   // --- Interaction vocabulary ---------------------------------------------------------------------
-  // Only `main` panels maximize/restore. The local fallback flips immediately when no attribute is
-  // bound; when one is bound, the attribute write happens in the Sync and rounds back via setMaximized.
-  // `notify` is false when this change is itself a reaction to the layout's AX_LAYOUT_RIGHT_CHANGED
-  // broadcast: we update our own state (+ run the Mendix action) but don't echo AX_LAYOUT_MAXIMIZED
-  // back, which would otherwise bounce between the panel and the layout forever.
+  // Only `main` panels maximize/restore. `maximized` flips immediately (synchronous source of truth);
+  // the ACT_* intent makes the Sync persist the bound attribute + run the Mendix action. `notify` is
+  // false when this change is itself a reaction to the layout's AX_LAYOUT_RIGHT_CHANGED broadcast: we
+  // update our state but don't echo AX_LAYOUT_MAXIMIZED back, which would bounce between the panel and
+  // the layout forever. The state guards make repeats a no-op so a stray echo can't re-trigger.
   maximize(notify = true): void {
     if (this.type !== 'main' || this.maximized) return
-    if (!this.hasMaxAttr) this.localMaximized = true
+    this.maximized = true
     this.emit('ACT_MAXIMIZE')
     if (notify) this.broadcast('AX_LAYOUT_MAXIMIZED', { name: this.name })
   }
 
   restore(notify = true): void {
     if (this.type !== 'main' || !this.maximized) return
-    if (!this.hasMaxAttr) this.localMaximized = false
+    this.maximized = false
     this.emit('ACT_RESTORE')
     if (notify) this.broadcast('AX_LAYOUT_RESTORED', { name: this.name })
   }
