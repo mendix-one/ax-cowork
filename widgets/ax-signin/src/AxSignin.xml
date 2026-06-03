@@ -13,21 +13,50 @@
     <description>Ax Signin - Ax Widgets Kit</description>
     <icon />
     <properties>
-        <propertyGroup caption="Data">
-            <property key="prpAtrAccount" type="attribute" required="true">
-                <caption>Account</caption>
-                <description>Attribute bound to the account / username field.</description>
-                <attributeTypes>
-                    <attributeType name="String" />
-                </attributeTypes>
+        <propertyGroup caption="General">
+          <propertyGroup caption="Logo">
+            <property key="prpImgLogoUrl" type="image" required="false">
+              <caption>Logo</caption>
+              <description>Optional logo shown above the form. Falls back to an account icon.</description>
             </property>
-            <property key="prpAtrPassword" type="attribute" required="true">
-                <caption>Password</caption>
-                <description>Attribute bound to the password field.</description>
-                <attributeTypes>
-                    <attributeType name="String" />
-                </attributeTypes>
+          </propertyGroup>
+          <propertyGroup caption="Data">
+            <property key="prpAttAccount" type="attribute" required="true">
+              <caption>Account</caption>
+              <description>Attribute bound to the account / username field.</description>
+              <attributeTypes>
+                <attributeType name="String" />
+              </attributeTypes>
             </property>
+            <property key="prpAttPassword" type="attribute" required="true">
+              <caption>Password</caption>
+              <description>Attribute bound to the password field.</description>
+              <attributeTypes>
+                <attributeType name="String" />
+              </attributeTypes>
+            </property>
+            <property key="prpAttIsBusy" type="attribute" required="true">
+              <caption>Is busy</caption>
+              <description>Shows the loading state on the submit button while signing in.</description>
+              <attributeTypes>
+                <attributeType name="Boolean" />
+              </attributeTypes>
+            </property>
+            <property key="prpTxtErrorMessage" type="attribute" required="true">
+              <caption>Error message</caption>
+              <description>Optional. When non-empty, an inline error alert is shown above the form.</description>
+              <attributeTypes>
+                <attributeType name="String" />
+              </attributeTypes>
+            </property>
+            <property key="prpTxtSuccessMessage" type="attribute" required="true">
+              <caption>Success message</caption>
+              <description>Optional. When non-empty, an inline error alert is shown above the form.</description>
+              <attributeTypes>
+                <attributeType name="String" />
+              </attributeTypes>
+            </property>
+          </propertyGroup>
         </propertyGroup>
         <propertyGroup caption="Actions">
             <property key="prpActSignIn" type="action" required="true">
@@ -41,23 +70,6 @@
             <property key="prpActSso" type="action" required="false">
                 <caption>On SSO sign in</caption>
                 <description>Optional. When set, an SSO sign-in button is shown below the form.</description>
-            </property>
-        </propertyGroup>
-        <propertyGroup caption="State">
-            <property key="prpExpIsBusy" type="expression" required="true" defaultValue="false">
-                <caption>Is busy</caption>
-                <description>Shows the loading state on the submit button while signing in.</description>
-                <returnType type="Boolean" />
-            </property>
-            <property key="prpTxtErrorMessage" type="textTemplate" required="false">
-                <caption>Error message</caption>
-                <description>Optional. When non-empty, an inline error alert is shown above the form.</description>
-            </property>
-        </propertyGroup>
-        <propertyGroup caption="Appearance">
-            <property key="prpImgLogoUrl" type="image" required="false">
-                <caption>Logo</caption>
-                <description>Optional logo shown above the form. Falls back to an account icon.</description>
             </property>
         </propertyGroup>
         <propertyGroup caption="Labels">

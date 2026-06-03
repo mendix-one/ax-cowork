@@ -13,7 +13,7 @@ const { Text } = Typography
 export const AxSigninMain = observer((): ReactElement => {
   const { token } = theme.useToken()
   const store = useAxSigninStore()
-  const { labels, busy, errorMessage, canSignUp, canSso, logoUrl } = store
+  const { labels, busy, errorMessage, successMessage, canSignUp, canSso, logoUrl } = store
 
   return (
     <div className={cn('ax-signin', store.className)} style={store.style} tabIndex={store.tabIndex}>
@@ -35,7 +35,10 @@ export const AxSigninMain = observer((): ReactElement => {
             disabled={busy}
             className="ax-signin_form"
           >
-            <div className="ax-signin_form_alert">{errorMessage && <Alert type="error" title={errorMessage} showIcon />}</div>
+            <div className="ax-signin_form_alert">
+              {errorMessage && <Alert type="error" title={errorMessage} showIcon />}
+              {successMessage && <Alert type="success" title={successMessage} showIcon />}
+            </div>
             <div className="ax-signin_form_input">
               <Form.Item label={labels.account} required validateStatus={store.accountError ? 'error' : undefined} help={store.accountError}>
                 <Input

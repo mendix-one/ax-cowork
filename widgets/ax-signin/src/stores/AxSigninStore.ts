@@ -52,6 +52,7 @@ export class AxSigninStore {
   password = ''
   busy = false
   errorMessage?: string
+  successMessage?: string
   logoUrl?: string
   canSignUp = false
   canSso = false
@@ -85,9 +86,10 @@ export class AxSigninStore {
     this.labels = labels
   }
 
-  setStatus(busy: boolean, errorMessage: string | undefined): void {
+  setStatus(busy: boolean, errorMessage: string | undefined, successMessage: string | undefined): void {
     this.busy = busy
     this.errorMessage = errorMessage
+    this.successMessage = successMessage
   }
 
   setLogo(logoUrl: string | undefined): void {

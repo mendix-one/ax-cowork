@@ -45,10 +45,14 @@ export const AxSigninSync = observer((props: AxSigninContainerProps): ReactEleme
     props.prpTxtSsoLabel,
   ])
 
-  // Busy + error status.
+  // Busy + error/success status.
   useEffect(() => {
-    store.setStatus(props.prpExpIsBusy?.value === true, props.prpTxtErrorMessage?.value || undefined)
-  }, [store, props.prpExpIsBusy, props.prpTxtErrorMessage])
+    store.setStatus(
+      props.prpAttIsBusy?.value === true,
+      props.prpTxtErrorMessage?.value || undefined,
+      props.prpTxtSuccessMessage?.value || undefined,
+    )
+  }, [store, props.prpAttIsBusy, props.prpTxtErrorMessage, props.prpTxtSuccessMessage])
 
   // Logo image.
   useEffect(() => {
@@ -62,12 +66,12 @@ export const AxSigninSync = observer((props: AxSigninContainerProps): ReactEleme
 
   // Reconcile the bound attributes (persisted values) into the store's synchronous fields.
   useEffect(() => {
-    store.syncAccount(props.prpAtrAccount.value ?? '')
-  }, [store, props.prpAtrAccount])
+    store.syncAccount(props.prpAttAccount.value ?? '')
+  }, [store, props.prpAttAccount])
 
   useEffect(() => {
-    store.syncPassword(props.prpAtrPassword.value ?? '')
-  }, [store, props.prpAtrPassword])
+    store.syncPassword(props.prpAttPassword.value ?? '')
+  }, [store, props.prpAttPassword])
 
   // Action callbacks. The Mendix ActionValues and their executable guards stay here at the top level;
   // the store only asks for them by emitting ACT_* on its private topic.
@@ -97,10 +101,10 @@ export const AxSigninSync = observer((props: AxSigninContainerProps): ReactEleme
       } else if (action?.startsWith('ACT_')) {
         switch (action) {
           case 'ACT_SET_ACCOUNT':
-            props.prpAtrAccount.setValue(typeof payload === 'string' ? payload : '')
+            props.prpAttAccount.setValue(typeof payload === 'string' ? payload : '')
             break
           case 'ACT_SET_PASSWORD':
-            props.prpAtrPassword.setValue(typeof payload === 'string' ? payload : '')
+            props.prpAttPassword.setValue(typeof payload === 'string' ? payload : '')
             break
           case 'ACT_SIGN_IN':
             excSignIn()
@@ -116,7 +120,7 @@ export const AxSigninSync = observer((props: AxSigninContainerProps): ReactEleme
         }
       }
     },
-    [store, props.prpAtrAccount, props.prpAtrPassword, excSignIn, excSignUp, excSso],
+    [store, props.prpAttAccount, props.prpAttPassword, excSignIn, excSignUp, excSso],
   )
   useWidgetEvents({ widgetName: props.name, onEvent: handleEvent, isLayout: true })
 

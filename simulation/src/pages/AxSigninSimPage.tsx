@@ -16,20 +16,22 @@ export function AxSigninSimPage() {
   // Form state owned by the simulation; the widget mutates this via EditableValue.setValue.
   const [account, setAccount] = useState('')
   const [password, setPassword] = useState('')
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [isBusy, setIsBusy] = useState(false)
   const [showLogo, setShowLogo] = useState(true)
   const [enableSignUp, setEnableSignUp] = useState(true)
   const [enableSso, setEnableSso] = useState(true)
 
   const handleSignIn = () => {
-    setErrorMessage(null)
+    setErrorMessage('')
+    setSuccessMessage('')
     setIsBusy(true)
     // Mimic a 600 ms BE round-trip.
     window.setTimeout(() => {
       if (account === VALID_ACCOUNT && password === VALID_PASSWORD) {
+        setSuccessMessage(`Welcome, ${account}.`)
         notification.success({ message: 'Signed in', description: `Welcome, ${account}.` })
-        setErrorMessage(null)
       } else {
         setErrorMessage('Invalid credentials. Try admin / password.')
       }
@@ -48,13 +50,14 @@ export function AxSigninSimPage() {
   const props: AxSigninContainerProps = {
     name: 'axsignin',
     class: '',
-    prpAtrAccount: editable([account, setAccount]),
-    prpAtrPassword: editable([password, setPassword]),
+    prpAttAccount: editable([account, setAccount]),
+    prpAttPassword: editable([password, setPassword]),
+    prpAttIsBusy: editable([isBusy, setIsBusy]),
+    prpTxtErrorMessage: editable([errorMessage, setErrorMessage]),
+    prpTxtSuccessMessage: editable([successMessage, setSuccessMessage]),
     prpActSignIn: action(handleSignIn),
     prpActSignUp: enableSignUp ? action(handleSignUp) : undefined,
     prpActSso: enableSso ? action(handleSso) : undefined,
-    prpTxtErrorMessage: errorMessage ? dynamic(errorMessage) : undefined,
-    prpExpIsBusy: dynamic(isBusy),
     prpImgLogoUrl: showLogo ? webImage('/aplanner-light.png') : undefined,
     prpTxtAccountLabel: dynamic('Account'),
     prpTxtAccountPlaceholder: dynamic('Username, email or phone'),
@@ -91,7 +94,8 @@ export function AxSigninSimPage() {
               onClick={() => {
                 setAccount('')
                 setPassword('')
-                setErrorMessage(null)
+                setErrorMessage('')
+                setSuccessMessage('')
                 setIsBusy(false)
               }}
             >
@@ -113,7 +117,7 @@ export function AxSigninSimPage() {
               </Space>
             </Card>
             <Card type="inner" title="Current state" size="small">
-              <pre style={{ margin: 0, fontSize: 12 }}>{JSON.stringify({ account, password, errorMessage, isBusy }, null, 2)}</pre>
+              <pre style={{ margin: 0, fontSize: 12 }}>{JSON.stringify({ account, password, errorMessage, successMessage, isBusy }, null, 2)}</pre>
             </Card>
           </Space>
         </Card>

@@ -34,16 +34,19 @@ function SigninPanel() {
 
   const [account, setAccount] = useState('')
   const [password, setPassword] = useState('')
-  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [errorMessage, setErrorMessage] = useState('')
+  const [successMessage, setSuccessMessage] = useState('')
   const [isBusy, setIsBusy] = useState(false)
 
   const handleSignIn = () => {
-    setErrorMessage(null)
+    setErrorMessage('')
+    setSuccessMessage('')
     setIsBusy(true)
     // Mimic a ~600 ms BE round-trip, then succeed (→ navigate home) or fail inline.
     window.setTimeout(() => {
       setIsBusy(false)
       if (account === VALID_ACCOUNT && password === VALID_PASSWORD) {
+        setSuccessMessage(`Welcome back, ${account}.`)
         notification.success({ message: 'Signed in', description: `Welcome back, ${account}.` })
         void navigate('/')
       } else {
@@ -66,13 +69,14 @@ function SigninPanel() {
   const props: AxSigninContainerProps = {
     name: 'axsignin',
     class: '',
-    prpAtrAccount: editable([account, setAccount]),
-    prpAtrPassword: editable([password, setPassword]),
+    prpAttAccount: editable([account, setAccount]),
+    prpAttPassword: editable([password, setPassword]),
+    prpAttIsBusy: editable([isBusy, setIsBusy]),
+    prpTxtErrorMessage: editable([errorMessage, setErrorMessage]),
+    prpTxtSuccessMessage: editable([successMessage, setSuccessMessage]),
     prpActSignIn: action(handleSignIn),
     prpActSignUp: action(handleSignUp),
     prpActSso: action(handleSso),
-    prpTxtErrorMessage: errorMessage ? dynamic(errorMessage) : undefined,
-    prpExpIsBusy: dynamic(isBusy),
     prpImgLogoUrl: undefined,
     prpTxtAccountLabel: dynamic('Account'),
     prpTxtAccountPlaceholder: dynamic('Username, email or phone'),
