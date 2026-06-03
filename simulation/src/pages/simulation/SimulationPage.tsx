@@ -73,13 +73,13 @@ export function SimulationPage() {
       </Space>
     ),
     line: (
-      <Button size="small" icon={<DownOutlined />} iconPosition="end">
+      <Button size="small" icon={<DownOutlined />} iconPlacement="end">
         M-SOC
       </Button>
     ),
     planVersion: (
       <Space size={6} align="center">
-        <Button size="small" icon={<DownOutlined />} iconPosition="end">
+        <Button size="small" icon={<DownOutlined />} iconPlacement="end">
           Plan A
         </Button>
         <Tag color="purple" style={{ margin: 0 }}>
