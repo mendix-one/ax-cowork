@@ -29,20 +29,20 @@ export function useWidgetEvents({ widgetName, onEvent, isLayout }: UseWidgetEven
   handlerRef.current = onEvent
 
   useEffect(() => {
-    const bus = isLayout ? initEventBus() : getEventBus()
+    let bus = isLayout ? initEventBus() : getEventBus()
     if (!bus) {
-      return
+      bus = initEventBus()
     }
 
     const privateTopic = widgetTopic(widgetName)
     const handler: AxEventHandler = (event) => handlerRef.current(event)
 
-    bus.on(AX_BROADCAST, handler)
-    bus.on(privateTopic, handler)
+    bus?.on(AX_BROADCAST, handler)
+    bus?.on(privateTopic, handler)
 
     return () => {
-      bus.removeListener(AX_BROADCAST, handler)
-      bus.removeListener(privateTopic, handler)
+      bus?.removeListener(AX_BROADCAST, handler)
+      bus?.removeListener(privateTopic, handler)
     }
   }, [widgetName, isLayout])
 }

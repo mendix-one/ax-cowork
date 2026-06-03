@@ -10,7 +10,7 @@ export interface AxEvent {
 
 export type AxEventHandler = (event: AxEvent) => void
 
-/** Broadcast topic — every subscribed widget receives events sent here. */
+/** Broadcast topic — every subscribedwidgetTopic widget receives events sent here. */
 export const AX_BROADCAST = 'ax:broadcast'
 
 /** Build the private topic name for a specific widget instance (its Mendix `name`). */

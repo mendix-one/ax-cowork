@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { makeAutoObservable, observable } from 'mobx'
-import { AX_BROADCAST, type AxEvent, emitEvent } from '@ax/common'
+import { AX_BROADCAST, emitEvent } from '@ax/common'
 
 // The nine left-rail content views and four right-rail content views. IDs are the source of truth
 // shared by the rail menus, the content stacks, and this store.
@@ -108,8 +108,9 @@ export class AxSimulationStore {
   rightOpen = true
 
   // --- Prop-derived view data (set by AxSimulationSync) -------------------------------------------
+  name: string = 'axSimulation1'
   tabIndex?: number
-  className = ''
+  className: string = ''
   style?: CSSProperties
   labels: AxSimulationLabels = EMPTY_LABELS
   actions: AxSimulationActions = {}
@@ -136,12 +137,18 @@ export class AxSimulationStore {
   }
 
   // Broadcast a layout state-change notification on the global bus (for child widgets to react).
+  private emit(action: string, payload?: unknown): void {
+    emitEvent(`ax:${this.name}`, { action, payload })
+  }
+
+  // Broadcast a layout state-change notification on the global bus (for child widgets to react).
   private broadcast(action: string, payload?: unknown): void {
     emitEvent(AX_BROADCAST, { action, payload })
   }
 
   // --- Setters used by AxSimulationSync's effects -------------------------------------------------
-  setLayout(className: string, style: CSSProperties | undefined, tabIndex: number | undefined): void {
+  setWidget(name: string, className: string, style: CSSProperties | undefined, tabIndex: number | undefined): void {
+    this.name = name
     this.className = className
     this.style = style
     this.tabIndex = tabIndex
@@ -149,10 +156,6 @@ export class AxSimulationStore {
 
   setLabels(labels: AxSimulationLabels): void {
     this.labels = labels
-  }
-
-  setActions(actions: AxSimulationActions): void {
-    this.actions = actions
   }
 
   setLogo(logo: ReactNode): void {
@@ -168,9 +171,10 @@ export class AxSimulationStore {
   }
 
   // --- Left rail ----------------------------------------------------------------------------------
-  setActiveLeft(id: LeftPanelId): void {
+  // The left rail only selects a view (no open/close), so this is a plain switch — unlike toggleRight.
+  selectLeft(id: LeftPanelId): void {
     this.activeLeft = id
-    this.broadcast('left-changed', { id })
+    this.broadcast('AX_LAYOUT_LEFT_CHANGED', { id })
   }
 
   // --- Right rail ---------------------------------------------------------------------------------
@@ -182,66 +186,65 @@ export class AxSimulationStore {
       this.activeRight = id
       this.rightOpen = true
     }
-    this.broadcast('right-changed', { id: this.activeRight, open: this.rightOpen })
+    this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id: this.activeRight, open: this.rightOpen })
   }
 
   openRight(id: RightPanelId): void {
     this.activeRight = id
     this.rightOpen = true
-    this.broadcast('right-changed', { id, open: true })
+    this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id, open: true })
   }
 
   closeRight(): void {
     this.rightOpen = false
-    this.broadcast('right-changed', { id: this.activeRight, open: false })
+    this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id: this.activeRight, open: false })
   }
 
   // --- Top bar ------------------------------------------------------------------------------------
   // Top-bar button handlers — pure passthroughs to the callbacks built in AxSimulationSync. These
   // buttons just fire their action; they carry no active/popover state.
   onClickApps(): void {
-    this.actions.onClickApps?.()
+    this.emit('ACT_ON_CLICK_APPS', {})
   }
 
   onClickWorldMap(): void {
-    this.actions.onClickWorldMap?.()
+    this.emit('ACT_ON_CLICK_WORLD_MAP', {})
   }
 
   onClickNotify(): void {
-    this.actions.onClickNotify?.()
+    this.emit('ACT_ON_CLICK_NOTIFY', {})
   }
 
   onClickAccount(): void {
-    this.actions.onClickAccount?.()
+    this.emit('ACT_ON_CLICK_ACCOUNT', {})
   }
 
   onClickSettings(): void {
-    this.actions.onClickSettings?.()
+    this.emit('ACT_ON_CLICK_SETTINGS', {})
   }
 
   // --- Global event bus ---------------------------------------------------------------------------
   // Dispatch a global-bus command to drive the layout from nanoflows / other widgets. Command names
   // are distinct from the `*-changed` notifications emitted above, so a broadcast command never loops
   // back into itself. Unknown ids are ignored (validated against the live slot maps).
-  handleEvent(event: AxEvent): void {
-    const { action, payload } = event
+  handleCommand(action: string, payload: unknown): void {
     switch (action) {
-      case 'set-left':
+      case 'CMD_SET_LEFT':
         if (typeof payload === 'string' && payload in this.leftSlots) {
-          this.setActiveLeft(payload as LeftPanelId)
+          this.selectLeft(payload as LeftPanelId)
         }
         break
-      case 'open-right':
+      case 'CMD_OPEN_RIGHT':
         if (typeof payload === 'string' && payload in this.rightSlots) {
           this.openRight(payload as RightPanelId)
         }
         break
-      case 'toggle-right':
+      case 'CMD_TOGGLE_RIGHT':
         if (typeof payload === 'string' && payload in this.rightSlots) {
           this.toggleRight(payload as RightPanelId)
         }
         break
-      case 'close-right':
+      case 'CMD_CLOSE_RIGHT':
         this.closeRight()
         break
       default:

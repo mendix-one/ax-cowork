@@ -11,16 +11,16 @@ import { AxSimulationMain } from './main/AxSimulationMain'
 // that group depends on, so a value that isn't resolved at mount time (e.g. the context datasource, or
 // a drop zone whose content arrives asynchronously) is written into the store as soon as it changes —
 // the effect re-runs and updates only that slice. It also wires the global Ax event bus so nanoflows /
-// other widgets can drive the layout (emit { action: 'set-left' | 'open-right' | 'toggle-right' |
-// 'close-right', payload }). isLayout ensures the bus exists — this widget is the host layout.
+// other widgets can drive the layout (emit { action: 'SET-LEFT' | 'OPEN-RIGHT' | 'TOGGLE-RIGHT' |
+// 'CLOSE-RIGHT', payload }). isLayout ensures the bus exists — this widget is the host layout.
 // AxSimulationMain and the rail children below it work purely off store state.
 export const AxSimulationSync = observer((props: AxSimulationContainerProps): ReactElement => {
   const store = useAxSimulationStore()
 
-  // Layout attributes.
+  // Widget attributes.
   useEffect(() => {
-    store.setLayout(props.class, props.style, props.tabIndex)
-  }, [store, props.class, props.style, props.tabIndex])
+    store.setWidget(props.name || 'axSimulation1', props.class, props.style, props.tabIndex)
+  }, [store, props.name, props.class, props.style, props.tabIndex])
 
   // Logo drop zone.
   useEffect(() => {
@@ -133,18 +133,37 @@ export const AxSimulationSync = observer((props: AxSimulationContainerProps): Re
     }
   }, [props.prpActSettings])
 
-  useEffect(() => {
-    store.setActions({
-      onClickApps,
-      onClickWorldMap,
-      onClickNotify,
-      onClickAccount,
-      onClickSettings,
-    })
-  }, [store, onClickApps, onClickWorldMap, onClickNotify, onClickAccount, onClickSettings])
-
   // Global event bus — let nanoflows / other widgets drive the layout.
-  const handleEvent = useCallback((event: AxEvent) => store.handleEvent(event), [store])
+  const handleEvent = useCallback(
+    (event: AxEvent) => {
+      const { action, payload } = event
+      console.info(`${action}: ${payload ? JSON.stringify(payload) : '<no payload>'}`)
+      if (action?.startsWith('CMD_')) {
+        store.handleCommand(action, payload)
+      } else if (action?.startsWith('ACT_')) {
+        switch (action) {
+          case 'ACT_ON_CLICK_APPS':
+            onClickApps()
+            break
+          case 'ACT_ON_CLICK_WORLD_MAP':
+            onClickWorldMap()
+            break
+          case 'ACT_ON_CLICK_NOTIFY':
+            onClickNotify()
+            break
+          case 'ACT_ON_CLICK_ACCOUNT':
+            onClickAccount()
+            break
+          case 'ACT_ON_CLICK_SETTINGS':
+            onClickSettings()
+            break
+          default:
+            break
+        }
+      }
+    },
+    [store, onClickApps, onClickWorldMap, onClickNotify, onClickAccount, onClickSettings],
+  )
   useWidgetEvents({ widgetName: props.name, onEvent: handleEvent, isLayout: true })
 
   return <AxSimulationMain />
