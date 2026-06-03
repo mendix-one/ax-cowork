@@ -20,6 +20,7 @@ export function AxLoginSimPage() {
   const [isBusy, setIsBusy] = useState(false)
   const [showLogo, setShowLogo] = useState(true)
   const [enableSignUp, setEnableSignUp] = useState(true)
+  const [enableSso, setEnableSso] = useState(true)
 
   const handleSignIn = () => {
     setErrorMessage(null)
@@ -40,6 +41,10 @@ export function AxLoginSimPage() {
     notification.info({ message: 'Sign-up clicked', description: 'Real app would navigate to /auth/signup.' })
   }
 
+  const handleSso = () => {
+    notification.info({ message: 'SSO clicked', description: 'Real app would redirect to the identity provider.' })
+  }
+
   const props: AxLoginContainerProps = {
     name: 'axlogin',
     class: '',
@@ -47,6 +52,7 @@ export function AxLoginSimPage() {
     passwordAttribute: editable([password, setPassword]),
     signInAction: action(handleSignIn),
     signUpAction: enableSignUp ? action(handleSignUp) : undefined,
+    ssoAction: enableSso ? action(handleSso) : undefined,
     errorMessage: errorMessage ? dynamic(errorMessage) : undefined,
     isBusy: dynamic(isBusy),
     logoUrl: showLogo ? webImage('/aplanner-light.png') : undefined,
@@ -56,6 +62,7 @@ export function AxLoginSimPage() {
     submitLabel: dynamic('Sign in'),
     signUpPrompt: dynamic("Don't have an account?"),
     signUpLinkLabel: dynamic('Sign up'),
+    ssoLabel: dynamic('Sign in with SSO'),
   }
 
   return (
@@ -75,6 +82,9 @@ export function AxLoginSimPage() {
             </Space>
             <Space>
               <Switch checked={enableSignUp} onChange={setEnableSignUp} /> Show sign-up link
+            </Space>
+            <Space>
+              <Switch checked={enableSso} onChange={setEnableSso} /> Show SSO button
             </Space>
             <Button
               size="small"

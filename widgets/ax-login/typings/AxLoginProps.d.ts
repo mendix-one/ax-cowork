@@ -15,6 +15,7 @@ export interface AxLoginContainerProps {
     passwordAttribute: EditableValue<string>;
     signInAction?: ActionValue;
     signUpAction?: ActionValue;
+    ssoAction?: ActionValue;
     isBusy: DynamicValue<boolean>;
     errorMessage?: DynamicValue<string>;
     logoUrl?: DynamicValue<WebImage>;
@@ -24,6 +25,7 @@ export interface AxLoginContainerProps {
     submitLabel: DynamicValue<string>;
     signUpPrompt: DynamicValue<string>;
     signUpLinkLabel: DynamicValue<string>;
+    ssoLabel: DynamicValue<string>;
 }
 
 export interface AxLoginPreviewProps {
@@ -41,6 +43,7 @@ export interface AxLoginPreviewProps {
     passwordAttribute: string;
     signInAction: {} | null;
     signUpAction: {} | null;
+    ssoAction: {} | null;
     isBusy: string;
     errorMessage: string;
     logoUrl: { type: "static"; imageUrl: string; } | { type: "dynamic"; entity: string; } | null;
@@ -50,4 +53,5 @@ export interface AxLoginPreviewProps {
     submitLabel: string;
     signUpPrompt: string;
     signUpLinkLabel: string;
+    ssoLabel: string;
 }

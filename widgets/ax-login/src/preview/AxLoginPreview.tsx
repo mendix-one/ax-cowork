@@ -11,6 +11,7 @@ export function AxLoginPreview(): ReactElement {
         account=""
         password=""
         canSignUp
+        canSso
         labels={{
           account: 'Account',
           accountPlaceholder: 'Username, email or phone',
@@ -18,11 +19,13 @@ export function AxLoginPreview(): ReactElement {
           submit: 'Sign in',
           signUpPrompt: "Don't have an account?",
           signUpLink: 'Sign up',
+          sso: 'Sign in with SSO',
         }}
         onAccountChange={() => undefined}
         onPasswordChange={() => undefined}
         onSignIn={() => undefined}
         onSignUp={() => undefined}
+        onSso={() => undefined}
       />
     </ConfigProvider>
   )

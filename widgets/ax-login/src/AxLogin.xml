@@ -38,6 +38,10 @@
                 <caption>On sign up</caption>
                 <description>Optional. When set, a sign-up link is shown below the form.</description>
             </property>
+            <property key="ssoAction" type="action" required="false">
+                <caption>On SSO sign in</caption>
+                <description>Optional. When set, an SSO sign-in button is shown below the form.</description>
+            </property>
         </propertyGroup>
         <propertyGroup caption="State">
             <property key="isBusy" type="expression" required="true" defaultValue="false">
@@ -97,6 +101,13 @@
                 <description />
                 <translations>
                     <translation lang="en_US">Sign up</translation>
+                </translations>
+            </property>
+            <property key="ssoLabel" type="textTemplate" required="true">
+                <caption>SSO button label</caption>
+                <description />
+                <translations>
+                    <translation lang="en_US">Sign in with SSO</translation>
                 </translations>
             </property>
         </propertyGroup>

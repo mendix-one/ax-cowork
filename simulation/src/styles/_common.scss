@@ -1,0 +1,22 @@
+html,
+body,
+#root {
+  width: 100vw;
+  height: 100vh;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  font-family: 'Roboto', -apple-system, sans-serif;
+  font-size: 14px;
+}
+
+body {
+  font-family: 'Roboto', -apple-system, sans-serif;
+  font-size: 14px;
+}
+
+.ax-app {
+  width: 100vw;
+  height: 100vh;
+  background-color: #8c8c8c;
+}

@@ -3,11 +3,13 @@ import { useCallback } from 'react'
 import { configure } from 'mobx'
 import { observer } from 'mobx-react-lite'
 import { ConfigProvider } from 'antd'
-import { type AxEvent, executeAction, useWidgetEvents } from '@ax/common'
+import { type AxEvent, executeAction, useWidgetEvents, axColors, axTheme } from '@ax/common'
 import type { AxLoginContainerProps } from '../typings/AxLoginProps'
-import { AxLoginMain } from './main/AxLoginMain'
-import { AxLoginStore, type AxLoginBridge } from './stores/AxLoginStore'
 import { AxLoginProvider, useAxLoginStore } from './stores/context'
+import { AxLoginStore, type AxLoginBridge } from './stores/AxLoginStore'
+import { AxLoginMain } from './main/AxLoginMain'
+
+import './styles/AxLogin.scss'
 
 // Each Mendix widget bundle ships its own MobX copy, so several MobX instances can be active on
 // one page. Isolate this bundle's global state to avoid the "multiple, different versions of MobX
@@ -23,6 +25,7 @@ function buildBridge(props: AxLoginContainerProps): AxLoginBridge {
     busy: props.isBusy?.value === true,
     signIn: () => executeAction(props.signInAction),
     signUp: () => executeAction(props.signUpAction),
+    sso: () => executeAction(props.ssoAction),
   }
 }
 
@@ -31,11 +34,25 @@ function buildBridge(props: AxLoginContainerProps): AxLoginBridge {
 // observer child below.
 export function AxLogin(props: AxLoginContainerProps): ReactElement {
   return (
-    <ConfigProvider theme={{ token: { colorPrimary: '#3F51B5' } }}>
-      <AxLoginProvider createStore={() => new AxLoginStore(buildBridge(props))}>
+    <AxLoginProvider createStore={() => new AxLoginStore(buildBridge(props))}>
+      <ConfigProvider
+        theme={axTheme}
+        form={{
+          requiredMark: (labelNode, { required }) => (
+            <>
+              {labelNode}
+              {required && (
+                <span aria-hidden="true" style={{ color: axColors.error, marginInlineStart: 4 }}>
+                  *
+                </span>
+              )}
+            </>
+          ),
+        }}
+      >
         <AxLoginInner {...props} />
-      </AxLoginProvider>
-    </ConfigProvider>
+      </ConfigProvider>
+    </AxLoginProvider>
   )
 }
 
@@ -75,6 +92,7 @@ const AxLoginInner = observer((props: AxLoginContainerProps): ReactElement => {
       busy={props.isBusy?.value === true}
       errorMessage={props.errorMessage?.value || undefined}
       canSignUp={!!props.signUpAction}
+      canSso={!!props.ssoAction}
       labels={{
         account: props.accountLabel?.value ?? '',
         accountPlaceholder: props.accountPlaceholder?.value ?? '',
@@ -82,6 +100,7 @@ const AxLoginInner = observer((props: AxLoginContainerProps): ReactElement => {
         submit: props.submitLabel?.value ?? '',
         signUpPrompt: props.signUpPrompt?.value ?? '',
         signUpLink: props.signUpLinkLabel?.value ?? '',
+        sso: props.ssoLabel?.value ?? '',
       }}
       onAccountChange={(value) => props.accountAttribute.setValue(value)}
       onPasswordChange={(value) => props.passwordAttribute.setValue(value)}
@@ -89,6 +108,7 @@ const AxLoginInner = observer((props: AxLoginContainerProps): ReactElement => {
       onPasswordBlur={store.touchPassword}
       onSignIn={store.submit}
       onSignUp={props.signUpAction ? store.signUp : undefined}
+      onSso={props.ssoAction ? store.sso : undefined}
     />
   )
 })

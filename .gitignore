@@ -7,6 +7,11 @@ build/
 .vite/
 packages/ax-cowork-be/public/assets/
 
+# Stray tsc emit in the TS-only simulation (real sources are .ts/.tsx; index.html
+# loads main.tsx and tsconfig sets noEmit). A committed .js shadows its .tsx in Vite.
+simulation/vite.config.js
+simulation/src/**/*.js
+
 # Test output
 coverage/
 

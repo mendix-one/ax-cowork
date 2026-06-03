@@ -11,6 +11,7 @@ export interface AxLoginBridge {
   busy: boolean
   signIn(): void
   signUp(): void
+  sso(): void
 }
 
 // MobX store owning the login form's interaction state. Mirrors react-app's store-per-shape
@@ -65,6 +66,12 @@ export class AxLoginStore {
 
   signUp(): void {
     this.bridge.signUp()
+  }
+
+  sso(): void {
+    if (!this.bridge.busy) {
+      this.bridge.sso()
+    }
   }
 
   reset(): void {
