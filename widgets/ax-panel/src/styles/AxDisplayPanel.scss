@@ -1,0 +1,57 @@
+// Scoped to .ax-display-panel (Tailwind `important` + preflight off) so the widget never bleeds into
+// the host page. Ported from react-app's .ax-display-panel, made self-contained (the control button
+// styles are inlined here rather than relying on react-app's shared .ax-button).
+.ax-display-panel {
+  @apply w-full h-full rounded-lg;
+  @apply bg-white;
+  @apply flex flex-col overflow-hidden;
+
+  &_header {
+    @apply w-full h-9 px-2 rounded-t;
+    @apply flex items-center justify-between gap-2;
+    @apply border-b border-gray-300;
+    @apply text-neutral-800 bg-stone-200; // outer panel chrome (darker than inner box headers)
+
+    &_title {
+      @apply flex items-center justify-start gap-1 shrink-0;
+
+      &_icon {
+        @apply w-6 h-6 flex items-center justify-center text-xl leading-none;
+        svg {
+          @apply w-5 h-5;
+        }
+      }
+
+      &_text {
+        @apply m-0 truncate font-semibold;
+      }
+    }
+
+    // Toolbar fills the gap between the title and the control button.
+    &_tools {
+      @apply grow h-full min-w-0 flex items-center justify-between gap-1;
+    }
+
+    &_option {
+      @apply flex items-center justify-end gap-1 shrink-0;
+
+      &_button {
+        @apply w-7 h-7 flex items-center justify-center rounded cursor-pointer;
+        @apply border-0 bg-transparent text-neutral-700;
+
+        &:hover {
+          @apply bg-stone-300 text-neutral-900;
+        }
+
+        .ax-display-panel_header_option_icon {
+          @apply w-5 h-5;
+          fill: currentColor;
+        }
+      }
+    }
+  }
+
+  &_body {
+    @apply w-full grow min-h-0 rounded-b overflow-auto;
+  }
+}

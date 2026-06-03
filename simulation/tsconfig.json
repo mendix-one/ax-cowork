@@ -24,6 +24,8 @@
       "@/*": ["./src/*"],
       "@axlogin/*": ["../widgets/ax-login/src/*"],
       "@axsimulation/*": ["../widgets/ax-simulation/src/*"],
+      "@axpanel/*": ["../widgets/ax-panel/src/*"],
+      "mendix/components/web/Icon": ["./src/mock/mendix-icon.tsx"],
       "mendix": ["./src/mock/mendix.ts"]
     },
     "types": []

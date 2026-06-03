@@ -20,7 +20,7 @@ export const AxSimulationRight = observer((props: AxSimulationRightProps): React
   const store = useAxSimulationStore()
   const { labels } = props
   return (
-    <Layout.Sider width="2.65rem" className="ax-sim_rail ax-sim_rail_right">
+    <Layout.Sider width="2.65rem" className="ax-sim_rail ax-sim_rail_right" style={{ padding: '0.15rem' }}>
       <Flex vertical align="center" justify="space-between" className="ax-sim_rail_inner">
         <Flex vertical align="center" justify="start">
           <Space vertical>

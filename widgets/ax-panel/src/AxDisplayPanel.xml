@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget
+  id="one.mendix.axdisplaypanel.AxDisplayPanel"
+  pluginWidget="true"
+  needsEntityContext="true"
+  offlineCapable="true"
+  supportedPlatform="Web"
+  xmlns="http://www.mendix.com/widget/1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd"
+>
+  <name>Ax Display Panel</name>
+  <description>Panel chrome — a header (icon, title, toolbar, maximize/close control) over a content body.</description>
+  <icon/>
+  <properties>
+    <propertyGroup caption="General">
+      <propertyGroup caption="Header">
+        <property key="headerIcon" type="icon" required="false">
+          <caption>Icon</caption>
+          <description>Leading icon shown at the start of the panel header.</description>
+        </property>
+        <property key="title" type="string" required="false" defaultValue="Panel">
+          <caption>Title</caption>
+          <description>Panel header title (translatable).</description>
+        </property>
+        <property key="toolbar" type="widgets" required="false">
+          <caption>Toolbar</caption>
+          <description>Header toolbar content, between the title and the control button.</description>
+        </property>
+      </propertyGroup>
+      <propertyGroup caption="Body">
+        <property key="content" type="widgets" required="false">
+          <caption>Content</caption>
+          <description>Panel body content.</description>
+        </property>
+      </propertyGroup>
+    </propertyGroup>
+    <propertyGroup caption="Behavior">
+      <property key="type" type="enumeration" defaultValue="main">
+        <caption>Type</caption>
+        <description>Main panels show a maximize / restore toggle; Sub panels show a close button.</description>
+        <enumerationValues>
+          <enumerationValue key="main">Main</enumerationValue>
+          <enumerationValue key="sub">Sub</enumerationValue>
+        </enumerationValues>
+      </property>
+      <property key="maximized" type="attribute" required="false">
+        <caption>Maximized</caption>
+        <description>Boolean attribute holding the maximized state. Toggled by the Main panel control button.</description>
+        <attributeTypes>
+          <attributeType name="Boolean" />
+        </attributeTypes>
+      </property>
+    </propertyGroup>
+    <propertyGroup caption="Actions">
+      <property key="onMaximize" type="action" required="false">
+        <caption>On maximize</caption>
+        <description>Triggered when a Main panel is maximized.</description>
+      </property>
+      <property key="onRestore" type="action" required="false">
+        <caption>On restore</caption>
+        <description>Triggered when a Main panel is restored.</description>
+      </property>
+      <property key="onClose" type="action" required="false">
+        <caption>On close</caption>
+        <description>Triggered when a Sub panel is closed.</description>
+      </property>
+    </propertyGroup>
+  </properties>
+</widget>

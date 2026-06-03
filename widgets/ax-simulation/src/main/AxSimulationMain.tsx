@@ -88,7 +88,7 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
             onResize={onResize}
             classNames={{ dragger: { default: 'ax-sim_splitter_dragger', active: 'ax-sim_splitter_dragger_active' } }}
           >
-            <Splitter.Panel min="25%" className="ax-sim_splitter_panel ax-sim_splitter_panel_left">
+            <Splitter.Panel min="25%" className="ax-sim_splitter_panel ax-sim_splitter_panel_left" style={{ paddingRight: `${store.rightOpen ? '3px' : '0'}` }}>
               <div className="ax-sim_view ax-sim_view_left">
                 {LEFT_MENU.map((item) => (
                   <ViewSlot key={item.id} active={store.activeLeft === item.id}>
@@ -102,6 +102,7 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
               size={store.rightOpen ? rightSize : 0}
               min={store.rightOpen ? 480 : 0}
               resizable={store.rightOpen}
+              style={{ paddingLeft: '3px' }}
             >
               <div className="ax-sim_view ax-sim_view_right">
                 {RIGHT_MENU.map((item) => (
