@@ -68,8 +68,8 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
         <AxSimulationLeft />
         <Layout.Content className="ax-sim_main">
           <Splitter className="ax-sim_splitter" onResize={onResize}>
-            <Splitter.Panel min="25%" className="ax-sim_splitter_panel">
-              <div className="ax-sim_view ax-sim_view__left">
+            <Splitter.Panel min="25%" className="ax-sim_splitter_panel ax-sim_splitter_panel_left">
+              <div className="ax-sim_view ax-sim_view_left">
                 {LEFT_MENU.map((item) => (
                   <ViewSlot key={item.id} active={store.activeLeft === item.id}>
                     {leftSlots[item.id]}
@@ -77,14 +77,13 @@ export const AxSimulationMain = observer((props: AxSimulationContainerProps): Re
                 ))}
               </div>
             </Splitter.Panel>
-
             <Splitter.Panel
-              className="ax-sim_splitter_panel"
+              className="ax-sim_splitter_panel ax-sim_splitter_panel_right"
               size={store.rightOpen ? rightSize : 0}
               min={store.rightOpen ? 240 : 0}
               resizable={store.rightOpen}
             >
-              <div className="ax-sim_view ax-sim_view__right">
+              <div className="ax-sim_view ax-sim_view_right">
                 {RIGHT_MENU.map((item) => (
                   <ViewSlot key={item.id} active={store.rightOpen && store.activeRight === item.id}>
                     {rightSlots[item.id]}

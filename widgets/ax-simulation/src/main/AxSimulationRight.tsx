@@ -9,7 +9,7 @@ import { AxMenuBtn } from './views/AxMenuBtn'
 export const AxSimulationRight = observer((): ReactElement => {
   const store = useAxSimulationStore()
   return (
-    <Layout.Sider width="2.65rem" className="ax-sim_rail ax-sim_rail__right">
+    <Layout.Sider width="2.65rem" className="ax-sim_rail ax-sim_rail_right">
       <Flex vertical align="center" justify="space-between" className="ax-sim_rail_inner">
         <Flex vertical align="center" justify="start">
           <Space vertical>
