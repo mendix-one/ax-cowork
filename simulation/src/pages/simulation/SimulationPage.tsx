@@ -1,20 +1,13 @@
 import type { ReactNode } from 'react'
-import { Avatar, Button, Card, Flex, Space, Tag, Tooltip, Typography } from 'antd'
-import {
-  AppstoreOutlined,
-  BellOutlined,
-  BookOutlined,
-  DownOutlined,
-  GlobalOutlined,
-  SettingOutlined,
-  UserOutlined,
-} from '@ant-design/icons'
+import { Avatar, Card, Flex, message, Space, Typography } from 'antd'
+import { AppstoreOutlined } from '@ant-design/icons'
 import { AxSimulation } from '@axsimulation/AxSimulation'
 import type { AxSimulationContainerProps } from '../../../../widgets/ax-simulation/typings/AxSimulationProps'
+import { action } from '../../mock/mendix'
 
 // Full-page host for the AxSimulation layout widget. The widget owns the chrome (top bar, rails,
-// switchable views); this page supplies mock content for every `widgets` drop zone — exactly what a
-// Mendix modeller would drop into each region in Studio Pro.
+// switchable views); this page supplies mock content for every `widgets` drop zone, the translatable
+// label props, and mock top-bar actions — exactly what a Mendix modeller would configure in Studio Pro.
 
 // A placeholder content panel that fills its view slot, so switching left/right menus is obvious.
 function MockPanel({ title, subtitle, children }: { title: string; subtitle?: string; children?: ReactNode }) {
@@ -38,21 +31,12 @@ function MockPanel({ title, subtitle, children }: { title: string; subtitle?: st
   )
 }
 
-// A compact top-bar icon control (notify / user / setting / split view).
-function TopIcon({ icon, title }: { icon: ReactNode; title: string }) {
-  return (
-    <Tooltip title={title} placement="bottom">
-      <Button type="text" size="small" icon={icon} aria-label={title} />
-    </Tooltip>
-  )
-}
-
 export function SimulationPage() {
   const props: AxSimulationContainerProps = {
     name: 'axsimulation',
     class: '',
 
-    // --- Header: left cluster ---
+    // --- Header logo (the only top-bar drop zone; the rest are widget-owned icon buttons) ---
     logo: (
       <Space size={8} align="center">
         <Avatar size={24} style={{ background: '#3F51B5' }} icon={<AppstoreOutlined />} />
@@ -61,62 +45,47 @@ export function SimulationPage() {
         </Typography.Text>
       </Space>
     ),
-    topMenu: (
-      <Space size={4}>
-        <TopIcon icon={<AppstoreOutlined />} title="Apps" />
-        <TopIcon icon={<GlobalOutlined />} title="World map" />
-      </Space>
-    ),
-    line: (
-      <Button size="small" icon={<DownOutlined />} iconPlacement="end">
-        M-SOC
-      </Button>
-    ),
-    planVersion: (
-      <Space size={6} align="center">
-        <Button size="small" icon={<DownOutlined />} iconPlacement="end">
-          Plan A
-        </Button>
-        <Tag color="purple" style={{ margin: 0 }}>
-          DRAFT
-        </Tag>
-      </Space>
-    ),
-
-    // --- Header: right cluster ---
-    splitView: <TopIcon icon={<BookOutlined />} title="Split view" />,
-    notify: <TopIcon icon={<BellOutlined />} title="Notifications" />,
-    user: <TopIcon icon={<UserOutlined />} title="User account" />,
-    setting: <TopIcon icon={<SettingOutlined />} title="Settings" />,
 
     // --- Left views (9) ---
-    leftSimulation: <MockPanel title="Simulation" subtitle="Gantt schedule & quick analysis for the active plan." />,
-    leftProjects: <MockPanel title="Projects" subtitle="Project list and scenario portfolio." />,
-    leftAnalysis: <MockPanel title="Analysis" subtitle="Heatmaps, milestones and routing matrix." />,
-    leftPmData: <MockPanel title="PM Data" subtitle="Preventive-maintenance master data." />,
-    leftTuningLogic: <MockPanel title="Tuning Logic" subtitle="Rules driving the auto-tuner." />,
-    leftFactorControl: <MockPanel title="Factor Control" subtitle="Capacity & demand factors." />,
-    leftPmStandard: <MockPanel title="PM Standard" subtitle="Standard PM definitions and templates." />,
-    leftIntegration: <MockPanel title="Integration" subtitle="Inbound / outbound connectors." />,
-    leftSetting: <MockPanel title="Setting" subtitle="Module configuration." />,
+    propSimulation: <MockPanel title="Simulation" subtitle="Gantt schedule & quick analysis for the active plan." />,
+    propProjects: <MockPanel title="Projects" subtitle="Project list and scenario portfolio." />,
+    propAnalysis: <MockPanel title="Analysis" subtitle="Heatmaps, milestones and routing matrix." />,
+    propPmData: <MockPanel title="PM Data" subtitle="Preventive-maintenance master data." />,
+    propTuningLogic: <MockPanel title="Tuning Logic" subtitle="Rules driving the auto-tuner." />,
+    propFactorControl: <MockPanel title="Factor Control" subtitle="Capacity & demand factors." />,
+    propPmStandard: <MockPanel title="PM Standard" subtitle="Standard PM definitions and templates." />,
+    propIntegration: <MockPanel title="Integration" subtitle="Inbound / outbound connectors." />,
+    propSetting: <MockPanel title="Setting" subtitle="Module configuration." />,
 
     // --- Right views (4) ---
-    rightCompare: <MockPanel title="Compare" subtitle="Side-by-side plan comparison." />,
-    rightAiAssistant: <MockPanel title="AI Assistant" subtitle="Ask about the current plan." />,
-    rightRecommendation: <MockPanel title="Recommendation" subtitle="Suggested reroutes & fixes." />,
-    rightHistory: <MockPanel title="History" subtitle="Schedule change log." />,
+    propCompare: <MockPanel title="Compare" subtitle="Side-by-side plan comparison." />,
+    propAiAssistant: <MockPanel title="AI Assistant" subtitle="Ask about the current plan." />,
+    propRecommendation: <MockPanel title="Recommendation" subtitle="Suggested reroutes & fixes." />,
+    propHistory: <MockPanel title="History" subtitle="Schedule change log." />,
 
-    // --- Footer ---
-    footer: (
-      <Flex align="center" justify="space-between" style={{ width: '100%' }}>
-        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          Ready
-        </Typography.Text>
-        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          M-SOC · Plan A · 0 unsaved edits
-        </Typography.Text>
-      </Flex>
-    ),
+    // --- Top-bar actions (mocked; a Mendix modeller wires these to microflows / nanoflows) ---
+    actionApps: action(() => message.info('Apps')),
+    actionWorldMap: action(() => message.info('World Map')),
+    actionNotify: action(() => message.info('Notifications')),
+    actionAccount: action(() => message.info('Account')),
+    actionSettings: action(() => message.info('Settings')),
+
+    // --- Labels (translatable in Studio; defaults mirror AxSimulation.xml) ---
+    labelSimulation: 'Simulation',
+    labelProjects: 'Projects',
+    labelAnalysis: 'Analysis',
+    labelPmData: 'PM Data',
+    labelTuningLogic: 'Tuning Logic',
+    labelSetting: 'Setting',
+    labelCompare: 'Compare',
+    labelAiAssistant: 'AI Assistant',
+    labelRecommendation: 'Recommendation',
+    labelHistory: 'History',
+    labelApps: 'Menu',
+    labelWorldMap: 'World Map',
+    labelNotify: 'Notify',
+    labelAccount: 'Account',
+    labelSettings: 'Settings',
   }
 
   return (

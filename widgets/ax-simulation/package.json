@@ -40,6 +40,7 @@
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-react-hooks": "^7.1.1",
     "globals": "^17.6.0",
+    "mendix": "^11.8.0",
     "postcss": "^8.5.15",
     "prettier": "^3.8.3",
     "react": "^19.2.6",
