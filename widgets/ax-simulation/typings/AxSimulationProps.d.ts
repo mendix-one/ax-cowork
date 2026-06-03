@@ -4,7 +4,7 @@
  * @author Mendix Widgets Framework Team
  */
 import { ComponentType, CSSProperties, ReactNode } from "react";
-import { ActionValue, ListValue, SelectionSingleValue } from "mendix";
+import { ActionValue, DynamicValue, ListValue, SelectionSingleValue, WebImage } from "mendix";
 
 export interface AxSimulationContainerProps {
     name: string;
@@ -13,7 +13,7 @@ export interface AxSimulationContainerProps {
     tabIndex?: number;
     prpDsContexts?: ListValue;
     prpSelContext?: SelectionSingleValue;
-    prpWdgLogo?: ReactNode;
+    prpImgLogo?: DynamicValue<WebImage>;
     prpWdgSimulation?: ReactNode;
     prpWdgProjects?: ReactNode;
     prpWdgAnalysis?: ReactNode;
@@ -27,6 +27,7 @@ export interface AxSimulationContainerProps {
     prpWdgAiAssistant?: ReactNode;
     prpWdgRecommendation?: ReactNode;
     prpWdgHistory?: ReactNode;
+    prpActLogo?: ActionValue;
     prpActApps?: ActionValue;
     prpActWorldMap?: ActionValue;
     prpActNotify?: ActionValue;
@@ -62,7 +63,7 @@ export interface AxSimulationPreviewProps {
     translate: (text: string) => string;
     prpDsContexts: {} | { caption: string } | { type: string } | null;
     prpSelContext: "Single" | "None";
-    prpWdgLogo: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
+    prpImgLogo: { type: "static"; imageUrl: string; } | { type: "dynamic"; entity: string; } | null;
     prpWdgSimulation: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
     prpWdgProjects: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
     prpWdgAnalysis: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
@@ -76,6 +77,7 @@ export interface AxSimulationPreviewProps {
     prpWdgAiAssistant: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
     prpWdgRecommendation: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
     prpWdgHistory: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
+    prpActLogo: {} | null;
     prpActApps: {} | null;
     prpActWorldMap: {} | null;
     prpActNotify: {} | null;

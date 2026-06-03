@@ -15,7 +15,7 @@
   <icon/>
   <properties>
     <propertyGroup caption="General">
-      <propertyGroup caption="Data source">
+      <propertyGroup caption="Data Source">
         <property key="prpDsContexts" type="datasource" isList="true" required="false">
           <caption>Page context list</caption>
           <description>The list with ony one context object</description>
@@ -28,15 +28,15 @@
           </selectionTypes>
         </property>
       </propertyGroup>
-    </propertyGroup>
-    <propertyGroup caption="Context">
-      <propertyGroup caption="Headers">
-        <property key="prpWdgLogo" type="widgets" required="false">
+      <propertyGroup caption="Header Logo">
+        <property key="prpImgLogo" type="image" required="false">
           <caption>Logo</caption>
-          <description>Top-left logo / brand content.</description>
+          <description>Top-left brand logo image.</description>
         </property>
       </propertyGroup>
-      <propertyGroup caption="Left views">
+    </propertyGroup>
+    <propertyGroup caption="Content">
+      <propertyGroup caption="Left Views">
         <property key="prpWdgSimulation" type="widgets" required="false">
           <caption>Simulation</caption>
           <description>Content shown for the Simulation menu item.</description>
@@ -74,7 +74,7 @@
           <description>Content shown for the Setting menu item.</description>
         </property>
       </propertyGroup>
-      <propertyGroup caption="Right views">
+      <propertyGroup caption="Right Views">
         <property key="prpWdgCompare" type="widgets" required="false">
           <caption>Compare</caption>
           <description>Content shown for the Compare menu item.</description>
@@ -94,7 +94,11 @@
       </propertyGroup>
     </propertyGroup>
     <propertyGroup caption="Actions">
-      <propertyGroup caption="Top bar">
+      <propertyGroup caption="Top Bar">
+        <property key="prpActLogo" type="action" required="false">
+          <caption>On logo</caption>
+          <description>Triggered by clicking the brand logo in the top bar.</description>
+        </property>
         <property key="prpActApps" type="action" required="false">
           <caption>On apps</caption>
           <description>Triggered by the apps / menu button in the top bar.</description>
@@ -118,7 +122,29 @@
       </propertyGroup>
     </propertyGroup>
     <propertyGroup caption="Labels">
-      <propertyGroup caption="Left rail">
+      <propertyGroup caption="Top Bar">
+        <property key="prpStrApps" type="string" required="false" defaultValue="Menu">
+          <caption>Apps</caption>
+          <description>Tooltip label for the apps / menu button.</description>
+        </property>
+        <property key="prpStrWorldMap" type="string" required="false" defaultValue="World Map">
+          <caption>World Map</caption>
+          <description>Tooltip label for the world map button.</description>
+        </property>
+        <property key="prpStrNotify" type="string" required="false" defaultValue="Notify">
+          <caption>Notify</caption>
+          <description>Tooltip label for the notifications button.</description>
+        </property>
+        <property key="prpStrAccount" type="string" required="false" defaultValue="Account">
+          <caption>Account</caption>
+          <description>Tooltip label for the account button.</description>
+        </property>
+        <property key="prpStrSettings" type="string" required="false" defaultValue="Settings">
+          <caption>Settings</caption>
+          <description>Tooltip label for the settings button.</description>
+        </property>
+      </propertyGroup>
+      <propertyGroup caption="Left Rail">
         <property key="prpStrSimulation" type="string" required="false" defaultValue="Simulation">
           <caption>Simulation</caption>
           <description>Tooltip label for the Simulation rail button.</description>
@@ -144,7 +170,7 @@
           <description>Tooltip label for the Setting rail button.</description>
         </property>
       </propertyGroup>
-      <propertyGroup caption="Right rail">
+      <propertyGroup caption="Right Rail">
         <property key="prpStrCompare" type="string" required="false" defaultValue="Compare">
           <caption>Compare</caption>
           <description>Tooltip label for the Compare rail button.</description>
@@ -160,28 +186,6 @@
         <property key="prpStrHistory" type="string" required="false" defaultValue="History">
           <caption>History</caption>
           <description>Tooltip label for the History rail button.</description>
-        </property>
-      </propertyGroup>
-      <propertyGroup caption="Top bar">
-        <property key="prpStrApps" type="string" required="false" defaultValue="Menu">
-          <caption>Apps</caption>
-          <description>Tooltip label for the apps / menu button.</description>
-        </property>
-        <property key="prpStrWorldMap" type="string" required="false" defaultValue="World Map">
-          <caption>World Map</caption>
-          <description>Tooltip label for the world map button.</description>
-        </property>
-        <property key="prpStrNotify" type="string" required="false" defaultValue="Notify">
-          <caption>Notify</caption>
-          <description>Tooltip label for the notifications button.</description>
-        </property>
-        <property key="prpStrAccount" type="string" required="false" defaultValue="Account">
-          <caption>Account</caption>
-          <description>Tooltip label for the account button.</description>
-        </property>
-        <property key="prpStrSettings" type="string" required="false" defaultValue="Settings">
-          <caption>Settings</caption>
-          <description>Tooltip label for the settings button.</description>
         </property>
       </propertyGroup>
     </propertyGroup>

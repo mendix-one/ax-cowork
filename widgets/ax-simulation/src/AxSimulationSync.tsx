@@ -24,10 +24,10 @@ export const AxSimulationSync = observer((props: AxSimulationContainerProps): Re
     store.setWidget(props.name || 'axSimulation1', props.class, props.style, props.tabIndex)
   }, [store, props.name, props.class, props.style, props.tabIndex])
 
-  // Logo drop zone.
+  // Logo image.
   useEffect(() => {
-    store.setLogo(props.prpWdgLogo)
-  }, [store, props.prpWdgLogo])
+    store.setLogo(props.prpImgLogo?.value?.uri)
+  }, [store, props.prpImgLogo])
 
   // Left content drop zones.
   useEffect(() => {
@@ -105,6 +105,12 @@ export const AxSimulationSync = observer((props: AxSimulationContainerProps): Re
 
   // Top bar action callbacks. The Mendix ActionValues and their executable guards stay here at the top
   // level; only the resulting plain callbacks are handed to the store.
+  const onClickLogo = useCallback(() => {
+    if (props.prpActLogo && props.prpActLogo.canExecute && !props.prpActLogo.isExecuting) {
+      props.prpActLogo.execute()
+    }
+  }, [props.prpActLogo])
+
   const onClickApps = useCallback(() => {
     if (props.prpActApps && props.prpActApps.canExecute && !props.prpActApps.isExecuting) {
       props.prpActApps.execute()
@@ -146,6 +152,9 @@ export const AxSimulationSync = observer((props: AxSimulationContainerProps): Re
         store.handleLayout(action)
       } else if (action?.startsWith('ACT_')) {
         switch (action) {
+          case 'ACT_ON_CLICK_LOGO':
+            onClickLogo()
+            break
           case 'ACT_ON_CLICK_APPS':
             onClickApps()
             break
@@ -166,7 +175,7 @@ export const AxSimulationSync = observer((props: AxSimulationContainerProps): Re
         }
       }
     },
-    [store, onClickApps, onClickWorldMap, onClickNotify, onClickAccount, onClickSettings],
+    [store, onClickLogo, onClickApps, onClickWorldMap, onClickNotify, onClickAccount, onClickSettings],
   )
   useWidgetEvents({ widgetName: props.name, onEvent: handleEvent, isLayout: true })
 

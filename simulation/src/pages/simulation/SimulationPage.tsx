@@ -1,10 +1,9 @@
 import { useState } from 'react'
-import { Avatar, Flex, message, Space, Typography } from 'antd'
-import { AppstoreOutlined } from '@ant-design/icons'
+import { Flex, message, Typography } from 'antd'
 import { AxSimulation } from '@axsimulation/AxSimulation'
 import { AxDisplayPanel } from '@axpanel/AxDisplayPanel'
 import type { AxSimulationContainerProps } from '../../../../widgets/ax-simulation/typings/AxSimulationProps'
-import { action, editable } from '../../mock/mendix'
+import { action, editable, webImage } from '../../mock/mendix'
 
 // Full-page host for the AxSimulation layout widget. The widget owns the chrome (top bar, rails,
 // switchable views); each left/right view is wrapped in the AxDisplayPanel widget — Main panels (left)
@@ -53,15 +52,9 @@ export function SimulationPage() {
     name: 'axsimulation',
     class: '',
 
-    // --- Header logo (the only top-bar drop zone; the rest are widget-owned icon buttons) ---
-    prpWdgLogo: (
-      <Space size={8} align="center">
-        <Avatar size={24} style={{ background: '#3F51B5' }} icon={<AppstoreOutlined />} />
-        <Typography.Text strong style={{ color: '#3F51B5', whiteSpace: 'nowrap' }}>
-          AX Simulation
-        </Typography.Text>
-      </Space>
-    ),
+    // --- Header logo (top-bar brand image + click action) ---
+    prpImgLogo: webImage('/aplanner-light.png'),
+    prpActLogo: action(() => message.info('Logo clicked')),
 
     // --- Left views (9) — Main panels (maximize / restore) ---
     prpWdgSimulation: <SimPanel type="main" title="Simulation" subtitle="Gantt schedule & quick analysis for the active plan." />,

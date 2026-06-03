@@ -16,6 +16,14 @@
   @apply bg-transparent !important;
 }
 
+// Top-bar brand logo image (the AxLogo view). Fit it to the bar height, preserving aspect ratio.
+.ax-sim_logo {
+  @apply w-8 h-8 rounded-md cursor-pointer flex items-center justify-center;
+  & > img {
+    @apply max-w-full max-h-full object-contain;
+  }
+}
+
 // === Middle (rails + main) ===========================================================================================
 // Icon rails (Layout.Sider). Background comes from the siderBg token; add the divider border + layout.
 .ax-sim_rail {

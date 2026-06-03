@@ -3,6 +3,7 @@ import { Flex, Layout, Space } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { useAxSimulationStore } from '../stores/context'
 import { AxMenuBtn } from './views/AxMenuBtn'
+import { AxLogo } from './views/AxLogo'
 
 // Top bar (Layout.Header): a left cluster (logo, apps, world map) and a right cluster (notify, account,
 // settings). The logo drop zone, labels, and the per-button Mendix actions all come from the store
@@ -15,7 +16,9 @@ export const AxSimulationTop = observer((): ReactElement => {
       <Flex align="center" justify="space-between" gap="small" style={{ height: '100%' }}>
         <Flex align="center" justify="start" gap="middle" className="ax-sim_top_left">
           <Space>
-            <div className="ax-sim_top_logo">{store.logo}</div>
+            <div className="ax-sim_top_logo">
+              <AxLogo logoUrl={store.logoUrl} onClick={store.onClickLogo} />
+            </div>
           </Space>
           <Space>
             <AxMenuBtn title={labels.apps} placement="bottom" active={false} onClick={store.onClickApps}>

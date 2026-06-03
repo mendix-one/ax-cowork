@@ -44,6 +44,7 @@ export interface AxSimulationLabels {
 // their canExecute/isExecuting guards) stay at the top level in AxSimulationSync, so the store and the
 // layout never touch a widget value.
 export interface AxSimulationActions {
+  onClickLogo?: () => void
   onClickApps?: () => void
   onClickWorldMap?: () => void
   onClickNotify?: () => void
@@ -118,7 +119,7 @@ export class AxSimulationStore {
   labels: AxSimulationLabels = EMPTY_LABELS
   actions: AxSimulationActions = {}
 
-  logo: ReactNode = null
+  logoUrl?: string
   leftSlots: Record<LeftPanelId, ReactNode> = EMPTY_LEFT_SLOTS
   rightSlots: Record<RightPanelId, ReactNode> = EMPTY_RIGHT_SLOTS
 
@@ -131,7 +132,6 @@ export class AxSimulationStore {
         style: observable.ref,
         labels: observable.ref,
         actions: observable.ref,
-        logo: observable.ref,
         leftSlots: observable.ref,
         rightSlots: observable.ref,
       },
@@ -161,8 +161,8 @@ export class AxSimulationStore {
     this.labels = labels
   }
 
-  setLogo(logo: ReactNode): void {
-    this.logo = logo
+  setLogo(logoUrl: string | undefined): void {
+    this.logoUrl = logoUrl
   }
 
   setLeftSlots(slots: Record<LeftPanelId, ReactNode>): void {
@@ -210,6 +210,10 @@ export class AxSimulationStore {
   // --- Top bar ------------------------------------------------------------------------------------
   // Top-bar button handlers — pure passthroughs to the callbacks built in AxSimulationSync. These
   // buttons just fire their action; they carry no active/popover state.
+  onClickLogo(): void {
+    this.emit('ACT_ON_CLICK_LOGO', {})
+  }
+
   onClickApps(): void {
     this.emit('ACT_ON_CLICK_APPS', {})
   }

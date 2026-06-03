@@ -4,12 +4,11 @@ import cn from 'classnames'
 import { Layout, Splitter } from 'antd'
 import { observer } from 'mobx-react-lite'
 import { useAxSimulationStore } from '../stores/context'
-import { LEFT_MENU, RIGHT_MENU } from './menus'
 import { AxSimulationTop } from './AxSimulationTop'
 import { AxSimulationLeft } from './AxSimulationLeft'
 import { AxSimulationRight } from './AxSimulationRight'
 import { AxSimulationBottom } from './AxSimulationBottom'
-import { ViewSlot } from './parts'
+import { ViewSlot } from './views/ViewSlot'
 
 // Full-page layout shell — a self-contained port of react-app's MpsLayout. AntD Layout for the
 // top / left / right / bottom frame; an AntD Splitter for the resizable main (left view | right view).
@@ -44,9 +43,9 @@ export const AxSimulationMain = observer((): ReactElement => {
           >
             <Splitter.Panel min="25%" className="ax-sim_splitter_panel ax-sim_splitter_panel_left" style={{ paddingRight: `${store.rightOpen ? '3px' : '0'}` }}>
               <div className="ax-sim_view ax-sim_view_left">
-                {LEFT_MENU.map((item) => (
-                  <ViewSlot key={item.id} active={store.activeLeft === item.id}>
-                    {store.leftSlots[item.id]}
+                {Object.entries(store.leftSlots).map(([id, node]) => (
+                  <ViewSlot key={id} active={store.activeLeft === id}>
+                    {node}
                   </ViewSlot>
                 ))}
               </div>
@@ -59,9 +58,9 @@ export const AxSimulationMain = observer((): ReactElement => {
               style={{ paddingLeft: store.rightOpen ? '3px' : '0' }}
             >
               <div className="ax-sim_view ax-sim_view_right">
-                {RIGHT_MENU.map((item) => (
-                  <ViewSlot key={item.id} active={store.rightOpen && store.activeRight === item.id}>
-                    {store.rightSlots[item.id]}
+                {Object.entries(store.rightSlots).map(([id, node]) => (
+                  <ViewSlot key={id} active={store.rightOpen && store.activeRight === id}>
+                    {node}
                   </ViewSlot>
                 ))}
               </div>
