@@ -4,7 +4,7 @@
  * @author Mendix Widgets Framework Team
  */
 import { ComponentType, CSSProperties, ReactNode } from "react";
-import { ActionValue, DynamicValue, WebIcon, WebImage } from "mendix";
+import { ActionValue, DynamicValue, ListValue, SelectionSingleValue, WebIcon, WebImage } from "mendix";
 
 export interface PrpDsLeftPanelsType {
     prpLeftPanelNo: number;
@@ -42,6 +42,8 @@ export interface AxAppLayoutContainerProps {
     prpImgLogo?: DynamicValue<WebImage>;
     prpDsLeftPanels: PrpDsLeftPanelsType[];
     prpDsRightPanels: PrpDsRightPanelsType[];
+    prpDsThemeConfigs?: ListValue;
+    prpSelThemeConfig?: SelectionSingleValue;
     prpActLogo?: ActionValue;
     prpActApps?: ActionValue;
     prpActWorldMap?: ActionValue;
@@ -69,6 +71,8 @@ export interface AxAppLayoutPreviewProps {
     prpImgLogo: { type: "static"; imageUrl: string; } | { type: "dynamic"; entity: string; } | null;
     prpDsLeftPanels: PrpDsLeftPanelsPreviewType[];
     prpDsRightPanels: PrpDsRightPanelsPreviewType[];
+    prpDsThemeConfigs: {} | { caption: string } | { type: string } | null;
+    prpSelThemeConfig: "Single" | "None";
     prpActLogo: {} | null;
     prpActApps: {} | null;
     prpActWorldMap: {} | null;

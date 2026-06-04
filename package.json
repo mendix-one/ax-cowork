@@ -11,6 +11,7 @@
     "build": "pnpm -r run build",
     "build:common": "pnpm --filter @ax/common run build",
     "build:layout": "pnpm --filter @ax/app-layout run build",
+    "build:panel": "pnpm --filter @ax/display-panel run build",
     "build:login": "pnpm --filter @ax/login-panel run build",
     "build:simulation": "pnpm --filter @ax/simulation-layout run build",
     "lint": "pnpm -r run lint",
