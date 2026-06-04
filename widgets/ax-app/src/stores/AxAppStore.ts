@@ -5,11 +5,31 @@ import { AX_BROADCAST, emitEvent } from '@ax/common'
 
 // One rail panel: a rail button (icon + caption tooltip) bound to a content view. AxAppSync builds one
 // per item of the prpDsLeftPanels / prpDsRightPanels object lists; the rails and content stacks read
-// them by array index, which is the source of truth for "which view is active".
+// them by array index, which is the source of truth for "which view is active". `no` is the panel-no
+// used to group rail buttons (see AxPanelGroup).
 export interface AxPanel {
+  no: number
   icon?: WebIcon
   caption: string
   content: ReactNode
+}
+
+// Panels that share the same `no` render as one rail group; groups are ordered by `no` ascending and
+// separated by a divider. Each item keeps its original index into leftPanels / rightPanels so the rail
+// button still maps to the right content view (which stays in flat prop order).
+export interface AxPanelGroup {
+  no: number
+  items: { panel: AxPanel; index: number }[]
+}
+
+function groupPanels(panels: AxPanel[]): AxPanelGroup[] {
+  const groups = new Map<number, { panel: AxPanel; index: number }[]>()
+  panels.forEach((panel, index) => {
+    const items = groups.get(panel.no) ?? []
+    items.push({ panel, index })
+    groups.set(panel.no, items)
+  })
+  return [...groups.keys()].sort((a, b) => a - b).map((no) => ({ no, items: groups.get(no)! }))
 }
 
 // Tooltip labels for the fixed top-bar buttons. The rails are data-driven now, so their labels live on
@@ -88,6 +108,16 @@ export class AxAppStore {
       },
       { autoBind: true },
     )
+  }
+
+  // Rail groups (by panel-no, ordered ascending) — the rails render these with a divider between
+  // groups. Derived from the flat panel arrays, so they recompute whenever the lists are reassigned.
+  get leftGroups(): AxPanelGroup[] {
+    return groupPanels(this.leftPanels)
+  }
+
+  get rightGroups(): AxPanelGroup[] {
+    return groupPanels(this.rightPanels)
   }
 
   // Broadcast a per-instance notification on the global bus (for child widgets to react).

@@ -118,6 +118,9 @@
       fill: #434343;
       @apply w-6 h-6;
     }
+    span {
+      color: #434343 !important;
+    }
   }
 
   &:hover {
@@ -125,17 +128,26 @@
     svg {
       fill: #f0f0f0;
     }
+    span {
+      color: #f0f0f0 !important;
+    }
   }
   &:active {
     @apply ax-bg-hover text-neutral-100;
     svg {
       fill: #f0f0f0;
     }
+    span {
+      color: #f0f0f0 !important;
+    }
   }
   &.is-active {
     @apply ax-bg-activated text-neutral-100;
     svg {
       fill: #fafafa;
+    }
+    span {
+      color: #fafafa !important;
     }
   }
 }

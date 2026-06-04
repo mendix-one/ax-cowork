@@ -20,6 +20,9 @@
         svg {
           @apply w-5 h-5;
         }
+        span {
+          color: inherit !important;
+        }
       }
 
       &_text {

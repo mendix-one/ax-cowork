@@ -34,6 +34,7 @@ export const AxAppSync = observer((props: AxAppLayoutContainerProps): ReactEleme
   useEffect(() => {
     store.setLeftPanels(
       props.prpDsLeftPanels.map((panel) => ({
+        no: panel.prpLeftPanelNo,
         icon: panel.prpLeftPanelIcon?.value,
         caption: panel.prpLeftPanelCaption?.value ?? '',
         content: panel.prpLeftPanelContent,
@@ -45,6 +46,7 @@ export const AxAppSync = observer((props: AxAppLayoutContainerProps): ReactEleme
   useEffect(() => {
     store.setRightPanels(
       props.prpDsRightPanels.map((panel) => ({
+        no: panel.prpRightPanelNo,
         icon: panel.prpRightPanelIcon?.value,
         caption: panel.prpRightPanelCaption?.value ?? '',
         content: panel.prpRightPanelContent,
