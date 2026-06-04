@@ -1,0 +1,193 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<widget
+  id="one.mendix.axapplayout.AxAppLayout"
+  pluginWidget="true"
+  offlineCapable="true"
+  supportedPlatform="Web"
+  xmlns="http://www.mendix.com/widget/1.0/"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://www.mendix.com/widget/1.0/ ../node_modules/mendix/custom_widget.xsd"
+>
+  <name>Ax App Layout</name>
+  <description>Full-page layout shell for the app — header, left/right icon rails, switchable content
+    views.
+  </description>
+  <icon/>
+  <properties>
+    <propertyGroup caption="General">
+      <propertyGroup caption="Data Source">
+        <property key="prpDsContexts" type="datasource" isList="true" required="false">
+          <caption>Page context list</caption>
+          <description>The list with ony one context object</description>
+        </property>
+        <property key="prpSelContext" type="selection" dataSource="prpDsContexts">
+          <caption>Page context object</caption>
+          <description>The selection object of page context</description>
+          <selectionTypes>
+            <selectionType name="Single" />
+          </selectionTypes>
+        </property>
+      </propertyGroup>
+      <propertyGroup caption="Header Logo">
+        <property key="prpImgLogo" type="image" required="false">
+          <caption>Logo</caption>
+          <description>Top-left brand logo image.</description>
+        </property>
+      </propertyGroup>
+    </propertyGroup>
+    <propertyGroup caption="Content">
+      <propertyGroup caption="Left Views">
+        <property key="prpWdgSimulation" type="widgets" required="false">
+          <caption>Simulation</caption>
+          <description>Content shown for the Simulation menu item.</description>
+        </property>
+        <property key="prpWdgProjects" type="widgets" required="false">
+          <caption>Projects</caption>
+          <description>Content shown for the Projects menu item.</description>
+        </property>
+        <property key="prpWdgAnalysis" type="widgets" required="false">
+          <caption>Analysis</caption>
+          <description>Content shown for the Analysis menu item.</description>
+        </property>
+        <property key="prpWdgPmData" type="widgets" required="false">
+          <caption>PM Data</caption>
+          <description>Content shown for the PM Data menu item.</description>
+        </property>
+        <property key="prpWdgTuningLogic" type="widgets" required="false">
+          <caption>Tuning Logic</caption>
+          <description>Content shown for the Tuning Logic menu item.</description>
+        </property>
+        <property key="prpWdgFactorControl" type="widgets" required="false">
+          <caption>Factor Control</caption>
+          <description>Content shown for the Factor Control menu item.</description>
+        </property>
+        <property key="prpWdgPmStandard" type="widgets" required="false">
+          <caption>PM Standard</caption>
+          <description>Content shown for the PM Standard menu item.</description>
+        </property>
+        <property key="prpWdgIntegration" type="widgets" required="false">
+          <caption>Integration</caption>
+          <description>Content shown for the Integration menu item.</description>
+        </property>
+        <property key="prpWdgSetting" type="widgets" required="false">
+          <caption>Setting</caption>
+          <description>Content shown for the Setting menu item.</description>
+        </property>
+      </propertyGroup>
+      <propertyGroup caption="Right Views">
+        <property key="prpWdgCompare" type="widgets" required="false">
+          <caption>Compare</caption>
+          <description>Content shown for the Compare menu item.</description>
+        </property>
+        <property key="prpWdgAiAssistant" type="widgets" required="false">
+          <caption>AI Assistant</caption>
+          <description>Content shown for the AI Assistant menu item.</description>
+        </property>
+        <property key="prpWdgRecommendation" type="widgets" required="false">
+          <caption>Recommendation</caption>
+          <description>Content shown for the Recommendation menu item.</description>
+        </property>
+        <property key="prpWdgHistory" type="widgets" required="false">
+          <caption>History</caption>
+          <description>Content shown for the History menu item.</description>
+        </property>
+      </propertyGroup>
+    </propertyGroup>
+    <propertyGroup caption="Actions">
+      <propertyGroup caption="Top Bar">
+        <property key="prpActLogo" type="action" required="false">
+          <caption>On logo</caption>
+          <description>Triggered by clicking the brand logo in the top bar.</description>
+        </property>
+        <property key="prpActApps" type="action" required="false">
+          <caption>On apps</caption>
+          <description>Triggered by the apps / menu button in the top bar.</description>
+        </property>
+        <property key="prpActWorldMap" type="action" required="false">
+          <caption>On world map</caption>
+          <description>Triggered by the world map button in the top bar.</description>
+        </property>
+        <property key="prpActNotify" type="action" required="false">
+          <caption>On notify</caption>
+          <description>Triggered by the notifications button in the top bar.</description>
+        </property>
+        <property key="prpActAccount" type="action" required="false">
+          <caption>On account</caption>
+          <description>Triggered by the account button in the top bar.</description>
+        </property>
+        <property key="prpActSettings" type="action" required="false">
+          <caption>On settings</caption>
+          <description>Triggered by the settings button in the top bar.</description>
+        </property>
+      </propertyGroup>
+    </propertyGroup>
+    <propertyGroup caption="Labels">
+      <propertyGroup caption="Top Bar">
+        <property key="prpStrApps" type="string" required="false" defaultValue="Menu">
+          <caption>Apps</caption>
+          <description>Tooltip label for the apps / menu button.</description>
+        </property>
+        <property key="prpStrWorldMap" type="string" required="false" defaultValue="World Map">
+          <caption>World Map</caption>
+          <description>Tooltip label for the world map button.</description>
+        </property>
+        <property key="prpStrNotify" type="string" required="false" defaultValue="Notify">
+          <caption>Notify</caption>
+          <description>Tooltip label for the notifications button.</description>
+        </property>
+        <property key="prpStrAccount" type="string" required="false" defaultValue="Account">
+          <caption>Account</caption>
+          <description>Tooltip label for the account button.</description>
+        </property>
+        <property key="prpStrSettings" type="string" required="false" defaultValue="Settings">
+          <caption>Settings</caption>
+          <description>Tooltip label for the settings button.</description>
+        </property>
+      </propertyGroup>
+      <propertyGroup caption="Left Rail">
+        <property key="prpStrSimulation" type="string" required="false" defaultValue="Simulation">
+          <caption>Simulation</caption>
+          <description>Tooltip label for the Simulation rail button.</description>
+        </property>
+        <property key="prpStrProjects" type="string" required="false" defaultValue="Projects">
+          <caption>Projects</caption>
+          <description>Tooltip label for the Projects rail button.</description>
+        </property>
+        <property key="prpStrAnalysis" type="string" required="false" defaultValue="Analysis">
+          <caption>Analysis</caption>
+          <description>Tooltip label for the Analysis rail button.</description>
+        </property>
+        <property key="prpStrPmData" type="string" required="false" defaultValue="PM Data">
+          <caption>PM Data</caption>
+          <description>Tooltip label for the PM Data rail button.</description>
+        </property>
+        <property key="prpStrTuningLogic" type="string" required="false" defaultValue="Tuning Logic">
+          <caption>Tuning Logic</caption>
+          <description>Tooltip label for the Tuning Logic rail button.</description>
+        </property>
+        <property key="prpStrSetting" type="string" required="false" defaultValue="Setting">
+          <caption>Setting</caption>
+          <description>Tooltip label for the Setting rail button.</description>
+        </property>
+      </propertyGroup>
+      <propertyGroup caption="Right Rail">
+        <property key="prpStrCompare" type="string" required="false" defaultValue="Compare">
+          <caption>Compare</caption>
+          <description>Tooltip label for the Compare rail button.</description>
+        </property>
+        <property key="prpStrAiAssistant" type="string" required="false" defaultValue="AI Assistant">
+          <caption>AI Assistant</caption>
+          <description>Tooltip label for the AI Assistant rail button.</description>
+        </property>
+        <property key="prpStrRecommendation" type="string" required="false" defaultValue="Recommendation">
+          <caption>Recommendation</caption>
+          <description>Tooltip label for the Recommendation rail button.</description>
+        </property>
+        <property key="prpStrHistory" type="string" required="false" defaultValue="History">
+          <caption>History</caption>
+          <description>Tooltip label for the History rail button.</description>
+        </property>
+      </propertyGroup>
+    </propertyGroup>
+  </properties>
+</widget>
