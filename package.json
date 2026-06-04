@@ -10,6 +10,7 @@
     "dev:sim": "pnpm --filter @ax/simulation run dev",
     "build": "pnpm -r run build",
     "build:common": "pnpm --filter @ax/common run build",
+    "build:layout": "pnpm --filter @ax/app-layout run build",
     "build:login": "pnpm --filter @ax/login-panel run build",
     "build:simulation": "pnpm --filter @ax/simulation-layout run build",
     "lint": "pnpm -r run lint",
@@ -18,6 +19,7 @@
     "format:app": "prettier --write react-app",
     "format:sim": "prettier --write simulation",
     "format:common": "prettier --write shared/ax-common",
+    "format:layout": "prettier --write widgets/ax-app",
     "format:login": "prettier --write widgets/ax-login",
     "format:simulation": "prettier --write widgets/ax-simulation",
     "format:check": "prettier --check ."
