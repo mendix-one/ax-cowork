@@ -7,24 +7,28 @@ import { ComponentType, CSSProperties, ReactNode } from "react";
 import { ActionValue, DynamicValue, WebIcon, WebImage } from "mendix";
 
 export interface PrpDsLeftPanelsType {
+    prpLeftPanelNo: number;
     prpLeftPanelIcon: DynamicValue<WebIcon>;
     prpLeftPanelCaption: DynamicValue<string>;
     prpLeftPanelContent: ReactNode;
 }
 
 export interface PrpDsRightPanelsType {
+    prpRightPanelNo: number;
     prpRightPanelIcon: DynamicValue<WebIcon>;
     prpRightPanelCaption: DynamicValue<string>;
     prpRightPanelContent: ReactNode;
 }
 
 export interface PrpDsLeftPanelsPreviewType {
+    prpLeftPanelNo: number | null;
     prpLeftPanelIcon: { type: "glyph"; iconClass: string; } | { type: "image"; imageUrl: string; iconUrl: string; } | { type: "icon"; iconClass: string; } | undefined;
     prpLeftPanelCaption: string;
     prpLeftPanelContent: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
 }
 
 export interface PrpDsRightPanelsPreviewType {
+    prpRightPanelNo: number | null;
     prpRightPanelIcon: { type: "glyph"; iconClass: string; } | { type: "image"; imageUrl: string; iconUrl: string; } | { type: "icon"; iconClass: string; } | undefined;
     prpRightPanelCaption: string;
     prpRightPanelContent: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
