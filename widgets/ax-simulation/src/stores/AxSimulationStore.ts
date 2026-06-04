@@ -77,7 +77,7 @@ export class AxSimulationStore {
   // Active view = index into the panel arrays (0 when a side has at least one panel).
   activeLeft = 0
   activeRight = 0
-  rightOpen = true
+  rightOpen = false
   // The right view index that was showing when the region was last closed. Saved on close so restoring
   // the main panel (or reopening) can bring back exactly that view rather than a default.
   lastRight = 0
