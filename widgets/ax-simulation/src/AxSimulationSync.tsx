@@ -8,8 +8,8 @@ import { AxSimulationMain } from './main/AxSimulationMain'
 
 // Props ↔ store bridge layer. This is the ONLY component that reads the Mendix container props. It
 // pushes each group of props into the store through a dedicated useEffect, keyed on exactly the props
-// that group depends on, so a value that isn't resolved at mount time (e.g. the context datasource, or
-// a drop zone whose content arrives asynchronously) is written into the store as soon as it changes —
+// that group depends on, so a value that isn't resolved at mount time (e.g. a panel list, or a drop
+// zone whose content arrives asynchronously) is written into the store as soon as it changes —
 // the effect re-runs and updates only that slice. It also wires the global Ax event bus so nanoflows /
 // other widgets can drive the layout (emit { action: 'CMD_SET_LEFT' | 'CMD_OPEN_RIGHT' |
 // 'CMD_TOGGLE_RIGHT' | 'CMD_CLOSE_RIGHT', payload }). It also reacts to AX_LAYOUT_* notifications
@@ -29,79 +29,41 @@ export const AxSimulationSync = observer((props: AxSimulationContainerProps): Re
     store.setLogo(props.prpImgLogo?.value?.uri)
   }, [store, props.prpImgLogo])
 
-  // Left content drop zones.
+  // Left rail panels (no + icon + caption + content per item of the prpDsLeftPanels object list).
+  // Resolve each Mendix value here so the store holds only plain display data + the content node.
   useEffect(() => {
-    store.setLeftSlots({
-      simulation: props.prpWdgSimulation,
-      projects: props.prpWdgProjects,
-      analysis: props.prpWdgAnalysis,
-      pmData: props.prpWdgPmData,
-      tuningLogic: props.prpWdgTuningLogic,
-      factorControl: props.prpWdgFactorControl,
-      pmStandard: props.prpWdgPmStandard,
-      integration: props.prpWdgIntegration,
-      setting: props.prpWdgSetting,
-    })
-  }, [
-    store,
-    props.prpWdgSimulation,
-    props.prpWdgProjects,
-    props.prpWdgAnalysis,
-    props.prpWdgPmData,
-    props.prpWdgTuningLogic,
-    props.prpWdgFactorControl,
-    props.prpWdgPmStandard,
-    props.prpWdgIntegration,
-    props.prpWdgSetting,
-  ])
+    store.setLeftPanels(
+      props.prpDsLeftPanels.map((panel) => ({
+        no: panel.prpLeftPanelNo,
+        icon: panel.prpLeftPanelIcon?.value,
+        caption: panel.prpLeftPanelCaption?.value ?? '',
+        content: panel.prpLeftPanelContent,
+      })),
+    )
+  }, [store, props.prpDsLeftPanels])
 
-  // Right content drop zones.
+  // Right rail panels (same shape as the left list).
   useEffect(() => {
-    store.setRightSlots({
-      compare: props.prpWdgCompare,
-      aiAssistant: props.prpWdgAiAssistant,
-      recommendation: props.prpWdgRecommendation,
-      history: props.prpWdgHistory,
-    })
-  }, [store, props.prpWdgCompare, props.prpWdgAiAssistant, props.prpWdgRecommendation, props.prpWdgHistory])
+    store.setRightPanels(
+      props.prpDsRightPanels.map((panel) => ({
+        no: panel.prpRightPanelNo,
+        icon: panel.prpRightPanelIcon?.value,
+        caption: panel.prpRightPanelCaption?.value ?? '',
+        content: panel.prpRightPanelContent,
+      })),
+    )
+  }, [store, props.prpDsRightPanels])
 
-  // All rail + top-bar tooltip labels (one flat map; the ids don't collide).
+  // Fixed top-bar tooltip labels (the rails carry their own labels per panel now).
   useEffect(() => {
-    store.setLabels({
-      simulation: props.prpStrSimulation,
-      projects: props.prpStrProjects,
-      analysis: props.prpStrAnalysis,
-      pmData: props.prpStrPmData,
-      tuningLogic: props.prpStrTuningLogic,
-      setting: props.prpStrSetting,
-      compare: props.prpStrCompare,
-      aiAssistant: props.prpStrAiAssistant,
-      recommendation: props.prpStrRecommendation,
-      history: props.prpStrHistory,
+    store.setTopBarLabels({
       apps: props.prpStrApps,
       worldMap: props.prpStrWorldMap,
       notify: props.prpStrNotify,
       account: props.prpStrAccount,
       settings: props.prpStrSettings,
     })
-  }, [
-    store,
-    props.prpStrSimulation,
-    props.prpStrProjects,
-    props.prpStrAnalysis,
-    props.prpStrPmData,
-    props.prpStrTuningLogic,
-    props.prpStrSetting,
-    props.prpStrCompare,
-    props.prpStrAiAssistant,
-    props.prpStrRecommendation,
-    props.prpStrHistory,
-    props.prpStrApps,
-    props.prpStrWorldMap,
-    props.prpStrNotify,
-    props.prpStrAccount,
-    props.prpStrSettings,
-  ])
+  }, [store, props.prpStrApps, props.prpStrWorldMap, props.prpStrNotify, props.prpStrAccount, props.prpStrSettings])
 
   // Top bar action callbacks. The Mendix ActionValues and their executable guards stay here at the top
   // level; only the resulting plain callbacks are handed to the store.

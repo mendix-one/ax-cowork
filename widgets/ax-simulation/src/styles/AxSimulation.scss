@@ -45,7 +45,7 @@
 }
 
 // Style the split bar's draggable "hanger" through Splitter's semantic `classNames.dragger` API (wired
-// in AxSimulationMain) — the supported customize path — instead of antd's internal classes. The visible
+// in AxAppMain) — the supported customize path — instead of antd's internal classes. The visible
 // bar is the dragger's ::after pseudo-element, reached here via the semantic class. Recolor it to the
 // .ax-sim chrome (neutral-400) so it blends at rest, darkening on hover and turning brand-primary while
 // dragging for resize affordance. (::before is antd's hover-highlight track; left at its default.)
@@ -118,6 +118,9 @@
       fill: #434343;
       @apply w-6 h-6;
     }
+    span {
+      color: #434343 !important;
+    }
   }
 
   &:hover {
@@ -125,17 +128,26 @@
     svg {
       fill: #f0f0f0;
     }
+    span {
+      color: #f0f0f0 !important;
+    }
   }
   &:active {
     @apply ax-bg-hover text-neutral-100;
     svg {
       fill: #f0f0f0;
     }
+    span {
+      color: #f0f0f0 !important;
+    }
   }
   &.is-active {
     @apply ax-bg-activated text-neutral-100;
     svg {
       fill: #fafafa;
+    }
+    span {
+      color: #fafafa !important;
     }
   }
 }

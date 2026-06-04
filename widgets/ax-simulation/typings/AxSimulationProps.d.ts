@@ -4,29 +4,44 @@
  * @author Mendix Widgets Framework Team
  */
 import { ComponentType, CSSProperties, ReactNode } from "react";
-import { ActionValue, DynamicValue, ListValue, SelectionSingleValue, WebImage } from "mendix";
+import { ActionValue, DynamicValue, WebIcon, WebImage } from "mendix";
+
+export interface PrpDsLeftPanelsType {
+    prpLeftPanelNo: number;
+    prpLeftPanelIcon: DynamicValue<WebIcon>;
+    prpLeftPanelCaption: DynamicValue<string>;
+    prpLeftPanelContent: ReactNode;
+}
+
+export interface PrpDsRightPanelsType {
+    prpRightPanelNo: number;
+    prpRightPanelIcon: DynamicValue<WebIcon>;
+    prpRightPanelCaption: DynamicValue<string>;
+    prpRightPanelContent: ReactNode;
+}
+
+export interface PrpDsLeftPanelsPreviewType {
+    prpLeftPanelNo: number | null;
+    prpLeftPanelIcon: { type: "glyph"; iconClass: string; } | { type: "image"; imageUrl: string; iconUrl: string; } | { type: "icon"; iconClass: string; } | undefined;
+    prpLeftPanelCaption: string;
+    prpLeftPanelContent: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
+}
+
+export interface PrpDsRightPanelsPreviewType {
+    prpRightPanelNo: number | null;
+    prpRightPanelIcon: { type: "glyph"; iconClass: string; } | { type: "image"; imageUrl: string; iconUrl: string; } | { type: "icon"; iconClass: string; } | undefined;
+    prpRightPanelCaption: string;
+    prpRightPanelContent: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
+}
 
 export interface AxSimulationContainerProps {
     name: string;
     class: string;
     style?: CSSProperties;
     tabIndex?: number;
-    prpDsContexts?: ListValue;
-    prpSelContext?: SelectionSingleValue;
     prpImgLogo?: DynamicValue<WebImage>;
-    prpWdgSimulation?: ReactNode;
-    prpWdgProjects?: ReactNode;
-    prpWdgAnalysis?: ReactNode;
-    prpWdgPmData?: ReactNode;
-    prpWdgTuningLogic?: ReactNode;
-    prpWdgFactorControl?: ReactNode;
-    prpWdgPmStandard?: ReactNode;
-    prpWdgIntegration?: ReactNode;
-    prpWdgSetting?: ReactNode;
-    prpWdgCompare?: ReactNode;
-    prpWdgAiAssistant?: ReactNode;
-    prpWdgRecommendation?: ReactNode;
-    prpWdgHistory?: ReactNode;
+    prpDsLeftPanels: PrpDsLeftPanelsType[];
+    prpDsRightPanels: PrpDsRightPanelsType[];
     prpActLogo?: ActionValue;
     prpActApps?: ActionValue;
     prpActWorldMap?: ActionValue;
@@ -38,16 +53,6 @@ export interface AxSimulationContainerProps {
     prpStrNotify: string;
     prpStrAccount: string;
     prpStrSettings: string;
-    prpStrSimulation: string;
-    prpStrProjects: string;
-    prpStrAnalysis: string;
-    prpStrPmData: string;
-    prpStrTuningLogic: string;
-    prpStrSetting: string;
-    prpStrCompare: string;
-    prpStrAiAssistant: string;
-    prpStrRecommendation: string;
-    prpStrHistory: string;
 }
 
 export interface AxSimulationPreviewProps {
@@ -61,22 +66,9 @@ export interface AxSimulationPreviewProps {
     readOnly: boolean;
     renderMode: "design" | "xray" | "structure";
     translate: (text: string) => string;
-    prpDsContexts: {} | { caption: string } | { type: string } | null;
-    prpSelContext: "Single" | "None";
     prpImgLogo: { type: "static"; imageUrl: string; } | { type: "dynamic"; entity: string; } | null;
-    prpWdgSimulation: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgProjects: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgAnalysis: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgPmData: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgTuningLogic: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgFactorControl: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgPmStandard: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgIntegration: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgSetting: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgCompare: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgAiAssistant: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgRecommendation: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
-    prpWdgHistory: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
+    prpDsLeftPanels: PrpDsLeftPanelsPreviewType[];
+    prpDsRightPanels: PrpDsRightPanelsPreviewType[];
     prpActLogo: {} | null;
     prpActApps: {} | null;
     prpActWorldMap: {} | null;
@@ -88,14 +80,4 @@ export interface AxSimulationPreviewProps {
     prpStrNotify: string;
     prpStrAccount: string;
     prpStrSettings: string;
-    prpStrSimulation: string;
-    prpStrProjects: string;
-    prpStrAnalysis: string;
-    prpStrPmData: string;
-    prpStrTuningLogic: string;
-    prpStrSetting: string;
-    prpStrCompare: string;
-    prpStrAiAssistant: string;
-    prpStrRecommendation: string;
-    prpStrHistory: string;
 }

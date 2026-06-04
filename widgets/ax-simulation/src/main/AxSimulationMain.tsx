@@ -43,9 +43,9 @@ export const AxSimulationMain = observer((): ReactElement => {
           >
             <Splitter.Panel min="25%" className="ax-sim_splitter_panel ax-sim_splitter_panel_left" style={{ paddingRight: `${store.rightOpen ? '3px' : '0'}` }}>
               <div className="ax-sim_view ax-sim_view_left">
-                {Object.entries(store.leftSlots).map(([id, node]) => (
-                  <ViewSlot key={id} active={store.activeLeft === id}>
-                    {node}
+                {store.leftPanels.map((panel, i) => (
+                  <ViewSlot key={i} active={store.activeLeft === i}>
+                    {panel.content}
                   </ViewSlot>
                 ))}
               </div>
@@ -58,9 +58,9 @@ export const AxSimulationMain = observer((): ReactElement => {
               style={{ paddingLeft: store.rightOpen ? '3px' : '0' }}
             >
               <div className="ax-sim_view ax-sim_view_right">
-                {Object.entries(store.rightSlots).map(([id, node]) => (
-                  <ViewSlot key={id} active={store.rightOpen && store.activeRight === id}>
-                    {node}
+                {store.rightPanels.map((panel, i) => (
+                  <ViewSlot key={i} active={store.rightOpen && store.activeRight === i}>
+                    {panel.content}
                   </ViewSlot>
                 ))}
               </div>
