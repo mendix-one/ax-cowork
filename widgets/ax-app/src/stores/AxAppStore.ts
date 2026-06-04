@@ -1,38 +1,20 @@
 import type { CSSProperties, ReactNode } from 'react'
+import type { WebIcon } from 'mendix'
 import { makeAutoObservable, observable } from 'mobx'
 import { AX_BROADCAST, emitEvent } from '@ax/common'
 
-// The nine left-rail content views and four right-rail content views. IDs are the source of truth
-// shared by the rail menus, the content stacks, and this store.
-export type LeftPanelId =
-  | 'simulation'
-  | 'projects'
-  | 'analysis'
-  | 'pmData'
-  | 'tuningLogic'
-  | 'factorControl'
-  | 'pmStandard'
-  | 'integration'
-  | 'setting'
+// One rail panel: a rail button (icon + caption tooltip) bound to a content view. AxAppSync builds one
+// per item of the prpDsLeftPanels / prpDsRightPanels object lists; the rails and content stacks read
+// them by array index, which is the source of truth for "which view is active".
+export interface AxPanel {
+  icon?: WebIcon
+  caption: string
+  content: ReactNode
+}
 
-export type RightPanelId = 'compare' | 'aiAssistant' | 'recommendation' | 'history'
-
-// Tooltip labels for every rail/top-bar button, keyed by id. Sourced from widget props (translatable
-// in Studio). Left, right, and top labels all share this flat map — the ids don't collide.
-export interface AxAppLabels {
-  // left rail
-  simulation: string
-  projects: string
-  analysis: string
-  pmData: string
-  tuningLogic: string
-  setting: string
-  // right rail
-  compare: string
-  aiAssistant: string
-  recommendation: string
-  history: string
-  // top bar
+// Tooltip labels for the fixed top-bar buttons. The rails are data-driven now, so their labels live on
+// each panel (AxPanel.caption) — only the top bar still has a fixed set of labels sourced from props.
+export interface AxTopBarLabels {
   apps: string
   worldMap: string
   notify: string
@@ -41,8 +23,8 @@ export interface AxAppLabels {
 }
 
 // Top-bar click handlers. Only plain callbacks cross into the store — the Mendix `ActionValue`s (and
-// their canExecute/isExecuting guards) stay at the top level in AxAppSync, so the store and the
-// layout never touch a widget value.
+// their canExecute/isExecuting guards) stay at the top level in AxAppSync, so the store and the layout
+// never touch a widget value.
 export interface AxAppActions {
   onClickLogo?: () => void
   onClickApps?: () => void
@@ -52,39 +34,7 @@ export interface AxAppActions {
   onClickSettings?: () => void
 }
 
-// Empty starting values. The store mounts with these and AxAppSync fills each group in via
-// useEffect as the widget props become available — some Mendix values (e.g. the context datasource)
-// aren't resolved at mount, so the layout component must not assume any prop is present on first paint.
-const EMPTY_LEFT_SLOTS: Record<LeftPanelId, ReactNode> = {
-  simulation: null,
-  projects: null,
-  analysis: null,
-  pmData: null,
-  tuningLogic: null,
-  factorControl: null,
-  pmStandard: null,
-  integration: null,
-  setting: null,
-}
-
-const EMPTY_RIGHT_SLOTS: Record<RightPanelId, ReactNode> = {
-  compare: null,
-  aiAssistant: null,
-  recommendation: null,
-  history: null,
-}
-
-const EMPTY_LABELS: AxAppLabels = {
-  simulation: '',
-  projects: '',
-  analysis: '',
-  pmData: '',
-  tuningLogic: '',
-  setting: '',
-  compare: '',
-  aiAssistant: '',
-  recommendation: '',
-  history: '',
+const EMPTY_TOPBAR_LABELS: AxTopBarLabels = {
   apps: '',
   worldMap: '',
   notify: '',
@@ -94,52 +44,53 @@ const EMPTY_LABELS: AxAppLabels = {
 
 // MobX store owning the layout shell. It holds two kinds of state:
 //
-//  1. Interaction state — which left/right view is active and whether the right region is open. This
-//     drives the CSS fade between views (every panel stays mounted).
-//  2. Prop-derived view data — the drop-zone nodes, labels, layout attributes, and top-bar actions.
-//     AxAppSync pushes these in group-by-group via useEffect as the Mendix props resolve, so
-//     late-arriving values are picked up after mount rather than captured once.
+//  1. Interaction state — which left/right view (by index) is active and whether the right region is
+//     open. This drives the CSS fade between views (every panel stays mounted).
+//  2. Prop-derived view data — the panel lists (icon + caption + content per panel), top-bar labels,
+//     layout attributes, and top-bar actions. AxAppSync pushes these in group-by-group via useEffect as
+//     the Mendix props resolve, so late-arriving values are picked up after mount rather than once.
 //
-// All prop-derived fields are `observable.ref`: they're React nodes / Mendix value objects that should
-// be tracked by reference (reassignment re-renders observers) without MobX deep-observing their guts.
-// AxAppMain and the rail children read everything from this store — never the widget props.
+// All prop-derived fields are `observable.ref`: they're arrays / React nodes / Mendix value objects that
+// should be tracked by reference (reassignment re-renders observers) without MobX deep-observing their
+// guts. AxAppMain and the rail children read everything from this store — never the widget props.
 export class AxAppStore {
-  activeLeft: LeftPanelId = 'simulation'
-  activeRight: RightPanelId = 'compare'
+  // Active view = index into the panel arrays (0 when a side has at least one panel).
+  activeLeft = 0
+  activeRight = 0
   rightOpen = true
-  // The right view that was showing when the region was last closed. Saved on close so restoring the
-  // main panel (or reopening) can bring back exactly that view rather than a default.
-  lastRight: RightPanelId = 'compare'
+  // The right view index that was showing when the region was last closed. Saved on close so restoring
+  // the main panel (or reopening) can bring back exactly that view rather than a default.
+  lastRight = 0
 
-  // --- Prop-derived view data (set by AxAppSync) -------------------------------------------
+  // --- Prop-derived view data (set by AxAppSync) -------------------------------------------------
   name: string = 'axApp1'
   tabIndex?: number
   className: string = ''
   style?: CSSProperties
-  labels: AxAppLabels = EMPTY_LABELS
+  labels: AxTopBarLabels = EMPTY_TOPBAR_LABELS
   actions: AxAppActions = {}
 
   logoUrl?: string
-  leftSlots: Record<LeftPanelId, ReactNode> = EMPTY_LEFT_SLOTS
-  rightSlots: Record<RightPanelId, ReactNode> = EMPTY_RIGHT_SLOTS
+  leftPanels: AxPanel[] = []
+  rightPanels: AxPanel[] = []
 
   constructor() {
-    // Prop-derived fields are reference-observable (they hold React nodes / Mendix value objects we
-    // reassign wholesale). autoBind so methods can be passed straight as handlers (onClick={store.apps}).
+    // Prop-derived fields are reference-observable (they hold arrays of React nodes / Mendix value
+    // objects we reassign wholesale). autoBind so methods can be passed straight as handlers.
     makeAutoObservable<AxAppStore, 'actions'>(
       this,
       {
         style: observable.ref,
         labels: observable.ref,
         actions: observable.ref,
-        leftSlots: observable.ref,
-        rightSlots: observable.ref,
+        leftPanels: observable.ref,
+        rightPanels: observable.ref,
       },
       { autoBind: true },
     )
   }
 
-  // Broadcast a layout state-change notification on the global bus (for child widgets to react).
+  // Broadcast a per-instance notification on the global bus (for child widgets to react).
   private emit(action: string, payload?: unknown): void {
     emitEvent(`ax:${this.name}`, { action, payload })
   }
@@ -149,7 +100,7 @@ export class AxAppStore {
     emitEvent(AX_BROADCAST, { action, payload })
   }
 
-  // --- Setters used by AxAppSync's effects -------------------------------------------------
+  // --- Setters used by AxAppSync's effects --------------------------------------------------------
   setWidget(name: string, className: string, style: CSSProperties | undefined, tabIndex: number | undefined): void {
     this.name = name
     this.className = className
@@ -157,7 +108,7 @@ export class AxAppStore {
     this.tabIndex = tabIndex
   }
 
-  setLabels(labels: AxAppLabels): void {
+  setTopBarLabels(labels: AxTopBarLabels): void {
     this.labels = labels
   }
 
@@ -165,19 +116,24 @@ export class AxAppStore {
     this.logoUrl = logoUrl
   }
 
-  setLeftSlots(slots: Record<LeftPanelId, ReactNode>): void {
-    this.leftSlots = slots
+  setLeftPanels(panels: AxPanel[]): void {
+    this.leftPanels = panels
+    // Keep the active index in range as the list grows/shrinks (drop zones resolve after mount).
+    if (this.activeLeft >= panels.length) this.activeLeft = 0
   }
 
-  setRightSlots(slots: Record<RightPanelId, ReactNode>): void {
-    this.rightSlots = slots
+  setRightPanels(panels: AxPanel[]): void {
+    this.rightPanels = panels
+    if (this.activeRight >= panels.length) this.activeRight = 0
+    if (this.lastRight >= panels.length) this.lastRight = 0
   }
 
   // --- Left rail ----------------------------------------------------------------------------------
   // The left rail only selects a view (no open/close), so this is a plain switch — unlike toggleRight.
-  selectLeft(id: LeftPanelId): void {
-    this.activeLeft = id
-    this.broadcast('AX_LAYOUT_LEFT_CHANGED', { id })
+  selectLeft(index: number): void {
+    if (index < 0 || index >= this.leftPanels.length) return
+    this.activeLeft = index
+    this.broadcast('AX_LAYOUT_LEFT_CHANGED', { index })
   }
 
   // --- Right rail ---------------------------------------------------------------------------------
@@ -185,31 +141,32 @@ export class AxAppStore {
   // Opening/closing broadcasts AX_LAYOUT_RIGHT_CHANGED so an ax-panel can mirror it (right hidden →
   // maximize). `notify` is false when we're reacting to the panel's own broadcast, so we don't echo
   // back and bounce forever. The no-op guards also stop a redundant broadcast from re-triggering.
-  toggleRight(id: RightPanelId): void {
-    if (this.rightOpen && this.activeRight === id) {
+  toggleRight(index: number): void {
+    if (this.rightOpen && this.activeRight === index) {
       this.closeRight()
     } else {
-      this.openRight(id)
+      this.openRight(index)
     }
   }
 
-  openRight(id: RightPanelId, notify = true): void {
-    if (this.rightOpen && this.activeRight === id) return
-    this.activeRight = id
+  openRight(index: number, notify = true): void {
+    if (index < 0 || index >= this.rightPanels.length) return
+    if (this.rightOpen && this.activeRight === index) return
+    this.activeRight = index
     this.rightOpen = true
-    if (notify) this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id, open: true })
+    if (notify) this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { index, open: true })
   }
 
   closeRight(notify = true): void {
     if (!this.rightOpen) return
     this.lastRight = this.activeRight
     this.rightOpen = false
-    if (notify) this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { id: this.activeRight, open: false })
+    if (notify) this.broadcast('AX_LAYOUT_RIGHT_CHANGED', { index: this.activeRight, open: false })
   }
 
   // --- Top bar ------------------------------------------------------------------------------------
-  // Top-bar button handlers — pure passthroughs to the callbacks built in AxAppSync. These
-  // buttons just fire their action; they carry no active/popover state.
+  // Top-bar button handlers — pure passthroughs to the callbacks built in AxAppSync. These buttons just
+  // fire their action; they carry no active/popover state.
   onClickLogo(): void {
     this.emit('ACT_ON_CLICK_LOGO', {})
   }
@@ -235,25 +192,20 @@ export class AxAppStore {
   }
 
   // --- Global event bus ---------------------------------------------------------------------------
-  // Dispatch a global-bus command to drive the layout from nanoflows / other widgets. Command names
-  // are distinct from the `*-changed` notifications emitted above, so a broadcast command never loops
-  // back into itself. Unknown ids are ignored (validated against the live slot maps).
+  // Dispatch a global-bus command to drive the layout from nanoflows / other widgets. The payload is a
+  // panel index (number) into the matching rail. Command names are distinct from the `*-changed`
+  // notifications emitted above, so a broadcast command never loops back into itself. Out-of-range
+  // indices are ignored by the select/open guards.
   handleCommand(action: string, payload: unknown): void {
     switch (action) {
       case 'CMD_SET_LEFT':
-        if (typeof payload === 'string' && payload in this.leftSlots) {
-          this.selectLeft(payload as LeftPanelId)
-        }
+        if (typeof payload === 'number') this.selectLeft(payload)
         break
       case 'CMD_OPEN_RIGHT':
-        if (typeof payload === 'string' && payload in this.rightSlots) {
-          this.openRight(payload as RightPanelId)
-        }
+        if (typeof payload === 'number') this.openRight(payload)
         break
       case 'CMD_TOGGLE_RIGHT':
-        if (typeof payload === 'string' && payload in this.rightSlots) {
-          this.toggleRight(payload as RightPanelId)
-        }
+        if (typeof payload === 'number') this.toggleRight(payload)
         break
       case 'CMD_CLOSE_RIGHT':
         this.closeRight()
