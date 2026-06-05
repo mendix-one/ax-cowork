@@ -50,6 +50,10 @@ export const AxSigninMain = observer((): ReactElement => {
                   value={store.account}
                   onChange={(e) => store.setAccount(e.target.value)}
                   onBlur={store.touchAccount}
+                  onPressEnter={(e) => {
+                    e.preventDefault()
+                    store.submit()
+                  }}
                 />
               </Form.Item>
             </div>
@@ -61,6 +65,10 @@ export const AxSigninMain = observer((): ReactElement => {
                   value={store.password}
                   onChange={(e) => store.setPassword(e.target.value)}
                   onBlur={store.touchPassword}
+                  onPressEnter={(e) => {
+                    e.preventDefault()
+                    store.submit()
+                  }}
                 />
               </Form.Item>
             </div>

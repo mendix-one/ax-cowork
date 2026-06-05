@@ -126,9 +126,11 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
     if (trend) trend.setAttribute('stroke-dasharray', String(len))
     arcEls.forEach((el) => el.setAttribute('stroke-dasharray', '6 7'))
 
-    // Per-dot routing state: which destination neuron this activation is travelling to, re-rolled each
-    // time the dot starts a new pass so the path is random rather than a fixed repeat.
-    const passState = passEls.map(() => ({ cycle: Number.NEGATIVE_INFINITY, target: 0 }))
+    // Per-dot routing state, re-rolled whenever the dot starts a new pass: `active` randomly decides
+    // whether this source neuron fires at all this round (so not every neuron fires every time), and
+    // `target` is the randomly chosen destination neuron — so both which nodes fire and the path vary.
+    const passState = passEls.map(() => ({ cycle: Number.NEGATIVE_INFINITY, target: 0, active: false }))
+    const FIRE_PROB = 0.6
 
     const TAU = Math.PI * 2
     const mod = (a: number, b: number): number => ((a % b) + b) % b
@@ -165,10 +167,11 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
         const state = passState[i]
         if (cycle !== state.cycle) {
           state.cycle = cycle
+          state.active = Math.random() < FIRE_PROB
           state.target = (Math.random() * p.dst.length) | 0
         }
         const local = mod(t - offset, period)
-        if (local < travel) {
+        if (state.active && local < travel) {
           const b = p.dst[state.target]
           const pr = local / travel
           passEls[i].setAttribute('cx', (p.a[0] + (b[0] - p.a[0]) * pr).toFixed(1))

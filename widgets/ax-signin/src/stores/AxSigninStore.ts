@@ -42,6 +42,9 @@ export class AxSigninStore {
   accountTouched = false
   passwordTouched = false
   submitAttempted = false
+  // Timestamp of the last accepted submit, used to swallow a double-fire (e.g. Enter triggering both the
+  // form's onFinish and an input's onPressEnter).
+  lastSubmitAt = 0
 
   // --- Prop-derived view data (set by AxSigninSync) ------------------------------------------------
   name = 'axSignin1'
@@ -158,6 +161,10 @@ export class AxSigninStore {
 
   // --- Action vocabulary --------------------------------------------------------------------------
   submit(): void {
+    // Collapse a near-simultaneous double trigger (Enter can fire the form submit and onPressEnter both).
+    const now = Date.now()
+    if (now - this.lastSubmitAt < 300) return
+    this.lastSubmitAt = now
     this.submitAttempted = true
     if (!this.busy && this.account.trim() && this.password) {
       this.emit('ACT_SIGN_IN')
