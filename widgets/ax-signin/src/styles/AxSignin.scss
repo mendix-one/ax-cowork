@@ -150,9 +150,12 @@
 .ax-bg-core {
   animation: ax-bg-core 3s ease-in-out infinite;
 }
-.ax-bg-dot {
+// Forward-pass activation: hidden until its layer's turn, then it travels its edge and fades. The
+// per-element delay (set inline, proportional to source layer) sweeps the wave left→right.
+.ax-bg-pass {
   offset-rotate: 0deg;
-  animation: ax-bg-flow 5s linear infinite;
+  opacity: 0;
+  animation: ax-bg-pass 3.2s ease-in-out infinite;
 }
 .ax-bg-scan {
   animation: ax-bg-scan 9s linear infinite;
@@ -177,6 +180,10 @@
 .ax-bg-trace {
   offset-rotate: 0deg;
   animation: ax-bg-trace 5s ease-in-out infinite;
+}
+.ax-bg-cscan {
+  opacity: 0;
+  animation: ax-bg-cscan 5s ease-in-out infinite;
 }
 
 @keyframes ax-bg-col {
@@ -250,12 +257,39 @@
     opacity: 1;
   }
 }
-@keyframes ax-bg-flow {
-  from {
+@keyframes ax-bg-pass {
+  0% {
     offset-distance: 0%;
+    opacity: 0;
   }
-  to {
+  3% {
+    opacity: 1;
+  }
+  16% {
     offset-distance: 100%;
+    opacity: 1;
+  }
+  20%,
+  100% {
+    offset-distance: 100%;
+    opacity: 0;
+  }
+}
+@keyframes ax-bg-cscan {
+  0% {
+    transform: translateX(0);
+    opacity: 0;
+  }
+  8% {
+    opacity: 0.55;
+  }
+  60% {
+    opacity: 0.55;
+  }
+  68%,
+  100% {
+    transform: translateX(480px);
+    opacity: 0;
   }
 }
 @keyframes ax-bg-scan {
@@ -280,16 +314,19 @@
   .ax-bg-edge,
   .ax-bg-pulse,
   .ax-bg-core,
-  .ax-bg-dot,
+  .ax-bg-pass,
   .ax-bg-scan,
   .ax-bg-col,
   .ax-bg-area,
   .ax-bg-trend,
-  .ax-bg-trace {
+  .ax-bg-trace,
+  .ax-bg-cscan {
     animation: none !important;
   }
   .ax-bg-scan,
-  .ax-bg-trace {
+  .ax-bg-trace,
+  .ax-bg-pass,
+  .ax-bg-cscan {
     display: none;
   }
 }

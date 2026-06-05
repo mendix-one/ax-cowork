@@ -35,9 +35,18 @@ for (let l = 0; l < NET.length - 1; l++) {
   for (const a of NET[l]) for (const b of NET[l + 1]) CONNECTIONS.push([a, b])
 }
 
-// A sampled subset of connections carries a travelling activation dot, so the forward pass reads clearly
-// without lighting up all ~190 wires at once.
-const FLOW = CONNECTIONS.filter((_, i) => i % 13 === 0)
+// Forward pass: one travelling activation per source neuron at each transition, tagged with its source
+// layer. Animating each dot with a delay proportional to its layer makes the data visibly hop left→right,
+// layer by layer — an activation wave sweeping through the network and repeating.
+const PASS: Array<{ a: Pt; b: Pt; layer: number }> = []
+for (let l = 0; l < NET.length - 1; l++) {
+  const src = NET[l]
+  const dst = NET[l + 1]
+  src.forEach((a, i) => {
+    PASS.push({ a, b: dst[(i + l) % dst.length], layer: l })
+  })
+}
+const PASS_LAYERS = NET.length - 1
 
 // Self-attention arcs inside the ATTENTION layer (neuron-to-neuron within the same column), bulging left.
 const ATTN = NET[2]
@@ -123,6 +132,9 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
           ))}
           <line x1={0} y1={300} x2={480} y2={300} stroke="#4096ff" strokeOpacity="0.18" strokeWidth="1.5" />
 
+          {/* Live-analysis scan sweeping across the chart. */}
+          <rect className="ax-bg-cscan" x={-1} y={0} width={2} height={300} fill="#5cdbd3" />
+
           {/* Ascending analysis bars, growing from the baseline. */}
           {COLS.map(([x, h], i) => (
             <rect key={i} x={x} y={300 - h} width={40} height={h} rx={5} fill="url(#axbgEdge)" fillOpacity="0.16" className="ax-bg-col" style={{ animationDelay: `${i * -0.4}s` }} />
@@ -132,6 +144,10 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
           <path d={TREND_AREA} fill="url(#axbgArea)" className="ax-bg-area" />
           <path d={TREND_LINE} fill="none" stroke="url(#axbgEdge)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="ax-bg-trend" />
           <circle r={5.5} fill="#bae0ff" className="ax-bg-trace" style={{ offsetPath: `path('${TREND_LINE}')` } as CSSProperties} />
+
+          {/* Pulsing focus point at the growth tip. */}
+          <circle cx={480} cy={56} r={13} fill="#36cfc9" fillOpacity="0.25" className="ax-bg-pulse" />
+          <circle cx={480} cy={56} r={5} fill="#caf5ef" className="ax-bg-core" />
 
           {/* Growth arrow at the leading edge. */}
           <path d="M 478 58 L 506 32 M 506 32 L 491 34 M 506 32 L 504 49" fill="none" stroke="#87e8de" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="ax-bg-core" />
@@ -163,10 +179,19 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
           ))}
         </g>
 
-        {/* Forward-pass activations travelling along sampled connections (CSS motion path). */}
-        {FLOW.map(([a, b], i) => {
+        {/* Forward-pass activations hopping node→node, layer by layer left→right (CSS motion path; the
+            per-layer delay below makes the wave sweep across and repeat). */}
+        {PASS.map(({ a, b, layer }, i) => {
           const path = `path('M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}')`
-          return <circle key={i} r={3.5} fill="#5cdbd3" className="ax-bg-dot" style={{ offsetPath: path, animationDelay: `${i * -0.5}s` } as CSSProperties} />
+          return (
+            <circle
+              key={i}
+              r={4}
+              fill="#5cdbd3"
+              className="ax-bg-pass"
+              style={{ offsetPath: path, animationDelay: `${(layer / PASS_LAYERS) * 2.4}s` } as CSSProperties}
+            />
+          )
         })}
 
         {/* Neurons (pulsing) and the per-layer architecture labels. */}
