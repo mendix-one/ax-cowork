@@ -81,10 +81,9 @@ export function AxSigninSimPage() {
       </Typography.Paragraph>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, alignItems: 'start' }}>
         <Card title="Rendered widget" styles={{ body: { padding: 0 } }}>
-          {/* Give the full-bleed background layer a sized frame, as a real login page would. */}
-          <div style={{ position: 'relative', height: 640, overflow: 'hidden', borderRadius: 8 }}>
-            <AxSignin {...props} />
-          </div>
+          {/* No fixed-height frame: let the widget own its height exactly as on a Mendix page, so the sim
+              faithfully reflects how the full-bleed background renders there. */}
+          <AxSignin {...props} />
         </Card>
         <Card title="Sim controls" size="small">
           <Space direction="vertical" size="middle" style={{ width: '100%' }}>

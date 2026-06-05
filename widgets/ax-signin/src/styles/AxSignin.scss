@@ -57,8 +57,16 @@
 // === Animated digital background layer ===============================================================================
 // When the background is on the frame becomes the positioning + clipping context, and the cards lift above
 // the full-bleed SVG. The card keeps its solid surface, so the form stays perfectly readable over the art.
+//
+// IMPORTANT: the background is absolutely positioned (inset-0), so it has area ONLY if this root has a real
+// height. In the simulation the host gives it one; on a Mendix page the parent is usually auto-height, so
+// `h-full` (height:100%) collapses to the card's height and the full-bleed canvas all but disappears. As a
+// full-screen sign-in hero, claim the viewport height so the animation always has room to render. (If you
+// embed this inside a smaller fixed-height container instead, swap 100vh for that height.)
 .ax-signin.ax-signin--bg {
   @apply relative overflow-hidden;
+  min-height: 100vh;
+  min-height: 100dvh;
 
   .ax-signin_card {
     @apply relative z-10;
