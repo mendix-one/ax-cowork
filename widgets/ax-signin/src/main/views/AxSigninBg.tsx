@@ -42,7 +42,7 @@ for (let l = 0; l < NET.length - 1; l++) {
   for (const a of NET[l]) for (const b of NET[l + 1]) CONNECTIONS.push([a, b])
 }
 
-// Forward pass: one travelling activation per source neuron at each transition. Each carries its source
+// Forward pass: one travelling activation per source neuron between adjacent layers. Each carries its source
 // point, the whole destination layer to route into, its layer index (drives the left→right wave), and a
 // fixed sub-second jitter so neurons in a layer don't fire in perfect lockstep. The actual target neuron
 // is chosen RANDOMLY at runtime on every repeat (see the loop), so the path varies each time instead of
