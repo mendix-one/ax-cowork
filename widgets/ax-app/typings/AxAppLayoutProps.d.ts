@@ -71,11 +71,11 @@ export interface AxAppLayoutContainerProps {
     tabIndex?: number;
     prpEnmMode: PrpEnmModeEnum;
     prpImgLogo?: DynamicValue<WebImage>;
-    prpBlnHeaderMenuApps?: boolean;
-    prpBlnHeaderMenuWorldMap?: boolean;
-    prpBlnHeaderMenuNotify?: boolean;
-    prpBlnHeaderMenuAccount?: boolean;
-    prpBlnHeaderMenuSettings?: boolean;
+    prpBlnHeaderMenuApps: boolean;
+    prpBlnHeaderMenuWorldMap: boolean;
+    prpBlnHeaderMenuNotify: boolean;
+    prpBlnHeaderMenuAccount: boolean;
+    prpBlnHeaderMenuSettings: boolean;
     prpDsLeftMenus: PrpDsLeftMenusType[];
     prpDsRightMenus: PrpDsRightMenusType[];
     prpDsLeftPanels: PrpDsLeftPanelsType[];

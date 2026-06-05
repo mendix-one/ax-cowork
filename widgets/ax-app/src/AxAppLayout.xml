@@ -34,23 +34,23 @@
         </property>
       </propertyGroup>
       <propertyGroup caption="Header Menus">
-        <property key="prpBlnHeaderMenuApps" type="boolean" required="false" defaultValue="true">
+        <property key="prpBlnHeaderMenuApps" type="boolean" required="true" defaultValue="true">
           <caption>Menu: apps</caption>
           <description>Show header menu apps.</description>
         </property>
-        <property key="prpBlnHeaderMenuWorldMap" type="boolean" required="false" defaultValue="true">
+        <property key="prpBlnHeaderMenuWorldMap" type="boolean" required="true" defaultValue="true">
           <caption>Menu: world map</caption>
           <description>Show header menu world map.</description>
         </property>
-        <property key="prpBlnHeaderMenuNotify" type="boolean" required="false" defaultValue="true">
+        <property key="prpBlnHeaderMenuNotify" type="boolean" required="true" defaultValue="true">
           <caption>Menu: notify</caption>
           <description>Show header menu notify.</description>
         </property>
-        <property key="prpBlnHeaderMenuAccount" type="boolean" required="false" defaultValue="true">
+        <property key="prpBlnHeaderMenuAccount" type="boolean" required="true" defaultValue="true">
           <caption>Menu: account</caption>
           <description>Show header menu account.</description>
         </property>
-        <property key="prpBlnHeaderMenuSettings" type="boolean" required="false" defaultValue="true">
+        <property key="prpBlnHeaderMenuSettings" type="boolean" required="true" defaultValue="true">
           <caption>Menu: settings</caption>
           <description>Show header menu settings.</description>
         </property>
