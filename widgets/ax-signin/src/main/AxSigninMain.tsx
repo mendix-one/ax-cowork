@@ -4,6 +4,7 @@ import { LockOutlined, LoginOutlined, SafetyCertificateOutlined, UserOutlined } 
 import cn from 'classnames'
 import { observer } from 'mobx-react-lite'
 import { useAxSigninStore } from '../stores/context'
+import { AxSigninBg } from './views/AxSigninBg'
 
 const { Text } = Typography
 
@@ -16,7 +17,8 @@ export const AxSigninMain = observer((): ReactElement => {
   const { labels, busy, errorMessage, successMessage, canSignUp, canSso, logoUrl } = store
 
   return (
-    <div className={cn('ax-signin', store.className)} style={store.style} tabIndex={store.tabIndex}>
+    <div className={cn('ax-signin', { 'ax-signin--bg': store.showBackground }, store.className)} style={store.style} tabIndex={store.tabIndex}>
+      {store.showBackground && <AxSigninBg title={store.bgTitle} subtitle={store.bgSubtitle} tagline={store.bgTagline} />}
       <div className="ax-signin_card" style={{ background: token.colorBgContainer }}>
         <header className="ax-signin_card_header">
           {logoUrl ? (

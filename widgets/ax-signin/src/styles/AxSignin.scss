@@ -53,3 +53,186 @@
     }
   }
 }
+
+// === Animated digital background layer ===============================================================================
+// When the background is on the frame becomes the positioning + clipping context, and the cards lift above
+// the full-bleed SVG. The card keeps its solid surface, so the form stays perfectly readable over the art.
+.ax-signin.ax-signin--bg {
+  @apply relative overflow-hidden;
+
+  .ax-signin_card {
+    @apply relative z-10;
+  }
+}
+
+// Full-bleed SVG canvas (1920×1080) scaled to cover the frame; the message text overlays it.
+.ax-signin_bg {
+  @apply absolute inset-0 z-0 overflow-hidden;
+
+  &_svg {
+    @apply absolute inset-0 block;
+    width: 100%;
+    height: 100%;
+  }
+
+  // AI-for-engineering-planning message, anchored in the upper region so it never fights the centred card.
+  &_content {
+    @apply absolute z-0 text-center;
+    left: 50%;
+    top: 7%;
+    transform: translateX(-50%);
+    width: min(92%, 900px);
+    padding: 0 1.5rem;
+    color: #e6f0ff;
+    pointer-events: none;
+    text-shadow: 0 2px 18px rgba(5, 1, 15, 0.6);
+  }
+
+  &_eyebrow {
+    @apply inline-block;
+    font-size: clamp(0.65rem, 1.1vw, 0.8rem);
+    font-weight: 600;
+    letter-spacing: 0.34em;
+    color: #5cdbd3;
+    margin-bottom: 0.75rem;
+  }
+
+  &_title {
+    font-size: clamp(1.75rem, 4.4vw, 3.5rem);
+    line-height: 1.08;
+    font-weight: 800;
+    margin: 0;
+    background: linear-gradient(90deg, #ffffff 0%, #bae0ff 55%, #87e8de 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  &_subtitle {
+    font-size: clamp(1.05rem, 2.4vw, 1.9rem);
+    line-height: 1.2;
+    font-weight: 600;
+    margin: 0.5rem 0 0;
+    color: #c7d6ff;
+  }
+
+  &_tagline {
+    font-size: clamp(0.85rem, 1.4vw, 1.05rem);
+    line-height: 1.5;
+    margin: 1rem auto 0;
+    max-width: 640px;
+    color: rgba(199, 214, 255, 0.75);
+  }
+}
+
+// --- SVG element animations (all CSS so prefers-reduced-motion can switch them off) ----------------------------------
+.ax-bg-breathe {
+  animation: ax-bg-breathe 7s ease-in-out infinite;
+}
+.ax-bg-edge {
+  stroke-dasharray: 6 7;
+  animation: ax-bg-edge-flow 2.6s linear infinite;
+}
+.ax-bg-pulse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: ax-bg-pulse 4.2s ease-in-out infinite;
+}
+.ax-bg-core {
+  animation: ax-bg-core 3s ease-in-out infinite;
+}
+.ax-bg-dot {
+  offset-rotate: 0deg;
+  animation: ax-bg-flow 5s linear infinite;
+}
+.ax-bg-bar {
+  transform-box: fill-box;
+  transform-origin: left center;
+  animation: ax-bg-bar 6s ease-in-out infinite;
+}
+.ax-bg-scan {
+  animation: ax-bg-scan 9s linear infinite;
+}
+
+@keyframes ax-bg-breathe {
+  0%,
+  100% {
+    opacity: 0.65;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes ax-bg-edge-flow {
+  to {
+    stroke-dashoffset: -39;
+  }
+}
+@keyframes ax-bg-pulse {
+  0%,
+  100% {
+    transform: scale(0.55);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.3);
+    opacity: 0.04;
+  }
+}
+@keyframes ax-bg-core {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@keyframes ax-bg-flow {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+@keyframes ax-bg-bar {
+  0% {
+    transform: scaleX(0);
+  }
+  55%,
+  100% {
+    transform: scaleX(1);
+  }
+}
+@keyframes ax-bg-scan {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(1920px);
+  }
+}
+
+// On short or narrow viewports the message would crowd the card — drop it and keep just the ambience.
+@media (max-height: 640px), (max-width: 640px) {
+  .ax-signin_bg_content {
+    display: none;
+  }
+}
+
+// Respect reduced-motion: hold every animated layer at a calm resting frame.
+@media (prefers-reduced-motion: reduce) {
+  .ax-bg-breathe,
+  .ax-bg-edge,
+  .ax-bg-pulse,
+  .ax-bg-core,
+  .ax-bg-dot,
+  .ax-bg-bar,
+  .ax-bg-scan {
+    animation: none !important;
+  }
+  .ax-bg-scan {
+    display: none;
+  }
+}

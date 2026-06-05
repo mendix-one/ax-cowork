@@ -58,6 +58,13 @@ export class AxSigninStore {
   canSso = false
   labels: AxSigninLabels = EMPTY_LABELS
 
+  // Animated digital background layer (behind the card). `showBackground` toggles it; the three text
+  // fields are the AI-for-engineering-planning message rendered over the animation.
+  showBackground = true
+  bgTitle = ''
+  bgSubtitle = ''
+  bgTagline = ''
+
   constructor() {
     makeAutoObservable(
       this,
@@ -99,6 +106,13 @@ export class AxSigninStore {
   setCapabilities(canSignUp: boolean, canSso: boolean): void {
     this.canSignUp = canSignUp
     this.canSso = canSso
+  }
+
+  setBackground(showBackground: boolean, title: string, subtitle: string, tagline: string): void {
+    this.showBackground = showBackground
+    this.bgTitle = title
+    this.bgSubtitle = subtitle
+    this.bgTagline = tagline
   }
 
   // Reconcile the bound attributes (the persisted values) back into the synchronous fields — covers

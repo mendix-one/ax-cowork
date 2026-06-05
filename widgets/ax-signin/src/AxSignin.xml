@@ -58,6 +58,33 @@
             </property>
           </propertyGroup>
         </propertyGroup>
+        <propertyGroup caption="Background">
+            <property key="prpBlnBackground" type="boolean" required="false" defaultValue="true">
+                <caption>Show background</caption>
+                <description>Show the animated digital background layer behind the sign-in card.</description>
+            </property>
+            <property key="prpTxtBgTitle" type="textTemplate" required="false">
+                <caption>Background title</caption>
+                <description>Headline shown over the animated background.</description>
+                <translations>
+                    <translation lang="en_US">Apply the Power of AI</translation>
+                </translations>
+            </property>
+            <property key="prpTxtBgSubtitle" type="textTemplate" required="false">
+                <caption>Background subtitle</caption>
+                <description>Sub-headline shown under the background title.</description>
+                <translations>
+                    <translation lang="en_US">to Improve Engineering Planning</translation>
+                </translations>
+            </property>
+            <property key="prpTxtBgTagline" type="textTemplate" required="false">
+                <caption>Background tagline</caption>
+                <description>Supporting line shown under the subtitle.</description>
+                <translations>
+                    <translation lang="en_US">Smarter roadmaps, data-driven estimates, and faster delivery.</translation>
+                </translations>
+            </property>
+        </propertyGroup>
         <propertyGroup caption="Actions">
             <property key="prpActSignIn" type="action" required="true">
                 <caption>On sign in</caption>

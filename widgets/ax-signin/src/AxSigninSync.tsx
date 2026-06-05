@@ -59,6 +59,17 @@ export const AxSigninSync = observer((props: AxSigninContainerProps): ReactEleme
     store.setLogo(props.prpImgLogoUrl?.value?.uri)
   }, [store, props.prpImgLogoUrl])
 
+  // Animated background layer toggle + its AI-for-engineering-planning message (optional booleans default
+  // to "on"; the text props fall back to empty so a missing value just hides that line).
+  useEffect(() => {
+    store.setBackground(
+      props.prpBlnBackground !== false,
+      props.prpTxtBgTitle?.value ?? '',
+      props.prpTxtBgSubtitle?.value ?? '',
+      props.prpTxtBgTagline?.value ?? '',
+    )
+  }, [store, props.prpBlnBackground, props.prpTxtBgTitle, props.prpTxtBgSubtitle, props.prpTxtBgTagline])
+
   // Optional capabilities (whether the sign-up / SSO actions are configured).
   useEffect(() => {
     store.setCapabilities(!!props.prpActSignUp, !!props.prpActSso)

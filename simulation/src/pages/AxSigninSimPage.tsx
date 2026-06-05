@@ -22,6 +22,7 @@ export function AxSigninSimPage() {
   const [showLogo, setShowLogo] = useState(true)
   const [enableSignUp, setEnableSignUp] = useState(true)
   const [enableSso, setEnableSso] = useState(true)
+  const [showBackground, setShowBackground] = useState(true)
 
   const handleSignIn = () => {
     setErrorMessage('')
@@ -59,6 +60,10 @@ export function AxSigninSimPage() {
     prpActSignUp: enableSignUp ? action(handleSignUp) : undefined,
     prpActSso: enableSso ? action(handleSso) : undefined,
     prpImgLogoUrl: showLogo ? webImage('/aplanner-light.png') : undefined,
+    prpBlnBackground: showBackground,
+    prpTxtBgTitle: dynamic('Apply the Power of AI'),
+    prpTxtBgSubtitle: dynamic('to Improve Engineering Planning'),
+    prpTxtBgTagline: dynamic('Smarter roadmaps, data-driven estimates, and faster delivery.'),
     prpTxtAccountLabel: dynamic('Account'),
     prpTxtAccountPlaceholder: dynamic('Username, email or phone'),
     prpTxtPasswordLabel: dynamic('Password'),
@@ -75,8 +80,11 @@ export function AxSigninSimPage() {
         Mendix props are mocked. Try <code>admin</code> / <code>password</code> for the success path; anything else surfaces the inline error.
       </Typography.Paragraph>
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: 24, alignItems: 'start' }}>
-        <Card title="Rendered widget" style={{ display: 'flex', justifyContent: 'center' }}>
-          <AxSignin {...props} />
+        <Card title="Rendered widget" styles={{ body: { padding: 0 } }}>
+          {/* Give the full-bleed background layer a sized frame, as a real login page would. */}
+          <div style={{ position: 'relative', height: 640, overflow: 'hidden', borderRadius: 8 }}>
+            <AxSignin {...props} />
+          </div>
         </Card>
         <Card title="Sim controls" size="small">
           <Space direction="vertical" size="middle" style={{ width: '100%' }}>
@@ -88,6 +96,9 @@ export function AxSigninSimPage() {
             </Space>
             <Space>
               <Switch checked={enableSso} onChange={setEnableSso} /> Show SSO button
+            </Space>
+            <Space>
+              <Switch checked={showBackground} onChange={setShowBackground} /> Show background
             </Space>
             <Button
               size="small"

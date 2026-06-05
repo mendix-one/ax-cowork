@@ -92,13 +92,21 @@ type DatasourceProps = BaseProps & {
 
 export type PreviewProps = ImageProps | ContainerProps | RowLayoutProps | TextProps | DropZoneProps | SelectableProps | DatasourceProps
 
-export function getProperties(_values: AxSigninPreviewProps, defaultProperties: Properties /* , target: Platform*/): Properties {
-  // Do the values manipulation here to control the visibility of properties in Studio and Studio Pro conditionally.
-  /* Example
-    if (values.myProperty === "custom") {
-        delete defaultProperties.properties.myOtherProperty;
+// Recursively drop properties (by key) from the property tree.
+function hideProperties(groups: Properties, keys: string[]): void {
+  for (const group of groups) {
+    if (group.propertyGroups) hideProperties(group.propertyGroups, keys)
+    if (group.properties) {
+      group.properties = group.properties.filter((property) => !keys.includes(property.key))
     }
-    */
+  }
+}
+
+export function getProperties(values: AxSigninPreviewProps, defaultProperties: Properties /* , target: Platform*/): Properties {
+  // The background message fields are dead config when the background layer is off — hide them.
+  if (!values.prpBlnBackground) {
+    hideProperties(defaultProperties, ['prpTxtBgTitle', 'prpTxtBgSubtitle', 'prpTxtBgTagline'])
+  }
   return defaultProperties
 }
 

@@ -17,6 +17,10 @@ export interface AxSigninContainerProps {
     prpAttIsBusy: EditableValue<boolean>;
     prpTxtErrorMessage: EditableValue<string>;
     prpTxtSuccessMessage: EditableValue<string>;
+    prpBlnBackground?: boolean;
+    prpTxtBgTitle?: DynamicValue<string>;
+    prpTxtBgSubtitle?: DynamicValue<string>;
+    prpTxtBgTagline?: DynamicValue<string>;
     prpActSignIn?: ActionValue;
     prpActSignUp?: ActionValue;
     prpActSso?: ActionValue;
@@ -46,6 +50,10 @@ export interface AxSigninPreviewProps {
     prpAttIsBusy: string;
     prpTxtErrorMessage: string;
     prpTxtSuccessMessage: string;
+    prpBlnBackground: boolean;
+    prpTxtBgTitle: string;
+    prpTxtBgSubtitle: string;
+    prpTxtBgTagline: string;
     prpActSignIn: {} | null;
     prpActSignUp: {} | null;
     prpActSso: {} | null;
