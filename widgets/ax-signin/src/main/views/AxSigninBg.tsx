@@ -1,12 +1,19 @@
-import type { CSSProperties, ReactElement } from 'react'
+import type { ReactElement } from 'react'
+import { useEffect, useRef } from 'react'
 
 // Animated digital background layer for the sign-in screen. A self-contained inline SVG (no external
 // asset) authored on a 1920×1080 / full-HD canvas and scaled to cover any viewport via
 // preserveAspectRatio="xMidYMid slice", so it stays crisp and responsive from phones to ultrawide.
 // The motif — a deep neural network (embedding → self-attention → feed-forward → output, the transformer
 // pipeline) with activations flowing through it, alongside a growth/optimization chart — reads as "the AI
-// model powering better engineering planning". All motion is CSS-driven (see AxSignin.scss) so it honours
-// prefers-reduced-motion. The headline / subtitle / tagline render as crisp HTML over the animation.
+// model powering better engineering planning".
+//
+// Motion is driven by a requestAnimationFrame loop that writes SVG attributes / element.style directly,
+// NOT by CSS keyframes or CSS Motion Path. This is deliberate: in a packaged Mendix widget those CSS
+// features proved unreliable, whereas scripted style writes are well-supported and aren't affected by a
+// Content-Security-Policy that blocks inline <style>/style attributes. The JSX renders a calm "finished"
+// frame, so first paint and prefers-reduced-motion (where the loop never starts) both look intentional.
+// The headline / subtitle / tagline render as crisp HTML over the animation.
 
 // Deep neural network — the core motif. Stacked layers of neurons (embedding → self-attention →
 // feed-forward → decode → output, the transformer pipeline) fully wired layer-to-layer, with activations
@@ -36,8 +43,7 @@ for (let l = 0; l < NET.length - 1; l++) {
 }
 
 // Forward pass: one travelling activation per source neuron at each transition, tagged with its source
-// layer. Animating each dot with a delay proportional to its layer makes the data visibly hop left→right,
-// layer by layer — an activation wave sweeping through the network and repeating.
+// layer. The animation offsets each dot by its layer so the data visibly hops left→right, layer by layer.
 const PASS: Array<{ a: Pt; b: Pt; layer: number }> = []
 for (let l = 0; l < NET.length - 1; l++) {
   const src = NET[l]
@@ -88,9 +94,116 @@ const COLS: Array<[number, number]> = [
 ]
 
 export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subtitle?: string; tagline?: string }): ReactElement {
+  const svgRef = useRef<SVGSVGElement>(null)
+
+  // Drive every animation from one rAF loop (scripted attribute/style writes — no CSS keyframes). Elements
+  // are matched by their js-* class in document order, which equals the order of the data arrays above.
+  useEffect(() => {
+    const svg = svgRef.current
+    if (!svg) return
+    const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+    if (reduce) return // leave the static "finished" frame from the JSX
+
+    const all = <T extends Element>(sel: string): T[] => Array.from(svg.querySelectorAll<T>(sel))
+    const one = <T extends Element>(sel: string): T | null => svg.querySelector<T>(sel)
+
+    const passEls = all<SVGCircleElement>('.js-pass')
+    const pulseEls = all<SVGCircleElement>('.js-pulse')
+    const coreEls = all<SVGCircleElement>('.js-core')
+    const barEls = all<SVGRectElement>('.js-bar')
+    const arcEls = all<SVGPathElement>('.js-arc')
+    const trend = one<SVGPathElement>('.js-trend')
+    const trace = one<SVGCircleElement>('.js-trace')
+    const cscan = one<SVGRectElement>('.js-cscan')
+    const scan = one<SVGRectElement>('.js-scan')
+    const glow = one<SVGRectElement>('.js-glow')
+
+    const pulseBase = pulseEls.map((el) => parseFloat(el.getAttribute('r') || '16'))
+    const len = trend ? trend.getTotalLength() : 0
+    if (trend) trend.setAttribute('stroke-dasharray', String(len))
+    arcEls.forEach((el) => el.setAttribute('stroke-dasharray', '6 7'))
+
+    const TAU = Math.PI * 2
+    const mod = (a: number, b: number): number => ((a % b) + b) % b
+    const clamp01 = (x: number): number => (x < 0 ? 0 : x > 1 ? 1 : x)
+
+    let raf = 0
+    let start = 0
+    const tick = (ts: number): void => {
+      if (!start) start = ts
+      const t = (ts - start) / 1000
+
+      // Soft central glow breathing (7s).
+      if (glow) glow.style.opacity = (0.65 + 0.35 * (0.5 + 0.5 * Math.sin((t / 7) * TAU))).toFixed(3)
+
+      // Neuron / focus-point pulse rings (grow + fade) and bright cores.
+      for (let i = 0; i < pulseEls.length; i++) {
+        const v = 0.5 + 0.5 * Math.sin((t / 4.2 + i * 0.37) * TAU)
+        pulseEls[i].setAttribute('r', (pulseBase[i] * (0.6 + 0.7 * v)).toFixed(2))
+        pulseEls[i].style.opacity = (0.5 - 0.45 * v).toFixed(3)
+      }
+      for (let i = 0; i < coreEls.length; i++) {
+        coreEls[i].style.opacity = (0.4 + 0.6 * (0.5 + 0.5 * Math.sin((t / 3 + i * 0.5) * TAU))).toFixed(3)
+      }
+
+      // Forward pass: each activation travels its edge during its layer's slot, then hides (wave sweeps
+      // left→right and repeats every 3.2s).
+      const period = 3.2
+      const travel = 0.55
+      for (let i = 0; i < passEls.length; i++) {
+        const p = PASS[i]
+        const local = mod(t - (p.layer / PASS_LAYERS) * 2.4, period)
+        if (local < travel) {
+          const pr = local / travel
+          passEls[i].setAttribute('cx', (p.a[0] + (p.b[0] - p.a[0]) * pr).toFixed(1))
+          passEls[i].setAttribute('cy', (p.a[1] + (p.b[1] - p.a[1]) * pr).toFixed(1))
+          passEls[i].style.opacity = clamp01(Math.min(8 * pr, 8 * (1 - pr))).toFixed(3)
+        } else {
+          passEls[i].style.opacity = '0'
+        }
+      }
+
+      // Attention arcs: continuous dash flow.
+      for (let i = 0; i < arcEls.length; i++) arcEls[i].setAttribute('stroke-dashoffset', (-(t * 22 + i * 5) % 26).toFixed(1))
+
+      // Analysis chart on a 5s cycle: bars grow, trend draws in with a focus dot, a scan sweeps across.
+      const cl = mod(t, 5)
+      for (let i = 0; i < barEls.length; i++) {
+        const g = clamp01((cl - i * 0.32) / 1.4)
+        const h = COLS[i][1] * g
+        barEls[i].setAttribute('y', (300 - h).toFixed(1))
+        barEls[i].setAttribute('height', h.toFixed(1))
+      }
+      if (trend) {
+        const p = clamp01((cl - 0.3) / 2.6)
+        trend.setAttribute('stroke-dashoffset', (len * (1 - p)).toFixed(1))
+        if (trace) {
+          const pt = trend.getPointAtLength(p * len)
+          trace.setAttribute('cx', pt.x.toFixed(1))
+          trace.setAttribute('cy', pt.y.toFixed(1))
+        }
+      }
+      if (cscan) {
+        const sp = clamp01((cl - 0.4) / 3)
+        cscan.setAttribute('x', (sp * 480 - 1).toFixed(1))
+        cscan.style.opacity = cl > 0.4 && cl < 3.6 ? '0.5' : '0'
+      }
+
+      // Vertical scan line sweeping the whole canvas (9s).
+      if (scan) {
+        scan.setAttribute('x', ((mod(t, 9) / 9) * 1920).toFixed(0))
+        scan.style.opacity = '1'
+      }
+
+      raf = requestAnimationFrame(tick)
+    }
+    raf = requestAnimationFrame(tick)
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
   return (
     <div className="ax-signin_bg" aria-hidden="true">
-      <svg className="ax-signin_bg_svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+      <svg ref={svgRef} className="ax-signin_bg_svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="axbgSky" x1="0" y1="0" x2="1" y2="1">
             <stop offset="0%" stopColor="#1b1147" />
@@ -118,14 +231,14 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
           </filter>
         </defs>
 
-        {/* Backdrop: deep digital gradient, blueprint grid, and a soft central glow. */}
+        {/* Backdrop: deep digital gradient, blueprint grid, and a soft (breathing) central glow. */}
         <rect width="1920" height="1080" fill="url(#axbgSky)" />
         <rect width="1920" height="1080" fill="url(#axbgGrid)" />
-        <rect width="1920" height="1080" fill="url(#axbgGlow)" className="ax-bg-breathe" />
+        <rect className="js-glow" width="1920" height="1080" fill="url(#axbgGlow)" />
 
         {/* Optimization / growth analysis chart — ascending bars and a trend line that draws upward to a
             growth arrow, evoking a plan AI keeps improving. */}
-        <g className="ax-bg-chart" transform="translate(1330 170)">
+        <g transform="translate(1330 170)">
           {/* Faint horizontal gridlines + a brighter baseline. */}
           {[60, 130, 200, 270].map((y) => (
             <line key={y} x1={0} y1={y} x2={480} y2={y} stroke="#4096ff" strokeOpacity="0.08" strokeWidth="1" />
@@ -133,84 +246,63 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
           <line x1={0} y1={300} x2={480} y2={300} stroke="#4096ff" strokeOpacity="0.18" strokeWidth="1.5" />
 
           {/* Live-analysis scan sweeping across the chart. */}
-          <rect className="ax-bg-cscan" x={-1} y={0} width={2} height={300} fill="#5cdbd3" />
+          <rect className="js-cscan" x={-1} y={0} width={2} height={300} fill="#5cdbd3" style={{ opacity: 0 }} />
 
-          {/* Ascending analysis bars, growing from the baseline. */}
+          {/* Ascending analysis bars (rendered at full height; the loop grows them from the baseline). */}
           {COLS.map(([x, h], i) => (
-            <rect key={i} x={x} y={300 - h} width={40} height={h} rx={5} fill="url(#axbgEdge)" fillOpacity="0.16" className="ax-bg-col" style={{ animationDelay: `${i * -0.4}s` }} />
+            <rect key={i} className="js-bar" x={x} y={300 - h} width={40} height={h} rx={5} fill="url(#axbgEdge)" fillOpacity="0.16" />
           ))}
 
-          {/* Area under the trend, the trend line drawing in, and the leading focus dot. */}
-          <path d={TREND_AREA} fill="url(#axbgArea)" className="ax-bg-area" />
-          <path d={TREND_LINE} fill="none" stroke="url(#axbgEdge)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="ax-bg-trend" />
-          <circle r={5.5} fill="#bae0ff" className="ax-bg-trace" style={{ offsetPath: `path('${TREND_LINE}')` } as CSSProperties} />
+          {/* Area under the trend, the trend line (drawn in by the loop), and the leading focus dot. */}
+          <path d={TREND_AREA} fill="url(#axbgArea)" />
+          <path className="js-trend" d={TREND_LINE} fill="none" stroke="url(#axbgEdge)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+          <circle className="js-trace" cx={480} cy={56} r={5.5} fill="#bae0ff" />
 
           {/* Pulsing focus point at the growth tip. */}
-          <circle cx={480} cy={56} r={13} fill="#36cfc9" fillOpacity="0.25" className="ax-bg-pulse" />
-          <circle cx={480} cy={56} r={5} fill="#caf5ef" className="ax-bg-core" />
+          <circle className="js-pulse" cx={480} cy={56} r={13} fill="#36cfc9" fillOpacity="0.25" />
+          <circle className="js-core" cx={480} cy={56} r={5} fill="#caf5ef" />
 
           {/* Growth arrow at the leading edge. */}
-          <path d="M 478 58 L 506 32 M 506 32 L 491 34 M 506 32 L 504 49" fill="none" stroke="#87e8de" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="ax-bg-core" />
+          <path d="M 478 58 L 506 32 M 506 32 L 491 34 M 506 32 L 504 49" fill="none" stroke="#87e8de" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
         </g>
 
-        {/* Neural network — inter-layer connections (faint, with a flowing dash), self-attention arcs in
-            the transformer block, the forward-pass activations, then the pulsing neurons + layer labels. */}
-        <g className="ax-bg-net">
+        {/* Neural network — faint inter-layer connections (static), self-attention arcs in the transformer
+            block, the forward-pass activations, then the pulsing neurons + layer labels. */}
+        <g>
           {CONNECTIONS.map(([a, b], i) => (
-            <line
-              key={i}
-              x1={a[0]}
-              y1={a[1]}
-              x2={b[0]}
-              y2={b[1]}
-              stroke="url(#axbgEdge)"
-              strokeOpacity="0.13"
-              strokeWidth="1"
-              className="ax-bg-edge"
-              style={{ animationDelay: `${(i % 9) * -0.6}s` }}
-            />
+            <line key={i} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="url(#axbgEdge)" strokeOpacity="0.13" strokeWidth="1" />
           ))}
         </g>
 
         {/* Self-attention arcs (transformer): each neuron attending to others in its layer. */}
-        <g className="ax-bg-attn">
+        <g>
           {ATTN_ARCS.map((d, i) => (
-            <path key={i} d={d} fill="none" stroke="#9254de" strokeOpacity="0.5" strokeWidth="1.5" className="ax-bg-edge" style={{ animationDelay: `${i * -0.8}s` }} />
+            <path key={i} className="js-arc" d={d} fill="none" stroke="#9254de" strokeOpacity="0.5" strokeWidth="1.5" />
           ))}
         </g>
 
-        {/* Forward-pass activations hopping node→node, layer by layer left→right (CSS motion path; the
-            per-layer delay below makes the wave sweep across and repeat). */}
-        {PASS.map(({ a, b, layer }, i) => {
-          const path = `path('M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}')`
-          return (
-            <circle
-              key={i}
-              r={4}
-              fill="#5cdbd3"
-              className="ax-bg-pass"
-              style={{ offsetPath: path, animationDelay: `${(layer / PASS_LAYERS) * 2.4}s` } as CSSProperties}
-            />
-          )
-        })}
+        {/* Forward-pass activations hopping node→node, layer by layer left→right. */}
+        {PASS.map(({ a }, i) => (
+          <circle key={i} className="js-pass" cx={a[0]} cy={a[1]} r={4} fill="#5cdbd3" style={{ opacity: 0 }} />
+        ))}
 
         {/* Neurons (pulsing) and the per-layer architecture labels. */}
         {NET.map((layer, li) => (
           <g key={li}>
             {layer.map(([x, y], ni) => (
               <g key={ni} transform={`translate(${x} ${y})`}>
-                <circle r={16} fill="#4096ff" fillOpacity="0.18" className="ax-bg-pulse" style={{ animationDelay: `${(li + ni) % 7 * -0.6}s` }} />
-                <circle r={5} fill="#bae0ff" className="ax-bg-core" style={{ animationDelay: `${(li + ni) % 5 * -0.8}s` }} />
+                <circle className="js-pulse" r={16} fill="#4096ff" fillOpacity="0.18" />
+                <circle className="js-core" r={5} fill="#bae0ff" />
               </g>
             ))}
-            <text x={LAYERS[li].x} y={945} textAnchor="middle" className="ax-bg-net_label">
+            <text x={LAYERS[li].x} y={945} textAnchor="middle" className="ax-signin_bg_net_label">
               {LAYERS[li].label}
             </text>
           </g>
         ))}
 
         {/* Vertical scan line sweeping across the canvas. */}
-        <rect className="ax-bg-scan" x={0} y={0} width={2} height={1080} fill="#36cfc9" fillOpacity="0.25" filter="url(#axbgSoft)" />
+        <rect className="js-scan" x={0} y={0} width={2} height={1080} fill="#36cfc9" fillOpacity="0.25" filter="url(#axbgSoft)" style={{ opacity: 0 }} />
       </svg>
 
       {(title || subtitle || tagline) && (
