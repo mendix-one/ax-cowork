@@ -17,7 +17,7 @@ export interface AxSigninContainerProps {
     prpAttIsBusy: EditableValue<boolean>;
     prpTxtErrorMessage: EditableValue<string>;
     prpTxtSuccessMessage: EditableValue<string>;
-    prpBlnBackground?: boolean;
+    prpBlnBackground: boolean;
     prpTxtBgTitle?: DynamicValue<string>;
     prpTxtBgSubtitle?: DynamicValue<string>;
     prpTxtBgTagline?: DynamicValue<string>;

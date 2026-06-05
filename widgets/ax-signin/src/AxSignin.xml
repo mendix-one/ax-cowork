@@ -59,7 +59,7 @@
           </propertyGroup>
         </propertyGroup>
         <propertyGroup caption="Background">
-            <property key="prpBlnBackground" type="boolean" required="false" defaultValue="true">
+            <property key="prpBlnBackground" type="boolean" required="true" defaultValue="true">
                 <caption>Show background</caption>
                 <description>Show the animated digital background layer behind the sign-in card.</description>
             </property>

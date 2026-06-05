@@ -12,7 +12,7 @@
     "build:common": "pnpm --filter @ax/common run build",
     "build:layout": "pnpm --filter @ax/app-layout run build",
     "build:panel": "pnpm --filter @ax/display-panel run build",
-    "build:login": "pnpm --filter @ax/login-panel run build",
+    "build:signin": "pnpm --filter @ax/signin-panel run build",
     "build:simulation": "pnpm --filter @ax/simulation-layout run build",
     "lint": "pnpm -r run lint",
     "test": "pnpm -r run test",
@@ -21,7 +21,7 @@
     "format:sim": "prettier --write simulation",
     "format:common": "prettier --write shared/ax-common",
     "format:layout": "prettier --write widgets/ax-app",
-    "format:login": "prettier --write widgets/ax-login",
+    "format:signin": "prettier --write widgets/ax-signin",
     "format:simulation": "prettier --write widgets/ax-simulation",
     "format:check": "prettier --check ."
   },
