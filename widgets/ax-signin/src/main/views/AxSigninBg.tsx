@@ -42,14 +42,17 @@ for (let l = 0; l < NET.length - 1; l++) {
   for (const a of NET[l]) for (const b of NET[l + 1]) CONNECTIONS.push([a, b])
 }
 
-// Forward pass: one travelling activation per source neuron at each transition, tagged with its source
-// layer. The animation offsets each dot by its layer so the data visibly hops left→right, layer by layer.
-const PASS: Array<{ a: Pt; b: Pt; layer: number }> = []
+// Forward pass: one travelling activation per source neuron at each transition. Each carries its source
+// point, the whole destination layer to route into, its layer index (drives the left→right wave), and a
+// fixed sub-second jitter so neurons in a layer don't fire in perfect lockstep. The actual target neuron
+// is chosen RANDOMLY at runtime on every repeat (see the loop), so the path varies each time instead of
+// retracing the same edge.
+const PASS: Array<{ a: Pt; dst: Pt[]; layer: number; jitter: number }> = []
 for (let l = 0; l < NET.length - 1; l++) {
   const src = NET[l]
   const dst = NET[l + 1]
   src.forEach((a, i) => {
-    PASS.push({ a, b: dst[(i + l) % dst.length], layer: l })
+    PASS.push({ a, dst, layer: l, jitter: ((i * 0.6180339887) % 1) * 0.9 })
   })
 }
 const PASS_LAYERS = NET.length - 1
@@ -123,6 +126,10 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
     if (trend) trend.setAttribute('stroke-dasharray', String(len))
     arcEls.forEach((el) => el.setAttribute('stroke-dasharray', '6 7'))
 
+    // Per-dot routing state: which destination neuron this activation is travelling to, re-rolled each
+    // time the dot starts a new pass so the path is random rather than a fixed repeat.
+    const passState = passEls.map(() => ({ cycle: Number.NEGATIVE_INFINITY, target: 0 }))
+
     const TAU = Math.PI * 2
     const mod = (a: number, b: number): number => ((a % b) + b) % b
     const clamp01 = (x: number): number => (x < 0 ? 0 : x > 1 ? 1 : x)
@@ -146,17 +153,26 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
         coreEls[i].style.opacity = (0.4 + 0.6 * (0.5 + 0.5 * Math.sin((t / 3 + i * 0.5) * TAU))).toFixed(3)
       }
 
-      // Forward pass: each activation travels its edge during its layer's slot, then hides (wave sweeps
-      // left→right and repeats every 3.2s).
+      // Forward pass: each activation travels to a RANDOMLY chosen neuron in the next layer during its
+      // slot, then hides. The layer-based offset keeps the wave sweeping left→right; the target is
+      // re-rolled whenever the dot enters a new pass, so the routing never simply repeats.
       const period = 3.2
       const travel = 0.55
       for (let i = 0; i < passEls.length; i++) {
         const p = PASS[i]
-        const local = mod(t - (p.layer / PASS_LAYERS) * 2.4, period)
+        const offset = (p.layer / PASS_LAYERS) * 2.4 + p.jitter
+        const cycle = Math.floor((t - offset) / period)
+        const state = passState[i]
+        if (cycle !== state.cycle) {
+          state.cycle = cycle
+          state.target = (Math.random() * p.dst.length) | 0
+        }
+        const local = mod(t - offset, period)
         if (local < travel) {
+          const b = p.dst[state.target]
           const pr = local / travel
-          passEls[i].setAttribute('cx', (p.a[0] + (p.b[0] - p.a[0]) * pr).toFixed(1))
-          passEls[i].setAttribute('cy', (p.a[1] + (p.b[1] - p.a[1]) * pr).toFixed(1))
+          passEls[i].setAttribute('cx', (p.a[0] + (b[0] - p.a[0]) * pr).toFixed(1))
+          passEls[i].setAttribute('cy', (p.a[1] + (b[1] - p.a[1]) * pr).toFixed(1))
           passEls[i].style.opacity = clamp01(Math.min(8 * pr, 8 * (1 - pr))).toFixed(3)
         } else {
           passEls[i].style.opacity = '0'
