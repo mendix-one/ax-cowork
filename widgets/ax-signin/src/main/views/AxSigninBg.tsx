@@ -3,58 +3,79 @@ import type { CSSProperties, ReactElement } from 'react'
 // Animated digital background layer for the sign-in screen. A self-contained inline SVG (no external
 // asset) authored on a 1920×1080 / full-HD canvas and scaled to cover any viewport via
 // preserveAspectRatio="xMidYMid slice", so it stays crisp and responsive from phones to ultrawide.
-// The motif — a pulsing planning graph, flowing data, a Gantt-style timeline, a radar sweep — reads as
-// "AI applied to engineering planning". All motion is CSS-driven (see AxSignin.scss) so it honours
+// The motif — a deep neural network (embedding → self-attention → feed-forward → output, the transformer
+// pipeline) with activations flowing through it, alongside a growth/optimization chart — reads as "the AI
+// model powering better engineering planning". All motion is CSS-driven (see AxSignin.scss) so it honours
 // prefers-reduced-motion. The headline / subtitle / tagline render as crisp HTML over the animation.
 
-// Planning-graph nodes laid out across the canvas; edges wire them into a connected network.
-const NODES: Array<[number, number]> = [
-  [240, 760],
-  [520, 880],
-  [430, 560],
-  [760, 640],
-  [980, 820],
-  [1180, 600],
-  [1480, 720],
-  [1700, 560],
-  [1380, 380],
-  [1080, 320],
-  [820, 300],
-  [560, 260],
-  [1620, 940],
-  [300, 420],
+// Deep neural network — the core motif. Stacked layers of neurons (embedding → self-attention →
+// feed-forward → decode → output, the transformer pipeline) fully wired layer-to-layer, with activations
+// propagating left→right (the forward pass).
+type Pt = [number, number]
+const NET_CENTER_Y = 640
+const NEURON_GAP = 74
+const LAYERS: Array<{ x: number; count: number; label: string }> = [
+  { x: 250, count: 5, label: 'INPUT' },
+  { x: 520, count: 7, label: 'EMBED' },
+  { x: 800, count: 8, label: 'ATTENTION' },
+  { x: 1090, count: 7, label: 'FEED · FWD' },
+  { x: 1380, count: 5, label: 'DECODE' },
+  { x: 1670, count: 3, label: 'OUTPUT' },
 ]
 
-const EDGES: Array<[number, number]> = [
-  [0, 1],
-  [0, 2],
-  [1, 4],
-  [2, 3],
-  [2, 13],
-  [13, 11],
+// Neuron positions per layer (vertically centred on NET_CENTER_Y).
+const NET: Pt[][] = LAYERS.map(({ x, count }) => {
+  const top = NET_CENTER_Y - ((count - 1) * NEURON_GAP) / 2
+  return Array.from({ length: count }, (_, i) => [x, top + i * NEURON_GAP] as Pt)
+})
+
+// Full inter-layer connectivity (every neuron to every neuron in the next layer).
+const CONNECTIONS: Array<[Pt, Pt]> = []
+for (let l = 0; l < NET.length - 1; l++) {
+  for (const a of NET[l]) for (const b of NET[l + 1]) CONNECTIONS.push([a, b])
+}
+
+// A sampled subset of connections carries a travelling activation dot, so the forward pass reads clearly
+// without lighting up all ~190 wires at once.
+const FLOW = CONNECTIONS.filter((_, i) => i % 13 === 0)
+
+// Self-attention arcs inside the ATTENTION layer (neuron-to-neuron within the same column), bulging left.
+const ATTN = NET[2]
+const ATTN_ARCS: string[] = [
+  [0, 4],
+  [1, 6],
+  [2, 7],
   [3, 5],
-  [3, 10],
-  [4, 3],
-  [4, 5],
-  [5, 6],
-  [5, 8],
-  [6, 7],
-  [6, 12],
-  [8, 7],
-  [8, 9],
-  [9, 10],
-  [10, 11],
+].map(([i, j]) => {
+  const a = ATTN[i]
+  const b = ATTN[j]
+  return `M ${a[0]} ${a[1]} Q ${a[0] - 110} ${(a[1] + b[1]) / 2} ${b[0]} ${b[1]}`
+})
+
+// "Optimization / growth" analysis chart (local chart coords, baseline y = 300). The trend climbs with a
+// small mid-course correction, reading as a plan that AI iteratively improves.
+const TREND: Array<[number, number]> = [
+  [0, 270],
+  [68, 238],
+  [136, 250],
+  [204, 196],
+  [272, 168],
+  [340, 182],
+  [408, 110],
+  [480, 56],
 ]
+const TREND_LINE = TREND.map(([x, y], i) => `${i === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ')
+const TREND_AREA = `M 0 300 ${TREND.map(([x, y]) => `L ${x} ${y}`).join(' ')} L 480 300 Z`
 
-// Edges carrying a travelling "data" dot (indices into EDGES) — kept to a handful so the flow reads
-// clearly without clutter.
-const FLOW_EDGES = [2, 6, 10, 12, 16, 5]
-
-// Gantt-style timeline bars (engineering planning): x, y, width, and the fraction that fills in.
-const BARS: Array<{ x: number; y: number; w: number }> = [
-  { x: 140, y: 935, w: 360 },
-  { x: 140, y: 975, w: 250 },
-  { x: 140, y: 1015, w: 430 },
+// Ascending analysis bars (x, height) — mostly growing across iterations, with one dip for realism.
+const COLS: Array<[number, number]> = [
+  [16, 50],
+  [84, 85],
+  [152, 72],
+  [220, 130],
+  [288, 158],
+  [356, 150],
+  [424, 226],
 ]
 
 export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subtitle?: string; tagline?: string }): ReactElement {
@@ -76,6 +97,10 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
             <stop offset="0%" stopColor="#13c2c2" />
             <stop offset="100%" stopColor="#4096ff" />
           </linearGradient>
+          <linearGradient id="axbgArea" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#36cfc9" stopOpacity="0.35" />
+            <stop offset="100%" stopColor="#36cfc9" stopOpacity="0" />
+          </linearGradient>
           <pattern id="axbgGrid" width="60" height="60" patternUnits="userSpaceOnUse">
             <path d="M60 0H0V60" fill="none" stroke="#4096ff" strokeOpacity="0.06" strokeWidth="1" />
           </pattern>
@@ -89,61 +114,75 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
         <rect width="1920" height="1080" fill="url(#axbgGrid)" />
         <rect width="1920" height="1080" fill="url(#axbgGlow)" className="ax-bg-breathe" />
 
-        {/* Radar sweep — concentric rings + a rotating wedge, evoking continuous analysis. */}
-        <g className="ax-bg-radar" transform="translate(1480 280)">
-          {[80, 150, 220].map((r) => (
-            <circle key={r} r={r} fill="none" stroke="#36cfc9" strokeOpacity="0.12" strokeWidth="1.5" />
+        {/* Optimization / growth analysis chart — ascending bars and a trend line that draws upward to a
+            growth arrow, evoking a plan AI keeps improving. */}
+        <g className="ax-bg-chart" transform="translate(1330 170)">
+          {/* Faint horizontal gridlines + a brighter baseline. */}
+          {[60, 130, 200, 270].map((y) => (
+            <line key={y} x1={0} y1={y} x2={480} y2={y} stroke="#4096ff" strokeOpacity="0.08" strokeWidth="1" />
           ))}
-          <g className="ax-bg-radar_sweep">
-            <path d="M0 0 L220 0 A220 220 0 0 1 150 160 Z" fill="#36cfc9" fillOpacity="0.06" />
-            {/* Rotate exactly around the radar centre (this group's local origin). */}
-            <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="14s" repeatCount="indefinite" />
-          </g>
+          <line x1={0} y1={300} x2={480} y2={300} stroke="#4096ff" strokeOpacity="0.18" strokeWidth="1.5" />
+
+          {/* Ascending analysis bars, growing from the baseline. */}
+          {COLS.map(([x, h], i) => (
+            <rect key={i} x={x} y={300 - h} width={40} height={h} rx={5} fill="url(#axbgEdge)" fillOpacity="0.16" className="ax-bg-col" style={{ animationDelay: `${i * -0.4}s` }} />
+          ))}
+
+          {/* Area under the trend, the trend line drawing in, and the leading focus dot. */}
+          <path d={TREND_AREA} fill="url(#axbgArea)" className="ax-bg-area" />
+          <path d={TREND_LINE} fill="none" stroke="url(#axbgEdge)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="ax-bg-trend" />
+          <circle r={5.5} fill="#bae0ff" className="ax-bg-trace" style={{ offsetPath: `path('${TREND_LINE}')` } as CSSProperties} />
+
+          {/* Growth arrow at the leading edge. */}
+          <path d="M 478 58 L 506 32 M 506 32 L 491 34 M 506 32 L 504 49" fill="none" stroke="#87e8de" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" className="ax-bg-core" />
         </g>
 
-        {/* Planning graph: connecting edges with a flowing dash, then the pulsing nodes on top. */}
-        <g className="ax-bg-edges">
-          {EDGES.map(([a, b], i) => (
+        {/* Neural network — inter-layer connections (faint, with a flowing dash), self-attention arcs in
+            the transformer block, the forward-pass activations, then the pulsing neurons + layer labels. */}
+        <g className="ax-bg-net">
+          {CONNECTIONS.map(([a, b], i) => (
             <line
               key={i}
-              x1={NODES[a][0]}
-              y1={NODES[a][1]}
-              x2={NODES[b][0]}
-              y2={NODES[b][1]}
+              x1={a[0]}
+              y1={a[1]}
+              x2={b[0]}
+              y2={b[1]}
               stroke="url(#axbgEdge)"
-              strokeOpacity="0.35"
-              strokeWidth="1.5"
+              strokeOpacity="0.13"
+              strokeWidth="1"
               className="ax-bg-edge"
-              style={{ animationDelay: `${(i % 6) * -0.7}s` }}
+              style={{ animationDelay: `${(i % 9) * -0.6}s` }}
             />
           ))}
         </g>
 
-        {/* Data dots travelling along select edges (CSS motion path). */}
-        {FLOW_EDGES.map((edgeIndex, i) => {
-          const [a, b] = EDGES[edgeIndex]
-          const path = `path('M ${NODES[a][0]} ${NODES[a][1]} L ${NODES[b][0]} ${NODES[b][1]}')`
-          return <circle key={i} r={4} fill="#5cdbd3" className="ax-bg-dot" style={{ offsetPath: path, animationDelay: `${i * -1.3}s` } as CSSProperties} />
+        {/* Self-attention arcs (transformer): each neuron attending to others in its layer. */}
+        <g className="ax-bg-attn">
+          {ATTN_ARCS.map((d, i) => (
+            <path key={i} d={d} fill="none" stroke="#9254de" strokeOpacity="0.5" strokeWidth="1.5" className="ax-bg-edge" style={{ animationDelay: `${i * -0.8}s` }} />
+          ))}
+        </g>
+
+        {/* Forward-pass activations travelling along sampled connections (CSS motion path). */}
+        {FLOW.map(([a, b], i) => {
+          const path = `path('M ${a[0]} ${a[1]} L ${b[0]} ${b[1]}')`
+          return <circle key={i} r={3.5} fill="#5cdbd3" className="ax-bg-dot" style={{ offsetPath: path, animationDelay: `${i * -0.5}s` } as CSSProperties} />
         })}
 
-        <g className="ax-bg-nodes">
-          {NODES.map(([x, y], i) => (
-            <g key={i} transform={`translate(${x} ${y})`}>
-              <circle r={22} fill="#4096ff" fillOpacity="0.18" className="ax-bg-pulse" style={{ animationDelay: `${(i % 7) * -0.6}s` }} />
-              <circle r={5.5} fill="#bae0ff" className="ax-bg-core" style={{ animationDelay: `${(i % 5) * -0.8}s` }} />
-            </g>
-          ))}
-        </g>
-
-        {/* Gantt-style planning timeline: a track that fills, suggesting an AI-optimised schedule. */}
-        <g className="ax-bg-gantt">
-          {BARS.map((bar, i) => (
-            <g key={i}>
-              <rect x={bar.x} y={bar.y} width={bar.w} height={14} rx={7} fill="#4096ff" fillOpacity="0.12" />
-              <rect x={bar.x} y={bar.y} width={bar.w} height={14} rx={7} fill="url(#axbgEdge)" fillOpacity="0.8" className="ax-bg-bar" style={{ animationDelay: `${i * -0.9}s` }} />
-            </g>
-          ))}
-        </g>
+        {/* Neurons (pulsing) and the per-layer architecture labels. */}
+        {NET.map((layer, li) => (
+          <g key={li}>
+            {layer.map(([x, y], ni) => (
+              <g key={ni} transform={`translate(${x} ${y})`}>
+                <circle r={16} fill="#4096ff" fillOpacity="0.18" className="ax-bg-pulse" style={{ animationDelay: `${(li + ni) % 7 * -0.6}s` }} />
+                <circle r={5} fill="#bae0ff" className="ax-bg-core" style={{ animationDelay: `${(li + ni) % 5 * -0.8}s` }} />
+              </g>
+            ))}
+            <text x={LAYERS[li].x} y={945} textAnchor="middle" className="ax-bg-net_label">
+              {LAYERS[li].label}
+            </text>
+          </g>
+        ))}
 
         {/* Vertical scan line sweeping across the canvas. */}
         <rect className="ax-bg-scan" x={0} y={0} width={2} height={1080} fill="#36cfc9" fillOpacity="0.25" filter="url(#axbgSoft)" />

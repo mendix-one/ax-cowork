@@ -75,6 +75,15 @@
     height: 100%;
   }
 
+  // Per-layer architecture labels under the neural network (INPUT / ATTENTION / …).
+  &_net_label {
+    fill: #5cdbd3;
+    fill-opacity: 0.55;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: 0.22em;
+  }
+
   // AI-for-engineering-planning message, anchored in the upper region so it never fights the centred card.
   &_content {
     @apply absolute z-0 text-center;
@@ -145,13 +154,66 @@
   offset-rotate: 0deg;
   animation: ax-bg-flow 5s linear infinite;
 }
-.ax-bg-bar {
-  transform-box: fill-box;
-  transform-origin: left center;
-  animation: ax-bg-bar 6s ease-in-out infinite;
-}
 .ax-bg-scan {
   animation: ax-bg-scan 9s linear infinite;
+}
+
+// Growth / optimization chart: bars grow up, the trend line draws in, the focus dot rides its leading
+// edge, and the area fades in. Base state is the *finished* frame (full line / full bars), so disabling
+// the animation (reduced motion) leaves a complete, readable chart.
+.ax-bg-col {
+  transform-box: fill-box;
+  transform-origin: bottom;
+  animation: ax-bg-col 5s ease-in-out infinite;
+}
+.ax-bg-area {
+  animation: ax-bg-rise 5s ease-in-out infinite;
+}
+.ax-bg-trend {
+  stroke-dasharray: 1400;
+  stroke-dashoffset: 0;
+  animation: ax-bg-draw 5s ease-in-out infinite;
+}
+.ax-bg-trace {
+  offset-rotate: 0deg;
+  animation: ax-bg-trace 5s ease-in-out infinite;
+}
+
+@keyframes ax-bg-col {
+  0% {
+    transform: scaleY(0);
+  }
+  55%,
+  100% {
+    transform: scaleY(1);
+  }
+}
+@keyframes ax-bg-rise {
+  0% {
+    opacity: 0;
+  }
+  60%,
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes ax-bg-draw {
+  0% {
+    stroke-dashoffset: 1400;
+  }
+  65%,
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+@keyframes ax-bg-trace {
+  0% {
+    offset-distance: 0%;
+  }
+  65%,
+  100% {
+    offset-distance: 100%;
+  }
 }
 
 @keyframes ax-bg-breathe {
@@ -196,15 +258,6 @@
     offset-distance: 100%;
   }
 }
-@keyframes ax-bg-bar {
-  0% {
-    transform: scaleX(0);
-  }
-  55%,
-  100% {
-    transform: scaleX(1);
-  }
-}
 @keyframes ax-bg-scan {
   0% {
     transform: translateX(0);
@@ -228,11 +281,15 @@
   .ax-bg-pulse,
   .ax-bg-core,
   .ax-bg-dot,
-  .ax-bg-bar,
-  .ax-bg-scan {
+  .ax-bg-scan,
+  .ax-bg-col,
+  .ax-bg-area,
+  .ax-bg-trend,
+  .ax-bg-trace {
     animation: none !important;
   }
-  .ax-bg-scan {
+  .ax-bg-scan,
+  .ax-bg-trace {
     display: none;
   }
 }
