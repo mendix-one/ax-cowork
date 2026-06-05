@@ -4,7 +4,23 @@
  * @author Mendix Widgets Framework Team
  */
 import { ComponentType, CSSProperties, ReactNode } from "react";
-import { ActionValue, DynamicValue, WebIcon, WebImage } from "mendix";
+import { ActionValue, DynamicValue, ListValue, SelectionSingleValue, WebIcon, WebImage } from "mendix";
+
+export type PrpEnmModeEnum = "FILL_CONTENT_PAGE" | "ONE_PANEL_PAGE" | "SPLIT_VIEW_SINGLE" | "SPLIT_VIEW_MULTIPLE";
+
+export interface PrpDsLeftMenusType {
+    prpLeftMenuNo: number;
+    prpLeftMenuIcon: DynamicValue<WebIcon>;
+    prpLeftMenuCaption: DynamicValue<string>;
+    prpLeftMenuAction?: ActionValue;
+}
+
+export interface PrpDsRightMenusType {
+    prpRightMenuNo: number;
+    prpRightMenuIcon: DynamicValue<WebIcon>;
+    prpRightMenuCaption: DynamicValue<string>;
+    prpRightMenuAction?: ActionValue;
+}
 
 export interface PrpDsLeftPanelsType {
     prpLeftPanelNo: number;
@@ -18,6 +34,20 @@ export interface PrpDsRightPanelsType {
     prpRightPanelIcon: DynamicValue<WebIcon>;
     prpRightPanelCaption: DynamicValue<string>;
     prpRightPanelContent: ReactNode;
+}
+
+export interface PrpDsLeftMenusPreviewType {
+    prpLeftMenuNo: number | null;
+    prpLeftMenuIcon: { type: "glyph"; iconClass: string; } | { type: "image"; imageUrl: string; iconUrl: string; } | { type: "icon"; iconClass: string; } | undefined;
+    prpLeftMenuCaption: string;
+    prpLeftMenuAction: {} | null;
+}
+
+export interface PrpDsRightMenusPreviewType {
+    prpRightMenuNo: number | null;
+    prpRightMenuIcon: { type: "glyph"; iconClass: string; } | { type: "image"; imageUrl: string; iconUrl: string; } | { type: "icon"; iconClass: string; } | undefined;
+    prpRightMenuCaption: string;
+    prpRightMenuAction: {} | null;
 }
 
 export interface PrpDsLeftPanelsPreviewType {
@@ -39,9 +69,20 @@ export interface AxAppLayoutContainerProps {
     class: string;
     style?: CSSProperties;
     tabIndex?: number;
+    prpEnmMode: PrpEnmModeEnum;
     prpImgLogo?: DynamicValue<WebImage>;
+    prpBlnHeaderMenuApps?: boolean;
+    prpBlnHeaderMenuWorldMap?: boolean;
+    prpBlnHeaderMenuNotify?: boolean;
+    prpBlnHeaderMenuAccount?: boolean;
+    prpBlnHeaderMenuSettings?: boolean;
+    prpDsLeftMenus: PrpDsLeftMenusType[];
+    prpDsRightMenus: PrpDsRightMenusType[];
     prpDsLeftPanels: PrpDsLeftPanelsType[];
     prpDsRightPanels: PrpDsRightPanelsType[];
+    prpDsThemeConfigs?: ListValue;
+    prpSelThemeConfig?: SelectionSingleValue;
+    prpWdgPageContent?: ReactNode;
     prpActLogo?: ActionValue;
     prpActApps?: ActionValue;
     prpActWorldMap?: ActionValue;
@@ -66,9 +107,20 @@ export interface AxAppLayoutPreviewProps {
     readOnly: boolean;
     renderMode: "design" | "xray" | "structure";
     translate: (text: string) => string;
+    prpEnmMode: PrpEnmModeEnum;
     prpImgLogo: { type: "static"; imageUrl: string; } | { type: "dynamic"; entity: string; } | null;
+    prpBlnHeaderMenuApps: boolean;
+    prpBlnHeaderMenuWorldMap: boolean;
+    prpBlnHeaderMenuNotify: boolean;
+    prpBlnHeaderMenuAccount: boolean;
+    prpBlnHeaderMenuSettings: boolean;
+    prpDsLeftMenus: PrpDsLeftMenusPreviewType[];
+    prpDsRightMenus: PrpDsRightMenusPreviewType[];
     prpDsLeftPanels: PrpDsLeftPanelsPreviewType[];
     prpDsRightPanels: PrpDsRightPanelsPreviewType[];
+    prpDsThemeConfigs: {} | { caption: string } | { type: string } | null;
+    prpSelThemeConfig: "Single" | "None";
+    prpWdgPageContent: { widgetCount: number; renderer: ComponentType<{ children: ReactNode; caption?: string }> };
     prpActLogo: {} | null;
     prpActApps: {} | null;
     prpActWorldMap: {} | null;

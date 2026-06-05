@@ -16,6 +16,29 @@
   @apply bg-transparent !important;
 }
 
+// === Layout modes ====================================================================================================
+// FILL_CONTENT_PAGE: the page content fills the whole shell and the top bar floats over it — sticky to the
+// top, transparent, no background. Lifting the header out of the column flow (absolute) lets the middle
+// region take the full height behind it. The middle/main stay transparent so the content shows through.
+.ax-mode-fill {
+  .ax-sim_top {
+    @apply absolute top-0 left-0 right-0 z-10;
+  }
+  .ax-sim_middle {
+    @apply w-full h-full;
+  }
+}
+
+// Empty rail gutter (ONE_PANEL_PAGE / split modes with no menus or panels): a thin 0.5rem spacer so the
+// content doesn't butt against the shell edge.
+.ax-sim_rail_empty {
+  @apply bg-transparent !important;
+  min-width: 0.5rem !important;
+  max-width: 0.5rem !important;
+  width: 0.5rem !important;
+  flex: 0 0 0.5rem !important;
+}
+
 // Top-bar brand logo image (the AxLogo view). Fit it to the bar height, preserving aspect ratio.
 .ax-sim_logo {
   @apply w-8 h-8 rounded-md cursor-pointer flex items-center justify-center;

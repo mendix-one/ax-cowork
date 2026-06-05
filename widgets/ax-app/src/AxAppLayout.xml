@@ -15,14 +15,106 @@
   <icon/>
   <properties>
     <propertyGroup caption="General">
+      <propertyGroup caption="Layout Mode">
+        <property key="prpEnmMode" type="enumeration" defaultValue="SPLIT_VIEW_MULTIPLE">
+          <caption>Layout mode</caption>
+          <description>Layout display mode.</description>
+          <enumerationValues>
+            <enumerationValue key="FILL_CONTENT_PAGE">Fill Content Page</enumerationValue>
+            <enumerationValue key="ONE_PANEL_PAGE">One Panel Page</enumerationValue>
+            <enumerationValue key="SPLIT_VIEW_SINGLE">Split View Single</enumerationValue>
+            <enumerationValue key="SPLIT_VIEW_MULTIPLE">Split View Multiple</enumerationValue>
+          </enumerationValues>
+        </property>
+      </propertyGroup>
       <propertyGroup caption="Header Logo">
         <property key="prpImgLogo" type="image" required="false">
           <caption>Logo</caption>
           <description>Top-left brand logo image.</description>
         </property>
       </propertyGroup>
+      <propertyGroup caption="Header Menus">
+        <property key="prpBlnHeaderMenuApps" type="boolean" required="false" defaultValue="true">
+          <caption>Menu: apps</caption>
+          <description>Show header menu apps.</description>
+        </property>
+        <property key="prpBlnHeaderMenuWorldMap" type="boolean" required="false" defaultValue="true">
+          <caption>Menu: world map</caption>
+          <description>Show header menu world map.</description>
+        </property>
+        <property key="prpBlnHeaderMenuNotify" type="boolean" required="false" defaultValue="true">
+          <caption>Menu: notify</caption>
+          <description>Show header menu notify.</description>
+        </property>
+        <property key="prpBlnHeaderMenuAccount" type="boolean" required="false" defaultValue="true">
+          <caption>Menu: account</caption>
+          <description>Show header menu account.</description>
+        </property>
+        <property key="prpBlnHeaderMenuSettings" type="boolean" required="false" defaultValue="true">
+          <caption>Menu: settings</caption>
+          <description>Show header menu settings.</description>
+        </property>
+      </propertyGroup>
+      <propertyGroup caption="Left Menus">
+        <property key="prpDsLeftMenus" type="object" isList="true" required="false">
+          <caption>The left panels</caption>
+          <description/>
+          <properties>
+            <propertyGroup caption="Left Menu">
+              <property key="prpLeftMenuNo" type="integer" required="true" defaultValue="1">
+                <caption>Menu no</caption>
+                <description />
+              </property>
+              <property key="prpLeftMenuIcon" type="icon" required="true">
+                <caption>Menu icon</caption>
+                <description />
+              </property>
+              <property key="prpLeftMenuCaption" type="textTemplate" required="true">
+                <caption>Menu caption</caption>
+                <description />
+                <translations>
+                  <translation lang="en_US">Panel Title</translation>
+                </translations>
+              </property>
+              <property key="prpLeftMenuAction" type="action" required="true">
+                <caption>Menu action</caption>
+                <description />
+              </property>
+            </propertyGroup>
+          </properties>
+        </property>
+      </propertyGroup>
+      <propertyGroup caption="Right Menus">
+        <property key="prpDsRightMenus" type="object" isList="true" required="false">
+          <caption>The right panels</caption>
+          <description/>
+          <properties>
+            <propertyGroup caption="Right Menu">
+              <property key="prpRightMenuNo" type="integer" required="true" defaultValue="1">
+                <caption>Menu no</caption>
+                <description />
+              </property>
+              <property key="prpRightMenuIcon" type="icon" required="true">
+                <caption>Menu icon</caption>
+                <description />
+              </property>
+              <property key="prpRightMenuCaption" type="textTemplate" required="true">
+                <caption>Menu caption</caption>
+                <description />
+                <translations>
+                  <translation lang="en_US">Panel Title</translation>
+                </translations>
+              </property>
+              <property key="prpRightMenuAction" type="action" required="true">
+                <caption>Menu action</caption>
+                <description />
+              </property>
+            </propertyGroup>
+          </properties>
+        </property>
+      </propertyGroup>
       <propertyGroup caption="Left Panels">
-        <property key="prpDsLeftPanels" type="object" isList="true">
+        <property key="prpDsLeftPanels" type="object" isList="true" required="false">
           <caption>The left panels</caption>
           <description/>
           <properties>
@@ -51,7 +143,7 @@
         </property>
       </propertyGroup>
       <propertyGroup caption="Right Panels">
-        <property key="prpDsRightPanels" type="object" isList="true">
+        <property key="prpDsRightPanels" type="object" isList="true" required="false">
           <caption>The right panels</caption>
           <description/>
           <properties>
@@ -93,30 +185,38 @@
         </property>
       </propertyGroup>
     </propertyGroup>
+    <propertyGroup caption="Contents">
+      <propertyGroup caption="Page Content">
+        <property key="prpWdgPageContent" type="widgets" required="false">
+          <caption>Page content</caption>
+          <description>Page main content</description>
+        </property>
+      </propertyGroup>
+    </propertyGroup>
     <propertyGroup caption="Actions">
       <propertyGroup caption="Top Bar">
         <property key="prpActLogo" type="action" required="false">
-          <caption>On logo</caption>
+          <caption>On click logo</caption>
           <description>Triggered by clicking the brand logo in the top bar.</description>
         </property>
         <property key="prpActApps" type="action" required="false">
-          <caption>On apps</caption>
+          <caption>On click apps</caption>
           <description>Triggered by the apps / menu button in the top bar.</description>
         </property>
         <property key="prpActWorldMap" type="action" required="false">
-          <caption>On world map</caption>
+          <caption>On click world map</caption>
           <description>Triggered by the world map button in the top bar.</description>
         </property>
         <property key="prpActNotify" type="action" required="false">
-          <caption>On notify</caption>
+          <caption>On click notify</caption>
           <description>Triggered by the notifications button in the top bar.</description>
         </property>
         <property key="prpActAccount" type="action" required="false">
-          <caption>On account</caption>
+          <caption>On click account</caption>
           <description>Triggered by the account button in the top bar.</description>
         </property>
         <property key="prpActSettings" type="action" required="false">
-          <caption>On settings</caption>
+          <caption>On click settings</caption>
           <description>Triggered by the settings button in the top bar.</description>
         </property>
       </propertyGroup>

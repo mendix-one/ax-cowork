@@ -24,10 +24,70 @@ export const AxAppSync = observer((props: AxAppLayoutContainerProps): ReactEleme
     store.setWidget(props.name || 'axApp1', props.class, props.style, props.tabIndex)
   }, [store, props.name, props.class, props.style, props.tabIndex])
 
+  // Layout display mode — picks which regions render and whether the main area splits.
+  useEffect(() => {
+    store.setMode(props.prpEnmMode)
+  }, [store, props.prpEnmMode])
+
+  // Header top-bar menu visibility. Optional booleans default to "on" (show the button unless false).
+  useEffect(() => {
+    store.setHeaderMenus({
+      apps: props.prpBlnHeaderMenuApps !== false,
+      worldMap: props.prpBlnHeaderMenuWorldMap !== false,
+      notify: props.prpBlnHeaderMenuNotify !== false,
+      account: props.prpBlnHeaderMenuAccount !== false,
+      settings: props.prpBlnHeaderMenuSettings !== false,
+    })
+  }, [
+    store,
+    props.prpBlnHeaderMenuApps,
+    props.prpBlnHeaderMenuWorldMap,
+    props.prpBlnHeaderMenuNotify,
+    props.prpBlnHeaderMenuAccount,
+    props.prpBlnHeaderMenuSettings,
+  ])
+
   // Logo image.
   useEffect(() => {
     store.setLogo(props.prpImgLogo?.value?.uri)
   }, [store, props.prpImgLogo])
+
+  // Single page content drop zone — used as the main view in FILL_CONTENT_PAGE / ONE_PANEL_PAGE and as the
+  // (uncached) left view in SPLIT_VIEW_SINGLE.
+  useEffect(() => {
+    store.setPageContent(props.prpWdgPageContent)
+  }, [store, props.prpWdgPageContent])
+
+  // Left rail action menus (icon + caption + action per item of prpDsLeftMenus). The ActionValue and its
+  // guards stay here; only a plain onClick crosses into the store.
+  useEffect(() => {
+    store.setLeftMenus(
+      props.prpDsLeftMenus.map((menu) => ({
+        no: menu.prpLeftMenuNo,
+        icon: menu.prpLeftMenuIcon?.value,
+        caption: menu.prpLeftMenuCaption?.value ?? '',
+        onClick: () => {
+          const action = menu.prpLeftMenuAction
+          if (action && action.canExecute && !action.isExecuting) action.execute()
+        },
+      })),
+    )
+  }, [store, props.prpDsLeftMenus])
+
+  // Right rail action menus (same shape as the left list).
+  useEffect(() => {
+    store.setRightMenus(
+      props.prpDsRightMenus.map((menu) => ({
+        no: menu.prpRightMenuNo,
+        icon: menu.prpRightMenuIcon?.value,
+        caption: menu.prpRightMenuCaption?.value ?? '',
+        onClick: () => {
+          const action = menu.prpRightMenuAction
+          if (action && action.canExecute && !action.isExecuting) action.execute()
+        },
+      })),
+    )
+  }, [store, props.prpDsRightMenus])
 
   // Left rail panels (icon + caption + content per item of the prpDsLeftPanels object list). Resolve
   // each Mendix value here so the store holds only plain display data + the content node.

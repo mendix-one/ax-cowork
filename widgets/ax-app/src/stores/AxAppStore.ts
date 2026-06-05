@@ -3,10 +3,19 @@ import type { WebIcon } from 'mendix'
 import { makeAutoObservable, observable } from 'mobx'
 import { AX_BROADCAST, emitEvent } from '@ax/common'
 
+// Layout display mode (mirrors the prpEnmMode enumeration). Drives which regions render and whether the
+// main area is a single page-content view or a resizable split:
+//  - FILL_CONTENT_PAGE  — page content fills the whole shell; the top bar floats over it (no rails).
+//  - ONE_PANEL_PAGE     — page content, no split; left/right rails show action menus (or a thin gutter).
+//  - SPLIT_VIEW_SINGLE  — split view; left is the (uncached) page content with action menus, right is the
+//                         cached right-panel stack.
+//  - SPLIT_VIEW_MULTIPLE— the full version: both sides are cached panel stacks driven by their rails.
+export type AxLayoutMode = 'FILL_CONTENT_PAGE' | 'ONE_PANEL_PAGE' | 'SPLIT_VIEW_SINGLE' | 'SPLIT_VIEW_MULTIPLE'
+
 // One rail panel: a rail button (icon + caption tooltip) bound to a content view. AxAppSync builds one
 // per item of the prpDsLeftPanels / prpDsRightPanels object lists; the rails and content stacks read
 // them by array index, which is the source of truth for "which view is active". `no` is the panel-no
-// used to group rail buttons (see AxPanelGroup).
+// used to group rail buttons (see AxGroup).
 export interface AxPanel {
   no: number
   icon?: WebIcon
@@ -14,22 +23,66 @@ export interface AxPanel {
   content: ReactNode
 }
 
-// Panels that share the same `no` render as one rail group; groups are ordered by `no` ascending and
-// separated by a divider. Each item keeps its original index into leftPanels / rightPanels so the rail
-// button still maps to the right content view (which stays in flat prop order).
-export interface AxPanelGroup {
+// One rail menu: a rail button (icon + caption tooltip) that fires a Mendix action instead of switching a
+// view. Built from prpDsLeftMenus / prpDsRightMenus. `onClick` is a plain callback (the ActionValue and its
+// guards stay in AxAppSync), so the store still never touches a widget value.
+export interface AxMenu {
   no: number
-  items: { panel: AxPanel; index: number }[]
+  icon?: WebIcon
+  caption: string
+  onClick: () => void
 }
 
-function groupPanels(panels: AxPanel[]): AxPanelGroup[] {
-  const groups = new Map<number, { panel: AxPanel; index: number }[]>()
-  panels.forEach((panel, index) => {
-    const items = groups.get(panel.no) ?? []
-    items.push({ panel, index })
-    groups.set(panel.no, items)
+// Items sharing the same `no` render as one rail group; groups are ordered by `no` ascending and separated
+// by a divider. Each item keeps its original index into the source list so the rail button still maps to
+// the right content view / menu (which stays in flat prop order).
+export interface AxGroup<T> {
+  no: number
+  items: { item: T; index: number }[]
+}
+
+function groupByNo<T extends { no: number }>(list: T[]): AxGroup<T>[] {
+  const groups = new Map<number, { item: T; index: number }[]>()
+  list.forEach((item, index) => {
+    const items = groups.get(item.no) ?? []
+    items.push({ item, index })
+    groups.set(item.no, items)
   })
   return [...groups.keys()].sort((a, b) => a - b).map((no) => ({ no, items: groups.get(no)! }))
+}
+
+// One normalized rail button — what the rail views actually render, regardless of whether the source was a
+// view-switching panel or an action menu. `active` highlights the button; `onClick` selects/toggles a view
+// or fires a menu action. Built per mode by the leftRail / rightRail getters.
+export interface AxRailButton {
+  key: string
+  icon?: WebIcon
+  caption: string
+  active: boolean
+  onClick: () => void
+}
+
+export interface AxRailGroup {
+  no: number
+  buttons: AxRailButton[]
+}
+
+// Header top-bar menu visibility (apps, world map, notify, account, settings). Each button is shown unless
+// its flag is explicitly false — the props are optional booleans defaulting to "on".
+export interface AxHeaderMenus {
+  apps: boolean
+  worldMap: boolean
+  notify: boolean
+  account: boolean
+  settings: boolean
+}
+
+const ALL_HEADER_MENUS: AxHeaderMenus = {
+  apps: true,
+  worldMap: true,
+  notify: true,
+  account: true,
+  settings: true,
 }
 
 // Tooltip labels for the fixed top-bar buttons. The rails are data-driven now, so their labels live on
@@ -90,7 +143,12 @@ export class AxAppStore {
   labels: AxTopBarLabels = EMPTY_TOPBAR_LABELS
   actions: AxAppActions = {}
 
+  mode: AxLayoutMode = 'SPLIT_VIEW_MULTIPLE'
+  headerMenus: AxHeaderMenus = ALL_HEADER_MENUS
   logoUrl?: string
+  pageContent?: ReactNode
+  leftMenus: AxMenu[] = []
+  rightMenus: AxMenu[] = []
   leftPanels: AxPanel[] = []
   rightPanels: AxPanel[] = []
 
@@ -103,6 +161,10 @@ export class AxAppStore {
         style: observable.ref,
         labels: observable.ref,
         actions: observable.ref,
+        headerMenus: observable.ref,
+        pageContent: observable.ref,
+        leftMenus: observable.ref,
+        rightMenus: observable.ref,
         leftPanels: observable.ref,
         rightPanels: observable.ref,
       },
@@ -110,14 +172,88 @@ export class AxAppStore {
     )
   }
 
-  // Rail groups (by panel-no, ordered ascending) — the rails render these with a divider between
-  // groups. Derived from the flat panel arrays, so they recompute whenever the lists are reassigned.
-  get leftGroups(): AxPanelGroup[] {
-    return groupPanels(this.leftPanels)
+  // --- Mode helpers -------------------------------------------------------------------------------
+  // The shell renders the top bar and (for non-fill modes) the rails + bottom bar; these getters keep
+  // the mode branching readable in the views.
+  get isFill(): boolean {
+    return this.mode === 'FILL_CONTENT_PAGE'
   }
 
-  get rightGroups(): AxPanelGroup[] {
-    return groupPanels(this.rightPanels)
+  get showSplit(): boolean {
+    return this.mode === 'SPLIT_VIEW_SINGLE' || this.mode === 'SPLIT_VIEW_MULTIPLE'
+  }
+
+  // --- Rail groups --------------------------------------------------------------------------------
+  // Grouped by `no` (ascending) — the rails render these with a divider between groups. Derived from the
+  // flat source arrays, so they recompute whenever the lists are reassigned.
+  get leftGroups(): AxGroup<AxPanel>[] {
+    return groupByNo(this.leftPanels)
+  }
+
+  get rightGroups(): AxGroup<AxPanel>[] {
+    return groupByNo(this.rightPanels)
+  }
+
+  get leftMenuGroups(): AxGroup<AxMenu>[] {
+    return groupByNo(this.leftMenus)
+  }
+
+  get rightMenuGroups(): AxGroup<AxMenu>[] {
+    return groupByNo(this.rightMenus)
+  }
+
+  // Normalized left rail buttons for the active mode: view-switching panels in SPLIT_VIEW_MULTIPLE,
+  // action menus otherwise (ONE_PANEL_PAGE / SPLIT_VIEW_SINGLE). FILL mode renders no left rail.
+  get leftRail(): AxRailGroup[] {
+    if (this.mode === 'SPLIT_VIEW_MULTIPLE') {
+      return this.leftGroups.map((group) => ({
+        no: group.no,
+        buttons: group.items.map(({ item, index }) => ({
+          key: `panel-${index}`,
+          icon: item.icon,
+          caption: item.caption,
+          active: this.activeLeft === index,
+          onClick: () => this.selectLeft(index),
+        })),
+      }))
+    }
+    return this.leftMenuGroups.map((group) => ({
+      no: group.no,
+      buttons: group.items.map(({ item, index }) => ({
+        key: `menu-${index}`,
+        icon: item.icon,
+        caption: item.caption,
+        active: false,
+        onClick: item.onClick,
+      })),
+    }))
+  }
+
+  // Normalized right rail buttons: view-toggling panels in the split modes (SPLIT_VIEW_SINGLE /
+  // SPLIT_VIEW_MULTIPLE), action menus in ONE_PANEL_PAGE. FILL mode renders no right rail.
+  get rightRail(): AxRailGroup[] {
+    if (this.showSplit) {
+      return this.rightGroups.map((group) => ({
+        no: group.no,
+        buttons: group.items.map(({ item, index }) => ({
+          key: `panel-${index}`,
+          icon: item.icon,
+          caption: item.caption,
+          active: this.rightOpen && this.activeRight === index,
+          onClick: () => this.toggleRight(index),
+        })),
+      }))
+    }
+    return this.rightMenuGroups.map((group) => ({
+      no: group.no,
+      buttons: group.items.map(({ item, index }) => ({
+        key: `menu-${index}`,
+        icon: item.icon,
+        caption: item.caption,
+        active: false,
+        onClick: item.onClick,
+      })),
+    }))
   }
 
   // Broadcast a per-instance notification on the global bus (for child widgets to react).
@@ -138,12 +274,32 @@ export class AxAppStore {
     this.tabIndex = tabIndex
   }
 
+  setMode(mode: AxLayoutMode): void {
+    this.mode = mode
+  }
+
+  setHeaderMenus(headerMenus: AxHeaderMenus): void {
+    this.headerMenus = headerMenus
+  }
+
   setTopBarLabels(labels: AxTopBarLabels): void {
     this.labels = labels
   }
 
   setLogo(logoUrl: string | undefined): void {
     this.logoUrl = logoUrl
+  }
+
+  setPageContent(pageContent: ReactNode): void {
+    this.pageContent = pageContent
+  }
+
+  setLeftMenus(menus: AxMenu[]): void {
+    this.leftMenus = menus
+  }
+
+  setRightMenus(menus: AxMenu[]): void {
+    this.rightMenus = menus
   }
 
   setLeftPanels(panels: AxPanel[]): void {
