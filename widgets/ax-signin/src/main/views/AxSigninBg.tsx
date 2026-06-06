@@ -1,24 +1,21 @@
-import type { ReactElement } from 'react'
+import type { CSSProperties, ReactElement } from 'react'
 import { useEffect, useRef } from 'react'
 
-// Animated digital background layer for the sign-in screen. A self-contained inline SVG (no external
-// asset) authored on a 1920×1080 / full-HD canvas and scaled to cover any viewport via
-// preserveAspectRatio="xMidYMid slice", so it stays crisp and responsive from phones to ultrawide.
-// The motif — a deep neural network (embedding → self-attention → feed-forward → output, the transformer
-// pipeline) with activations flowing through it, alongside a growth/optimization chart — reads as "the AI
-// model powering better engineering planning".
+// Animated digital background layer for the sign-in screen, rendered to a <canvas> and driven by a
+// requestAnimationFrame loop (2D drawing — no SVG, no CSS keyframes, no CSS Motion Path).
 //
-// Motion is driven by a requestAnimationFrame loop that writes SVG attributes / element.style directly,
-// NOT by CSS keyframes or CSS Motion Path. This is deliberate: in a packaged Mendix widget those CSS
-// features proved unreliable, whereas scripted style writes are well-supported and aren't affected by a
-// Content-Security-Policy that blocks inline <style>/style attributes. The JSX renders a calm "finished"
-// frame, so first paint and prefers-reduced-motion (where the loop never starts) both look intentional.
-// The headline / subtitle / tagline render as crisp HTML over the animation.
+// Why canvas: inside a packaged Mendix widget the SVG/CSS approaches proved unreliable (the layer depends
+// on the widget CSS file loading and giving the inline <svg> a real size, and SVG geometry calls such as
+// getTotalLength/getPointAtLength can throw and silently kill the animation loop). Canvas removes all of
+// that: the element is sized and positioned from JS with inline styles (so it survives even if the CSS
+// file fails to load), every frame is wrapped in try/catch, and ResizeObserver + a window-size fallback
+// guarantee a drawable surface. The motif is unchanged — a transformer-style neural net (embedding →
+// attention → feed-forward → output) with a randomly-routed forward pass, plus a growth/optimization
+// chart. The headline / subtitle / tagline still render as crisp HTML over the canvas.
 
-// Deep neural network — the core motif. Stacked layers of neurons (embedding → self-attention →
-// feed-forward → decode → output, the transformer pipeline) fully wired layer-to-layer, with activations
-// propagating left→right (the forward pass).
 type Pt = [number, number]
+
+// --- Neural network geometry ---------------------------------------------------------------------------
 const NET_CENTER_Y = 640
 const NEURON_GAP = 74
 const LAYERS: Array<{ x: number; count: number; label: string }> = [
@@ -29,24 +26,17 @@ const LAYERS: Array<{ x: number; count: number; label: string }> = [
   { x: 1380, count: 5, label: 'DECODE' },
   { x: 1670, count: 3, label: 'OUTPUT' },
 ]
-
-// Neuron positions per layer (vertically centred on NET_CENTER_Y).
 const NET: Pt[][] = LAYERS.map(({ x, count }) => {
   const top = NET_CENTER_Y - ((count - 1) * NEURON_GAP) / 2
   return Array.from({ length: count }, (_, i) => [x, top + i * NEURON_GAP] as Pt)
 })
-
-// Full inter-layer connectivity (every neuron to every neuron in the next layer).
 const CONNECTIONS: Array<[Pt, Pt]> = []
 for (let l = 0; l < NET.length - 1; l++) {
   for (const a of NET[l]) for (const b of NET[l + 1]) CONNECTIONS.push([a, b])
 }
 
-// Forward pass: one travelling activation per source neuron between adjacent layers. Each carries its source
-// point, the whole destination layer to route into, its layer index (drives the left→right wave), and a
-// fixed sub-second jitter so neurons in a layer don't fire in perfect lockstep. The actual target neuron
-// is chosen RANDOMLY at runtime on every repeat (see the loop), so the path varies each time instead of
-// retracing the same edge.
+// Forward pass: one activation per source neuron between adjacent layers. The target neuron and whether
+// the neuron fires at all are re-rolled randomly each pass (see the loop), so routing never just repeats.
 const PASS: Array<{ a: Pt; dst: Pt[]; layer: number; jitter: number }> = []
 for (let l = 0; l < NET.length - 1; l++) {
   const src = NET[l]
@@ -57,9 +47,9 @@ for (let l = 0; l < NET.length - 1; l++) {
 }
 const PASS_LAYERS = NET.length - 1
 
-// Self-attention arcs inside the ATTENTION layer (neuron-to-neuron within the same column), bulging left.
+// Self-attention arcs inside the ATTENTION layer (control point bulges left).
 const ATTN = NET[2]
-const ATTN_ARCS: string[] = [
+const ATTN_ARCS: Array<{ a: Pt; c: Pt; b: Pt }> = [
   [0, 4],
   [1, 6],
   [2, 7],
@@ -67,12 +57,11 @@ const ATTN_ARCS: string[] = [
 ].map(([i, j]) => {
   const a = ATTN[i]
   const b = ATTN[j]
-  return `M ${a[0]} ${a[1]} Q ${a[0] - 110} ${(a[1] + b[1]) / 2} ${b[0]} ${b[1]}`
+  return { a, c: [a[0] - 110, (a[1] + b[1]) / 2] as Pt, b }
 })
 
-// "Optimization / growth" analysis chart (local chart coords, baseline y = 300). The trend climbs with a
-// small mid-course correction, reading as a plan that AI iteratively improves.
-const TREND: Array<[number, number]> = [
+// --- Growth / optimization chart geometry (local chart coords, baseline y = 300) -----------------------
+const TREND: Pt[] = [
   [0, 270],
   [68, 238],
   [136, 250],
@@ -82,11 +71,25 @@ const TREND: Array<[number, number]> = [
   [408, 110],
   [480, 56],
 ]
-const TREND_LINE = TREND.map(([x, y], i) => `${i === 0 ? 'M' : 'L'} ${x} ${y}`).join(' ')
-const TREND_AREA = `M 0 300 ${TREND.map(([x, y]) => `L ${x} ${y}`).join(' ')} L 480 300 Z`
+const TREND_CUM = [0]
+for (let i = 1; i < TREND.length; i++) {
+  TREND_CUM[i] = TREND_CUM[i - 1] + Math.hypot(TREND[i][0] - TREND[i - 1][0], TREND[i][1] - TREND[i - 1][1])
+}
+const TREND_TOTAL = TREND_CUM[TREND.length - 1]
+function trendPointAt(p: number): Pt {
+  const target = p * TREND_TOTAL
+  for (let i = 1; i < TREND.length; i++) {
+    if (TREND_CUM[i] >= target) {
+      const seg = TREND_CUM[i] - TREND_CUM[i - 1]
+      const f = seg ? (target - TREND_CUM[i - 1]) / seg : 0
+      return [TREND[i - 1][0] + (TREND[i][0] - TREND[i - 1][0]) * f, TREND[i - 1][1] + (TREND[i][1] - TREND[i - 1][1]) * f]
+    }
+  }
+  return TREND[TREND.length - 1]
+}
 
-// Ascending analysis bars (x, height) — mostly growing across iterations, with one dip for realism.
-const COLS: Array<[number, number]> = [
+// Ascending analysis bars (x, height).
+const COLS: Pt[] = [
   [16, 50],
   [84, 85],
   [152, 72],
@@ -96,233 +99,316 @@ const COLS: Array<[number, number]> = [
   [424, 226],
 ]
 
+const TAU = Math.PI * 2
+const mod = (a: number, b: number): number => ((a % b) + b) % b
+const clamp01 = (x: number): number => (x < 0 ? 0 : x > 1 ? 1 : x)
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
+  const rr = Math.max(0, Math.min(r, w / 2, h / 2))
+  ctx.beginPath()
+  ctx.moveTo(x + rr, y)
+  ctx.arcTo(x + w, y, x + w, y + h, rr)
+  ctx.arcTo(x + w, y + h, x, y + h, rr)
+  ctx.arcTo(x, y + h, x, y, rr)
+  ctx.arcTo(x, y, x + w, y, rr)
+  ctx.closePath()
+}
+
+// Inline styles for the critical layout so the layer renders even if the widget CSS file fails to load.
+const WRAP_STYLE: CSSProperties = { position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }
+const CANVAS_STYLE: CSSProperties = { display: 'block', width: '100%', height: '100%' }
+
 export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subtitle?: string; tagline?: string }): ReactElement {
-  const svgRef = useRef<SVGSVGElement>(null)
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
 
-  // Drive every animation from one rAF loop (scripted attribute/style writes — no CSS keyframes). Elements
-  // are matched by their js-* class in document order, which equals the order of the data arrays above.
   useEffect(() => {
-    const svg = svgRef.current
-    if (!svg) return
-    const reduce = typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
-    if (reduce) return // leave the static "finished" frame from the JSX
+    const canvas = canvasRef.current
+    const wrap = wrapRef.current
+    if (!canvas || !wrap) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
 
-    const all = <T extends Element>(sel: string): T[] => Array.from(svg.querySelectorAll<T>(sel))
-    const one = <T extends Element>(sel: string): T | null => svg.querySelector<T>(sel)
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    let cssW = 0
+    let cssH = 0
+    const measure = (): void => {
+      const r = wrap.getBoundingClientRect()
+      let w = r.width
+      let h = r.height
+      if (w < 2 || h < 2) {
+        // Container not laid out / collapsed — fall back to the viewport so we always have a surface.
+        w = window.innerWidth || 1280
+        h = window.innerHeight || 720
+      }
+      cssW = w
+      cssH = h
+      canvas.width = Math.max(1, Math.round(w * dpr))
+      canvas.height = Math.max(1, Math.round(h * dpr))
+    }
+    measure()
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null
+    ro?.observe(wrap)
+    window.addEventListener('resize', measure)
 
-    const passEls = all<SVGCircleElement>('.js-pass')
-    const pulseEls = all<SVGCircleElement>('.js-pulse')
-    const coreEls = all<SVGCircleElement>('.js-core')
-    const barEls = all<SVGRectElement>('.js-bar')
-    const arcEls = all<SVGPathElement>('.js-arc')
-    const trend = one<SVGPathElement>('.js-trend')
-    const trace = one<SVGCircleElement>('.js-trace')
-    const cscan = one<SVGRectElement>('.js-cscan')
-    const scan = one<SVGRectElement>('.js-scan')
-    const glow = one<SVGRectElement>('.js-glow')
-
-    const pulseBase = pulseEls.map((el) => parseFloat(el.getAttribute('r') || '16'))
-    const len = trend ? trend.getTotalLength() : 0
-    if (trend) trend.setAttribute('stroke-dasharray', String(len))
-    arcEls.forEach((el) => el.setAttribute('stroke-dasharray', '6 7'))
-
-    // Per-dot routing state, re-rolled whenever the dot starts a new pass: `active` randomly decides
-    // whether this source neuron fires at all this round (so not every neuron fires every time), and
-    // `target` is the randomly chosen destination neuron — so both which nodes fire and the path vary.
-    const passState = passEls.map(() => ({ cycle: Number.NEGATIVE_INFINITY, target: 0, active: false }))
+    // Per-dot routing state, re-rolled each pass: `active` decides whether the neuron fires this round,
+    // `target` is the random destination neuron.
+    const passState = PASS.map(() => ({ cycle: Number.NEGATIVE_INFINITY, target: 0, active: false }))
     const FIRE_PROB = 0.6
 
-    const TAU = Math.PI * 2
-    const mod = (a: number, b: number): number => ((a % b) + b) % b
-    const clamp01 = (x: number): number => (x < 0 ? 0 : x > 1 ? 1 : x)
+    const render = (t: number): void => {
+      const w = cssW
+      const h = cssH
+      const scale = Math.max(w / 1920, h / 1080) // cover (== SVG "slice")
+      const ox = (w - 1920 * scale) / 2
+      const oy = (h - 1080 * scale) / 2
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.clearRect(0, 0, w, h)
+      ctx.translate(ox, oy)
+      ctx.scale(scale, scale)
 
-    let raf = 0
-    let start = 0
-    const tick = (ts: number): void => {
-      if (!start) start = ts
-      const t = (ts - start) / 1000
+      // Backdrop gradient.
+      const sky = ctx.createLinearGradient(0, 0, 1920, 1080)
+      sky.addColorStop(0, '#1b1147')
+      sky.addColorStop(0.45, '#120338')
+      sky.addColorStop(1, '#05010f')
+      ctx.fillStyle = sky
+      ctx.fillRect(0, 0, 1920, 1080)
 
-      // Soft central glow breathing (7s).
-      if (glow) glow.style.opacity = (0.65 + 0.35 * (0.5 + 0.5 * Math.sin((t / 7) * TAU))).toFixed(3)
-
-      // Neuron / focus-point pulse rings (grow + fade) and bright cores.
-      for (let i = 0; i < pulseEls.length; i++) {
-        const v = 0.5 + 0.5 * Math.sin((t / 4.2 + i * 0.37) * TAU)
-        pulseEls[i].setAttribute('r', (pulseBase[i] * (0.6 + 0.7 * v)).toFixed(2))
-        pulseEls[i].style.opacity = (0.5 - 0.45 * v).toFixed(3)
+      // Blueprint grid.
+      ctx.lineWidth = 1
+      ctx.strokeStyle = 'rgba(64,150,255,0.06)'
+      ctx.beginPath()
+      for (let x = 0; x <= 1920; x += 60) {
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, 1080)
       }
-      for (let i = 0; i < coreEls.length; i++) {
-        coreEls[i].style.opacity = (0.4 + 0.6 * (0.5 + 0.5 * Math.sin((t / 3 + i * 0.5) * TAU))).toFixed(3)
+      for (let y = 0; y <= 1080; y += 60) {
+        ctx.moveTo(0, y)
+        ctx.lineTo(1920, y)
       }
+      ctx.stroke()
 
-      // Forward pass: each activation travels to a RANDOMLY chosen neuron in the next layer during its
-      // slot, then hides. The layer-based offset keeps the wave sweeping left→right; the target is
-      // re-rolled whenever the dot enters a new pass, so the routing never simply repeats.
+      // Breathing central glow.
+      const breathe = 0.65 + 0.35 * (0.5 + 0.5 * Math.sin((t / 7) * TAU))
+      const glow = ctx.createRadialGradient(960, 454, 0, 960, 454, 820)
+      glow.addColorStop(0, `rgba(47,84,235,${0.45 * breathe})`)
+      glow.addColorStop(0.55, `rgba(47,84,235,${0.08 * breathe})`)
+      glow.addColorStop(1, 'rgba(47,84,235,0)')
+      ctx.fillStyle = glow
+      ctx.fillRect(0, 0, 1920, 1080)
+
+      // --- Chart (translate to its origin) ---
+      ctx.save()
+      ctx.translate(1330, 170)
+      // gridlines + baseline
+      ctx.strokeStyle = 'rgba(64,150,255,0.08)'
+      ctx.beginPath()
+      for (const gy of [60, 130, 200, 270]) {
+        ctx.moveTo(0, gy)
+        ctx.lineTo(480, gy)
+      }
+      ctx.stroke()
+      ctx.strokeStyle = 'rgba(64,150,255,0.18)'
+      ctx.lineWidth = 1.5
+      ctx.beginPath()
+      ctx.moveTo(0, 300)
+      ctx.lineTo(480, 300)
+      ctx.stroke()
+      const chartCycle = mod(t, 5)
+      // bars
+      for (let i = 0; i < COLS.length; i++) {
+        const g = clamp01((chartCycle - i * 0.32) / 1.4)
+        const bh = COLS[i][1] * g
+        ctx.fillStyle = 'rgba(74,180,225,0.75)'
+        roundRect(ctx, COLS[i][0], 300 - bh, 40, bh, 5)
+        ctx.fill()
+      }
+      // area
+      const area = ctx.createLinearGradient(0, 0, 0, 300)
+      area.addColorStop(0, 'rgba(54,207,201,0.35)')
+      area.addColorStop(1, 'rgba(54,207,201,0)')
+      ctx.fillStyle = area
+      ctx.beginPath()
+      ctx.moveTo(0, 300)
+      for (const p of TREND) ctx.lineTo(p[0], p[1])
+      ctx.lineTo(480, 300)
+      ctx.closePath()
+      ctx.fill()
+      // trend line drawn up to the current fraction
+      const drawP = clamp01((chartCycle - 0.3) / 2.6)
+      const line = ctx.createLinearGradient(0, 0, 480, 0)
+      line.addColorStop(0, '#13c2c2')
+      line.addColorStop(1, '#4096ff')
+      ctx.strokeStyle = line
+      ctx.lineWidth = 3
+      ctx.lineJoin = 'round'
+      ctx.lineCap = 'round'
+      const target = drawP * TREND_TOTAL
+      ctx.beginPath()
+      ctx.moveTo(TREND[0][0], TREND[0][1])
+      for (let i = 1; i < TREND.length; i++) {
+        if (TREND_CUM[i] <= target) {
+          ctx.lineTo(TREND[i][0], TREND[i][1])
+        } else {
+          const seg = TREND_CUM[i] - TREND_CUM[i - 1]
+          const f = seg ? (target - TREND_CUM[i - 1]) / seg : 0
+          ctx.lineTo(TREND[i - 1][0] + (TREND[i][0] - TREND[i - 1][0]) * f, TREND[i - 1][1] + (TREND[i][1] - TREND[i - 1][1]) * f)
+          break
+        }
+      }
+      ctx.stroke()
+      // trace dot at the leading edge
+      const tp = trendPointAt(drawP)
+      ctx.fillStyle = '#bae0ff'
+      ctx.beginPath()
+      ctx.arc(tp[0], tp[1], 5.5, 0, TAU)
+      ctx.fill()
+      // tip pulse + core
+      const tipV = 0.5 + 0.5 * Math.sin((t / 4.2) * TAU)
+      ctx.fillStyle = `rgba(54,207,201,${(0.5 - 0.45 * tipV).toFixed(3)})`
+      ctx.beginPath()
+      ctx.arc(480, 56, 13 * (0.6 + 0.7 * tipV), 0, TAU)
+      ctx.fill()
+      ctx.fillStyle = '#caf5ef'
+      ctx.beginPath()
+      ctx.arc(480, 56, 5, 0, TAU)
+      ctx.fill()
+      // growth arrow
+      ctx.strokeStyle = '#87e8de'
+      ctx.lineWidth = 3
+      ctx.beginPath()
+      ctx.moveTo(478, 58)
+      ctx.lineTo(506, 32)
+      ctx.moveTo(506, 32)
+      ctx.lineTo(491, 34)
+      ctx.moveTo(506, 32)
+      ctx.lineTo(504, 49)
+      ctx.stroke()
+      // chart scan
+      const scanSp = clamp01((chartCycle - 0.4) / 3)
+      if (chartCycle > 0.4 && chartCycle < 3.6) {
+        ctx.strokeStyle = 'rgba(92,219,211,0.5)'
+        ctx.lineWidth = 2
+        ctx.beginPath()
+        ctx.moveTo(scanSp * 480, 0)
+        ctx.lineTo(scanSp * 480, 300)
+        ctx.stroke()
+      }
+      ctx.restore()
+
+      // --- Neural network ---
+      // connections (one batched stroke)
+      ctx.strokeStyle = 'rgba(85,170,255,0.13)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      for (const [a, b] of CONNECTIONS) {
+        ctx.moveTo(a[0], a[1])
+        ctx.lineTo(b[0], b[1])
+      }
+      ctx.stroke()
+
+      // attention arcs with dash flow
+      ctx.strokeStyle = 'rgba(146,84,222,0.5)'
+      ctx.lineWidth = 1.5
+      ctx.setLineDash([6, 7])
+      ctx.lineDashOffset = -(t * 22) % 26
+      ctx.beginPath()
+      for (const arc of ATTN_ARCS) {
+        ctx.moveTo(arc.a[0], arc.a[1])
+        ctx.quadraticCurveTo(arc.c[0], arc.c[1], arc.b[0], arc.b[1])
+      }
+      ctx.stroke()
+      ctx.setLineDash([])
+
+      // forward-pass activations (random source + target each pass)
       const period = 3.2
       const travel = 0.55
-      for (let i = 0; i < passEls.length; i++) {
+      for (let i = 0; i < PASS.length; i++) {
         const p = PASS[i]
         const offset = (p.layer / PASS_LAYERS) * 2.4 + p.jitter
         const cycle = Math.floor((t - offset) / period)
-        const state = passState[i]
-        if (cycle !== state.cycle) {
-          state.cycle = cycle
-          state.active = Math.random() < FIRE_PROB
-          state.target = (Math.random() * p.dst.length) | 0
+        const st = passState[i]
+        if (cycle !== st.cycle) {
+          st.cycle = cycle
+          st.active = Math.random() < FIRE_PROB
+          st.target = (Math.random() * p.dst.length) | 0
         }
         const local = mod(t - offset, period)
-        if (state.active && local < travel) {
-          const b = p.dst[state.target]
-          const pr = local / travel
-          passEls[i].setAttribute('cx', (p.a[0] + (b[0] - p.a[0]) * pr).toFixed(1))
-          passEls[i].setAttribute('cy', (p.a[1] + (b[1] - p.a[1]) * pr).toFixed(1))
-          passEls[i].style.opacity = clamp01(Math.min(8 * pr, 8 * (1 - pr))).toFixed(3)
-        } else {
-          passEls[i].style.opacity = '0'
+        if (!st.active || local >= travel) continue
+        const b = p.dst[st.target]
+        const pr = local / travel
+        const op = clamp01(Math.min(8 * pr, 8 * (1 - pr)))
+        ctx.fillStyle = `rgba(92,219,211,${op.toFixed(3)})`
+        ctx.beginPath()
+        ctx.arc(p.a[0] + (b[0] - p.a[0]) * pr, p.a[1] + (b[1] - p.a[1]) * pr, 4, 0, TAU)
+        ctx.fill()
+      }
+
+      // neurons (pulse ring + core) and layer labels
+      let ni = 0
+      for (let li = 0; li < NET.length; li++) {
+        for (const [nx, ny] of NET[li]) {
+          const v = 0.5 + 0.5 * Math.sin((t / 4.2 + ni * 0.37) * TAU)
+          const v2 = 0.5 + 0.5 * Math.sin((t / 3 + ni * 0.5) * TAU)
+          ctx.fillStyle = `rgba(64,150,255,${(0.5 - 0.45 * v).toFixed(3)})`
+          ctx.beginPath()
+          ctx.arc(nx, ny, 16 * (0.6 + 0.7 * v), 0, TAU)
+          ctx.fill()
+          ctx.fillStyle = `rgba(186,224,255,${(0.4 + 0.6 * v2).toFixed(3)})`
+          ctx.beginPath()
+          ctx.arc(nx, ny, 5, 0, TAU)
+          ctx.fill()
+          ni++
         }
+        ctx.fillStyle = 'rgba(92,219,211,0.55)'
+        ctx.font = '600 17px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        ctx.textAlign = 'center'
+        ctx.fillText(LAYERS[li].label, LAYERS[li].x, 945)
       }
 
-      // Attention arcs: continuous dash flow.
-      for (let i = 0; i < arcEls.length; i++) arcEls[i].setAttribute('stroke-dashoffset', (-(t * 22 + i * 5) % 26).toFixed(1))
-
-      // Analysis chart on a 5s cycle: bars grow, trend draws in with a focus dot, a scan sweeps across.
-      const cl = mod(t, 5)
-      for (let i = 0; i < barEls.length; i++) {
-        const g = clamp01((cl - i * 0.32) / 1.4)
-        const h = COLS[i][1] * g
-        barEls[i].setAttribute('y', (300 - h).toFixed(1))
-        barEls[i].setAttribute('height', h.toFixed(1))
-      }
-      if (trend) {
-        const p = clamp01((cl - 0.3) / 2.6)
-        trend.setAttribute('stroke-dashoffset', (len * (1 - p)).toFixed(1))
-        if (trace) {
-          const pt = trend.getPointAtLength(p * len)
-          trace.setAttribute('cx', pt.x.toFixed(1))
-          trace.setAttribute('cy', pt.y.toFixed(1))
-        }
-      }
-      if (cscan) {
-        const sp = clamp01((cl - 0.4) / 3)
-        cscan.setAttribute('x', (sp * 480 - 1).toFixed(1))
-        cscan.style.opacity = cl > 0.4 && cl < 3.6 ? '0.5' : '0'
-      }
-
-      // Vertical scan line sweeping the whole canvas (9s).
-      if (scan) {
-        scan.setAttribute('x', ((mod(t, 9) / 9) * 1920).toFixed(0))
-        scan.style.opacity = '1'
-      }
-
-      raf = requestAnimationFrame(tick)
+      // full-canvas vertical scan line
+      ctx.strokeStyle = 'rgba(54,207,201,0.22)'
+      ctx.lineWidth = 3
+      const sx = (mod(t, 9) / 9) * 1920
+      ctx.beginPath()
+      ctx.moveTo(sx, 0)
+      ctx.lineTo(sx, 1080)
+      ctx.stroke()
     }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
+
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
+    let raf = 0
+    let start = 0
+    const frame = (ts: number): void => {
+      if (!start) start = ts
+      try {
+        render((ts - start) / 1000)
+      } catch {
+        // never let one bad frame kill the loop
+      }
+      raf = requestAnimationFrame(frame)
+    }
+    if (reduce) {
+      try {
+        render(4) // a calm, settled frame
+      } catch {
+        /* noop */
+      }
+    } else {
+      raf = requestAnimationFrame(frame)
+    }
+
+    return () => {
+      cancelAnimationFrame(raf)
+      ro?.disconnect()
+      window.removeEventListener('resize', measure)
+    }
   }, [])
 
   return (
-    <div className="ax-signin_bg" aria-hidden="true">
-      <svg ref={svgRef} className="ax-signin_bg_svg" viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <linearGradient id="axbgSky" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#1b1147" />
-            <stop offset="45%" stopColor="#120338" />
-            <stop offset="100%" stopColor="#05010f" />
-          </linearGradient>
-          <radialGradient id="axbgGlow" cx="50%" cy="42%" r="60%">
-            <stop offset="0%" stopColor="#2f54eb" stopOpacity="0.45" />
-            <stop offset="55%" stopColor="#2f54eb" stopOpacity="0.08" />
-            <stop offset="100%" stopColor="#2f54eb" stopOpacity="0" />
-          </radialGradient>
-          <linearGradient id="axbgEdge" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#13c2c2" />
-            <stop offset="100%" stopColor="#4096ff" />
-          </linearGradient>
-          <linearGradient id="axbgArea" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#36cfc9" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#36cfc9" stopOpacity="0" />
-          </linearGradient>
-          <pattern id="axbgGrid" width="60" height="60" patternUnits="userSpaceOnUse">
-            <path d="M60 0H0V60" fill="none" stroke="#4096ff" strokeOpacity="0.06" strokeWidth="1" />
-          </pattern>
-          <filter id="axbgSoft" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" />
-          </filter>
-        </defs>
-
-        {/* Backdrop: deep digital gradient, blueprint grid, and a soft (breathing) central glow. */}
-        <rect width="1920" height="1080" fill="url(#axbgSky)" />
-        <rect width="1920" height="1080" fill="url(#axbgGrid)" />
-        <rect className="js-glow" width="1920" height="1080" fill="url(#axbgGlow)" />
-
-        {/* Optimization / growth analysis chart — ascending bars and a trend line that draws upward to a
-            growth arrow, evoking a plan AI keeps improving. */}
-        <g transform="translate(1330 170)">
-          {/* Faint horizontal gridlines + a brighter baseline. */}
-          {[60, 130, 200, 270].map((y) => (
-            <line key={y} x1={0} y1={y} x2={480} y2={y} stroke="#4096ff" strokeOpacity="0.08" strokeWidth="1" />
-          ))}
-          <line x1={0} y1={300} x2={480} y2={300} stroke="#4096ff" strokeOpacity="0.18" strokeWidth="1.5" />
-
-          {/* Live-analysis scan sweeping across the chart. */}
-          <rect className="js-cscan" x={-1} y={0} width={2} height={300} fill="#5cdbd3" style={{ opacity: 0 }} />
-
-          {/* Ascending analysis bars (rendered at full height; the loop grows them from the baseline). */}
-          {COLS.map(([x, h], i) => (
-            <rect key={i} className="js-bar" x={x} y={300 - h} width={40} height={h} rx={5} fill="url(#axbgEdge)" fillOpacity="0.16" />
-          ))}
-
-          {/* Area under the trend, the trend line (drawn in by the loop), and the leading focus dot. */}
-          <path d={TREND_AREA} fill="url(#axbgArea)" />
-          <path className="js-trend" d={TREND_LINE} fill="none" stroke="url(#axbgEdge)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-          <circle className="js-trace" cx={480} cy={56} r={5.5} fill="#bae0ff" />
-
-          {/* Pulsing focus point at the growth tip. */}
-          <circle className="js-pulse" cx={480} cy={56} r={13} fill="#36cfc9" fillOpacity="0.25" />
-          <circle className="js-core" cx={480} cy={56} r={5} fill="#caf5ef" />
-
-          {/* Growth arrow at the leading edge. */}
-          <path d="M 478 58 L 506 32 M 506 32 L 491 34 M 506 32 L 504 49" fill="none" stroke="#87e8de" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-        </g>
-
-        {/* Neural network — faint inter-layer connections (static), self-attention arcs in the transformer
-            block, the forward-pass activations, then the pulsing neurons + layer labels. */}
-        <g>
-          {CONNECTIONS.map(([a, b], i) => (
-            <line key={i} x1={a[0]} y1={a[1]} x2={b[0]} y2={b[1]} stroke="url(#axbgEdge)" strokeOpacity="0.13" strokeWidth="1" />
-          ))}
-        </g>
-
-        {/* Self-attention arcs (transformer): each neuron attending to others in its layer. */}
-        <g>
-          {ATTN_ARCS.map((d, i) => (
-            <path key={i} className="js-arc" d={d} fill="none" stroke="#9254de" strokeOpacity="0.5" strokeWidth="1.5" />
-          ))}
-        </g>
-
-        {/* Forward-pass activations hopping node→node, layer by layer left→right. */}
-        {PASS.map(({ a }, i) => (
-          <circle key={i} className="js-pass" cx={a[0]} cy={a[1]} r={4} fill="#5cdbd3" style={{ opacity: 0 }} />
-        ))}
-
-        {/* Neurons (pulsing) and the per-layer architecture labels. */}
-        {NET.map((layer, li) => (
-          <g key={li}>
-            {layer.map(([x, y], ni) => (
-              <g key={ni} transform={`translate(${x} ${y})`}>
-                <circle className="js-pulse" r={16} fill="#4096ff" fillOpacity="0.18" />
-                <circle className="js-core" r={5} fill="#bae0ff" />
-              </g>
-            ))}
-            <text x={LAYERS[li].x} y={945} textAnchor="middle" className="ax-signin_bg_net_label">
-              {LAYERS[li].label}
-            </text>
-          </g>
-        ))}
-
-        {/* Vertical scan line sweeping across the canvas. */}
-        <rect className="js-scan" x={0} y={0} width={2} height={1080} fill="#36cfc9" fillOpacity="0.25" filter="url(#axbgSoft)" style={{ opacity: 0 }} />
-      </svg>
+    <div ref={wrapRef} className="ax-signin_bg" style={WRAP_STYLE} aria-hidden="true">
+      <canvas ref={canvasRef} className="ax-signin_bg_svg" style={CANVAS_STYLE} />
 
       {(title || subtitle || tagline) && (
         <div className="ax-signin_bg_content">
