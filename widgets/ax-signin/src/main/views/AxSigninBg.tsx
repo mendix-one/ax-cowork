@@ -124,32 +124,15 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
 
   useEffect(() => {
     const canvas = canvasRef.current
-    const wrap = wrapRef.current
-    if (!canvas || !wrap) return
+    if (!canvas) return
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    // Canvas CSS size, re-measured every frame (below) so the surface is always correct regardless of
+    // when the host lays the widget out — no dependence on ResizeObserver / mount timing.
     let cssW = 0
     let cssH = 0
-    const measure = (): void => {
-      const r = wrap.getBoundingClientRect()
-      let w = r.width
-      let h = r.height
-      if (w < 2 || h < 2) {
-        // Container not laid out / collapsed — fall back to the viewport so we always have a surface.
-        w = window.innerWidth || 1280
-        h = window.innerHeight || 720
-      }
-      cssW = w
-      cssH = h
-      canvas.width = Math.max(1, Math.round(w * dpr))
-      canvas.height = Math.max(1, Math.round(h * dpr))
-    }
-    measure()
-    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(measure) : null
-    ro?.observe(wrap)
-    window.addEventListener('resize', measure)
 
     // Per-dot routing state, re-rolled each pass: `active` decides whether the neuron fires this round,
     // `target` is the random destination neuron.
@@ -377,33 +360,30 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
       ctx.stroke()
     }
 
-    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)')?.matches
     let raf = 0
     let start = 0
     const frame = (ts: number): void => {
       if (!start) start = ts
-      try {
-        render((ts - start) / 1000)
-      } catch {
-        // never let one bad frame kill the loop
+      // Re-measure the live canvas every frame; fall back to the viewport if it's momentarily collapsed.
+      const rect = canvas.getBoundingClientRect()
+      let w = rect.width
+      let h = rect.height
+      if (w < 2 || h < 2) {
+        w = window.innerWidth || 1280
+        h = window.innerHeight || 720
       }
+      cssW = w
+      cssH = h
+      const bw = Math.max(1, Math.round(w * dpr))
+      const bh = Math.max(1, Math.round(h * dpr))
+      if (canvas.width !== bw) canvas.width = bw
+      if (canvas.height !== bh) canvas.height = bh
+      render((ts - start) / 1000)
       raf = requestAnimationFrame(frame)
     }
-    if (reduce) {
-      try {
-        render(4) // a calm, settled frame
-      } catch {
-        /* noop */
-      }
-    } else {
-      raf = requestAnimationFrame(frame)
-    }
+    raf = requestAnimationFrame(frame)
 
-    return () => {
-      cancelAnimationFrame(raf)
-      ro?.disconnect()
-      window.removeEventListener('resize', measure)
-    }
+    return () => cancelAnimationFrame(raf)
   }, [])
 
   return (
