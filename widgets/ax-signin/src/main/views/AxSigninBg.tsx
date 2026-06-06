@@ -39,9 +39,9 @@ const PASS_LAYERS = NET.length - 1
 
 // Batched forward pass: a "batch" enters at INPUT and propagates hop-by-hop to OUTPUT, like a real
 // inference. Several batches are in flight at once (pipelined) so the flow stays dense. Tuning knobs:
-const HOP_DUR = 0.5 // seconds a dot takes to cross one layer gap
-const HOP_STEP = 0.42 // delay between a batch's successive hops (< HOP_DUR overlaps them slightly)
-const BATCH_PERIOD = 0.9 // launch a new batch this often (< BATCH_SPAN ⇒ several batches in flight)
+const HOP_DUR = 0.9 // seconds a dot takes to cross one layer gap
+const HOP_STEP = 0.75 // delay between a batch's successive hops (< HOP_DUR overlaps them slightly)
+const BATCH_PERIOD = 1.5 // launch a new batch this often (< BATCH_SPAN ⇒ several batches in flight)
 const FIRE_PROB = 0.7 // chance a given source neuron emits on a given hop
 const BATCH_SPAN = PASS_LAYERS * HOP_STEP + HOP_DUR
 
@@ -185,7 +185,7 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
 
       // --- Chart (translate to its origin) ---
       ctx.save()
-      ctx.translate(1330, 170)
+      ctx.translate(1330, 110)
       // gridlines + baseline
       ctx.strokeStyle = 'rgba(64,150,255,0.08)'
       ctx.beginPath()
