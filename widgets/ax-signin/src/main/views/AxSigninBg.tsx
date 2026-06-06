@@ -35,17 +35,24 @@ for (let l = 0; l < NET.length - 1; l++) {
   for (const a of NET[l]) for (const b of NET[l + 1]) CONNECTIONS.push([a, b])
 }
 
-// Forward pass: one activation per source neuron between adjacent layers. The target neuron and whether
-// the neuron fires at all are re-rolled randomly each pass (see the loop), so routing never just repeats.
-const PASS: Array<{ a: Pt; dst: Pt[]; layer: number; jitter: number }> = []
-for (let l = 0; l < NET.length - 1; l++) {
-  const src = NET[l]
-  const dst = NET[l + 1]
-  src.forEach((a, i) => {
-    PASS.push({ a, dst, layer: l, jitter: ((i * 0.6180339887) % 1) * 0.9 })
-  })
-}
 const PASS_LAYERS = NET.length - 1
+
+// Batched forward pass: a "batch" enters at INPUT and propagates hop-by-hop to OUTPUT, like a real
+// inference. Several batches are in flight at once (pipelined) so the flow stays dense. Tuning knobs:
+const HOP_DUR = 0.5 // seconds a dot takes to cross one layer gap
+const HOP_STEP = 0.42 // delay between a batch's successive hops (< HOP_DUR overlaps them slightly)
+const BATCH_PERIOD = 0.9 // launch a new batch this often (< BATCH_SPAN ⇒ several batches in flight)
+const FIRE_PROB = 0.7 // chance a given source neuron emits on a given hop
+const BATCH_SPAN = PASS_LAYERS * HOP_STEP + HOP_DUR
+
+// Stateless hash → a 32-bit value keyed on (batch, hop, neuron). Deterministic, so a dot's fire/target
+// choice is stable for the whole hop (smooth travel), yet differs every batch — paths never repeat.
+function hashRand(a: number, b: number, c: number): number {
+  let x = (Math.imul(a, 374761393) + Math.imul(b, 668265263) + Math.imul(c, 2246822519)) >>> 0
+  x = Math.imul(x ^ (x >>> 13), 1274126177) >>> 0
+  x ^= x >>> 16
+  return x >>> 0
+}
 
 // Self-attention arcs inside the ATTENTION layer (control point bulges left).
 const ATTN = NET[2]
@@ -133,11 +140,6 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
     // when the host lays the widget out — no dependence on ResizeObserver / mount timing.
     let cssW = 0
     let cssH = 0
-
-    // Per-dot routing state, re-rolled each pass: `active` decides whether the neuron fires this round,
-    // `target` is the random destination neuron.
-    const passState = PASS.map(() => ({ cycle: Number.NEGATIVE_INFINITY, target: 0, active: false }))
-    const FIRE_PROB = 0.6
 
     const render = (t: number): void => {
       const w = cssW
@@ -268,16 +270,6 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
       ctx.moveTo(506, 32)
       ctx.lineTo(504, 49)
       ctx.stroke()
-      // chart scan
-      const scanSp = clamp01((chartCycle - 0.4) / 3)
-      if (chartCycle > 0.4 && chartCycle < 3.6) {
-        ctx.strokeStyle = 'rgba(92,219,211,0.5)'
-        ctx.lineWidth = 2
-        ctx.beginPath()
-        ctx.moveTo(scanSp * 480, 0)
-        ctx.lineTo(scanSp * 480, 300)
-        ctx.stroke()
-      }
       ctx.restore()
 
       // --- Neural network ---
@@ -304,28 +296,33 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
       ctx.stroke()
       ctx.setLineDash([])
 
-      // forward-pass activations (random source + target each pass)
-      const period = 3.2
-      const travel = 0.55
-      for (let i = 0; i < PASS.length; i++) {
-        const p = PASS[i]
-        const offset = (p.layer / PASS_LAYERS) * 2.4 + p.jitter
-        const cycle = Math.floor((t - offset) / period)
-        const st = passState[i]
-        if (cycle !== st.cycle) {
-          st.cycle = cycle
-          st.active = Math.random() < FIRE_PROB
-          st.target = (Math.random() * p.dst.length) | 0
+      // Batched forward pass: each in-flight batch lights one hop at a time, sweeping INPUT→OUTPUT. The
+      // fire/target choice per (batch, hop, neuron) is a stable hash, so dots travel smoothly along a fixed
+      // edge during a hop, yet every batch routes differently.
+      const newestBatch = Math.floor(t / BATCH_PERIOD)
+      const oldestBatch = Math.floor((t - BATCH_SPAN) / BATCH_PERIOD)
+      for (let bi = oldestBatch; bi <= newestBatch; bi++) {
+        const e = t - bi * BATCH_PERIOD
+        if (e < 0) continue
+        for (let h = 0; h < PASS_LAYERS; h++) {
+          const local = e - h * HOP_STEP
+          if (local < 0 || local >= HOP_DUR) continue
+          const pr = local / HOP_DUR
+          const op = clamp01(Math.min(6 * pr, 6 * (1 - pr)))
+          if (op <= 0) continue
+          const srcL = NET[h]
+          const dstL = NET[h + 1]
+          ctx.fillStyle = `rgba(92,219,211,${op.toFixed(3)})`
+          for (let si = 0; si < srcL.length; si++) {
+            const x = hashRand(bi, h, si)
+            if ((x & 0xffff) / 0x10000 >= FIRE_PROB) continue
+            const d = dstL[((x >>> 16) & 0xffff) % dstL.length]
+            const a = srcL[si]
+            ctx.beginPath()
+            ctx.arc(a[0] + (d[0] - a[0]) * pr, a[1] + (d[1] - a[1]) * pr, 4, 0, TAU)
+            ctx.fill()
+          }
         }
-        const local = mod(t - offset, period)
-        if (!st.active || local >= travel) continue
-        const b = p.dst[st.target]
-        const pr = local / travel
-        const op = clamp01(Math.min(8 * pr, 8 * (1 - pr)))
-        ctx.fillStyle = `rgba(92,219,211,${op.toFixed(3)})`
-        ctx.beginPath()
-        ctx.arc(p.a[0] + (b[0] - p.a[0]) * pr, p.a[1] + (b[1] - p.a[1]) * pr, 4, 0, TAU)
-        ctx.fill()
       }
 
       // neurons (pulse ring + core) and layer labels
@@ -349,15 +346,6 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
         ctx.textAlign = 'center'
         ctx.fillText(LAYERS[li].label, LAYERS[li].x, 945)
       }
-
-      // full-canvas vertical scan line
-      ctx.strokeStyle = 'rgba(54,207,201,0.22)'
-      ctx.lineWidth = 3
-      const sx = (mod(t, 9) / 9) * 1920
-      ctx.beginPath()
-      ctx.moveTo(sx, 0)
-      ctx.lineTo(sx, 1080)
-      ctx.stroke()
     }
 
     let raf = 0
