@@ -178,18 +178,21 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
       }
       ctx.stroke()
 
-      // Foreground motif — drawn at the capped HD scale, centered.
-      ctx.translate(ox, oy)
-      ctx.scale(scale, scale)
-
-      // Breathing central glow.
+      // Breathing central glow — drawn across the WHOLE canvas (centered on the HD content) so it bleeds
+      // past the capped foreground and fades smoothly into the backdrop, leaving no seam at the HD edge.
       const breathe = 0.65 + 0.35 * (0.5 + 0.5 * Math.sin((t / 7) * TAU))
-      const glow = ctx.createRadialGradient(960, 454, 0, 960, 454, 820)
+      const gcx = ox + 960 * scale
+      const gcy = oy + 454 * scale
+      const glow = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, 820 * scale)
       glow.addColorStop(0, `rgba(47,84,235,${0.45 * breathe})`)
       glow.addColorStop(0.55, `rgba(47,84,235,${0.08 * breathe})`)
       glow.addColorStop(1, 'rgba(47,84,235,0)')
       ctx.fillStyle = glow
-      ctx.fillRect(0, 0, 1920, 1080)
+      ctx.fillRect(0, 0, w, h)
+
+      // Foreground motif — drawn at the capped HD scale, centered.
+      ctx.translate(ox, oy)
+      ctx.scale(scale, scale)
 
       // --- Chart (translate to its origin) ---
       ctx.save()
