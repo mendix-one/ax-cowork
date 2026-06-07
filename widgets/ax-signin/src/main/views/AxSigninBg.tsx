@@ -144,35 +144,43 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
     const render = (t: number): void => {
       const w = cssW
       const h = cssH
-      const scale = Math.max(w / 1920, h / 1080) // cover (== SVG "slice")
+      // The backdrop (gradient + grid) covers the full surface, but the foreground motif (neural net,
+      // chart, glow) is capped at the 1920×1080 design size and centered: on screens larger than HD — in
+      // either axis — the animation no longer zooms past its intended size; only the backdrop scales out
+      // to fill the extra space. On HD-and-smaller screens this is the previous "cover" behaviour.
+      const coverScale = Math.max(w / 1920, h / 1080)
+      const scale = Math.min(coverScale, 1)
       const ox = (w - 1920 * scale) / 2
       const oy = (h - 1080 * scale) / 2
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       ctx.clearRect(0, 0, w, h)
-      ctx.translate(ox, oy)
-      ctx.scale(scale, scale)
 
-      // Backdrop gradient.
-      const sky = ctx.createLinearGradient(0, 0, 1920, 1080)
+      // Backdrop gradient — fills the whole canvas (extends past HD on large screens).
+      const sky = ctx.createLinearGradient(0, 0, w, h)
       sky.addColorStop(0, '#1b1147')
       sky.addColorStop(0.45, '#120338')
       sky.addColorStop(1, '#05010f')
       ctx.fillStyle = sky
-      ctx.fillRect(0, 0, 1920, 1080)
+      ctx.fillRect(0, 0, w, h)
 
-      // Blueprint grid.
+      // Blueprint grid — fills the whole canvas, aligned to (and continuous with) the centered content.
       ctx.lineWidth = 1
       ctx.strokeStyle = 'rgba(64,150,255,0.06)'
       ctx.beginPath()
-      for (let x = 0; x <= 1920; x += 60) {
+      const gridStep = 60 * scale
+      for (let x = ox % gridStep; x <= w; x += gridStep) {
         ctx.moveTo(x, 0)
-        ctx.lineTo(x, 1080)
+        ctx.lineTo(x, h)
       }
-      for (let y = 0; y <= 1080; y += 60) {
+      for (let y = oy % gridStep; y <= h; y += gridStep) {
         ctx.moveTo(0, y)
-        ctx.lineTo(1920, y)
+        ctx.lineTo(w, y)
       }
       ctx.stroke()
+
+      // Foreground motif — drawn at the capped HD scale, centered.
+      ctx.translate(ox, oy)
+      ctx.scale(scale, scale)
 
       // Breathing central glow.
       const breathe = 0.65 + 0.35 * (0.5 + 0.5 * Math.sin((t / 7) * TAU))
@@ -259,17 +267,6 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
       ctx.beginPath()
       ctx.arc(480, 56, 5, 0, TAU)
       ctx.fill()
-      // growth arrow
-      ctx.strokeStyle = '#87e8de'
-      ctx.lineWidth = 3
-      ctx.beginPath()
-      ctx.moveTo(478, 58)
-      ctx.lineTo(506, 32)
-      ctx.moveTo(506, 32)
-      ctx.lineTo(491, 34)
-      ctx.moveTo(506, 32)
-      ctx.lineTo(504, 49)
-      ctx.stroke()
       ctx.restore()
 
       // --- Neural network ---
