@@ -67,14 +67,14 @@
                 <caption>Background title</caption>
                 <description>Headline shown over the animated background.</description>
                 <translations>
-                    <translation lang="en_US">Apply the Power of AI</translation>
+                    <translation lang="en_US">AI-Powered Planning</translation>
                 </translations>
             </property>
             <property key="prpTxtBgSubtitle" type="textTemplate" required="false">
                 <caption>Background subtitle</caption>
                 <description>Sub-headline shown under the background title.</description>
                 <translations>
-                    <translation lang="en_US">to Improve Engineering Planning</translation>
+                    <translation lang="en_US">Optimize Engineering Planning with AI Innovation</translation>
                 </translations>
             </property>
             <property key="prpTxtBgTagline" type="textTemplate" required="false">

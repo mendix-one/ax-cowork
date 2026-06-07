@@ -6,7 +6,11 @@ import { AxMenuIcon } from '@/shared/menu-icon/AxMenuIcon.tsx'
 export const AuthLayoutTop = () => {
   const { t } = useTranslation('app')
   return (
-    <Layout.Header className="ax-layout-top">
+    <Layout.Header
+      className="ax-layout-top"
+      // Float over the full-screen main with a transparent background so the animated layer shows through.
+      style={{ position: 'absolute', top: 0, insetInline: 0, zIndex: 20, background: 'transparent' }}
+    >
       <Flex align="center" justify="space-between" gap="small" style={{ height: '100%' }}>
         <Flex align="center" justify="start" gap="medium">
           <Space>

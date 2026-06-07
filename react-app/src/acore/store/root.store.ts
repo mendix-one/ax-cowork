@@ -1,5 +1,5 @@
 import { AppStore } from './app.store'
-import { AuthStore } from './auth.mock'
+import { AuthStore } from './auth.mock2'
 import { DocumentStore } from '@/acore/store/document.store.ts'
 import { ProductionLineStore } from './production-line.store'
 

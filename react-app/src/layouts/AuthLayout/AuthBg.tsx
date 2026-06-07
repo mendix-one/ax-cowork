@@ -1,0 +1,400 @@
+import type { CSSProperties, ReactElement } from 'react'
+import { useEffect, useRef } from 'react'
+
+// Animated digital background layer for the auth screens, rendered to a <canvas> and driven by a
+// requestAnimationFrame loop (2D drawing — no SVG, no CSS keyframes). This is a direct port of the
+// ax-signin widget's background (widgets/ax-signin/src/main/views/AxSigninBg.tsx) so the react-app
+// login page and the packaged Mendix widget stay visually identical. The motif: a transformer-style
+// neural net (embedding → attention → feed-forward → output) with a randomly-routed forward pass, plus
+// a growth/optimization chart. The headline / subtitle / tagline render as crisp HTML over the canvas.
+//
+// The text defaults below mirror the widget's `prpTxtBg*` property defaults (AxSignin.xml).
+
+const DEFAULT_TITLE = 'AI-Powered Planning'
+const DEFAULT_SUBTITLE = 'Optimize Engineering Planning with AI Innovation'
+const DEFAULT_TAGLINE = 'Smarter roadmaps, data-driven estimates, and faster delivery.'
+
+type Pt = [number, number]
+
+// --- Neural network geometry ---------------------------------------------------------------------------
+const NET_CENTER_Y = 640
+const NEURON_GAP = 74
+const LAYERS: Array<{ x: number; count: number; label: string }> = [
+  { x: 250, count: 5, label: 'INPUT' },
+  { x: 520, count: 7, label: 'EMBED' },
+  { x: 800, count: 8, label: 'ATTENTION' },
+  { x: 1090, count: 7, label: 'FEED · FWD' },
+  { x: 1380, count: 5, label: 'DECODE' },
+  { x: 1670, count: 3, label: 'OUTPUT' },
+]
+const NET: Pt[][] = LAYERS.map(({ x, count }) => {
+  const top = NET_CENTER_Y - ((count - 1) * NEURON_GAP) / 2
+  return Array.from({ length: count }, (_, i) => [x, top + i * NEURON_GAP] as Pt)
+})
+const CONNECTIONS: Array<[Pt, Pt]> = []
+for (let l = 0; l < NET.length - 1; l++) {
+  for (const a of NET[l]) for (const b of NET[l + 1]) CONNECTIONS.push([a, b])
+}
+
+const PASS_LAYERS = NET.length - 1
+
+// Batched forward pass: a "batch" enters at INPUT and propagates hop-by-hop to OUTPUT, like a real
+// inference. Several batches are in flight at once (pipelined) so the flow stays dense. Tuning knobs:
+const HOP_DUR = 0.9 // seconds a dot takes to cross one layer gap
+const HOP_STEP = 0.75 // delay between a batch's successive hops (< HOP_DUR overlaps them slightly)
+const BATCH_PERIOD = 1.5 // launch a new batch this often (< BATCH_SPAN ⇒ several batches in flight)
+const FIRE_PROB = 0.7 // chance a given source neuron emits on a given hop
+const BATCH_SPAN = PASS_LAYERS * HOP_STEP + HOP_DUR
+
+// Stateless hash → a 32-bit value keyed on (batch, hop, neuron). Deterministic, so a dot's fire/target
+// choice is stable for the whole hop (smooth travel), yet differs every batch — paths never repeat.
+function hashRand(a: number, b: number, c: number): number {
+  let x = (Math.imul(a, 374761393) + Math.imul(b, 668265263) + Math.imul(c, 2246822519)) >>> 0
+  x = Math.imul(x ^ (x >>> 13), 1274126177) >>> 0
+  x ^= x >>> 16
+  return x >>> 0
+}
+
+// Self-attention arcs inside the ATTENTION layer (control point bulges left).
+const ATTN = NET[2]
+const ATTN_ARCS: Array<{ a: Pt; c: Pt; b: Pt }> = [
+  [0, 4],
+  [1, 6],
+  [2, 7],
+  [3, 5],
+].map(([i, j]) => {
+  const a = ATTN[i]
+  const b = ATTN[j]
+  return { a, c: [a[0] - 110, (a[1] + b[1]) / 2] as Pt, b }
+})
+
+// --- Growth / optimization chart geometry (local chart coords, baseline y = 300) -----------------------
+const TREND: Pt[] = [
+  [0, 270],
+  [68, 238],
+  [136, 250],
+  [204, 196],
+  [272, 168],
+  [340, 182],
+  [408, 110],
+  [480, 56],
+]
+const TREND_CUM = [0]
+for (let i = 1; i < TREND.length; i++) {
+  TREND_CUM[i] = TREND_CUM[i - 1] + Math.hypot(TREND[i][0] - TREND[i - 1][0], TREND[i][1] - TREND[i - 1][1])
+}
+const TREND_TOTAL = TREND_CUM[TREND.length - 1]
+function trendPointAt(p: number): Pt {
+  const target = p * TREND_TOTAL
+  for (let i = 1; i < TREND.length; i++) {
+    if (TREND_CUM[i] >= target) {
+      const seg = TREND_CUM[i] - TREND_CUM[i - 1]
+      const f = seg ? (target - TREND_CUM[i - 1]) / seg : 0
+      return [TREND[i - 1][0] + (TREND[i][0] - TREND[i - 1][0]) * f, TREND[i - 1][1] + (TREND[i][1] - TREND[i - 1][1]) * f]
+    }
+  }
+  return TREND[TREND.length - 1]
+}
+
+// Ascending analysis bars (x, height).
+const COLS: Pt[] = [
+  [16, 50],
+  [84, 85],
+  [152, 72],
+  [220, 130],
+  [288, 158],
+  [356, 150],
+  [424, 226],
+]
+
+const TAU = Math.PI * 2
+const mod = (a: number, b: number): number => ((a % b) + b) % b
+const clamp01 = (x: number): number => (x < 0 ? 0 : x > 1 ? 1 : x)
+
+function roundRect(ctx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number): void {
+  const rr = Math.max(0, Math.min(r, w / 2, h / 2))
+  ctx.beginPath()
+  ctx.moveTo(x + rr, y)
+  ctx.arcTo(x + w, y, x + w, y + h, rr)
+  ctx.arcTo(x + w, y + h, x, y + h, rr)
+  ctx.arcTo(x, y + h, x, y, rr)
+  ctx.arcTo(x, y, x + w, y, rr)
+  ctx.closePath()
+}
+
+// Inline styles for the critical layout so the layer renders even if the stylesheet fails to load.
+const WRAP_STYLE: CSSProperties = { position: 'absolute', inset: 0, zIndex: 0, overflow: 'hidden' }
+const CANVAS_STYLE: CSSProperties = { display: 'block', width: '100%', height: '100%' }
+
+export function AuthBg({
+  title = DEFAULT_TITLE,
+  subtitle = DEFAULT_SUBTITLE,
+  tagline = DEFAULT_TAGLINE,
+}: {
+  title?: string
+  subtitle?: string
+  tagline?: string
+} = {}): ReactElement {
+  const wrapRef = useRef<HTMLDivElement>(null)
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const dpr = Math.min(window.devicePixelRatio || 1, 2)
+    // Canvas CSS size, re-measured every frame (below) so the surface is always correct regardless of
+    // when the host lays the element out — no dependence on ResizeObserver / mount timing.
+    let cssW = 0
+    let cssH = 0
+
+    const render = (t: number): void => {
+      const w = cssW
+      const h = cssH
+      // The backdrop (gradient + grid) covers the full surface, but the foreground motif (neural net,
+      // chart, glow) is capped at the 1920×1080 design size and centered: on screens larger than HD — in
+      // either axis — the animation no longer zooms past its intended size; only the backdrop scales out
+      // to fill the extra space. On HD-and-smaller screens this is the previous "cover" behaviour.
+      const coverScale = Math.max(w / 1920, h / 1080)
+      const scale = Math.min(coverScale, 1)
+      const ox = (w - 1920 * scale) / 2
+      const oy = (h - 1080 * scale) / 2
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      ctx.clearRect(0, 0, w, h)
+
+      // Backdrop gradient — fills the whole canvas (extends past HD on large screens).
+      const sky = ctx.createLinearGradient(0, 0, w, h)
+      sky.addColorStop(0, '#1b1147')
+      sky.addColorStop(0.45, '#120338')
+      sky.addColorStop(1, '#05010f')
+      ctx.fillStyle = sky
+      ctx.fillRect(0, 0, w, h)
+
+      // Blueprint grid — fills the whole canvas, aligned to (and continuous with) the centered content.
+      ctx.lineWidth = 1
+      ctx.strokeStyle = 'rgba(64,150,255,0.06)'
+      ctx.beginPath()
+      const gridStep = 60 * scale
+      for (let x = ox % gridStep; x <= w; x += gridStep) {
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, h)
+      }
+      for (let y = oy % gridStep; y <= h; y += gridStep) {
+        ctx.moveTo(0, y)
+        ctx.lineTo(w, y)
+      }
+      ctx.stroke()
+
+      // Breathing central glow — drawn across the WHOLE canvas (centered on the HD content) so it bleeds
+      // past the capped foreground and fades smoothly into the backdrop, leaving no seam at the HD edge.
+      const breathe = 0.65 + 0.35 * (0.5 + 0.5 * Math.sin((t / 7) * TAU))
+      const gcx = ox + 960 * scale
+      const gcy = oy + 454 * scale
+      const glow = ctx.createRadialGradient(gcx, gcy, 0, gcx, gcy, 820 * scale)
+      glow.addColorStop(0, `rgba(47,84,235,${0.45 * breathe})`)
+      glow.addColorStop(0.55, `rgba(47,84,235,${0.08 * breathe})`)
+      glow.addColorStop(1, 'rgba(47,84,235,0)')
+      ctx.fillStyle = glow
+      ctx.fillRect(0, 0, w, h)
+
+      // Foreground motif — drawn at the capped HD scale, centered.
+      ctx.translate(ox, oy)
+      ctx.scale(scale, scale)
+
+      // --- Chart (translate to its origin) ---
+      ctx.save()
+      ctx.translate(1330, 110)
+      // gridlines + baseline
+      ctx.strokeStyle = 'rgba(64,150,255,0.08)'
+      ctx.beginPath()
+      for (const gy of [60, 130, 200, 270]) {
+        ctx.moveTo(0, gy)
+        ctx.lineTo(480, gy)
+      }
+      ctx.stroke()
+      ctx.strokeStyle = 'rgba(64,150,255,0.18)'
+      ctx.lineWidth = 1.5
+      ctx.beginPath()
+      ctx.moveTo(0, 300)
+      ctx.lineTo(480, 300)
+      ctx.stroke()
+      const chartCycle = mod(t, 5)
+      // bars
+      for (let i = 0; i < COLS.length; i++) {
+        const g = clamp01((chartCycle - i * 0.32) / 1.4)
+        const bh = COLS[i][1] * g
+        ctx.fillStyle = 'rgba(74,180,225,0.75)'
+        roundRect(ctx, COLS[i][0], 300 - bh, 40, bh, 5)
+        ctx.fill()
+      }
+      // area
+      const area = ctx.createLinearGradient(0, 0, 0, 300)
+      area.addColorStop(0, 'rgba(54,207,201,0.35)')
+      area.addColorStop(1, 'rgba(54,207,201,0)')
+      ctx.fillStyle = area
+      ctx.beginPath()
+      ctx.moveTo(0, 300)
+      for (const p of TREND) ctx.lineTo(p[0], p[1])
+      ctx.lineTo(480, 300)
+      ctx.closePath()
+      ctx.fill()
+      // trend line drawn up to the current fraction
+      const drawP = clamp01((chartCycle - 0.3) / 2.6)
+      const line = ctx.createLinearGradient(0, 0, 480, 0)
+      line.addColorStop(0, '#13c2c2')
+      line.addColorStop(1, '#4096ff')
+      ctx.strokeStyle = line
+      ctx.lineWidth = 3
+      ctx.lineJoin = 'round'
+      ctx.lineCap = 'round'
+      const target = drawP * TREND_TOTAL
+      ctx.beginPath()
+      ctx.moveTo(TREND[0][0], TREND[0][1])
+      for (let i = 1; i < TREND.length; i++) {
+        if (TREND_CUM[i] <= target) {
+          ctx.lineTo(TREND[i][0], TREND[i][1])
+        } else {
+          const seg = TREND_CUM[i] - TREND_CUM[i - 1]
+          const f = seg ? (target - TREND_CUM[i - 1]) / seg : 0
+          ctx.lineTo(TREND[i - 1][0] + (TREND[i][0] - TREND[i - 1][0]) * f, TREND[i - 1][1] + (TREND[i][1] - TREND[i - 1][1]) * f)
+          break
+        }
+      }
+      ctx.stroke()
+      // trace dot at the leading edge
+      const tp = trendPointAt(drawP)
+      ctx.fillStyle = '#bae0ff'
+      ctx.beginPath()
+      ctx.arc(tp[0], tp[1], 5.5, 0, TAU)
+      ctx.fill()
+      // tip pulse + core
+      const tipV = 0.5 + 0.5 * Math.sin((t / 4.2) * TAU)
+      ctx.fillStyle = `rgba(54,207,201,${(0.5 - 0.45 * tipV).toFixed(3)})`
+      ctx.beginPath()
+      ctx.arc(480, 56, 13 * (0.6 + 0.7 * tipV), 0, TAU)
+      ctx.fill()
+      ctx.fillStyle = '#caf5ef'
+      ctx.beginPath()
+      ctx.arc(480, 56, 5, 0, TAU)
+      ctx.fill()
+      ctx.restore()
+
+      // --- Neural network ---
+      // connections (one batched stroke)
+      ctx.strokeStyle = 'rgba(85,170,255,0.13)'
+      ctx.lineWidth = 1
+      ctx.beginPath()
+      for (const [a, b] of CONNECTIONS) {
+        ctx.moveTo(a[0], a[1])
+        ctx.lineTo(b[0], b[1])
+      }
+      ctx.stroke()
+
+      // attention arcs with dash flow
+      ctx.strokeStyle = 'rgba(146,84,222,0.5)'
+      ctx.lineWidth = 1.5
+      ctx.setLineDash([6, 7])
+      ctx.lineDashOffset = -(t * 22) % 26
+      ctx.beginPath()
+      for (const arc of ATTN_ARCS) {
+        ctx.moveTo(arc.a[0], arc.a[1])
+        ctx.quadraticCurveTo(arc.c[0], arc.c[1], arc.b[0], arc.b[1])
+      }
+      ctx.stroke()
+      ctx.setLineDash([])
+
+      // Batched forward pass: each in-flight batch lights one hop at a time, sweeping INPUT→OUTPUT. The
+      // fire/target choice per (batch, hop, neuron) is a stable hash, so dots travel smoothly along a fixed
+      // edge during a hop, yet every batch routes differently.
+      const newestBatch = Math.floor(t / BATCH_PERIOD)
+      const oldestBatch = Math.floor((t - BATCH_SPAN) / BATCH_PERIOD)
+      for (let bi = oldestBatch; bi <= newestBatch; bi++) {
+        const e = t - bi * BATCH_PERIOD
+        if (e < 0) continue
+        for (let h = 0; h < PASS_LAYERS; h++) {
+          const local = e - h * HOP_STEP
+          if (local < 0 || local >= HOP_DUR) continue
+          const pr = local / HOP_DUR
+          const op = clamp01(Math.min(6 * pr, 6 * (1 - pr)))
+          if (op <= 0) continue
+          const srcL = NET[h]
+          const dstL = NET[h + 1]
+          ctx.fillStyle = `rgba(92,219,211,${op.toFixed(3)})`
+          for (let si = 0; si < srcL.length; si++) {
+            const x = hashRand(bi, h, si)
+            if ((x & 0xffff) / 0x10000 >= FIRE_PROB) continue
+            const d = dstL[((x >>> 16) & 0xffff) % dstL.length]
+            const a = srcL[si]
+            ctx.beginPath()
+            ctx.arc(a[0] + (d[0] - a[0]) * pr, a[1] + (d[1] - a[1]) * pr, 4, 0, TAU)
+            ctx.fill()
+          }
+        }
+      }
+
+      // neurons (pulse ring + core) and layer labels
+      let ni = 0
+      for (let li = 0; li < NET.length; li++) {
+        for (const [nx, ny] of NET[li]) {
+          const v = 0.5 + 0.5 * Math.sin((t / 4.2 + ni * 0.37) * TAU)
+          const v2 = 0.5 + 0.5 * Math.sin((t / 3 + ni * 0.5) * TAU)
+          ctx.fillStyle = `rgba(64,150,255,${(0.5 - 0.45 * v).toFixed(3)})`
+          ctx.beginPath()
+          ctx.arc(nx, ny, 16 * (0.6 + 0.7 * v), 0, TAU)
+          ctx.fill()
+          ctx.fillStyle = `rgba(186,224,255,${(0.4 + 0.6 * v2).toFixed(3)})`
+          ctx.beginPath()
+          ctx.arc(nx, ny, 5, 0, TAU)
+          ctx.fill()
+          ni++
+        }
+        ctx.fillStyle = 'rgba(92,219,211,0.55)'
+        ctx.font = '600 17px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif'
+        ctx.textAlign = 'center'
+        ctx.fillText(LAYERS[li].label, LAYERS[li].x, 945)
+      }
+    }
+
+    let raf = 0
+    let start = 0
+    const frame = (ts: number): void => {
+      if (!start) start = ts
+      // Re-measure the live canvas every frame; fall back to the viewport if it's momentarily collapsed.
+      const rect = canvas.getBoundingClientRect()
+      let w = rect.width
+      let h = rect.height
+      if (w < 2 || h < 2) {
+        w = window.innerWidth || 1280
+        h = window.innerHeight || 720
+      }
+      cssW = w
+      cssH = h
+      const bw = Math.max(1, Math.round(w * dpr))
+      const bh = Math.max(1, Math.round(h * dpr))
+      if (canvas.width !== bw) canvas.width = bw
+      if (canvas.height !== bh) canvas.height = bh
+      render((ts - start) / 1000)
+      raf = requestAnimationFrame(frame)
+    }
+    raf = requestAnimationFrame(frame)
+
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
+  return (
+    <div ref={wrapRef} className="ax-auth-bg" style={WRAP_STYLE} aria-hidden="true">
+      <canvas ref={canvasRef} className="ax-auth-bg_svg" style={CANVAS_STYLE} />
+
+      {(title || subtitle || tagline) && (
+        <div className="ax-auth-bg_content">
+          <span className="ax-auth-bg_eyebrow">AX · AI ENGINEERING</span>
+          {title && <h1 className="ax-auth-bg_title">{title}</h1>}
+          {subtitle && <h2 className="ax-auth-bg_subtitle">{subtitle}</h2>}
+          {tagline && <p className="ax-auth-bg_tagline">{tagline}</p>}
+        </div>
+      )}
+    </div>
+  )
+}
