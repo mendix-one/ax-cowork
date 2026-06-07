@@ -380,7 +380,7 @@ export function AxSigninBg({ title, subtitle, tagline }: { title?: string; subti
 
       {(title || subtitle || tagline) && (
         <div className="ax-signin_bg_content">
-          <span className="ax-signin_bg_eyebrow">AX · AI ENGINEERING</span>
+          <span className="ax-signin_bg_eyebrow">AX · AI INNOVATION</span>
           {title && <h1 className="ax-signin_bg_title">{title}</h1>}
           {subtitle && <h2 className="ax-signin_bg_subtitle">{subtitle}</h2>}
           {tagline && <p className="ax-signin_bg_tagline">{tagline}</p>}

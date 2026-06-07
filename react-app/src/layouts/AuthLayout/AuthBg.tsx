@@ -389,7 +389,7 @@ export function AuthBg({
 
       {(title || subtitle || tagline) && (
         <div className="ax-auth-bg_content">
-          <span className="ax-auth-bg_eyebrow">AX · AI ENGINEERING</span>
+          <span className="ax-auth-bg_eyebrow">AX · AI INNOVATION</span>
           {title && <h1 className="ax-auth-bg_title">{title}</h1>}
           {subtitle && <h2 className="ax-auth-bg_subtitle">{subtitle}</h2>}
           {tagline && <p className="ax-auth-bg_tagline">{tagline}</p>}
