@@ -11,7 +11,7 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url)),
       '@axsignin': fileURLToPath(new URL('../widgets/ax-signin/src', import.meta.url)),
-      '@axsimulation': fileURLToPath(new URL('../widgets/ax-simulation/src', import.meta.url)),
+      '@axapp': fileURLToPath(new URL('../widgets/ax-app/src', import.meta.url)),
       '@axpanel': fileURLToPath(new URL('../widgets/ax-panel/src', import.meta.url)),
       // Resolve the shared lib to its TS source too, so Vite compiles real ESM on
       // the fly instead of serving the CommonJS dist build (whose named exports

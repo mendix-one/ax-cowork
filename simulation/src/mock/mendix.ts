@@ -17,7 +17,9 @@ export interface EditableValue<T> {
 
 export interface DynamicValue<T> {
   status: Status
-  value: T | null
+  // Mendix's DynamicValue exposes `value?: T` (i.e. `T | undefined`, never null). Match that so widgets
+  // that thread `prop?.value` straight into a `T | undefined` slot type-check the same here as in Studio.
+  value?: T
 }
 
 export interface ActionValue {
@@ -53,7 +55,7 @@ export function editable<T>(state: [T, Dispatch<SetStateAction<T>>], opts?: { re
 export function dynamic<T>(value: T | null | undefined): DynamicValue<T> {
   return {
     status: 'available',
-    value: (value ?? null) as T | null,
+    value: value ?? undefined,
   }
 }
 

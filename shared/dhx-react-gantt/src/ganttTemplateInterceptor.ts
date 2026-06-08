@@ -20,11 +20,14 @@ function renderToString(element: ReactElement): string {
     return html
   }
 
-  // React 16/17
+  // React 16/17 (legacy) — `render`/`unmountComponentAtNode` were removed from
+  // react-dom's types in React 19, but the branch is kept for runtime
+  // compatibility with older React versions.
+  const legacyReactDOM = ReactDOM as any
   const container = document.createElement('div')
-  ReactDOM.render(element, container)
+  legacyReactDOM.render(element, container)
   const html = container.innerHTML
-  queueMicrotask(() => ReactDOM.unmountComponentAtNode(container))
+  queueMicrotask(() => legacyReactDOM.unmountComponentAtNode(container))
   return html
 }
 

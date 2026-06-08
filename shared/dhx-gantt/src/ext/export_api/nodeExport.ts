@@ -1,5 +1,11 @@
 import export_api from './index'
 
+// This module only runs in a Node.js context (the `dhtmlxgantt.node` build),
+// where `require` and `Buffer` are globals. @types/node is not a dependency, so
+// declare the minimal surface used here to keep declaration emit clean.
+declare const require: (id: string) => any
+declare const Buffer: { concat(list: any[]): any }
+
 export default function (gantt: any) {
   gantt.ext.export_api = export_api(gantt)
 

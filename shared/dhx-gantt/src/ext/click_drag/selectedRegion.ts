@@ -22,7 +22,7 @@ export interface IPoint {
 
 export class SelectedRegion {
   render: () => void
-  private _viewPort: HTMLElement & eventable
+  private _viewPort: HTMLElement & Record<string, any>
   private _el: HTMLElement = document.createElement('div')
   private _callback: (startPoint: IPoint, endPoint: IPoint, startDate: Date, endDate: Date, tasksByDate: any[], tasksByIndex: any[]) => void
   private _startPoint: IPoint
