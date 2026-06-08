@@ -77,6 +77,7 @@ function SigninPanel() {
     prpActSignIn: action(handleSignIn),
     prpActSignUp: action(handleSignUp),
     prpActSso: action(handleSso),
+    prpBlnBackground: true,
     prpImgLogoUrl: undefined,
     prpTxtAccountLabel: dynamic('Account'),
     prpTxtAccountPlaceholder: dynamic('Username, email or phone'),

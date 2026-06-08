@@ -11,7 +11,7 @@ export type PanelType = 'main' | 'sub'
 //
 //  - `emit('ACT_*')` on the widget's private topic asks AxDisplayPanelSync (which holds the Mendix
 //    ActionValue + EditableValue) to run the configured action and write the bound attribute.
-//  - `broadcast('AX_LAYOUT_*')` tells other widgets (e.g. the ax-simulation host layout) that the panel
+//  - `broadcast('AX_LAYOUT_*')` tells other widgets (e.g. the ax-app host layout) that the panel
 //    changed, so they can react.
 //
 // Maximize state lives in the synchronous `maximized` field so it never lags the Mendix attribute's

@@ -77,7 +77,7 @@ function buildCustomWeeksConfig(customWeeks: Record<string, CustomWeek> | undefi
 export function applyCalendars(gantt: GanttStatic, calendars: Calendar[] | null) {
   if (!gantt || !calendars) return
 
-  const existingCalendarIds = new Set(gantt.getCalendars().map((c) => c.id))
+  const existingCalendarIds = new Set<string>(gantt.getCalendars().map((c: any) => c.id))
   const newCalendarIds = new Set(calendars.map((c) => c.id))
 
   calendars.forEach((calendar) => {

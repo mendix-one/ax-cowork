@@ -6,7 +6,6 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
     "preview": "vite preview",
     "lint": "eslint src"
   },
@@ -15,7 +14,8 @@
     "antd": "^6.3.7",
     "@ax/common": "workspace:*",
     "@ax/signin-panel": "workspace:*",
-    "@ax/simulation-layout": "workspace:*",
+    "@ax/app-layout": "workspace:*",
+    "@ax/display-panel": "workspace:*",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-router-dom": "^7.15.0"

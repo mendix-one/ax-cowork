@@ -6,3 +6,17 @@ const Gantt = new GanttFactory(factoryMethod, extensions)
 const gantt = Gantt.getGanttInstance()
 
 export { Gantt, gantt }
+
+export type {
+  GanttStatic,
+  Task,
+  Link,
+  Baseline,
+  Scale,
+  GroupConfig,
+  GanttConfigOptions,
+  GanttTemplates,
+  GanttPlugins,
+  RouterFunction,
+  GanttEventCallback,
+} from './api'
