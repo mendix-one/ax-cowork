@@ -1,0 +1,50 @@
+.ax-data-table-preview {
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fff;
+  color: #262626;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.ax-data-table-preview__title {
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.ax-data-table-preview__meta {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: #595959;
+  margin-bottom: 12px;
+}
+
+.ax-data-table-preview__table {
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.ax-data-table-preview__header,
+.ax-data-table-preview__row {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(100px, 1fr);
+}
+
+.ax-data-table-preview__cell {
+  padding: 10px 12px;
+  border-right: 1px solid #f0f0f0;
+}
+
+.ax-data-table-preview__cell:last-child {
+  border-right: 0;
+}
+
+.ax-data-table-preview__cell--header {
+  background: #fafafa;
+  font-weight: 600;
+}
