@@ -9,6 +9,8 @@ import { ProcessStore } from './process.store'
 import { CapacityStore } from './capacity.store'
 import { ProcessTuningStore } from './process-tuning.store'
 import { CapacityTuningStore } from './capacity-tuning.store'
+import { FactorsStore } from './factors.store'
+import { SimFilterStore } from './sim-filter.store'
 import { IntegrationStore } from './integration.store'
 import { CompareStore } from './compare.store'
 import { AIChatStore } from './ai-chat.store'
@@ -20,7 +22,21 @@ export type PanelId = 'regionLeft' | 'regionRight'
 export type PanelState = 'normal' | 'maximized' | 'hidden'
 export type PanelStates = Record<PanelId, PanelState>
 
-export type MainPanelId = 'simulation' | 'analysis' | 'orders' | 'processes' | 'capacity' | 'processTuning' | 'capacityTuning' | 'integration'
+// `orders` (Production Requirements) is no longer on the left rail but stays a valid panel — it's still
+// reached via drill-through (analysis links, navigateToProductionFamily) and the Save Orders pre-flight.
+export type MainPanelId =
+  | 'simulation'
+  | 'projects'
+  | 'analysis'
+  | 'orders'
+  | 'processes'
+  | 'processTuning'
+  | 'standardPm'
+  | 'factorsControl'
+  | 'capacityTuning'
+  | 'capacity'
+  | 'integration'
+  | 'settings'
 export type SubPanelId = 'compare' | 'aiChat' | 'background' | 'history' | 'recommendations'
 
 export type EpsPlan = {
@@ -44,7 +60,20 @@ const initialStates: PanelStates = {
 // The key is versioned so adding/removing a panel ID later invalidates stale entries via the guard.
 const SHELL_STORAGE_KEY = 'ax.eps.shell.v1'
 
-const MAIN_PANEL_IDS: readonly MainPanelId[] = ['simulation', 'analysis', 'orders', 'processes', 'capacity', 'processTuning', 'capacityTuning', 'integration']
+const MAIN_PANEL_IDS: readonly MainPanelId[] = [
+  'simulation',
+  'projects',
+  'analysis',
+  'orders',
+  'processes',
+  'processTuning',
+  'standardPm',
+  'factorsControl',
+  'capacityTuning',
+  'capacity',
+  'integration',
+  'settings',
+]
 const SUB_PANEL_IDS: readonly SubPanelId[] = ['compare', 'aiChat', 'background', 'history', 'recommendations']
 const PANEL_REGION_IDS: readonly PanelId[] = ['regionLeft', 'regionRight']
 const PANEL_STATE_VALUES: readonly PanelState[] = ['normal', 'maximized', 'hidden']
@@ -106,6 +135,8 @@ export class EpsStore {
   capacity = new CapacityStore()
   processTuning = new ProcessTuningStore()
   capacityTuning = new CapacityTuningStore()
+  factors = new FactorsStore()
+  simFilter = new SimFilterStore()
   integration = new IntegrationStore()
 
   notes = new NotesStore()

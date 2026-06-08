@@ -1,4 +1,44 @@
-import { MOCK_FLAT_CELLS, MOCK_PRODUCTION_FAMILIES, MTO_OFFSETS_STANDARD, mtoLabel, type Cell } from '../data/mock-plan'
+import { MOCK_FLAT_CELLS, MOCK_PRODUCTION_FAMILIES, MTO_OFFSETS_STANDARD, mtoLabel, type Cell, type FlatCellEntry } from '../data/mock-plan'
+
+// === Headcount master-data rollups (org × skill) ==================================================
+// The Headcount Portfolio is master data aligned to the Organization hierarchy (Department › Site ›
+// Team › Group › Part) and the Engineering Skills taxonomy. These helpers roll the per-Cell skill
+// counts up to whichever org node is selected.
+
+export type OrgLevel = 'division' | 'site' | 'team' | 'group' | 'part' | 'cell'
+
+const ORG_LEVEL_ORDER: OrgLevel[] = ['division', 'site', 'team', 'group', 'part', 'cell']
+
+const refIdsOf = (e: FlatCellEntry): (string | undefined)[] => [e.ref.divisionId, e.ref.siteId, e.ref.teamId, e.ref.groupId, e.ref.partId, e.ref.cellId]
+
+// Every Cell whose org path passes through `nodeId` (nodeId may be at any level — ids are unique across levels).
+export const cellsUnderNode = (nodeId: string): FlatCellEntry[] => MOCK_FLAT_CELLS.filter((e) => refIdsOf(e).includes(nodeId))
+
+// Display label + level for an org node id (resolved from any cell whose path passes through it).
+export const orgNodeMeta = (nodeId: string): { label: string; level: OrgLevel } | null => {
+  const e = MOCK_FLAT_CELLS.find((x) => refIdsOf(x).includes(nodeId))
+  if (!e) return null
+  const idx = refIdsOf(e).indexOf(nodeId)
+  return { label: e.path[idx], level: ORG_LEVEL_ORDER[idx] }
+}
+
+export type SkillTotal = { skill: string; count: number; share: number }
+
+// Sum skill counts across a set of cells, sorted by count (desc).
+export const aggregateSkills = (entries: FlatCellEntry[]): SkillTotal[] => {
+  const map = new Map<string, number>()
+  let total = 0
+  for (const e of entries) {
+    for (const s of e.cell.skills) {
+      map.set(s.skill, (map.get(s.skill) ?? 0) + s.count)
+      total += s.count
+    }
+  }
+  return [...map.entries()].map(([skill, count]) => ({ skill, count, share: total > 0 ? count / total : 0 })).sort((a, b) => b.count - a.count)
+}
+
+// Per-cell count for a given skill (0 when the cell carries none) — used to fill the org × skill matrix.
+export const cellSkillCount = (cell: Cell, skill: string): number => cell.skills.find((s) => s.skill === skill)?.count ?? 0
 
 // === Headcount composition for a Cell =============================================================
 // Each Cell carries `skills: { skill, count }[]`. The composition card shows utilisation per skill

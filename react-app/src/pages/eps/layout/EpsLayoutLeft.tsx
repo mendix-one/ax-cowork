@@ -27,22 +27,31 @@ const GROUPS: Group[] = [
     caption: 'Plan',
     items: [
       { id: 'simulation', icon: 'mdiChartGantt', title: 'Simulation (Gantt)' },
+      { id: 'projects', icon: 'mdiFolderMultipleOutline', title: 'Projects' },
       { id: 'analysis', icon: 'mdiChartBar', title: 'Resource Analysis' },
-      { id: 'orders', icon: 'mdiClipboardTextOutline', title: 'Production Requirements' },
-      { id: 'processes', icon: 'mdiSitemapOutline', title: 'Engineering Process' },
-      { id: 'capacity', icon: 'mdiAccountGroupOutline', title: 'Headcount Portfolio' },
     ],
   },
   {
-    caption: 'Tuning',
+    caption: 'Process',
     items: [
-      { id: 'processTuning', icon: 'mdiTuneVerticalVariant', title: 'Process Tuning' },
-      { id: 'capacityTuning', icon: 'mdiCogTransferOutline', title: 'Headcount Tuning' },
+      { id: 'processes', icon: 'mdiSitemapOutline', title: 'Engineering Process' },
+      { id: 'processTuning', icon: 'mdiTuneVerticalVariant', title: 'Tuning Logic' },
+    ],
+  },
+  {
+    caption: 'Resources',
+    items: [
+      { id: 'standardPm', icon: 'mdiClipboardCheckOutline', title: 'Standard PM' },
+      { id: 'capacity', icon: 'mdiAccountGroupOutline', title: 'Headcount' },
+      { id: 'factorsControl', icon: 'mdiHubOutline', title: 'Factors Control' },
     ],
   },
   {
     caption: 'System',
-    items: [{ id: 'integration', icon: 'mdiTransitConnectionVariant', title: 'N-PLM · SMDM · GHRP · PROMIS' }],
+    items: [
+      { id: 'integration', icon: 'mdiTransitConnectionVariant', title: 'Integration' },
+      { id: 'settings', icon: 'mdiCogOutline', title: 'Settings' },
+    ],
   },
 ]
 

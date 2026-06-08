@@ -14,12 +14,16 @@ import { AxSplitPane } from '@/shared/split-pane/AxSplitPane.tsx'
 import type { MainPanelControls, SubPanelControls } from '@/shared/display-panel/AxDisplayPanel.tsx'
 
 import { EpsSimulationPanel } from '@/pages/eps/panels/simulation/EpsSimulationPanel.tsx'
+import { EpsProjectsPanel } from '@/pages/eps/panels/projects/EpsProjectsPanel.tsx'
 import { EpsAnalysisPanel } from '@/pages/eps/panels/analysis/EpsAnalysisPanel.tsx'
 import { EpsOrderPanel } from '@/pages/eps/panels/orders/EpsOrderPanel.tsx'
 import { EpsProcessPanel } from '@/pages/eps/panels/processes/EpsProcessPanel.tsx'
 import { EpsCapacityPanel } from '@/pages/eps/panels/capacity/EpsCapacityPanel.tsx'
 import { EpsProcessTuningPanel } from '@/pages/eps/panels/process-tuning/EpsProcessTuningPanel.tsx'
 import { EpsCapacityTuningPanel } from '@/pages/eps/panels/capacity-tuning/EpsCapacityTuningPanel.tsx'
+import { EpsFactorsPanel } from '@/pages/eps/panels/factors/EpsFactorsPanel.tsx'
+import { EpsStandardPmPanel } from '@/pages/eps/panels/standard-pm/EpsStandardPmPanel.tsx'
+import { EpsSettingsPanel } from '@/pages/eps/panels/settings/EpsSettingsPanel.tsx'
 import { EpsIntegrationPanel } from '@/pages/eps/panels/integration/EpsIntegrationPanel.tsx'
 
 import { EpsComparePanel } from '@/pages/eps/panels/compare/EpsComparePanel.tsx'
@@ -30,13 +34,17 @@ import { EpsRecommendationsPanel } from '@/pages/eps/panels/recommendations/EpsR
 
 const MAIN_PANELS: Record<MainPanelId, ComponentType<MainPanelControls>> = {
   simulation: EpsSimulationPanel,
+  projects: EpsProjectsPanel,
   analysis: EpsAnalysisPanel,
   orders: EpsOrderPanel,
   processes: EpsProcessPanel,
-  capacity: EpsCapacityPanel,
   processTuning: EpsProcessTuningPanel,
+  standardPm: EpsStandardPmPanel,
+  factorsControl: EpsFactorsPanel,
   capacityTuning: EpsCapacityTuningPanel,
+  capacity: EpsCapacityPanel,
   integration: EpsIntegrationPanel,
+  settings: EpsSettingsPanel,
 }
 
 const SUB_PANELS: Record<SubPanelId, ComponentType<SubPanelControls>> = {

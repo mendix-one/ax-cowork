@@ -126,6 +126,62 @@
         margin-bottom: 6px;
       }
     }
+
+    // One factor group (Organization / a process hierarchy) in the factor filters panel — a header row,
+    // optional quick-search, and the checkable tree, separated from the next group by a hairline.
+    &_block {
+      @apply border-b border-gray-200;
+      padding-bottom: 6px;
+      margin-bottom: 6px;
+
+      &:last-child {
+        @apply border-b-0;
+        margin-bottom: 0;
+        padding-bottom: 0;
+      }
+    }
+
+    // Top quick-search row of the factor filters panel.
+    &_search {
+      @apply flex-none px-2 pt-2 pb-1;
+      @apply border-b border-gray-200;
+    }
+  }
+
+  // Factor-filter tree labels truncate to one line (full text on hover via the AntD tooltip). The
+  // content wrapper must be allowed to shrink (min-width:0) for text-overflow to kick in.
+  .ax-eps-filter_tree {
+    // Vertically center the row contents — switcher (expand/collapse), checkbox and label on one midline.
+    .ant-tree-treenode {
+      @apply w-full items-center;
+      padding-bottom: 0;
+    }
+    .ant-tree-switcher {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      align-self: center;
+    }
+    .ant-tree-checkbox {
+      align-self: center;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    .ant-tree-node-content-wrapper {
+      min-width: 0;
+      overflow: hidden;
+      flex: 1 1 0;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .ax-eps-filter_label {
+    @apply block overflow-hidden;
+    flex: 1 1 auto;
+    min-width: 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   // ---- quick analysis ---------------------------------------------------------------------------------------------
