@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite'
 import { useEpsContext } from '../../stores/eps.context'
-import { EpsAdjustmentSidebar } from '../../views/EpsAdjustmentSidebar'
+import { EpsFactorsFilter } from '../../views/EpsFactorsFilter'
 import { EpsAnalysisToolbar } from './EpsAnalysisToolbar'
 import { EpsAnalysisSummary } from './EpsAnalysisSummary'
 import { EpsAnalysisShopFloorArea } from './EpsAnalysisShopFloorArea'
@@ -21,7 +21,7 @@ export const EpsAnalysisPanel = observer((props: MainPanelControls) => {
     <AxDisplayPanel type="main" icon="mdiChartBar" title={`Resource Analysis · ${sim.activeEpsPlan.name}`} tools={<EpsAnalysisToolbar />} {...props}>
       <div className="ax-eps-simulation">
         <div className="ax-eps-simulation_body">
-          {analysis.filterSidebarOpen && <EpsAdjustmentSidebar onClose={() => analysis.toggleFilterSidebar()} />}
+          {analysis.filterSidebarOpen && <EpsFactorsFilter onClose={() => analysis.toggleFilterSidebar()} />}
           <div className="ax-eps-simulation_body_content ax-eps-analysis_scroll">
             <EpsAnalysisSummary />
             <EpsAnalysisShopFloorArea />
