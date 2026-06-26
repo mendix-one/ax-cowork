@@ -1,11 +1,10 @@
-import { observable } from 'mobx'
 import { ReactElement, useEffect } from 'react'
 import { AxDataTableContainerProps } from 'typings/AxDataTableProps'
 import { buildStoreEvent, buildTableConfig, syncRuntimeState, buildPagination } from './helper/TableOptionHelper'
 import { DataTableMain } from './main/DataTableMain'
 import { useDataTableStore } from './store/context'
 
-export const AxDataTableSync = observable((props: AxDataTableContainerProps): ReactElement => {
+export function AxDataTableSync(props: AxDataTableContainerProps): ReactElement {
   const store = useDataTableStore()
 
   useEffect(() => {
@@ -19,4 +18,4 @@ export const AxDataTableSync = observable((props: AxDataTableContainerProps): Re
   }, [props.dataSource, store])
 
   return <DataTableMain />
-})
+}

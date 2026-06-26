@@ -19,7 +19,7 @@ export const DataTableMain = observer(function DataTable() {
           pageSize: store.pageSize,
           total: store.totalCount,
           showSizeChanger: store.showSizeChanger,
-          position: paginationPosition,
+          placement: paginationPosition,
           showTotal: store.showRowCount ? (_total: number) => <Typography.Text>{buildRowCountText(store)}</Typography.Text> : undefined,
         }
       : false
@@ -226,9 +226,10 @@ function buildColumns(store: ReturnType<typeof useDataTableStore>): TableColumns
   return result
 }
 
+// 'topStart' | 'topCenter' | 'topEnd' | 'bottomStart' | 'bottomCenter' | 'bottomEnd' | 'none'
 function buildPaginationPosition(
   store: ReturnType<typeof useDataTableStore>,
-): Array<'topLeft' | 'topCenter' | 'topRight' | 'bottomLeft' | 'bottomCenter' | 'bottomRight'> {
+): Array<'topStart' | 'topCenter' | 'topEnd' | 'bottomStart' | 'bottomCenter' | 'bottomEnd'> {
   const alignedTop = mapPaginationPosition('top', store.paginationHorizontalAlign)
   const alignedBottom = mapPaginationPosition('bottom', store.paginationHorizontalAlign)
 
@@ -245,14 +246,14 @@ function buildPaginationPosition(
 
 function mapPaginationPosition(prefix: 'top' | 'bottom', align: ReturnType<typeof useDataTableStore>['paginationHorizontalAlign']) {
   if (align === 'left') {
-    return `${prefix}Left` as const
+    return `${prefix}Start` as const
   }
 
   if (align === 'center') {
     return `${prefix}Center` as const
   }
 
-  return `${prefix}Right` as const
+  return `${prefix}End` as const
 }
 
 function mapSorterOrder(order: 'ascend' | 'descend' | null | undefined): 'asc' | 'desc' | undefined {
